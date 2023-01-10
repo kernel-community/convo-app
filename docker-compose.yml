@@ -1,0 +1,11 @@
+version: '3.8'
+services:
+  db:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: secretpassword
+      POSTGRES_USER: kernel
+      POSTGRES_DB: convo
+    ports:
+      - "5433:5432"
