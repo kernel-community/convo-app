@@ -2,16 +2,50 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-    provider = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
 datasource db {
-    provider = "postgresql"
-    url      = env("DATABASE_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
-model Example {
-    id        String   @id @default(cuid())
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+enum EventType {
+  JUNTO
+}
+
+model Event {
+  id              String    @id @default(uuid())
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  title           String
+  descriptionHtml String?
+  startDateTime   DateTime
+  endDateTime     DateTime
+  location        String
+  hash            String
+  series          Boolean
+  limit           Int
+  type            EventType @default(JUNTO)
+  proposerId      String
+  proposer        User      @relation(fields: [proposerId], references: [id], onDelete: Cascade)
+  Rsvp            Rsvp[]
+}
+
+model User {
+  id       String  @id @default(uuid())
+  email    String? @unique
+  username String? @unique
+  Event    Event[]
+  Rsvp     Rsvp[]
+}
+
+model Rsvp {
+  id         String @id @default(uuid())
+  eventId    String
+  event      Event  @relation(fields: [eventId], references: [id])
+  attendeeId String
+  attendee   User   @relation(fields: [attendeeId], references: [id])
+
+  @@unique([eventId, attendeeId])
 }

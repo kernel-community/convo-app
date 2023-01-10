@@ -8,12 +8,19 @@
     "postinstall": "prisma generate",
     "lint": "next lint",
     "start": "next start",
-    "vercel-build": "prisma generate && prisma migrate deploy && next build"
+    "vercel-build": "prisma generate && prisma migrate deploy && next build",
+    "data": "npx prisma format && npx prisma generate && npx prisma db push",
+    "data-reset": "npx prisma migrate reset",
+    "prepare-migrations": "npx prisma migrate dev"
+  },
+  "prisma": {
+    "seed": "npx ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
   },
   "dependencies": {
     "@prisma/client": "^4.8.0",
     "@tailwindcss/forms": "^0.5.3",
     "@tailwindcss/typography": "^0.5.8",
+    "nanoid": "^4.0.0",
     "next": "13.1.1",
     "react": "18.2.0",
     "react-dom": "18.2.0",
