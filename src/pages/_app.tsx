@@ -6,9 +6,7 @@ import "../styles/globals.css";
 
 const MyApp: AppType = ({ Component, pageProps }) => {
   return (
-    <QueryClientProvider client={queryClient}>
-      <Component {...pageProps} />
-    </QueryClientProvider>
+    <QueryClientProvider client={queryClient}><Component {...pageProps} /></QueryClientProvider>
   );
 };
 
