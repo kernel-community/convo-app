@@ -11,7 +11,11 @@
   "parserOptions": {
     "project": "./tsconfig.json"
   },
-  "extends": ["next/core-web-vitals", "plugin:@typescript-eslint/recommended"],
+  "extends": [
+    "next/core-web-vitals",
+    "plugin:@typescript-eslint/recommended",
+    "prettier"
+  ],
   "rules": {
     "@typescript-eslint/consistent-type-imports": "warn",
     "quotes": [
