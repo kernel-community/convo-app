@@ -1,39 +1,44 @@
-import type {NextPage} from "next";
+import type { NextPage } from "next";
 import Main from "src/layouts/Main";
 import Link from "next/link";
 const Home: NextPage = () => {
   return (
     <>
       <Main>
-        <div className='
-          lg:pl-64
-          md:pl-12
+        <div
+          className="
           pl-12
-        '>
-          <div className="
+          md:pl-12
+          lg:pl-64
+        "
+        >
+          <div
+            className="
               font-heading
-              font-bold
-              lg:text-7xl text-5xl
-              text-primary
+              text-5xl
+              font-bold text-primary
               lg:py-5
-            ">
+              lg:text-7xl
+            "
+          >
             Convo.
           </div>
           <div
             className="
+                pt-12
                 font-secondary
                 text-lg
                 text-kernel
-                pt-12
               "
           >
             {/* Spark a thought,&nbsp; */}
-            <Link href='/propose'>
-              <span className='before:block before:absolute before:-inset-1 before:-skew-y-3 before:bg-highlight relative inline-block cursor-pointer'>
-                <span className='relative text-primary'>
-                  <span className='underline decoration-dotted'>
+            <Link href="/propose">
+              <span className="relative inline-block cursor-pointer before:absolute before:-inset-1 before:block before:-skew-y-3 before:bg-highlight">
+                <span className="relative text-primary">
+                  <span className="underline decoration-dotted">
                     Start a Convo
-                  </span>.
+                  </span>
+                  .
                 </span>
               </span>
             </Link>

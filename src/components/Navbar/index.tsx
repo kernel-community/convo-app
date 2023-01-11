@@ -1,71 +1,83 @@
-import {Item} from "./Item";
-import {Branding} from "./Branding";
+import { Item } from "./Item";
+import { Branding } from "./Branding";
 import Image from "next/image";
 import menu from "public/vectors/menu.png";
-import {useState} from "react";
+import { useState } from "react";
 export const Navbar = () => {
   const [active, setActive] = useState<boolean>(false);
   const openMenu = () => setActive(!active);
   return (
     <>
-      <div className={`
+      <div
+        className={`
+        z-10
         hidden
+        w-full flex-row items-center justify-center gap-8 bg-kernel
+        px-3 font-secondary text-sm
+        text-gray-300
+        shadow-dark
         sm:flex
-        w-full flex-row gap-8 justify-center items-center bg-kernel
-        font-secondary text-sm text-gray-300
-        px-3
-        shadow-dark
-        z-10
-      `}>
+      `}
+      >
         <Branding />
-        <div className="flex-grow flex flex-row gap-8 items-center justify-center">
-          <Item text='home' href='/'/>
-          <Item text='all' href='/all'/>
-          <Item text='archive' href='/archive'/>
-          <Item text='about' href='/about'/>
+        <div className="flex flex-grow flex-row items-center justify-center gap-8">
+          <Item text="home" href="/" />
+          <Item text="all" href="/all" />
+          <Item text="archive" href="/archive" />
+          <Item text="about" href="/about" />
         </div>
-        <Item text='propose' href='/propose'/>
+        <Item text="propose" href="/propose" />
       </div>
-      <div className={`
-        flex
-        sm:hidden
-        w-full flex-row gap-8 items-center bg-kernel
-        font-secondary text-sm text-gray-300
-        px-3
-        shadow-dark
+      <div
+        className={`
         z-10
-        justify-between
-      `}>
+        flex
+        w-full flex-row items-center justify-between gap-8
+        bg-kernel px-3 font-secondary
+        text-sm
+        text-gray-300
+        shadow-dark
+        sm:hidden
+      `}
+      >
         <Branding />
         <div>
-          <Image src={menu} height={27} width={27} onClick={openMenu} alt={""}/>
+          <Image
+            src={menu}
+            height={27}
+            width={27}
+            onClick={openMenu}
+            alt={""}
+          />
         </div>
         {/*
           @todo: This mobile nav transition is probably a hack, not sure if this is the best way to achieve it
         */}
-        <div className={`
+        <div
+          className={`
             fixed
             inset-y-0
             left-0
-            sm:hidden
             block
+            min-h-screen
             w-64
+            transform
             bg-kernel
             text-primary-muted
-            min-h-screen
-            transform
+            sm:hidden
             ${active ? "" : "-translate-x-full"}
-            sm:translate-x-0
+            p-4
             transition
             duration-200
             ease-in-out
-            p-4
-          `}>
-          <Item text='home' href='/'/>
-          <Item text='all' href='/all'/>
-          <Item text='archive' href='/archive'/>
-          <Item text='propose' href='/propose'/>
-          <Item text='about' href='/about'/>
+            sm:translate-x-0
+          `}
+        >
+          <Item text="home" href="/" />
+          <Item text="all" href="/all" />
+          <Item text="archive" href="/archive" />
+          <Item text="propose" href="/propose" />
+          <Item text="about" href="/about" />
         </div>
       </div>
     </>
