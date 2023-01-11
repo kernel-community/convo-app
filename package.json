@@ -20,7 +20,7 @@
     "seed": "npx ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
   },
   "lint-staged": {
-    "*": "prettier --ignore-path .gitignore --write"
+    "*.{jsx,js,tsx,ts}": "prettier --write"
   },
   "dependencies": {
     "@prisma/client": "^4.8.0",
