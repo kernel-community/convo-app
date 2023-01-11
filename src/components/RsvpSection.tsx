@@ -150,7 +150,6 @@ const SessionsWrapper = ({
 
   const handleSubmit = async () => {
     setLoading(true);
-    console.log("submit here");
     // (await (await fetch("/api/rsvp", {
     //   body: JSON.stringify({
     //     rsvp: {

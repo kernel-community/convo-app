@@ -28,7 +28,6 @@ const Post = () => {
       refetchInterval: 60000,
     }
   );
-  console.log({ data });
   return (
     <Main
       className="
