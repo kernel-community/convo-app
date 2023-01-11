@@ -14,9 +14,6 @@ export default async function getEventByHash(
     where: { hash },
     include: { proposer: true, Rsvp: true },
   });
-  console.log({ event });
   const formattedEvent = formatEvent(event);
-  console.log({ formattedEvent });
-  console.log({ sessions: formattedEvent.sessions });
   res.status(200).json({ data: formattedEvent });
 }
