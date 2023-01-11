@@ -1,7 +1,7 @@
 import { Title } from "./Title";
 import { Card } from "./Card";
 import { useEffect } from "react";
-import type { ServerEvent } from "src/types";
+import type { ClientEvent } from "src/types";
 import Link from "next/link";
 import { useInfiniteQuery } from "react-query";
 import { useInView } from "react-intersection-observer";
@@ -70,19 +70,19 @@ export const Events = ({
       <div className="sm:flex sm:flex-row sm:flex-wrap sm:gap-4">
         {data &&
           data.pages.map((page) =>
-            page.data.map((u: ServerEvent, k: any) => {
+            page.data.map((u: ClientEvent, k: any) => {
               return (
                 <Link href={`/rsvp/${u.hash}`} key={k}>
                   <div>
                     <Card
                       title={u.title}
-                      descriptionText={u.descriptionText ?? ""}
+                      descriptionText={u.descriptionHtml ?? ""}
                       startDateTime={u.startDateTime}
-                      RSVP={u.RSVP}
+                      RSVP={u.totalUniqueRsvps}
                       limit={u.limit}
                       hash={u.hash}
-                      type={u.type?.type.toLowerCase() || "junto"}
-                      by={u.proposerName || "anonymous"}
+                      type={u.type}
+                      by={u.proposer.username || "anonymous"}
                     />
                   </div>
                 </Link>

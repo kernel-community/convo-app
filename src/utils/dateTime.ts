@@ -1,8 +1,8 @@
-import type { ClientInputSession } from "../types";
+import type { ClientEvent } from "../types";
 import { DateTime } from "luxon";
 
 export const sessionDatesValidity = (
-  sessions: ClientInputSession[]
+  sessions: Array<Pick<ClientEvent, "startDateTime" | "endDateTime">>
 ): boolean => {
   let validity = true;
   sessions.forEach((session) => {
