@@ -1,7 +1,7 @@
 import { Title } from "./Title";
 import { Card } from "./Card";
 import { useEffect } from "react";
-import type { ServerEvent } from "../../types";
+import type { ServerEvent } from "src/types";
 import Link from "next/link";
 import { useInfiniteQuery } from "react-query";
 import { useInView } from "react-intersection-observer";
