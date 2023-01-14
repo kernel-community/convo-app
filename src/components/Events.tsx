@@ -1,16 +1,13 @@
 import { Title } from "./Title";
 import { Card } from "./Card";
+import type { Key } from "react";
 import { useEffect } from "react";
 import type { ClientEvent } from "src/types";
 import Link from "next/link";
 import { useInfiniteQuery } from "react-query";
 import { useInView } from "react-intersection-observer";
-
-/**
- * @todo: change this on the backend - merge the two types
- * Only fetch types 1 (junto) and 2 (guild)
- */
-const types = "1,2";
+import type { EventsRequest } from "src/pages/api/query/getEvents";
+import { DateTime } from "luxon";
 
 export const Events = ({
   type,
@@ -18,8 +15,7 @@ export const Events = ({
   highlight,
   take,
   infinite, // to implement or not to implement the infinite scroll
-}: {
-  type: string;
+}: Pick<EventsRequest, "type"> & {
   title?: string;
   highlight?: string;
   take?: number;
@@ -37,15 +33,15 @@ export const Events = ({
   } = useInfiniteQuery(
     `events_${type}`,
     async ({ pageParam = "" }) => {
+      const requestObject: EventsRequest = {
+        type,
+        now: DateTime.now().toJSDate(),
+        take,
+        fromId: pageParam,
+      };
       const r = await (
-        await fetch("api/getEvents", {
-          body: JSON.stringify({
-            type,
-            now: new Date(),
-            take,
-            fromId: pageParam,
-            types,
-          }),
+        await fetch("api/query/getEvents", {
+          body: JSON.stringify(requestObject),
           method: "POST",
           headers: { "Content-type": "application/json" },
         })
@@ -70,7 +66,7 @@ export const Events = ({
       <div className="sm:flex sm:flex-row sm:flex-wrap sm:gap-4">
         {data &&
           data.pages.map((page) =>
-            page.data.map((u: ClientEvent, k: any) => {
+            page.data.map((u: ClientEvent, k: Key) => {
               return (
                 <Link href={`/rsvp/${u.hash}`} key={k}>
                   <div>
@@ -102,12 +98,12 @@ export const Events = ({
         }
         {
           // @todo
-          isLoading || (isFetching && <div></div>)
+          isLoading || (isFetching && <div>Loading...</div>)
         }
         {isError && <div>There was an error in fetching</div>}
         {isFetchingNextPage && <div></div>}
       </div>
-      {infinite === true && (
+      {infinite && infinite === true && (
         <div ref={ref} className="invisible">
           Intersection Observer Marker
         </div>
