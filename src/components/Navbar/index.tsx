@@ -3,6 +3,8 @@ import { Branding } from "./Branding";
 import Image from "next/image";
 import menu from "public/vectors/menu.png";
 import { useState } from "react";
+import { ConnectButton } from "@rainbow-me/rainbowkit";
+
 export const Navbar = () => {
   const [active, setActive] = useState<boolean>(false);
   const openMenu = () => setActive(!active);
@@ -26,7 +28,12 @@ export const Navbar = () => {
           <Item text="archive" href="/archive" />
           <Item text="about" href="/about" />
         </div>
-        <Item text="propose" href="/propose" />
+        {/* <Item text="propose" href="/propose" /> */}
+        <ConnectButton
+          accountStatus="avatar"
+          chainStatus="none"
+          showBalance={false}
+        />
       </div>
       <div
         className={`

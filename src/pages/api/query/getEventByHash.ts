@@ -13,7 +13,7 @@ export default async function getEventByHash(
   }
   const event = await prisma.event.findMany({
     where: { hash },
-    include: { proposer: true, Rsvp: true },
+    include: { proposer: true, rsvps: true },
   });
   const formattedEvent = formatEvent(event);
   res.status(200).json({ data: formattedEvent });

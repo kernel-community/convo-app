@@ -2,55 +2,59 @@ import type { Prisma } from "@prisma/client";
 import { EventType } from "@prisma/client";
 import { PrismaClient } from "@prisma/client";
 import { DateTime } from "luxon";
+import * as crypto from "crypto";
 
 const prisma = new PrismaClient();
 
 const seed = async () => {
-  const user1: Prisma.UserUpsertArgs = {
+  const user1 = {
+    address: "0x" + crypto.randomBytes(20).toString("hex"),
+  };
+  const user2 = {
+    address: "0x" + crypto.randomBytes(20).toString("hex"),
+  };
+  const user3 = {
+    address: "0x" + crypto.randomBytes(20).toString("hex"),
+  };
+  const user1Upsert: Prisma.UserUpsertArgs = {
     where: {
-      email: "example1@domain.com",
+      address: user1.address,
     },
     create: {
-      username: "new-user1",
-      email: "example1@domain.com",
+      address: user1.address,
     },
     update: {
-      username: "new-user1",
-      email: "example1@domain.com",
+      address: user1.address,
     },
   };
-  const user2: Prisma.UserUpsertArgs = {
+  const user2Upsert: Prisma.UserUpsertArgs = {
     where: {
-      email: "example2@domain.com",
+      address: user2.address,
     },
     create: {
-      username: "new-user2",
-      email: "example2@domain.com",
+      address: user2.address,
     },
     update: {
-      username: "new-user2",
-      email: "example2@domain.com",
+      address: user2.address,
     },
   };
-  const user3: Prisma.UserUpsertArgs = {
+  const user3Upsert: Prisma.UserUpsertArgs = {
     where: {
-      email: "example3@domain.com",
+      address: user3.address,
     },
     create: {
-      username: "new-user3",
-      email: "example3@domain.com",
+      address: user3.address,
     },
     update: {
-      username: "new-user3",
-      email: "example3@domain.com",
+      address: user3.address,
     },
   };
 
-  const u1 = await prisma.user.upsert({ ...user1 });
+  const u1 = await prisma.user.upsert({ ...user1Upsert });
 
-  const u2 = await prisma.user.upsert({ ...user2 });
+  const u2 = await prisma.user.upsert({ ...user2Upsert });
 
-  const u3 = await prisma.user.upsert({ ...user3 });
+  const u3 = await prisma.user.upsert({ ...user3Upsert });
 
   const event1: Prisma.EventCreateArgs = {
     data: {
@@ -64,7 +68,7 @@ const seed = async () => {
       limit: 12,
       type: EventType.JUNTO,
       proposer: {
-        connect: user1.where,
+        connect: user1Upsert.where,
       },
     },
   };
@@ -80,7 +84,7 @@ const seed = async () => {
       limit: 12,
       type: EventType.JUNTO,
       proposer: {
-        connect: user2.where,
+        connect: user2Upsert.where,
       },
     },
   };
@@ -97,7 +101,7 @@ const seed = async () => {
       limit: 12,
       type: EventType.JUNTO,
       proposer: {
-        connect: user2.where,
+        connect: user2Upsert.where,
       },
     },
   };
@@ -114,7 +118,7 @@ const seed = async () => {
       limit: 12,
       type: EventType.JUNTO,
       proposer: {
-        connect: user2.where,
+        connect: user2Upsert.where,
       },
     },
   };
