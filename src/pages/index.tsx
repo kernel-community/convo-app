@@ -1,6 +1,7 @@
 import type { NextPage } from "next";
 import Main from "src/layouts/Main";
 import Link from "next/link";
+import { Events } from "src/components/Events";
 const Home: NextPage = () => {
   return (
     <>
@@ -43,6 +44,17 @@ const Home: NextPage = () => {
               </span>
             </Link>
             &nbsp;Make a Friend.
+          </div>
+        </div>
+        <div className="mt-12 px-12 lg:px-32 xl:px-40 2xl:px-52">
+          <div className="mt-12">
+            <Events type="live" highlight="Live" take={6} />
+          </div>
+          <div className="mt-12">
+            <Events type="today" title="upcoming" highlight="today" take={6} />
+          </div>
+          <div className="mt-12">
+            <Events type="week" highlight="next 7 days" take={6} />
           </div>
         </div>
       </Main>

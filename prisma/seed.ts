@@ -1,6 +1,7 @@
 import type { Prisma } from "@prisma/client";
 import { EventType } from "@prisma/client";
 import { PrismaClient } from "@prisma/client";
+import { DateTime } from "luxon";
 
 const prisma = new PrismaClient();
 
@@ -55,8 +56,8 @@ const seed = async () => {
     data: {
       title: "New Junto1",
       descriptionHtml: "<p>Hello! for junto 1</p>",
-      startDateTime: new Date(),
-      endDateTime: new Date(Date.now() + 3600 * 1000 * 24),
+      startDateTime: DateTime.now().toJSDate(),
+      endDateTime: DateTime.now().plus({ hour: 4 }).toJSDate(),
       location: "url:1",
       hash: "hash1",
       series: false,
@@ -71,8 +72,8 @@ const seed = async () => {
     data: {
       title: "New Junto2",
       descriptionHtml: "<p>Hello! for junto 2</p>",
-      startDateTime: new Date(),
-      endDateTime: new Date(Date.now() + 3600 * 1000 * 24),
+      startDateTime: DateTime.now().plus({ day: 1 }).toJSDate(),
+      endDateTime: DateTime.now().plus({ day: 1, hour: 1 }).toJSDate(),
       location: "url:1",
       hash: "hash2",
       series: false,
@@ -88,8 +89,8 @@ const seed = async () => {
     data: {
       title: "New Series event 1",
       descriptionHtml: "<p>Hello! for series junto 2</p>",
-      startDateTime: new Date(),
-      endDateTime: new Date(Date.now() + 3600 * 1000 * 24),
+      startDateTime: DateTime.now().plus({ day: 2 }).toJSDate(),
+      endDateTime: DateTime.now().plus({ day: 2, hour: 1 }).toJSDate(),
       location: "url:1",
       hash: "hash3",
       series: true,
@@ -105,8 +106,8 @@ const seed = async () => {
     data: {
       title: "New Series event 2",
       descriptionHtml: "<p>Hello! for series junto 2</p>",
-      startDateTime: new Date(),
-      endDateTime: new Date(Date.now() + 3600 * 1000 * 24),
+      startDateTime: DateTime.now().plus({ day: 3 }).toJSDate(),
+      endDateTime: DateTime.now().plus({ day: 3, hour: 1 }).toJSDate(),
       location: "url:1",
       hash: "hash3",
       series: true,
@@ -117,6 +118,7 @@ const seed = async () => {
       },
     },
   };
+
   const e1 = await prisma.event.create({ ...event1 });
   const e2 = await prisma.event.create({ ...event2 });
   const s1 = await prisma.event.create({ ...seriesEvent1 });
