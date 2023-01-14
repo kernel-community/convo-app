@@ -18,15 +18,15 @@ const formatEvent = (event: Array<ServerEvent>): ClientEvent => {
     endDateTime: endDateTime.toISOString(),
     totalUniqueRsvps: totalUniqueRSVPs(event),
     sessions: event.map((e) => {
-      const { id, startDateTime, endDateTime, limit, Rsvp } = e;
+      const { id, startDateTime, endDateTime, limit, rsvps } = e;
       return {
         id,
         startDateTime: startDateTime.toISOString(),
         endDateTime: endDateTime.toISOString(),
         limit,
-        Rsvp,
-        rsvpCount: Rsvp.length,
-        availableSeats: limit - Rsvp.length > 0 ? limit - Rsvp.length : 0,
+        rsvps,
+        rsvpCount: rsvps.length,
+        availableSeats: limit - rsvps.length > 0 ? limit - rsvps.length : 0,
         noLimit: limit === 0,
       };
     }),

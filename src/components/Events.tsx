@@ -78,7 +78,7 @@ export const Events = ({
                       limit={u.limit}
                       hash={u.hash}
                       type={u.type}
-                      by={u.proposer.username || "anonymous"}
+                      by={u.proposer.name || "anonymous"}
                     />
                   </div>
                 </Link>
