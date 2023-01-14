@@ -45,7 +45,7 @@ export default async function getEvents(
     cursor: cursorObj,
     include: {
       proposer: true,
-      Rsvp: true,
+      rsvps: true,
     },
     distinct: [Prisma.EventScalarFieldEnum.hash],
   };

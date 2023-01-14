@@ -29,15 +29,16 @@ model Event {
   type            EventType @default(JUNTO)
   proposerId      String
   proposer        User      @relation(fields: [proposerId], references: [id], onDelete: Cascade)
-  Rsvp            Rsvp[]
+  rsvps           Rsvp[]
 }
 
 model User {
-  id       String  @id @default(uuid())
-  email    String? @unique
-  username String? @unique
-  Event    Event[]
-  Rsvp     Rsvp[]
+  id      String  @id @default(uuid())
+  address String  @unique
+  name    String?
+  image   String?
+  events  Event[]
+  rsvps   Rsvp[]
 }
 
 model Rsvp {
