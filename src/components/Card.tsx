@@ -5,19 +5,17 @@ export const Card = ({
   descriptionText,
   RSVP,
   limit,
-  hash,
   startDateTime,
-  type,
   by,
+  isSeries,
 }: {
   title: string;
   descriptionText?: string;
   RSVP?: number;
   limit?: number;
-  hash?: string;
   startDateTime?: string;
-  type: string;
   by: string;
+  isSeries: boolean;
 }) => {
   const [prettyDate, setPrettyDate] = useState<{
     date: string;
@@ -74,7 +72,7 @@ export const Card = ({
         transition-shadow
         duration-300
         ease-in-out
-        hover:shadow-lg hover:shadow-outline sm:m-0
+        hover:shadow-outline sm:m-0
         sm:h-64 sm:w-64 lg:w-72
       `}
     >
@@ -128,19 +126,24 @@ export const Card = ({
               : descriptionText)}
         </div>
       </div>
-      {seats.available > 0 && !isPast && (
-        <div className="font-primary text-sm font-thin lg:text-base">
-          <span>
-            {seats.available} / {seats.total}
-          </span>
-          <span className="text-xs lg:text-sm">&nbsp;seats available</span>
-        </div>
-      )}
-      {seats.total !== 0 && seats.available <= 0 && (
-        <div className="font-primary text-xxs font-thin">
-          No seats available
-        </div>
-      )}
+      <div className="flex flex-row justify-between">
+        {seats.available > 0 && !isPast && !isSeries && (
+          <div className="font-primary text-sm font-thin lg:text-base">
+            <span>
+              {seats.available} / {seats.total}
+            </span>
+            <span className="text-xs lg:text-sm">&nbsp;seats available</span>
+          </div>
+        )}
+        {seats.total !== 0 && seats.available <= 0 && (
+          <div className="font-primary text-xxs font-thin">
+            No seats available
+          </div>
+        )}
+        {isSeries && (
+          <div className="font-primary text-xxs uppercase">event series</div>
+        )}
+      </div>
     </div>
   );
 };
