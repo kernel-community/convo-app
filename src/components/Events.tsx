@@ -72,7 +72,7 @@ export const Events = ({
                   <div>
                     <Card
                       title={u.title}
-                      descriptionText={u.descriptionHtml ?? ""}
+                      description={u.descriptionHtml ?? ""}
                       startDateTime={u.startDateTime}
                       RSVP={u.totalUniqueRsvps}
                       limit={u.limit}
