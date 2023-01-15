@@ -5,6 +5,7 @@ import type { JWT } from "next-auth/jwt";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { SiweMessage } from "siwe";
 import { env } from "src/env/server.mjs";
+import { createUserFromAddress } from "src/server/utils/user";
 
 // For more information on each option (and a full list of options) go to
 // https://next-auth.js.org/configuration/options
@@ -31,10 +32,10 @@ export default async function auth(req: NextApiRequest, res: NextApiResponse) {
           );
           const result = await siwe.validate(credentials?.signature || "");
           if (result.address) {
+            await createUserFromAddress(result.address);
             return {
               id: siwe.address,
             };
-            // redirect here?
           }
           return null;
         } catch (e) {
