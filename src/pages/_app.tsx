@@ -12,6 +12,7 @@ import { SessionProvider } from "next-auth/react";
 import type { Session } from "next-auth";
 import type { GetSiweMessageOptions } from "@rainbow-me/rainbowkit-siwe-next-auth";
 import { RainbowKitSiweNextAuthProvider } from "@rainbow-me/rainbowkit-siwe-next-auth";
+import { Analytics } from "@vercel/analytics/react";
 
 const queryClient = new QueryClient();
 const { chains, provider } = configureChains(
@@ -38,19 +39,22 @@ const MyApp = ({
   session: Session;
 }>) => {
   return (
-    <SessionProvider session={session}>
-      <WagmiConfig client={wagmiClient}>
-        <RainbowKitSiweNextAuthProvider
-          getSiweMessageOptions={getSiweMessageOptions}
-        >
-          <RainbowKitProvider chains={chains}>
-            <QueryClientProvider client={queryClient}>
-              <Component {...pageProps} />
-            </QueryClientProvider>
-          </RainbowKitProvider>
-        </RainbowKitSiweNextAuthProvider>
-      </WagmiConfig>
-    </SessionProvider>
+    <>
+      <SessionProvider session={session}>
+        <WagmiConfig client={wagmiClient}>
+          <RainbowKitSiweNextAuthProvider
+            getSiweMessageOptions={getSiweMessageOptions}
+          >
+            <RainbowKitProvider chains={chains}>
+              <QueryClientProvider client={queryClient}>
+                <Component {...pageProps} />
+              </QueryClientProvider>
+            </RainbowKitProvider>
+          </RainbowKitSiweNextAuthProvider>
+        </WagmiConfig>
+      </SessionProvider>
+      <Analytics />
+    </>
   );
 };
 
