@@ -1,8 +1,9 @@
 import { DateTime as DT } from "luxon";
 import { useEffect, useState } from "react";
+import { Article } from "./Article";
 export const Card = ({
   title,
-  descriptionText,
+  description,
   RSVP,
   limit,
   startDateTime,
@@ -10,7 +11,7 @@ export const Card = ({
   isSeries,
 }: {
   title: string;
-  descriptionText?: string;
+  description?: string;
   RSVP?: number;
   limit?: number;
   startDateTime?: string;
@@ -119,12 +120,15 @@ export const Card = ({
         lg:text-base
       "
       >
-        <div>
-          {descriptionText &&
-            (descriptionText?.length > 100
-              ? descriptionText?.substring(0, 80) + "..."
-              : descriptionText)}
-        </div>
+        <Article
+          html={
+            description &&
+            (description?.length > 100
+              ? description?.substring(0, 80) + "..."
+              : description)
+          }
+          card
+        />
       </div>
       <div className="flex flex-row justify-between">
         {seats.available > 0 && !isPast && !isSeries && (

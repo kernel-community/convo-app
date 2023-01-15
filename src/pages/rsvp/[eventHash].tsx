@@ -1,33 +1,13 @@
 import { useRouter } from "next/router";
 import Main from "src/layouts/Main";
-import EventPage from "src/components/EventPage";
-import { useQuery } from "react-query";
+import EventWrapper from "src/components/EventPage/EventWrapper";
+import { RsvpIntentionProvider } from "src/context/RsvpIntentionContext";
+import useEvent from "src/hooks/useEvent";
 
 const Post = () => {
   const { query } = useRouter();
   const { eventHash } = query;
-  const { isLoading, isError, data, isFetching } = useQuery(
-    `rsvp_${eventHash}`,
-    async () => {
-      try {
-        const r = (
-          await (
-            await fetch("/api/query/getEventByHash", {
-              body: JSON.stringify({ hash: eventHash }),
-              method: "POST",
-              headers: { "Content-type": "application/json" },
-            })
-          ).json()
-        ).data;
-        return r;
-      } catch (err) {
-        throw err;
-      }
-    },
-    {
-      refetchInterval: 60000,
-    }
-  );
+  const { isLoading, isError, data } = useEvent({ hash: eventHash });
   return (
     <Main
       className="
@@ -35,11 +15,9 @@ const Post = () => {
       mx-auto
     "
     >
-      {/* @todo */}
-      {isLoading && <div>Loading...</div>}
-      {isFetching && <div>Fetching data...</div>}
-      {isError && <div>There was an error</div>}
-      {!isLoading && !isError && data && <EventPage event={data} />}
+      <RsvpIntentionProvider>
+        {!isLoading && !isError && data && <EventWrapper event={data} />}
+      </RsvpIntentionProvider>
     </Main>
   );
 };
