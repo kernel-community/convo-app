@@ -23,7 +23,16 @@ const randomTimeSelector = () => {
   }
 };
 
-const generateRandomEvent = (hash?: string): Prisma.EventCreateArgs => {
+const generateRandomEvent = (options?: {
+  title?: string;
+  descriptionHtml?: string | null;
+  location?: string;
+  hash?: string;
+  limit?: number;
+  proposer?: {
+    address: string;
+  };
+}): Prisma.EventCreateArgs => {
   const when = randomTimeSelector();
   const start =
     when === "past"
@@ -35,36 +44,55 @@ const generateRandomEvent = (hash?: string): Prisma.EventCreateArgs => {
   return {
     data: {
       title:
+        options?.title ||
         faker.word.preposition() +
-        " " +
-        faker.word.adjective() +
-        " " +
-        faker.word.noun(),
-      descriptionHtml: "<p>" + faker.lorem.paragraphs(3) + "</p>",
+          " " +
+          faker.word.adjective() +
+          " " +
+          faker.word.noun(),
+      descriptionHtml:
+        options?.descriptionHtml || "<p>" + faker.lorem.paragraphs(3) + "</p>",
       startDateTime: start,
       endDateTime: end,
-      location: "url:" + faker.internet.url(),
-      hash: hash || faker.random.alphaNumeric(5),
-      series: !!hash,
-      limit: Number(faker.random.numeric(2)),
+      location: options?.location || "url:" + faker.internet.url(),
+      hash: options?.hash || faker.random.alphaNumeric(5),
+      series: !!options?.hash,
+      limit: options?.limit || Number(faker.random.numeric(2)),
       type: EventType.JUNTO,
-      proposer: {
-        create: {
-          address: "0x" + crypto.randomBytes(20).toString("hex"),
-        },
-      },
+      proposer: options?.proposer
+        ? {
+            connect: {
+              address: options.proposer.address,
+            },
+          }
+        : {
+            create: {
+              address: "0x" + crypto.randomBytes(20).toString("hex"),
+            },
+          },
     },
   };
 };
 
 const generateRandomSeriesEvents = () => {
   const numberOfEventsInSeries = Number(
-    faker.random.numeric(1, { bannedDigits: "0" })
+    faker.random.numeric(1, { bannedDigits: ["0", "1"] })
   );
-  const randomHash = faker.random.alphaNumeric(5);
-  console.log({ numberOfEventsInSeries });
+  const event = generateRandomEvent();
+  const { data } = event;
+  const { title, descriptionHtml, location, hash, limit, proposer } = data;
   return range(0, numberOfEventsInSeries).map(() =>
-    generateRandomEvent(randomHash)
+    generateRandomEvent({
+      title,
+      descriptionHtml,
+      location,
+      hash,
+      limit,
+      proposer: {
+        address:
+          proposer?.create?.address || crypto.randomBytes(20).toString("hex"),
+      },
+    })
   );
 };
 
@@ -93,11 +121,27 @@ const seed = async () => {
       ...generateRandomEvent(),
     })
   );
-  const series = range(0, SERIES_EVENTS)
-    .map(() => generateRandomSeriesEvents())
+  const seriesEvents = range(0, SERIES_EVENTS).map(() =>
+    generateRandomSeriesEvents()
+  );
+  const series = seriesEvents
     .map((series) => series.map((event) => prisma.event.create(event)))
     .flat(1);
-
+  const seriesProposers = seriesEvents
+    .map((series) =>
+      series.map((event) => {
+        const address = event.data.proposer?.connect?.address;
+        if (address) {
+          return prisma.user.upsert({
+            where: { address },
+            create: { address },
+            update: { address },
+          });
+        }
+      })
+    )
+    .flat(1);
+  await Promise.all([...seriesProposers]);
   await Promise.all([...users, ...events, ...series]);
 };
 
