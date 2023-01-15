@@ -83,8 +83,13 @@ export const Navbar = () => {
           <Item text="home" href="/" />
           <Item text="all" href="/all" />
           <Item text="archive" href="/archive" />
-          <Item text="propose" href="/propose" />
           <Item text="about" href="/about" />
+          {/* <Item text="propose" href="/propose" /> */}
+          <ConnectButton
+            accountStatus="avatar"
+            chainStatus="none"
+            showBalance={false}
+          />
         </div>
       </div>
     </>
