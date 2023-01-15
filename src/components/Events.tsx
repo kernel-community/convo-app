@@ -76,9 +76,8 @@ export const Events = ({
                       startDateTime={u.startDateTime}
                       RSVP={u.totalUniqueRsvps}
                       limit={u.limit}
-                      hash={u.hash}
-                      type={u.type}
                       by={u.proposer.name || "anonymous"}
+                      isSeries={u.series}
                     />
                   </div>
                 </Link>
