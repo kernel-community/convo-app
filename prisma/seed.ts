@@ -3,139 +3,102 @@ import { EventType } from "@prisma/client";
 import { PrismaClient } from "@prisma/client";
 import { DateTime } from "luxon";
 import * as crypto from "crypto";
+import { faker } from "@faker-js/faker";
+import { range } from "lodash";
 
 const prisma = new PrismaClient();
 
+const randomTimeSelector = () => {
+  const when = faker.datatype.number({
+    max: 3,
+    min: 1,
+  });
+  switch (when) {
+    case 1:
+      return "past";
+    case 2:
+      return "future";
+    case 3:
+      return "soon";
+  }
+};
+
+const generateRandomEvent = (hash?: string): Prisma.EventCreateArgs => {
+  const when = randomTimeSelector();
+  const start =
+    when === "past"
+      ? faker.date.past()
+      : when === "future"
+      ? faker.date.future()
+      : faker.date.soon();
+  const end = DateTime.fromJSDate(start).plus({ hour: 1 }).toJSDate();
+  return {
+    data: {
+      title:
+        faker.word.preposition() +
+        " " +
+        faker.word.adjective() +
+        " " +
+        faker.word.noun(),
+      descriptionHtml: "<p>" + faker.lorem.paragraphs(3) + "</p>",
+      startDateTime: start,
+      endDateTime: end,
+      location: "url:" + faker.internet.url(),
+      hash: hash || faker.random.alphaNumeric(5),
+      series: !!hash,
+      limit: Number(faker.random.numeric(2)),
+      type: EventType.JUNTO,
+      proposer: {
+        create: {
+          address: "0x" + crypto.randomBytes(20).toString("hex"),
+        },
+      },
+    },
+  };
+};
+
+const generateRandomSeriesEvents = () => {
+  const numberOfEventsInSeries = Number(
+    faker.random.numeric(1, { bannedDigits: "0" })
+  );
+  const randomHash = faker.random.alphaNumeric(5);
+  console.log({ numberOfEventsInSeries });
+  return range(0, numberOfEventsInSeries).map(() =>
+    generateRandomEvent(randomHash)
+  );
+};
+
+const generateRandomUser = (): Prisma.UserUpsertArgs => {
+  const address = crypto.randomBytes(20).toString("hex");
+
+  return {
+    where: { address },
+    create: { address },
+    update: { address },
+  };
+};
+
 const seed = async () => {
-  const user1 = {
-    address: "0x" + crypto.randomBytes(20).toString("hex"),
-  };
-  const user2 = {
-    address: "0x" + crypto.randomBytes(20).toString("hex"),
-  };
-  const user3 = {
-    address: "0x" + crypto.randomBytes(20).toString("hex"),
-  };
-  const user1Upsert: Prisma.UserUpsertArgs = {
-    where: {
-      address: user1.address,
-    },
-    create: {
-      address: user1.address,
-    },
-    update: {
-      address: user1.address,
-    },
-  };
-  const user2Upsert: Prisma.UserUpsertArgs = {
-    where: {
-      address: user2.address,
-    },
-    create: {
-      address: user2.address,
-    },
-    update: {
-      address: user2.address,
-    },
-  };
-  const user3Upsert: Prisma.UserUpsertArgs = {
-    where: {
-      address: user3.address,
-    },
-    create: {
-      address: user3.address,
-    },
-    update: {
-      address: user3.address,
-    },
-  };
+  const USERS = 5;
+  const EVENTS = 20;
+  const SERIES_EVENTS = 4;
 
-  const u1 = await prisma.user.upsert({ ...user1Upsert });
+  const users = range(0, USERS).map(() =>
+    prisma.user.upsert({
+      ...generateRandomUser(),
+    })
+  );
+  const events = range(0, EVENTS).map(() =>
+    prisma.event.create({
+      ...generateRandomEvent(),
+    })
+  );
+  const series = range(0, SERIES_EVENTS)
+    .map(() => generateRandomSeriesEvents())
+    .map((series) => series.map((event) => prisma.event.create(event)))
+    .flat(1);
 
-  const u2 = await prisma.user.upsert({ ...user2Upsert });
-
-  const u3 = await prisma.user.upsert({ ...user3Upsert });
-
-  const event1: Prisma.EventCreateArgs = {
-    data: {
-      title: "New Junto1",
-      descriptionHtml: "<p>Hello! for junto 1</p>",
-      startDateTime: DateTime.now().toJSDate(),
-      endDateTime: DateTime.now().plus({ hour: 4 }).toJSDate(),
-      location: "url:1",
-      hash: "hash1",
-      series: false,
-      limit: 12,
-      type: EventType.JUNTO,
-      proposer: {
-        connect: user1Upsert.where,
-      },
-    },
-  };
-  const event2: Prisma.EventCreateArgs = {
-    data: {
-      title: "New Junto2",
-      descriptionHtml: "<p>Hello! for junto 2</p>",
-      startDateTime: DateTime.now().plus({ day: 1 }).toJSDate(),
-      endDateTime: DateTime.now().plus({ day: 1, hour: 1 }).toJSDate(),
-      location: "url:1",
-      hash: "hash2",
-      series: false,
-      limit: 12,
-      type: EventType.JUNTO,
-      proposer: {
-        connect: user2Upsert.where,
-      },
-    },
-  };
-
-  const seriesEvent1: Prisma.EventCreateArgs = {
-    data: {
-      title: "New Series event 1",
-      descriptionHtml: "<p>Hello! for series junto 2</p>",
-      startDateTime: DateTime.now().plus({ day: 2 }).toJSDate(),
-      endDateTime: DateTime.now().plus({ day: 2, hour: 1 }).toJSDate(),
-      location: "url:1",
-      hash: "hash3",
-      series: true,
-      limit: 12,
-      type: EventType.JUNTO,
-      proposer: {
-        connect: user2Upsert.where,
-      },
-    },
-  };
-
-  const seriesEvent2: Prisma.EventCreateArgs = {
-    data: {
-      title: "New Series event 2",
-      descriptionHtml: "<p>Hello! for series junto 2</p>",
-      startDateTime: DateTime.now().plus({ day: 3 }).toJSDate(),
-      endDateTime: DateTime.now().plus({ day: 3, hour: 1 }).toJSDate(),
-      location: "url:1",
-      hash: "hash3",
-      series: true,
-      limit: 12,
-      type: EventType.JUNTO,
-      proposer: {
-        connect: user2Upsert.where,
-      },
-    },
-  };
-
-  const e1 = await prisma.event.create({ ...event1 });
-  const e2 = await prisma.event.create({ ...event2 });
-  const s1 = await prisma.event.create({ ...seriesEvent1 });
-  const s2 = await prisma.event.create({ ...seriesEvent2 });
-
-  await prisma.rsvp.create({ data: { eventId: e1.id, attendeeId: u3.id } });
-  await prisma.rsvp.create({ data: { eventId: e2.id, attendeeId: u3.id } });
-
-  await prisma.rsvp.create({ data: { eventId: s1.id, attendeeId: u3.id } });
-  await prisma.rsvp.create({ data: { eventId: s1.id, attendeeId: u2.id } });
-
-  await prisma.rsvp.create({ data: { eventId: s2.id, attendeeId: u3.id } });
-  await prisma.rsvp.create({ data: { eventId: s2.id, attendeeId: u2.id } });
+  await Promise.all([...users, ...events, ...series]);
 };
 
 seed();
