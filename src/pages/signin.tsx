@@ -1,9 +1,9 @@
 import { useSession } from "next-auth/react";
-import { ConnectButton } from "@rainbow-me/rainbowkit";
 import Layout from "src/layouts/Main";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
 import { useAccount } from "wagmi";
+import LoginButton from "src/components/LoginButton";
 
 function Signin() {
   const { data: session } = useSession();
@@ -11,12 +11,14 @@ function Signin() {
   const router = useRouter();
   useEffect(() => {
     if (address && session) {
-      router.push("/");
+      const redirect = router.query.callbackUrl || "/";
+      router.push(redirect as string);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [address, session]);
   return (
     <Layout>
-      <ConnectButton />
+      <LoginButton />
     </Layout>
   );
 }
