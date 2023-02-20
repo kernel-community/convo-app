@@ -1,5 +1,5 @@
 import Image from "next/image";
-import deleteIcon from "../../../public/vectors/delete.png";
+import deleteIcon from "../../../../public/vectors/delete.png";
 import DefaultDatePicker from "react-datepicker";
 import { useState } from "react";
 import "react-datepicker/dist/react-datepicker.css";

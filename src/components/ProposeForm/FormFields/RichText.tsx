@@ -13,8 +13,8 @@ import ListItem from "@tiptap/extension-list-item";
 import Placeholder from "@tiptap/extension-placeholder";
 import { useCallback } from "react";
 import type { FieldErrorsImpl } from "react-hook-form";
-import type { FormKeys, ValidationSchema } from "../ProposeForm";
-import FieldLabel from "../StrongText";
+import type { FormKeys, ValidationSchema } from "..";
+import FieldLabel from "../../StrongText";
 
 export const RichTextArea = ({
   name,

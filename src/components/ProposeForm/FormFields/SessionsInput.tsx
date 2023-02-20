@@ -1,11 +1,11 @@
 import Session from "./Session";
 import { useState } from "react";
-import FieldLabel from "../StrongText";
+import FieldLabel from "../../StrongText";
 import type {
   DateTimeHandleChangeType,
   DateTimeHandleDeleteType,
 } from "./DateTime";
-import type { Session as SessionType } from "../ProposeForm";
+import type { Session as SessionType } from "..";
 import _ from "lodash";
 
 export type HandleResetSessionsType = (flag: boolean) => void;
