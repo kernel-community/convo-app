@@ -1,71 +1,40 @@
 import FieldLabel from "../StrongText";
-import type { ReactElement } from "react";
-import { useState, useEffect } from "react";
 import type {
   DateTimeHandleChangeType,
   DateTimeHandleDeleteType,
 } from "./DateTime";
 import DateTime from "./DateTime";
-import type { HandleResetSessionsType } from "./SessionsInput";
+import { Session } from "../ProposeForm";
 
 const DateTimeWrapper = ({
   isRecurring,
   handleChange,
-  resetSessions,
   deleteSessionData,
   danger,
+  sessions,
 }: {
   isRecurring: boolean;
   handleChange: DateTimeHandleChangeType;
-  resetSessions: HandleResetSessionsType;
   deleteSessionData: DateTimeHandleDeleteType;
   danger?: boolean;
+  sessions: Array<Session>;
 }) => {
-  const [count, setCount] = useState<number>(0);
-  const [sessions, setSessions] = useState<ReactElement[]>([
-    <DateTime
-      count={count}
-      key={count}
-      handleChange={handleChange}
-      displayDelete={false}
-      deleteSessionData={deleteSessionData}
-    />,
-  ]);
-  useEffect(() => {
-    setSessions([
-      <DateTime
-        count={count}
-        key={count}
-        handleChange={handleChange}
-        displayDelete={false}
-        deleteSessionData={deleteSessionData}
-      />,
-    ]);
-    resetSessions(isRecurring);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isRecurring]);
-  const deleteSession = (count: number) => {
-    setSessions((sessions) => sessions.filter((s) => s.key != count));
-  };
-  const addSession = () => {
-    setSessions(
-      sessions.concat(
-        <DateTime
-          count={count + 1}
-          key={count + 1}
-          handleChange={handleChange}
-          displayDelete={true}
-          handleDelete={deleteSession.bind(this)}
-          deleteSessionData={deleteSessionData}
-        />
-      )
-    );
-    setCount(count + 1);
-  };
-
   return (
     <div className="space-between flex flex-col gap-4">
-      <div className="divide-y-2 divide-gray-200">{sessions}</div>
+      <div className="divide-y-2 divide-gray-200">
+        {sessions.map((session) => {
+          return (
+            <DateTime
+              count={session.count}
+              key={session.count}
+              handleChange={handleChange}
+              displayDelete={session.count !== 0}
+              handleDelete={deleteSessionData}
+              deleteSessionData={deleteSessionData}
+            />
+          );
+        })}
+      </div>
       {isRecurring ? (
         <div
           className="
@@ -79,7 +48,9 @@ const DateTimeWrapper = ({
               font-secondary
               text-sm uppercase text-primary
             "
-          onClick={addSession}
+          onClick={() =>
+            handleChange("dateTime", sessions.length + 1, new Date())
+          }
         >
           + Add Session
         </div>
@@ -100,15 +71,15 @@ const DateTimeWrapper = ({
 const Session = ({
   isRecurring,
   handleChange,
-  resetSessions,
   deleteSession,
   danger,
+  sessions,
 }: {
   isRecurring: boolean;
   handleChange: DateTimeHandleChangeType;
-  resetSessions: HandleResetSessionsType;
   deleteSession: DateTimeHandleDeleteType;
   danger?: boolean;
+  sessions: Array<Session>;
 }) => {
   return (
     <div>
@@ -125,9 +96,9 @@ const Session = ({
       <DateTimeWrapper
         isRecurring={isRecurring}
         handleChange={handleChange}
-        resetSessions={resetSessions}
         deleteSessionData={deleteSession}
         danger={danger}
+        sessions={sessions}
       />
     </div>
   );

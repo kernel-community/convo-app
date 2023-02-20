@@ -10,13 +10,14 @@ import SessionsInput from "./FormFields/SessionsInput";
 const SessionSchema = z.object({
   dateTime: z.date(),
   duration: z.number(),
+  count: z.number(),
 });
 
 export type Session = z.infer<typeof SessionSchema>;
 
 const validationSchema = z.object({
   title: z.string().min(1, "Title is required"),
-  description: z.string().min(1, "description is required"),
+  description: z.string().optional(),
   sessions: z.array(SessionSchema),
 });
 
@@ -59,7 +60,14 @@ const ProposeForm = () => {
         name="description"
         control={control}
         rules={{ required: true }}
-        render={({ field }) => <RichTextArea handleChange={field.onChange} />}
+        render={({ field }) => (
+          <RichTextArea
+            handleChange={field.onChange}
+            errors={errors}
+            name={field.name}
+            fieldName="Description"
+          />
+        )}
       />
 
       {/* Sessions Input */}
@@ -67,17 +75,7 @@ const ProposeForm = () => {
         name="sessions"
         control={control}
         rules={{ required: true }}
-        render={({ field }) => (
-          <SessionsInput
-            handleChange={field.onChange}
-            resetSessions={(v: boolean) => {
-              console.log(v);
-            }}
-            deleteSession={() => {
-              console.log("deleting here");
-            }}
-          />
-        )}
+        render={({ field }) => <SessionsInput handleChange={field.onChange} />}
       />
 
       <Button buttonText="Submit" type="submit" />
