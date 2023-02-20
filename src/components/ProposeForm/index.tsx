@@ -9,7 +9,7 @@ import SessionsInput from "./FormFields/SessionsInput";
 
 const SessionSchema = z.object({
   dateTime: z.date(),
-  duration: z.number(),
+  duration: z.number().min(0.1, "Invalid duration"),
   count: z.number(),
 });
 
@@ -19,6 +19,15 @@ const validationSchema = z.object({
   title: z.string().min(1, "Title is required"),
   description: z.string().optional(),
   sessions: z.array(SessionSchema),
+  limit: z
+    .string()
+    .refine((val) => !Number.isNaN(parseInt(val, 10)), {
+      message: "Please enter a number",
+    })
+    .refine((val) => Number(parseInt(val, 10)) >= 0, {
+      message: "Please enter a positive integer",
+    }),
+  location: z.string(),
 });
 
 export type ValidationSchema = z.infer<typeof validationSchema>;
@@ -79,8 +88,23 @@ const ProposeForm = () => {
       />
 
       {/* Limit */}
+      <TextField
+        name="limit"
+        fieldName="Limit"
+        register={register}
+        errors={errors}
+        required={false}
+      />
 
       {/* Location */}
+      <TextField
+        name="location"
+        fieldName="Location"
+        infoText="enter a valid url or address for IRL events"
+        register={register}
+        errors={errors}
+        required={false}
+      />
 
       {/* @todo @angelagilhotra */}
       {/* Access */}
