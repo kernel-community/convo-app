@@ -12,27 +12,23 @@ export type HandleResetSessionsType = (flag: boolean) => void;
 
 const SessionsInput = ({
   handleChange,
-  resetSessions,
-  deleteSession,
   danger,
 }: {
   handleChange: (sessions: Array<SessionType>) => void;
-  resetSessions: HandleResetSessionsType;
-  deleteSession: DateTimeHandleDeleteType;
   danger?: boolean;
 }) => {
   const [isRecurring, setIsRecurring] = useState<boolean>(false);
-  const handleCheckBox = () => {
-    setIsRecurring(!isRecurring);
-  };
-
-  const [sessions, setSessions] = useState<Array<SessionType>>([]);
+  const [sessions, setSessions] = useState<Array<SessionType>>([
+    {
+      dateTime: new Date(),
+      duration: 1,
+      count: 0,
+    },
+  ]);
 
   const handleSetSessions: DateTimeHandleChangeType = (type, count, value) => {
-    console.log({ type, count, value });
-
-    let sessionToUpdate = sessions[count];
-
+    let sessionToUpdate = sessions.find((s) => s.count === count);
+    console.log({ sessionToUpdate });
     switch (type) {
       case "dateTime": {
         // @help converting value to string only to satisfy ts error
@@ -45,6 +41,7 @@ const SessionsInput = ({
             {
               dateTime,
               duration: 1,
+              count,
             },
           ]);
           handleChange(updatedSessions);
@@ -71,6 +68,7 @@ const SessionsInput = ({
             {
               dateTime: new Date(),
               duration: 1,
+              count,
             },
           ]);
           handleChange(updatedSessions);
@@ -78,15 +76,38 @@ const SessionsInput = ({
         }
 
         // editing a session
-        sessionToUpdate = Object.assign(sessionToUpdate, { duration });
+        sessionToUpdate = { ...sessionToUpdate, duration };
+
         const updatedSessions = _.compact(
-          sessions.map((s, index) => (index === count ? sessionToUpdate : s))
+          sessions.map((s) => (s.count === count ? sessionToUpdate : s))
         );
 
         handleChange(updatedSessions);
         return setSessions(updatedSessions);
       }
     }
+  };
+
+  const handleDelete: DateTimeHandleDeleteType = (count) => {
+    const updatedSessions = sessions.filter((s) => s.count !== count);
+    handleChange(updatedSessions);
+    return setSessions(updatedSessions);
+  };
+
+  const handleCheckBox = () => {
+    setIsRecurring((recurring) => {
+      const flag = !recurring;
+      console.log("resetting form here", flag);
+      if (!flag && sessions[0]) {
+        // user unchecked the "is recurring session" checkbox
+        // reset all sessions here
+        // remove all but first element in `sessions` array
+        const updatedSessions = [sessions[0]];
+        handleChange(updatedSessions);
+        setSessions(updatedSessions);
+      }
+      return flag;
+    });
   };
 
   return (
@@ -110,9 +131,9 @@ const SessionsInput = ({
       <Session
         isRecurring={isRecurring}
         handleChange={handleSetSessions}
-        resetSessions={resetSessions}
-        deleteSession={deleteSession}
+        deleteSession={handleDelete}
         danger={danger}
+        sessions={sessions}
       />
     </div>
   );
