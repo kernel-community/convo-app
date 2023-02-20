@@ -1,24 +1,27 @@
-import FieldLabel from "./StrongText";
+import type { FieldErrorsImpl, UseFormRegister } from "react-hook-form";
+import type { ValidationSchema, FormKeys } from "../ProposeForm";
+import FieldLabel from "../StrongText";
 
 const TextField = ({
   name,
   fieldName,
-  handleChange,
+  register,
   infoText,
-  danger,
-  dangerReason,
+  errors,
   placeholder,
   className,
+  required,
 }: {
-  name: string;
+  name: FormKeys;
   fieldName?: string;
-  handleChange: any;
+  register: UseFormRegister<ValidationSchema>;
   infoText?: string;
-  danger?: boolean;
-  dangerReason?: string;
+  errors?: Partial<FieldErrorsImpl<ValidationSchema>>;
   placeholder?: string;
   className?: string;
+  required?: boolean;
 }) => {
+  const isError = errors && errors[name];
   return (
     <div>
       <FieldLabel styles="my-auto">
@@ -30,12 +33,11 @@ const TextField = ({
       <div className="flex flex-col">
         <input
           type="text"
-          name={name}
           className={`
           rounded-lg
           ${` ` + className + ` `}
           ${
-            danger
+            isError
               ? `
             border-red-300 ring-red-300
             focus:border-red-500 focus:ring-red-500`
@@ -44,12 +46,15 @@ const TextField = ({
             focus:border-primary focus:ring-primary`
           }
           `}
-          onChange={handleChange}
-          required
           placeholder={placeholder}
+          {...register(name, { required })}
         />
         <div className="font-primary text-sm lowercase text-red-400">
-          {dangerReason}
+          {/*
+            if errors is defined and error for this field is set, then
+            display message, otherwise null
+           */}
+          {isError ? errors[name]?.message : null}
         </div>
       </div>
     </div>

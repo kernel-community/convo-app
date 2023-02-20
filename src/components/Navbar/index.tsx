@@ -5,6 +5,29 @@ import menu from "public/vectors/menu.png";
 import { useState } from "react";
 import LoginButton from "../LoginButton";
 
+const ITEMS = [
+  {
+    text: "home",
+    href: "/",
+  },
+  {
+    text: "all",
+    href: "/all",
+  },
+  {
+    text: "archive",
+    href: "/archive",
+  },
+  {
+    text: "about",
+    href: "/about",
+  },
+  {
+    text: "propose",
+    href: "/propose",
+  },
+];
+
 export const Navbar = () => {
   const [active, setActive] = useState<boolean>(false);
   const openMenu = () => setActive(!active);
@@ -23,12 +46,10 @@ export const Navbar = () => {
       >
         <Branding />
         <div className="flex flex-grow flex-row items-center justify-center gap-8">
-          <Item text="home" href="/" />
-          <Item text="all" href="/all" />
-          <Item text="archive" href="/archive" />
-          <Item text="about" href="/about" />
+          {ITEMS.map((item, key) => (
+            <Item text={item.text} href={item.href} key={key} />
+          ))}
         </div>
-        {/* <Item text="propose" href="/propose" /> */}
         <LoginButton />
       </div>
       <div
@@ -76,11 +97,9 @@ export const Navbar = () => {
             sm:translate-x-0
           `}
         >
-          <Item text="home" href="/" />
-          <Item text="all" href="/all" />
-          <Item text="archive" href="/archive" />
-          <Item text="about" href="/about" />
-          {/* <Item text="propose" href="/propose" /> */}
+          {ITEMS.map((item, key) => (
+            <Item text={item.text} href={item.href} key={key} />
+          ))}
           <LoginButton />
         </div>
       </div>

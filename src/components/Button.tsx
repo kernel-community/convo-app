@@ -1,15 +1,19 @@
+import type { ButtonHTMLAttributes } from "react";
+
 const Button = ({
   handleClick,
   disabled,
   buttonText,
   displayLoading,
   className,
+  type,
 }: {
-  handleClick: React.MouseEventHandler<HTMLButtonElement>;
+  handleClick?: React.MouseEventHandler<HTMLButtonElement>;
   disabled?: boolean;
   buttonText: string;
   displayLoading?: boolean;
   className?: string;
+  type?: ButtonHTMLAttributes<HTMLButtonElement>["type"];
 }) => {
   return (
     <button
@@ -40,13 +44,12 @@ const Button = ({
       `}
       onClick={handleClick}
       disabled={disabled}
+      type={type}
     >
       <div className="flex flex-row items-center justify-center gap-4">
         {displayLoading ? (
           <span className="h-2 w-2 animate-ping rounded-full bg-highlight"></span>
-        ) : (
-          <></>
-        )}
+        ) : null}
         <div>{buttonText}</div>
       </div>
     </button>
