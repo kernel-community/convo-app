@@ -1,6 +1,6 @@
 import type { FieldErrorsImpl, UseFormRegister } from "react-hook-form";
-import type { ValidationSchema, FormKeys } from "../ProposeForm";
-import FieldLabel from "../StrongText";
+import type { ValidationSchema, FormKeys } from "..";
+import FieldLabel from "../../StrongText";
 
 const TextField = ({
   name,

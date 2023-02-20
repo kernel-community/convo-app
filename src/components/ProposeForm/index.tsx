@@ -3,7 +3,7 @@ import { useForm, Controller } from "react-hook-form";
 import TextField from "./FormFields/TextField";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import Button from "./Button";
+import Button from "../Button";
 import { RichTextArea } from "./FormFields/RichText";
 import SessionsInput from "./FormFields/SessionsInput";
 
@@ -77,6 +77,13 @@ const ProposeForm = () => {
         rules={{ required: true }}
         render={({ field }) => <SessionsInput handleChange={field.onChange} />}
       />
+
+      {/* Limit */}
+
+      {/* Location */}
+
+      {/* @todo @angelagilhotra */}
+      {/* Access */}
 
       <Button buttonText="Submit" type="submit" />
     </form>

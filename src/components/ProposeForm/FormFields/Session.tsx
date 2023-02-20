@@ -1,10 +1,10 @@
-import FieldLabel from "../StrongText";
+import FieldLabel from "../../StrongText";
 import type {
   DateTimeHandleChangeType,
   DateTimeHandleDeleteType,
 } from "./DateTime";
 import DateTime from "./DateTime";
-import { Session } from "../ProposeForm";
+import { Session } from "..";
 
 const DateTimeWrapper = ({
   isRecurring,
