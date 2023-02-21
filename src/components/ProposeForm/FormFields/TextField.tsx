@@ -1,5 +1,5 @@
 import type { FieldErrorsImpl, UseFormRegister } from "react-hook-form";
-import type { ValidationSchema, FormKeys } from "..";
+import type { ClientEventInput } from "..";
 import FieldLabel from "../../StrongText";
 
 const TextField = ({
@@ -12,11 +12,11 @@ const TextField = ({
   className,
   required,
 }: {
-  name: FormKeys;
+  name: keyof ClientEventInput;
   fieldName?: string;
-  register: UseFormRegister<ValidationSchema>;
+  register: UseFormRegister<ClientEventInput>;
   infoText?: string;
-  errors?: Partial<FieldErrorsImpl<ValidationSchema>>;
+  errors?: Partial<FieldErrorsImpl<ClientEventInput>>;
   placeholder?: string;
   className?: string;
   required?: boolean;
