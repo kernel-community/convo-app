@@ -13,7 +13,7 @@ import ListItem from "@tiptap/extension-list-item";
 import Placeholder from "@tiptap/extension-placeholder";
 import { useCallback } from "react";
 import type { FieldErrorsImpl } from "react-hook-form";
-import type { FormKeys, ValidationSchema } from "..";
+import type { ClientEventInput } from "..";
 import FieldLabel from "../../StrongText";
 
 export const RichTextArea = ({
@@ -23,12 +23,12 @@ export const RichTextArea = ({
   fieldName,
   infoText,
 }: {
-  name: FormKeys;
+  name: keyof ClientEventInput;
   fieldName?: string;
   infoText?: string;
   // @help need better type here 😥
   handleChange: any;
-  errors?: Partial<FieldErrorsImpl<ValidationSchema>>;
+  errors?: Partial<FieldErrorsImpl<ClientEventInput>>;
 }) => {
   const isError = errors && errors[name];
 

@@ -49,12 +49,13 @@ const About: NextPage = () => {
               time and energy where it really matters: relating with other
               people from the heart.
             </div>
+            <div className="mt-5 font-heading text-4xl">FAQs</div>
             {faqs.map((faq, key) => {
               return (
                 <div key={key} className="py-4">
-                  <span className="bg-highlight font-heading text-2xl font-bold">
+                  <div className="mb-3 bg-highlight font-heading text-2xl font-bold">
                     {faq.question}
-                  </span>
+                  </div>
                   <div className="prose max-w-none font-primary text-base">
                     {faq.answer}
                   </div>

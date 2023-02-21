@@ -3,7 +3,6 @@ import { Branding } from "./Branding";
 import Image from "next/image";
 import menu from "public/vectors/menu.png";
 import { useState } from "react";
-import LoginButton from "../LoginButton";
 
 const ITEMS = [
   {
@@ -50,7 +49,6 @@ export const Navbar = () => {
             <Item text={item.text} href={item.href} key={key} />
           ))}
         </div>
-        <LoginButton />
       </div>
       <div
         className={`
@@ -100,7 +98,6 @@ export const Navbar = () => {
           {ITEMS.map((item, key) => (
             <Item text={item.text} href={item.href} key={key} />
           ))}
-          <LoginButton />
         </div>
       </div>
     </>

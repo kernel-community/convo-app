@@ -6,6 +6,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import Button from "../Button";
 import { RichTextArea } from "./FormFields/RichText";
 import SessionsInput from "./FormFields/SessionsInput";
+import useCreateEvent from "src/hooks/useCreateEvent";
+import useWallet from "src/hooks/useWallet";
+import LoginButton from "../LoginButton";
+import { useSignMessage } from "wagmi";
 
 const SessionSchema = z.object({
   dateTime: z.date(),
@@ -30,8 +34,7 @@ const validationSchema = z.object({
   location: z.string(),
 });
 
-export type ValidationSchema = z.infer<typeof validationSchema>;
-export type FormKeys = keyof ValidationSchema;
+export type ClientEventInput = z.infer<typeof validationSchema>;
 
 const ProposeForm = () => {
   const {
@@ -39,16 +42,19 @@ const ProposeForm = () => {
     handleSubmit,
     formState: { errors },
     control,
-  } = useForm<ValidationSchema>({
+  } = useForm<ClientEventInput>({
     resolver: zodResolver(validationSchema),
   });
+  const { create } = useCreateEvent();
+  const { isSignedIn, wallet } = useWallet();
 
-  // @todo remove
-  console.log(errors);
+  const { signMessageAsync } = useSignMessage();
 
   // @todo
-  const onSubmit: SubmitHandler<ValidationSchema> = (data) =>
-    console.log("data:", data);
+  const onSubmit: SubmitHandler<ClientEventInput> = async (data) => {
+    const signature = await signMessageAsync({ message: JSON.stringify(data) });
+    await create({ event: data, signature, address: wallet });
+  };
 
   return (
     <form
@@ -109,7 +115,11 @@ const ProposeForm = () => {
       {/* @todo @angelagilhotra */}
       {/* Access */}
 
-      <Button buttonText="Submit" type="submit" />
+      {!isSignedIn ? (
+        <LoginButton />
+      ) : (
+        <Button buttonText="Submit" type="submit" />
+      )}
     </form>
   );
 };

@@ -6,7 +6,7 @@ const Button = ({
   buttonText,
   displayLoading,
   className,
-  type,
+  type = "button",
 }: {
   handleClick?: React.MouseEventHandler<HTMLButtonElement>;
   disabled?: boolean;
