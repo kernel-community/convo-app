@@ -23,9 +23,9 @@ const Session = ({
   isChecked: boolean;
   startDateTime: string;
 }) => {
-  const active =
+  const active: boolean =
     (noLimit && !isPast(startDateTime)) ||
-    (availableSeats && availableSeats > 0 && !isPast(startDateTime));
+    ((availableSeats ? availableSeats > 0 : false) && !isPast(startDateTime));
   return (
     <label
       className={`

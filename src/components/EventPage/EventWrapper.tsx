@@ -4,11 +4,15 @@ import type { ClientEvent } from "src/types";
 import SubmitRsvpSection from "./SubmitRsvpSection";
 import useSubmitRsvp from "src/hooks/useSubmitRsvp";
 import EventDetails from "./EventDetails";
+import { useRsvpIntention } from "src/context/RsvpIntentionContext";
 
 const EventWrapper = ({ event }: { event: ClientEvent }) => {
   const { submit, isSubmitting } = useSubmitRsvp();
   const { proposer, totalUniqueRsvps, descriptionHtml, sessions, type, title } =
     event;
+  const { rsvpIntention } = useRsvpIntention();
+  const { eventIds } = rsvpIntention;
+  const isDisabled = eventIds.length === 0;
   return (
     <>
       <Hero title={title} type={type} proposer={proposer.name} />
@@ -25,6 +29,7 @@ const EventWrapper = ({ event }: { event: ClientEvent }) => {
               }
               handleSubmit={submit}
               loading={isSubmitting}
+              disabled={isDisabled}
             />
           </div>
         </div>
