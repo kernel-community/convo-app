@@ -8,16 +8,16 @@ import { useRsvpIntention } from "src/context/RsvpIntentionContext";
 
 const EventWrapper = ({ event }: { event: ClientEvent }) => {
   const { submit, isSubmitting } = useSubmitRsvp();
-  const { proposer, totalUniqueRsvps, descriptionHtml, sessions, type, title } =
+  const { totalUniqueRsvps, descriptionHtml, sessions, type, title, nickname } =
     event;
   const { rsvpIntention } = useRsvpIntention();
   const { eventIds } = rsvpIntention;
   const isDisabled = eventIds.length === 0;
   return (
     <>
-      <Hero title={title} type={type} proposer={proposer.name} />
+      <Hero title={title} type={type} proposer={nickname} />
       <div className="mt-24 grid grid-cols-1 gap-12 lg:grid-cols-3">
-        <EventDetails html={descriptionHtml} proposer={proposer.name} />
+        <EventDetails html={descriptionHtml} proposer={nickname} />
         <div>
           <div className="flex flex-col gap-2">
             <SessionsWrapper sessions={sessions} />

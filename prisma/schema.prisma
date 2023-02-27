@@ -27,6 +27,7 @@ model Event {
   series          Boolean
   limit           Int
   type            EventType @default(JUNTO)
+  nickname        String    @default("Anonymous") // nickname of the proposer - for display purposes only
   proposerId      String
   proposer        User      @relation(fields: [proposerId], references: [id], onDelete: Cascade)
   rsvps           Rsvp[]
@@ -35,8 +36,6 @@ model Event {
 model User {
   id      String  @id @default(uuid())
   address String  @unique
-  name    String?
-  image   String?
   events  Event[]
   rsvps   Rsvp[]
 }

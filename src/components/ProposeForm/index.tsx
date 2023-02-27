@@ -32,6 +32,7 @@ const validationSchema = z.object({
       message: "Please enter a positive integer",
     }),
   location: z.string(),
+  nickname: z.string(),
 });
 
 export type ClientEventInput = z.infer<typeof validationSchema>;
@@ -110,6 +111,16 @@ const ProposeForm = () => {
         register={register}
         errors={errors}
         required={false}
+      />
+
+      {/* Title */}
+      <TextField
+        name="nickname"
+        fieldName="How would you like to be known as?"
+        register={register}
+        errors={errors}
+        required={false}
+        infoText="This name is for display (and sharing) purposes only"
       />
 
       {/* @todo @angelagilhotra */}
