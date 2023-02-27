@@ -76,7 +76,7 @@ export const Events = ({
                       startDateTime={u.startDateTime}
                       RSVP={u.totalUniqueRsvps}
                       limit={u.limit}
-                      by={u.proposer.name || "anonymous"}
+                      by={u.nickname || "anonymous"}
                       isSeries={u.series}
                     />
                   </div>
