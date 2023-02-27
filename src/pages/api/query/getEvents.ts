@@ -98,9 +98,6 @@ export default async function getEvents(
             startDateTime: {
               gt: Now,
             },
-            endDateTime: {
-              gt: Now,
-            },
           },
           orderBy: {
             startDateTime: "asc",
