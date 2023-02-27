@@ -25,10 +25,6 @@ const ITEMS = [
     text: "propose",
     href: "/propose",
   },
-  {
-    text: "profile",
-    href: "/profile",
-  },
 ];
 
 export const Navbar = () => {
