@@ -66,5 +66,9 @@ export default async function event(req: NextApiRequest, res: NextApiResponse) {
     data: eventPayload,
   });
 
+  console.log(
+    `Created event for ${JSON.stringify(event)} for user: ${user.address}`
+  );
+
   res.status(200).json({ data: event });
 }
