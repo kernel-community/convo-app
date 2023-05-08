@@ -6,7 +6,28 @@ import useSubmitRsvp from "src/hooks/useSubmitRsvp";
 import EventDetails from "./EventDetails";
 import { useRsvpIntention } from "src/context/RsvpIntentionContext";
 import { useState } from "react";
-import ConfirmationModal from "./ConfirmationModal";
+import ConfirmationModal from "src/components/ConfirmationModal";
+
+const ModalContent = ({
+  title,
+  onClickConfirm,
+}: {
+  title: string;
+  onClickConfirm: () => void;
+}) => {
+  // @todo @angelagilhotra add small form to get email
+  // and name
+  return (
+    <div className="flex h-full flex-col justify-between">
+      <div>
+        <p>You are confirmed for {title}</p>
+      </div>
+      <div>
+        <button onClick={onClickConfirm}>Confirm</button>
+      </div>
+    </div>
+  );
+};
 
 const EventWrapper = ({ event }: { event: ClientEvent }) => {
   const { submit, isSubmitting } = useSubmitRsvp();
@@ -28,7 +49,12 @@ const EventWrapper = ({ event }: { event: ClientEvent }) => {
 
   return (
     <>
-      <ConfirmationModal isOpen={openModalFlag} onClose={closeModal} />
+      <ConfirmationModal
+        isOpen={openModalFlag}
+        onClose={closeModal}
+        content={<ModalContent title={event.title} onClickConfirm={submit} />}
+        title="RSVP for Event"
+      />
       <Hero title={title} type={type} proposer={nickname} />
       <div className="mt-24 grid grid-cols-1 gap-12 lg:grid-cols-3">
         <EventDetails html={descriptionHtml} proposer={nickname} />
