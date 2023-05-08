@@ -35,7 +35,7 @@ const ConfirmationModal = ({
       <div className="flex h-full flex-col">
         <div className="mb-2 flex flex-row justify-between">
           <div>{title}</div>
-          <div onClick={onClose}>close</div>
+          <button onClick={onClose}>close</button>
         </div>
         {content}
       </div>
