@@ -43,7 +43,7 @@ export const Navbar = () => {
         sm:flex
       `}
       >
-        <Branding />
+        {/* <Branding /> */}
         <div className="flex flex-grow flex-row items-center justify-center gap-8">
           {ITEMS.map((item, key) => (
             <Item text={item.text} href={item.href} key={key} />

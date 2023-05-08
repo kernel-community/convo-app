@@ -10,6 +10,8 @@ import useCreateEvent from "src/hooks/useCreateEvent";
 import useWallet from "src/hooks/useWallet";
 import LoginButton from "../LoginButton";
 import { useSignMessage } from "wagmi";
+import ConfirmationModal from "../ConfirmationModal";
+import { useState } from "react";
 
 const SessionSchema = z.object({
   dateTime: z.date(),
@@ -37,6 +39,29 @@ const validationSchema = z.object({
 
 export type ClientEventInput = z.infer<typeof validationSchema>;
 
+type ModalMessage = "error" | "success" | "info";
+
+const getColor = (type: ModalMessage) => {
+  switch (type) {
+    case "error":
+      return "text-red-600";
+    case "info":
+      return "text-blue-600";
+    case "success":
+      return "text-green-600";
+  }
+};
+
+const ModalContent = ({
+  message,
+  type,
+}: {
+  message?: string;
+  type: ModalMessage;
+}) => {
+  return <div className={getColor(type)}>{message && <p>{message}</p>}</div>;
+};
+
 const ProposeForm = () => {
   const {
     register,
@@ -48,90 +73,133 @@ const ProposeForm = () => {
   });
   const { create } = useCreateEvent();
   const { isSignedIn, wallet } = useWallet();
-
   const { signMessageAsync } = useSignMessage();
+
+  const [openModalFlag, setOpenModalFlag] = useState(false);
+  const [modal, setModal] = useState<{
+    isError: boolean;
+    message: string;
+  }>({
+    isError: false,
+    message: "",
+  });
+
+  const openModal = () => setOpenModalFlag(true);
+  const closeModal = () => setOpenModalFlag(false);
 
   // @todo
   const onSubmit: SubmitHandler<ClientEventInput> = async (data) => {
     const signature = await signMessageAsync({ message: JSON.stringify(data) });
-    await create({ event: data, signature, address: wallet });
+    try {
+      // display success modal
+      const created = await create({ event: data, signature, address: wallet });
+      setModal({
+        isError: false,
+        message: "Success!",
+      });
+      console.log({ created });
+      openModal();
+    } catch {
+      // display error modal
+      setModal({
+        isError: true,
+        message: "There was an error!",
+      });
+      openModal();
+    }
   };
 
   return (
-    <form
-      onSubmit={handleSubmit(onSubmit)}
-      className={`align-center flex flex-col gap-6`}
-    >
-      {/* Title */}
-      <TextField
-        name="title"
-        fieldName="Title"
-        register={register}
-        errors={errors}
-        required={false}
-      />
-
-      {/* Description */}
-      <Controller
-        name="description"
-        control={control}
-        rules={{ required: true }}
-        render={({ field }) => (
-          <RichTextArea
-            handleChange={field.onChange}
-            errors={errors}
-            name={field.name}
-            fieldName="Description"
+    <>
+      <ConfirmationModal
+        isOpen={openModalFlag}
+        onClose={closeModal}
+        content={
+          <ModalContent
+            message={modal.message}
+            type={modal.isError ? "error" : "success"}
           />
+        }
+        title="Propose Event"
+      />
+
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className={`align-center flex flex-col gap-6`}
+      >
+        {/* Title */}
+        <TextField
+          name="title"
+          fieldName="Title"
+          register={register}
+          errors={errors}
+          required={false}
+        />
+
+        {/* Description */}
+        <Controller
+          name="description"
+          control={control}
+          rules={{ required: true }}
+          render={({ field }) => (
+            <RichTextArea
+              handleChange={field.onChange}
+              errors={errors}
+              name={field.name}
+              fieldName="Description"
+            />
+          )}
+        />
+
+        {/* Sessions Input */}
+        <Controller
+          name="sessions"
+          control={control}
+          rules={{ required: true }}
+          render={({ field }) => (
+            <SessionsInput handleChange={field.onChange} />
+          )}
+        />
+
+        {/* Limit */}
+        <TextField
+          name="limit"
+          fieldName="Limit"
+          register={register}
+          errors={errors}
+          required={false}
+        />
+
+        {/* Location */}
+        <TextField
+          name="location"
+          fieldName="Location"
+          infoText="enter a valid url or address for IRL events"
+          register={register}
+          errors={errors}
+          required={false}
+        />
+
+        {/* Title */}
+        <TextField
+          name="nickname"
+          fieldName="How would you like to be known as?"
+          register={register}
+          errors={errors}
+          required={false}
+          infoText="This name is for display (and sharing) purposes only"
+        />
+
+        {/* @todo @angelagilhotra */}
+        {/* Access */}
+
+        {!isSignedIn ? (
+          <LoginButton />
+        ) : (
+          <Button buttonText="Submit" type="submit" />
         )}
-      />
-
-      {/* Sessions Input */}
-      <Controller
-        name="sessions"
-        control={control}
-        rules={{ required: true }}
-        render={({ field }) => <SessionsInput handleChange={field.onChange} />}
-      />
-
-      {/* Limit */}
-      <TextField
-        name="limit"
-        fieldName="Limit"
-        register={register}
-        errors={errors}
-        required={false}
-      />
-
-      {/* Location */}
-      <TextField
-        name="location"
-        fieldName="Location"
-        infoText="enter a valid url or address for IRL events"
-        register={register}
-        errors={errors}
-        required={false}
-      />
-
-      {/* Title */}
-      <TextField
-        name="nickname"
-        fieldName="How would you like to be known as?"
-        register={register}
-        errors={errors}
-        required={false}
-        infoText="This name is for display (and sharing) purposes only"
-      />
-
-      {/* @todo @angelagilhotra */}
-      {/* Access */}
-
-      {!isSignedIn ? (
-        <LoginButton />
-      ) : (
-        <Button buttonText="Submit" type="submit" />
-      )}
-    </form>
+      </form>
+    </>
   );
 };
 
