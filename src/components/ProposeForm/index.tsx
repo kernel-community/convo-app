@@ -78,6 +78,7 @@ const ProposeForm = () => {
   const { create } = useCreateEvent();
   const { isSignedIn, wallet } = useWallet();
   const { user } = useUser({ address: wallet });
+  const isNicknameSet = user?.nickname !== DEFAULT_USER_NICKNAME;
   const { signMessageAsync } = useSignMessage();
 
   const [openModalFlag, setOpenModalFlag] = useState(false);
