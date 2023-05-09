@@ -56,7 +56,13 @@ const EventWrapper = ({ event }: { event: ClientEvent }) => {
         content={
           <ModalContent>
             <div className="mt-4">
-              You are going to <span className="font-bold">{title}</span>
+              <div>
+                You are going to <span className="font-bold">{title}</span>
+              </div>
+              <div>
+                {/* @todo @angelagilhotra add a small form to collect nickname (display nickname if already in the database) and email for calendar invite */}
+                {/* send calendar invite from hello@kernel */}
+              </div>
             </div>
           </ModalContent>
         }
