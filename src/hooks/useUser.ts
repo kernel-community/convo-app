@@ -5,6 +5,7 @@
 
 import type { User } from "@prisma/client";
 import { useSession } from "next-auth/react";
+import { useState } from "react";
 import { useAccount, useQuery } from "wagmi";
 
 const useUser = ({
@@ -14,18 +15,14 @@ const useUser = ({
 }): {
   isLoading: boolean;
   isError: boolean;
-  user: User;
+  user: User | undefined;
   refetch: () => void;
 } => {
   const { data } = useSession();
   const { isDisconnected } = useAccount();
+  const [fetchedUser, setFetchedUser] = useState<User | undefined>(undefined);
 
-  const {
-    isLoading,
-    isError,
-    data: user,
-    refetch,
-  } = useQuery(
+  const { isLoading, isError, refetch } = useQuery(
     ["user"],
     async () => {
       try {
@@ -38,6 +35,7 @@ const useUser = ({
             })
           ).json()
         ).data;
+        setFetchedUser(r);
         return r;
       } catch (err) {
         throw err;
@@ -51,7 +49,7 @@ const useUser = ({
   return {
     isLoading,
     isError,
-    user,
+    user: fetchedUser,
     refetch,
   };
 };

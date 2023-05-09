@@ -13,9 +13,9 @@ import { useSignMessage } from "wagmi";
 import ConfirmationModal from "../ConfirmationModal";
 import { useState } from "react";
 import useUser from "src/hooks/useUser";
-import { DEFAULT_USER_NICKNAME } from "src/utils/constants";
 import Signature from "../EventPage/Signature";
 import FieldLabel from "../StrongText";
+import isNicknameSet from "src/utils/isNicknameSet";
 
 const SessionSchema = z.object({
   dateTime: z.date(),
@@ -78,7 +78,6 @@ const ProposeForm = () => {
   const { create } = useCreateEvent();
   const { isSignedIn, wallet } = useWallet();
   const { user } = useUser({ address: wallet });
-  const isNicknameSet = user?.nickname !== DEFAULT_USER_NICKNAME;
   const { signMessageAsync } = useSignMessage();
 
   const [openModalFlag, setOpenModalFlag] = useState(false);
@@ -187,22 +186,23 @@ const ProposeForm = () => {
         />
 
         {/* nickname */}
-        {isNicknameSet && (
+        {user && isNicknameSet(user.nickname) && (
           <div>
             <FieldLabel>Proposing as</FieldLabel>
-            <Signature sign={user?.nickname} />
+            <Signature sign={user.nickname} />
           </div>
         )}
-        {!isNicknameSet && (
-          <TextField
-            name="nickname"
-            fieldName="How would you like to be known as?"
-            register={register}
-            errors={errors}
-            required={false}
-            infoText="This name is for display (and sharing) purposes only"
-          />
-        )}
+        {!user ||
+          (!isNicknameSet(user?.nickname) && (
+            <TextField
+              name="nickname"
+              fieldName="How would you like to be known as?"
+              register={register}
+              errors={errors}
+              required={false}
+              infoText="This name is for display (and sharing) purposes only"
+            />
+          ))}
 
         {/* @todo @angelagilhotra */}
         {/* Access */}
