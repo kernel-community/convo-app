@@ -92,6 +92,12 @@ const ProposeForm = () => {
   const openModal = () => setOpenModalFlag(true);
   const closeModal = () => setOpenModalFlag(false);
 
+  console.log({
+    user: !user,
+    nickname: !isNicknameSet(user?.nickname),
+    signedIn: !isSignedIn,
+  });
+
   // @todo
   const onSubmit: SubmitHandler<ClientEventInput> = async (data) => {
     const signature = await signMessageAsync({ message: JSON.stringify(data) });
@@ -192,17 +198,16 @@ const ProposeForm = () => {
             <Signature sign={user.nickname} />
           </div>
         )}
-        {!user ||
-          (!isNicknameSet(user?.nickname) && (
-            <TextField
-              name="nickname"
-              fieldName="How would you like to be known as?"
-              register={register}
-              errors={errors}
-              required={false}
-              infoText="This name is for display (and sharing) purposes only"
-            />
-          ))}
+        {(!user || !isNicknameSet(user?.nickname) || !isSignedIn) && (
+          <TextField
+            name="nickname"
+            fieldName="How would you like to be known as?"
+            register={register}
+            errors={errors}
+            required={false}
+            infoText="This name is for display (and sharing) purposes only"
+          />
+        )}
 
         {/* @todo @angelagilhotra */}
         {/* Access */}
