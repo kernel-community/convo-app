@@ -5,26 +5,27 @@ import SubmitRsvpSection from "./SubmitRsvpSection";
 import useSubmitRsvp from "src/hooks/useSubmitRsvp";
 import EventDetails from "./EventDetails";
 import { useRsvpIntention } from "src/context/RsvpIntentionContext";
+import type { ReactNode } from "react";
 import { useState } from "react";
 import ConfirmationModal from "src/components/ConfirmationModal";
 
 const ModalContent = ({
-  title,
   onClickConfirm,
+  children,
 }: {
-  title: string;
-  onClickConfirm: () => void;
+  onClickConfirm?: () => void;
+  children?: ReactNode;
 }) => {
   // @todo @angelagilhotra add small form to get email
   // and name
   return (
     <div className="flex h-full flex-col justify-between">
-      <div>
-        <p>You are confirmed for {title}</p>
-      </div>
-      <div>
-        <button onClick={onClickConfirm}>Confirm</button>
-      </div>
+      {children}
+      {onClickConfirm && (
+        <div>
+          <button onClick={onClickConfirm}>Confirm</button>
+        </div>
+      )}
     </div>
   );
 };
@@ -42,9 +43,9 @@ const EventWrapper = ({ event }: { event: ClientEvent }) => {
   const openModal = () => setOpenModalFlag(true);
   const closeModal = () => setOpenModalFlag(false);
 
-  const submitRsvp = () => {
+  const submitRsvp = async () => {
+    await submit();
     openModal();
-    // submit();
   };
 
   return (
@@ -52,7 +53,13 @@ const EventWrapper = ({ event }: { event: ClientEvent }) => {
       <ConfirmationModal
         isOpen={openModalFlag}
         onClose={closeModal}
-        content={<ModalContent title={event.title} onClickConfirm={submit} />}
+        content={
+          <ModalContent>
+            <div className="mt-4">
+              You are going to <span className="font-bold">{title}</span>
+            </div>
+          </ModalContent>
+        }
         title="RSVP for Event"
       />
       <Hero title={title} type={type} proposer={nickname} />
