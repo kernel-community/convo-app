@@ -1,4 +1,5 @@
 import { Article } from "../Article";
+import Signature from "./Signature";
 
 const EventDetails = ({
   html,
@@ -10,9 +11,7 @@ const EventDetails = ({
   return (
     <div className="col-span-2">
       <Article html={html} />
-      <div className="pt-24 font-fancy text-4xl text-kernel md:text-5xl">
-        {proposer}
-      </div>
+      <Signature sign={proposer} />
     </div>
   );
 };
