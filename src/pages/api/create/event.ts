@@ -15,7 +15,6 @@ type ClientEvent = {
   }[];
   limit: string;
   location: string;
-  nickname: string;
 };
 
 export default async function event(req: NextApiRequest, res: NextApiResponse) {
@@ -35,7 +34,7 @@ export default async function event(req: NextApiRequest, res: NextApiResponse) {
     throw new Error("Unauthorized: Signature mismatch");
   }
 
-  const { title, sessions, limit, location, description, nickname } = event;
+  const { title, sessions, limit, location, description } = event;
 
   const user = await prisma.user.findUniqueOrThrow({
     where: {
@@ -57,7 +56,6 @@ export default async function event(req: NextApiRequest, res: NextApiResponse) {
         limit: Number(limit),
         proposerId: user.id,
         series: sessions.length > 1,
-        nickname,
       };
     });
 

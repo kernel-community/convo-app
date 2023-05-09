@@ -12,6 +12,8 @@ import LoginButton from "../LoginButton";
 import { useSignMessage } from "wagmi";
 import ConfirmationModal from "../ConfirmationModal";
 import { useState } from "react";
+import useUser from "src/hooks/useUser";
+import { DEFAULT_USER_NICKNAME } from "src/utils/constants";
 
 const SessionSchema = z.object({
   dateTime: z.date(),
@@ -73,6 +75,7 @@ const ProposeForm = () => {
   });
   const { create } = useCreateEvent();
   const { isSignedIn, wallet } = useWallet();
+  const { user } = useUser({ address: wallet });
   const { signMessageAsync } = useSignMessage();
 
   const [openModalFlag, setOpenModalFlag] = useState(false);
@@ -180,7 +183,7 @@ const ProposeForm = () => {
           required={false}
         />
 
-        {/* Title */}
+        {/* nickname */}
         <TextField
           name="nickname"
           fieldName="How would you like to be known as?"
@@ -188,6 +191,11 @@ const ProposeForm = () => {
           errors={errors}
           required={false}
           infoText="This name is for display (and sharing) purposes only"
+          value={
+            user?.nickname !== DEFAULT_USER_NICKNAME
+              ? user?.nickname
+              : undefined
+          }
         />
 
         {/* @todo @angelagilhotra */}

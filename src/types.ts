@@ -17,4 +17,5 @@ export type ClientEvent = Omit<ServerEvent, "startDateTime" | "endDateTime"> & {
   totalUniqueRsvps: number;
   startDateTime: string;
   endDateTime: string;
+  nickname: string;
 };

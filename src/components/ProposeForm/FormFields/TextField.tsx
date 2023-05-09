@@ -11,6 +11,7 @@ const TextField = ({
   placeholder,
   className,
   required,
+  value,
 }: {
   name: keyof ClientEventInput;
   fieldName?: string;
@@ -20,6 +21,7 @@ const TextField = ({
   placeholder?: string;
   className?: string;
   required?: boolean;
+  value?: string;
 }) => {
   const isError = errors && errors[name];
   return (
@@ -48,6 +50,8 @@ const TextField = ({
           `}
           placeholder={placeholder}
           {...register(name, { required })}
+          value={value}
+          disabled={!!value}
         />
         <div className="font-primary text-sm lowercase text-red-400">
           {/*

@@ -10,13 +10,14 @@ const formatEvent = (event: Array<ServerEvent>): ClientEvent => {
   if (!firstInSeries) {
     throw new Error("firstInSeries undefined");
   }
-  const { startDateTime, endDateTime } = firstInSeries;
+  const { startDateTime, endDateTime, proposer } = firstInSeries;
 
   return {
     ...firstInSeries,
     startDateTime: startDateTime.toISOString(),
     endDateTime: endDateTime.toISOString(),
     totalUniqueRsvps: totalUniqueRSVPs(event),
+    nickname: proposer.nickname,
     sessions: event.map((e) => {
       const { id, startDateTime, endDateTime, limit, rsvps } = e;
       return {
