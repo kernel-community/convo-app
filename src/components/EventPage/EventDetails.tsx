@@ -1,3 +1,4 @@
+import isNicknameSet from "src/utils/isNicknameSet";
 import { Article } from "../Article";
 import Signature from "./Signature";
 
@@ -11,7 +12,7 @@ const EventDetails = ({
   return (
     <div className="col-span-2">
       <Article html={html} />
-      <Signature sign={proposer} />
+      {isNicknameSet(proposer) && <Signature sign={proposer} />}
     </div>
   );
 };
