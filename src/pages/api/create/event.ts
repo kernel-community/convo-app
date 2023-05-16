@@ -15,6 +15,7 @@ type ClientEvent = {
   }[];
   limit: string;
   location: string;
+  nickname?: string;
 };
 
 export default async function event(req: NextApiRequest, res: NextApiResponse) {
@@ -34,12 +35,18 @@ export default async function event(req: NextApiRequest, res: NextApiResponse) {
     throw new Error("Unauthorized: Signature mismatch");
   }
 
-  const { title, sessions, limit, location, description } = event;
+  const { title, sessions, limit, location, description, nickname } = event;
 
   const user = await prisma.user.findUniqueOrThrow({
     where: {
       address,
     },
+  });
+
+  // update nickname
+  await prisma.user.update({
+    where: { address },
+    data: { nickname },
   });
 
   const hash = nanoid(10);
