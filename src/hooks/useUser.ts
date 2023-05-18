@@ -15,7 +15,7 @@ const useUser = (): {
   refetch: () => void;
 } => {
   const { data } = useSession();
-  const { address, isDisconnected } = useAccount();
+  const { isDisconnected } = useAccount();
   const [fetchedUser, setFetchedUser] = useState<User | undefined>(undefined);
 
   const { isLoading, isError, refetch } = useQuery(
@@ -25,7 +25,7 @@ const useUser = (): {
         const r = (
           await (
             await fetch("/api/query/user", {
-              body: JSON.stringify({ address }),
+              body: JSON.stringify({ address: data?.user.address }),
               method: "POST",
               headers: { "Content-type": "application/json" },
             })
@@ -38,7 +38,7 @@ const useUser = (): {
       }
     },
     {
-      enabled: !isDisconnected && !!data && !!address,
+      enabled: !isDisconnected && !!data,
     }
   );
 

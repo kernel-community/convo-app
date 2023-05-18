@@ -15,6 +15,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import TextField from "./RsvpConfirmationForm/TextField";
 import Button from "../Button";
 import Signature from "./Signature";
+import isNicknameSet from "src/utils/isNicknameSet";
+import useUser from "src/hooks/useUser";
+import type { User } from "@prisma/client";
 
 const ModalContainer = ({
   onClickConfirm,
@@ -41,37 +44,23 @@ const rsvpInputSchema = z.object({
 });
 export type RsvpInput = z.infer<typeof rsvpInputSchema>;
 
-const ModalToConfirmRsvp = ({ title }: { title: string }) => {
-  const { submit, updateUser, sendGCalInvite } = useSubmitRsvp();
+const ModalToConfirmRsvp = ({
+  title,
+  user,
+}: {
+  title: string;
+  user?: User;
+}) => {
+  const { submit } = useSubmitRsvp();
   const { rsvpIntention, setRsvpIntention } = useRsvpIntention();
   const {
     register,
     handleSubmit,
     formState: { errors },
-    getValues,
   } = useForm<RsvpInput>({
     resolver: zodResolver(rsvpInputSchema),
   });
-
-  const onSubmit: SubmitHandler<RsvpInput> = async () => {
-    submit();
-    // if nickname is defined - then call updateUser
-    if (getValues("nickname")) {
-      setRsvpIntention({
-        ...rsvpIntention,
-        nickname: getValues("nickname"),
-      });
-      updateUser();
-    }
-    // if email is provided - send gcal invite
-    if (getValues("email")) {
-      setRsvpIntention({
-        ...rsvpIntention,
-        nickname: getValues("nickname"),
-      });
-      sendGCalInvite();
-    }
-  };
+  const onSubmit: SubmitHandler<RsvpInput> = () => submit();
   return (
     <ModalContainer>
       <div className="mt-4">
@@ -90,10 +79,16 @@ const ModalToConfirmRsvp = ({ title }: { title: string }) => {
               register={register}
               errors={errors}
               required={false}
+              onChange={(e) => {
+                setRsvpIntention({
+                  ...rsvpIntention,
+                  email: e.target.value,
+                });
+              }}
             />
             {/* nickname */}
-            {rsvpIntention.nickname ? (
-              <Signature sign={rsvpIntention.nickname} />
+            {user && isNicknameSet(user.nickname) ? (
+              <Signature sign={user.nickname} />
             ) : (
               <TextField
                 name="nickname"
@@ -101,6 +96,12 @@ const ModalToConfirmRsvp = ({ title }: { title: string }) => {
                 register={register}
                 errors={errors}
                 required={false}
+                onChange={(e) => {
+                  setRsvpIntention({
+                    ...rsvpIntention,
+                    nickname: e.target.value,
+                  });
+                }}
               />
             )}
 
@@ -132,12 +133,17 @@ const EventWrapper = ({ event }: { event: ClientEvent }) => {
     openModal();
   };
 
+  // @help when I try calling this hook
+  // in <ModalToConfirmRsvp /> above the user is
+  // returned as undefined (???)
+  const { user } = useUser();
+
   return (
     <>
       <ConfirmationModal
         isOpen={openModalFlag}
         onClose={closeModal}
-        content={<ModalToConfirmRsvp title={title} />}
+        content={<ModalToConfirmRsvp title={title} user={user} />}
         title="RSVP for Event"
       />
       <Hero title={title} type={type} proposer={nickname} />

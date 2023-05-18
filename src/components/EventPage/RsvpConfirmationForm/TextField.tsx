@@ -1,6 +1,7 @@
 import type { FieldErrorsImpl, UseFormRegister } from "react-hook-form";
 import FieldLabel from "../../StrongText";
 import type { RsvpInput } from "../EventWrapper";
+import type { ChangeEvent } from "react";
 
 const TextField = ({
   name,
@@ -12,6 +13,7 @@ const TextField = ({
   className,
   required,
   value,
+  onChange,
 }: {
   name: keyof RsvpInput;
   fieldName?: string;
@@ -22,6 +24,7 @@ const TextField = ({
   className?: string;
   required?: boolean;
   value?: string;
+  onChange?: (e: ChangeEvent<HTMLInputElement>) => void;
 }) => {
   const isError = errors && errors[name];
   return (
@@ -49,7 +52,7 @@ const TextField = ({
           }
           `}
           placeholder={placeholder}
-          {...register(name, { required })}
+          {...register(name, { required, onChange })}
           value={value}
           disabled={!!value}
         />
