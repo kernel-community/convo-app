@@ -18,8 +18,8 @@ const Signature = ({
       break;
     case "handwritten":
       {
-        textSizeDefault = "text-4xl";
-        textSizeSmall = "text-2xl";
+        textSizeDefault = "text-2xl";
+        textSizeSmall = "text-3xl";
         font = "font-handwritten";
       }
       break;

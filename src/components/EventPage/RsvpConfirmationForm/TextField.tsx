@@ -14,6 +14,8 @@ const TextField = ({
   required,
   value,
   onChange,
+  label,
+  hideLabel = false,
 }: {
   name: keyof RsvpInput;
   fieldName?: string;
@@ -25,16 +27,20 @@ const TextField = ({
   required?: boolean;
   value?: string;
   onChange?: (e: ChangeEvent<HTMLInputElement>) => void;
+  label?: string;
+  hideLabel?: boolean;
 }) => {
   const isError = errors && errors[name];
   return (
     <div>
-      <FieldLabel styles="my-auto">
-        {fieldName}
-        <div className="font-primary text-sm font-light lowercase">
-          {infoText}
-        </div>
-      </FieldLabel>
+      {!hideLabel && (
+        <FieldLabel styles="my-auto">
+          {label || fieldName}
+          <div className="font-primary text-sm font-light lowercase">
+            {infoText}
+          </div>
+        </FieldLabel>
+      )}
       <div className="flex flex-col">
         <input
           type="text"
