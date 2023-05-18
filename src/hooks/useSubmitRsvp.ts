@@ -1,7 +1,3 @@
-// given a userId and eventIds array
-// submit rsvp for the user for each event
-// in the array
-
 import { useState } from "react";
 import { useRsvpIntention } from "src/context/RsvpIntentionContext";
 
@@ -9,10 +5,23 @@ const useSubmitRsvp = () => {
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [isError, setIsError] = useState<boolean>(false);
   const { rsvpIntention: rsvp } = useRsvpIntention();
+
+  // updateNickname - /api/update/user
+  const updateUser = async () => {
+    console.log("update user here");
+    console.log(rsvp);
+  };
+
+  // sendGCalInvite - /api/services/google
+  const sendGCalInvite = async () => {
+    console.log("send gcal invite here");
+    console.log(rsvp);
+  };
+
+  // create rsvp in the database
   const submit = async () => {
     setIsSubmitting(true);
     if (rsvp.eventIds.length === 0) {
-      console.log("no events selected to rsvp.");
       return;
     }
     let res;
@@ -41,6 +50,8 @@ const useSubmitRsvp = () => {
   };
   return {
     submit,
+    updateUser,
+    sendGCalInvite,
     isSubmitting,
     isError,
   };

@@ -77,7 +77,7 @@ const ProposeForm = () => {
   });
   const { create } = useCreateEvent();
   const { isSignedIn, wallet } = useWallet();
-  const { user } = useUser({ address: wallet });
+  const { user } = useUser();
   const { signMessageAsync } = useSignMessage();
 
   const [openModalFlag, setOpenModalFlag] = useState(false);
@@ -92,23 +92,16 @@ const ProposeForm = () => {
   const openModal = () => setOpenModalFlag(true);
   const closeModal = () => setOpenModalFlag(false);
 
-  console.log({
-    user: !user,
-    nickname: !isNicknameSet(user?.nickname),
-    signedIn: !isSignedIn,
-  });
-
   // @todo
   const onSubmit: SubmitHandler<ClientEventInput> = async (data) => {
     const signature = await signMessageAsync({ message: JSON.stringify(data) });
     try {
       // display success modal
-      const created = await create({ event: data, signature, address: wallet });
+      await create({ event: data, signature, address: wallet });
       setModal({
         isError: false,
         message: "Success!",
       });
-      console.log({ created });
       openModal();
     } catch {
       // display error modal

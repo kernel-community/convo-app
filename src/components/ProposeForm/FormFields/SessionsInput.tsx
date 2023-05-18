@@ -28,7 +28,6 @@ const SessionsInput = ({
 
   const handleSetSessions: DateTimeHandleChangeType = (type, count, value) => {
     let sessionToUpdate = sessions.find((s) => s.count === count);
-    console.log({ sessionToUpdate });
     switch (type) {
       case "dateTime": {
         // @help converting value to string only to satisfy ts error
@@ -97,7 +96,6 @@ const SessionsInput = ({
   const handleCheckBox = () => {
     setIsRecurring((recurring) => {
       const flag = !recurring;
-      console.log("resetting form here", flag);
       if (!flag && sessions[0]) {
         // user unchecked the "is recurring session" checkbox
         // reset all sessions here

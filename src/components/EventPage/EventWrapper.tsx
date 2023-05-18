@@ -8,16 +8,21 @@ import { useRsvpIntention } from "src/context/RsvpIntentionContext";
 import type { ReactNode } from "react";
 import { useState } from "react";
 import ConfirmationModal from "src/components/ConfirmationModal";
+import type { SubmitHandler } from "react-hook-form";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import TextField from "./RsvpConfirmationForm/TextField";
+import Button from "../Button";
+import Signature from "./Signature";
 
-const ModalContent = ({
+const ModalContainer = ({
   onClickConfirm,
   children,
 }: {
   onClickConfirm?: () => void;
   children?: ReactNode;
 }) => {
-  // @todo @angelagilhotra add small form to get email
-  // and name
   return (
     <div className="flex h-full flex-col justify-between">
       {children}
@@ -30,8 +35,88 @@ const ModalContent = ({
   );
 };
 
+const rsvpInputSchema = z.object({
+  email: z.string().optional(),
+  nickname: z.string().optional(),
+});
+export type RsvpInput = z.infer<typeof rsvpInputSchema>;
+
+const ModalToConfirmRsvp = ({ title }: { title: string }) => {
+  const { submit, updateUser, sendGCalInvite } = useSubmitRsvp();
+  const { rsvpIntention, setRsvpIntention } = useRsvpIntention();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    getValues,
+  } = useForm<RsvpInput>({
+    resolver: zodResolver(rsvpInputSchema),
+  });
+
+  const onSubmit: SubmitHandler<RsvpInput> = async () => {
+    submit();
+    // if nickname is defined - then call updateUser
+    if (getValues("nickname")) {
+      setRsvpIntention({
+        ...rsvpIntention,
+        nickname: getValues("nickname"),
+      });
+      updateUser();
+    }
+    // if email is provided - send gcal invite
+    if (getValues("email")) {
+      setRsvpIntention({
+        ...rsvpIntention,
+        nickname: getValues("nickname"),
+      });
+      sendGCalInvite();
+    }
+  };
+  return (
+    <ModalContainer>
+      <div className="mt-4">
+        <div>
+          Before confirming your spot in{" "}
+          <span className="font-bold">{title}</span>
+        </div>
+        <div className="pt-4">
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            className="align-center flex flex-col gap-6"
+          >
+            <TextField
+              name="email"
+              fieldName="Email"
+              register={register}
+              errors={errors}
+              required={false}
+            />
+            {/* nickname */}
+            {rsvpIntention.nickname ? (
+              <Signature sign={rsvpIntention.nickname} />
+            ) : (
+              <TextField
+                name="nickname"
+                fieldName="Nickname"
+                register={register}
+                errors={errors}
+                required={false}
+              />
+            )}
+
+            <Button buttonText="Submit" type="submit" />
+          </form>
+        </div>
+        <div>
+          no email = no calendar invite ; event and your rsvp only visible on
+          the app
+        </div>
+      </div>
+    </ModalContainer>
+  );
+};
+
 const EventWrapper = ({ event }: { event: ClientEvent }) => {
-  const { submit, isSubmitting } = useSubmitRsvp();
   const { totalUniqueRsvps, descriptionHtml, sessions, type, title, nickname } =
     event;
   const { rsvpIntention } = useRsvpIntention();
@@ -43,8 +128,7 @@ const EventWrapper = ({ event }: { event: ClientEvent }) => {
   const openModal = () => setOpenModalFlag(true);
   const closeModal = () => setOpenModalFlag(false);
 
-  const submitRsvp = async () => {
-    await submit();
+  const onClickRsvp = async () => {
     openModal();
   };
 
@@ -53,19 +137,7 @@ const EventWrapper = ({ event }: { event: ClientEvent }) => {
       <ConfirmationModal
         isOpen={openModalFlag}
         onClose={closeModal}
-        content={
-          <ModalContent>
-            <div className="mt-4">
-              <div>
-                You are going to <span className="font-bold">{title}</span>
-              </div>
-              <div>
-                {/* @todo @angelagilhotra add a small form to collect nickname (display nickname if already in the database) and email for calendar invite */}
-                {/* send calendar invite from hello@kernel */}
-              </div>
-            </div>
-          </ModalContent>
-        }
+        content={<ModalToConfirmRsvp title={title} />}
         title="RSVP for Event"
       />
       <Hero title={title} type={type} proposer={nickname} />
@@ -80,8 +152,7 @@ const EventWrapper = ({ event }: { event: ClientEvent }) => {
                   ? `Join ${totalUniqueRsvps} others in attending the event`
                   : `Be amongst the first few to RSVP!`
               }
-              handleSubmit={submitRsvp}
-              loading={isSubmitting}
+              handleSubmit={onClickRsvp}
               disabled={isDisabled}
             />
           </div>

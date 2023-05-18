@@ -8,18 +8,14 @@ import { useSession } from "next-auth/react";
 import { useState } from "react";
 import { useAccount, useQuery } from "wagmi";
 
-const useUser = ({
-  address,
-}: {
-  address: string | undefined | null;
-}): {
+const useUser = (): {
   isLoading: boolean;
   isError: boolean;
   user: User | undefined;
   refetch: () => void;
 } => {
   const { data } = useSession();
-  const { isDisconnected } = useAccount();
+  const { address, isDisconnected } = useAccount();
   const [fetchedUser, setFetchedUser] = useState<User | undefined>(undefined);
 
   const { isLoading, isError, refetch } = useQuery(
