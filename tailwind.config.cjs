@@ -39,6 +39,8 @@ module.exports = {
         secondary: ["Futura", "sans-serif"],
         primary: ["Libre Franklin", "sans-serif"],
         fancy: ["Licorice", "sans-serif"],
+        /** another handwritten alternative: "Cedarville_Cursive" **/
+        handwritten: ["Holland_Land", "sans-serif"]
       },
       fontSize: {
         xxs: "0.69rem",

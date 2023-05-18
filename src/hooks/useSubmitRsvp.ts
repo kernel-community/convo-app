@@ -6,7 +6,7 @@ import useUser from "./useUser";
 
 // updateNickname - /api/update/user
 const updateUser = async (rsvp: RsvpIntention, address: string | undefined) => {
-  if (!address) return; // nothing to update
+  if (!address || !rsvp.nickname) return; // nothing to update
   let res;
   const user: Partial<User> = {
     address,

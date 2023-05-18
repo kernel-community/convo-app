@@ -18,6 +18,7 @@ import Signature from "./Signature";
 import isNicknameSet from "src/utils/isNicknameSet";
 import useUser from "src/hooks/useUser";
 import type { User } from "@prisma/client";
+import FieldLabel from "../StrongText";
 
 const ModalContainer = ({
   onClickConfirm,
@@ -88,7 +89,10 @@ const ModalToConfirmRsvp = ({
             />
             {/* nickname */}
             {user && isNicknameSet(user.nickname) ? (
-              <Signature sign={user.nickname} />
+              <>
+                <FieldLabel>Signing as</FieldLabel>
+                <Signature sign={user.nickname} style="handwritten" />
+              </>
             ) : (
               <TextField
                 name="nickname"

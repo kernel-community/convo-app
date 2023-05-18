@@ -103,6 +103,18 @@ const MyApp = ({
             as: "font",
             crossOrigin: "anonymous",
           },
+          {
+            rel: "preload",
+            href: "/fonts/Cedarville_Cursive/CedarvilleCursive-Regular.ttf",
+            as: "font",
+            crossOrigin: "anonymous",
+          },
+          {
+            rel: "preload",
+            href: "/fonts/Holland_Land/Holland-Land.ttf",
+            as: "font",
+            crossOrigin: "anonymous",
+          },
         ]}
       />
       <SessionProvider session={session}>
