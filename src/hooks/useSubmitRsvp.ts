@@ -4,7 +4,6 @@ import type { RsvpIntention } from "src/context/RsvpIntentionContext";
 import { useRsvpIntention } from "src/context/RsvpIntentionContext";
 import useUser from "./useUser";
 
-// updateNickname - /api/update/user
 const updateUser = async (rsvp: RsvpIntention, address: string | undefined) => {
   if (!address || !rsvp.nickname) return; // nothing to update
   let res;
@@ -28,9 +27,22 @@ const updateUser = async (rsvp: RsvpIntention, address: string | undefined) => {
   return res;
 };
 
-// sendGCalInvite - /api/services/google
 const sendGCalInvite = async (rsvp: RsvpIntention) => {
-  console.log("send gcal invite here", rsvp);
+  let res;
+  try {
+    res = (
+      await (
+        await fetch("/api/services/google/sendInvite", {
+          body: JSON.stringify({ rsvp }),
+          method: "POST",
+          headers: { "Content-type": "application/json" },
+        })
+      ).json()
+    ).data;
+  } catch (err) {
+    throw err;
+  }
+  return res;
 };
 
 const addRsvpToDb = async (rsvp: RsvpIntention) => {

@@ -26,6 +26,7 @@ model Event {
   hash            String
   series          Boolean
   limit           Int
+  gCalEventId     String?
   type            EventType @default(JUNTO)
   proposerId      String
   proposer        User      @relation(fields: [proposerId], references: [id], onDelete: Cascade)
@@ -37,7 +38,7 @@ model User {
   address  String  @unique
   events   Event[]
   rsvps    Rsvp[]
-  nickname String  @default("Anonymous")// username for the app - can set in profile settings - will override "nickname" for all events proposed
+  nickname String  @default("Anonymous")
 }
 
 model Rsvp {
