@@ -15,22 +15,23 @@ enum EventType {
 }
 
 model Event {
-  id              String    @id @default(uuid())
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
-  title           String
-  descriptionHtml String?
-  startDateTime   DateTime
-  endDateTime     DateTime
-  location        String
-  hash            String
-  series          Boolean
-  limit           Int
-  gCalEventId     String?
-  type            EventType @default(JUNTO)
-  proposerId      String
-  proposer        User      @relation(fields: [proposerId], references: [id], onDelete: Cascade)
-  rsvps           Rsvp[]
+  id                 String    @id @default(uuid())
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+  title              String
+  descriptionHtml    String?
+  startDateTime      DateTime
+  endDateTime        DateTime
+  location           String
+  hash               String
+  series             Boolean
+  limit              Int
+  gCalEventRequested Boolean   @default(false)
+  gCalEventId        String? // calendar id + event id - filled from the serverless function
+  type               EventType @default(JUNTO)
+  proposerId         String
+  proposer           User      @relation(fields: [proposerId], references: [id], onDelete: Cascade)
+  rsvps              Rsvp[]
 }
 
 model User {

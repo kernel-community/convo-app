@@ -37,8 +37,15 @@ export default async function event(req: NextApiRequest, res: NextApiResponse) {
     throw new Error("Unauthorized: Signature mismatch");
   }
 
-  const { title, sessions, limit, location, description, nickname, gCalEvent } =
-    event;
+  const {
+    title,
+    sessions,
+    limit,
+    location,
+    description,
+    nickname,
+    gCalEvent: gCalEventRequested,
+  } = event;
 
   const user = await prisma.user.findUniqueOrThrow({
     where: {
@@ -51,15 +58,6 @@ export default async function event(req: NextApiRequest, res: NextApiResponse) {
     where: { address },
     data: { nickname },
   });
-
-  // is gcal event creation requested?
-  let gCalEventId: undefined | string = undefined;
-  if (gCalEvent) {
-    // create google calendar event here
-    // set gCalEventId if successfully created
-    gCalEventId = "000000";
-    // throw error if not successful - exit out of this API
-  }
 
   const hash = nanoid(10);
   const eventPayload: Prisma.Enumerable<Prisma.EventCreateManyInput> =
@@ -74,7 +72,7 @@ export default async function event(req: NextApiRequest, res: NextApiResponse) {
         limit: Number(limit),
         proposerId: user.id,
         series: sessions.length > 1,
-        gCalEventId,
+        gCalEventRequested,
       };
     });
 

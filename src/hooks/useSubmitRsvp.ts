@@ -37,7 +37,6 @@ const addRsvpToDb = async (rsvp: RsvpIntention) => {
             rsvp: {
               address: rsvp.attendeeAddress,
               events: rsvp.eventIds,
-              email: rsvp.email,
             },
           }),
           method: "POST",
@@ -50,6 +49,18 @@ const addRsvpToDb = async (rsvp: RsvpIntention) => {
   }
   return res;
 };
+
+/**
+ * @todo @angelagilhotra
+ * May 20, 2023
+ * FIX the flow here --
+ * useSubmitRsvp - to create an entry in the databse
+ * useUpdateUser - to update nickname for a user
+ * useSendGCalInvite - to send a google calendar invite if requested
+ *
+ * 3 separate hooks - can be called separately or onSubmit from the UI
+ *
+ */
 
 const useSubmitRsvp = () => {
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
