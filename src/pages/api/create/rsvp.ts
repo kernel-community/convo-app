@@ -5,6 +5,7 @@ import { prisma } from "src/server/db";
 type RsvpRequest = {
   address: string;
   events: Array<string>;
+  email?: string;
 };
 
 export default async function rsvp(req: NextApiRequest, res: NextApiResponse) {
@@ -16,6 +17,16 @@ export default async function rsvp(req: NextApiRequest, res: NextApiResponse) {
     where: { address: rsvp.address },
   });
   const { id: attendeeId } = user;
+
+  // is invite to google calendar requested?
+  if (rsvp.email) {
+    // fetch calendar id and event id from database
+    // for each event in the series
+    // send invite for each
+    // if error - throw - exit out of the API
+    // if successful - continue
+  }
+
   const rsvps = rsvp.events.map((eventId) =>
     prisma.rsvp.upsert({
       where: {

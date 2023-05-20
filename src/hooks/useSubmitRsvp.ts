@@ -27,24 +27,6 @@ const updateUser = async (rsvp: RsvpIntention, address: string | undefined) => {
   return res;
 };
 
-const sendGCalInvite = async (rsvp: RsvpIntention) => {
-  let res;
-  try {
-    res = (
-      await (
-        await fetch("/api/services/google/sendInvite", {
-          body: JSON.stringify({ rsvp }),
-          method: "POST",
-          headers: { "Content-type": "application/json" },
-        })
-      ).json()
-    ).data;
-  } catch (err) {
-    throw err;
-  }
-  return res;
-};
-
 const addRsvpToDb = async (rsvp: RsvpIntention) => {
   let res;
   try {
@@ -55,6 +37,7 @@ const addRsvpToDb = async (rsvp: RsvpIntention) => {
             rsvp: {
               address: rsvp.attendeeAddress,
               events: rsvp.eventIds,
+              email: rsvp.email,
             },
           }),
           method: "POST",
@@ -81,7 +64,6 @@ const useSubmitRsvp = () => {
     setIsSubmitting(true);
     try {
       updateUser(rsvp, user?.address);
-      sendGCalInvite(rsvp);
       return addRsvpToDb(rsvp);
     } catch (err) {
       setIsSubmitting(false);

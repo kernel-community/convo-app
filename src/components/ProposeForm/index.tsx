@@ -16,6 +16,7 @@ import useUser from "src/hooks/useUser";
 import Signature from "../EventPage/Signature";
 import FieldLabel from "../StrongText";
 import isNicknameSet from "src/utils/isNicknameSet";
+import Checkbox from "./FormFields/Checkbox";
 
 const SessionSchema = z.object({
   dateTime: z.date(),
@@ -39,6 +40,7 @@ const validationSchema = z.object({
     }),
   location: z.string(),
   nickname: z.string(),
+  gCalEvent: z.boolean(),
 });
 
 export type ClientEventInput = z.infer<typeof validationSchema>;
@@ -74,6 +76,7 @@ const ProposeForm = () => {
     control,
   } = useForm<ClientEventInput>({
     resolver: zodResolver(validationSchema),
+    defaultValues: { gCalEvent: true },
   });
   const { create } = useCreateEvent();
   const { isSignedIn, wallet } = useWallet();
@@ -184,6 +187,14 @@ const ProposeForm = () => {
           required={false}
         />
 
+        {/* google calendar event creation checkbox */}
+        <Checkbox
+          name="gCalEvent"
+          fieldName="Create a Google Calendar Event?"
+          register={register}
+          infoText="If checked, a google calendar event will be created and an option to receive an invite will be given to anyone who wants to RSVP"
+        />
+
         {/* nickname */}
         {user && isNicknameSet(user.nickname) && (
           <div>
@@ -202,8 +213,6 @@ const ProposeForm = () => {
           />
         )}
 
-        {/* @todo @angelagilhotra */}
-        {/* Access */}
         {!isSignedIn ? (
           <LoginButton />
         ) : (
