@@ -67,9 +67,9 @@ model Google {
   javascriptOrigins       String[]
 
   // token
-  accessToken  String
-  refreshToken String
-  scope        String
-  tokenType    String
-  expiryDate   String
+  accessToken  String?
+  refreshToken String?
+  scope        String?
+  tokenType    String?
+  expiryDate   String?
 }
