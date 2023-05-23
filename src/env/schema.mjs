@@ -11,7 +11,8 @@ export const serverSchema = z.object({
   ALCHEMY_ID: z.string(),
   NEXTAUTH_URL: z.string().url(),
   NEXTAUTH_SECRET: z.string(),
-  TEST_CALENDAR_ID: z.string()
+  TEST_CALENDAR_ID: z.string(),
+  ADMIN_KEY: z.string()
 });
 
 /**
@@ -25,7 +26,8 @@ export const serverEnv = {
   ALCHEMY_ID: process.env.ALCHEMY_ID,
   NEXTAUTH_URL: process.env.NEXTAUTH_URL,
   NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET,
-  TEST_CALENDAR_ID: process.env.TEST_CALENDAR_ID
+  TEST_CALENDAR_ID: process.env.TEST_CALENDAR_ID,
+  ADMIN_KEY: process.env.ADMIN_KEY
 };
 
 /**
