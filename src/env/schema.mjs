@@ -12,7 +12,8 @@ export const serverSchema = z.object({
   NEXTAUTH_URL: z.string().url(),
   NEXTAUTH_SECRET: z.string(),
   TEST_CALENDAR_ID: z.string(),
-  ADMIN_KEY: z.string()
+  ADMIN_KEY: z.string(),
+  PROD_HOST: z.string()
 });
 
 /**
@@ -27,7 +28,8 @@ export const serverEnv = {
   NEXTAUTH_URL: process.env.NEXTAUTH_URL,
   NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET,
   TEST_CALENDAR_ID: process.env.TEST_CALENDAR_ID,
-  ADMIN_KEY: process.env.ADMIN_KEY
+  ADMIN_KEY: process.env.ADMIN_KEY,
+  PROD_HOST: process.env.PROD_HOST
 };
 
 /**

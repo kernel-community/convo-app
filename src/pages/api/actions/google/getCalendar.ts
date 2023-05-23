@@ -1,3 +1,4 @@
+// test api
 import type { NextApiRequest, NextApiResponse } from "next";
 import { getCalendar } from "src/server/utils/google/getCalendar";
 export default async function ping(req: NextApiRequest, res: NextApiResponse) {

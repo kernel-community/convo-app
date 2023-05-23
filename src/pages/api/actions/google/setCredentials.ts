@@ -1,4 +1,4 @@
-// getGoogleAccessToken
+// setCredentials
 /**
  *
  * requires admin_key in the header

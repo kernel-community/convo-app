@@ -62,11 +62,14 @@ export default async function event(req: NextApiRequest, res: NextApiResponse) {
   const hash = nanoid(10);
   const eventPayload: Prisma.Enumerable<Prisma.EventCreateManyInput> =
     sessions.map((session) => {
+      const startDateTime = new Date(session.dateTime);
+      const endDateTime = new Date(session.dateTime);
+      endDateTime.setHours(startDateTime.getHours() + session.duration);
       return {
         title,
         descriptionHtml: description,
-        startDateTime: new Date(session.dateTime),
-        endDateTime: new Date(), // @todo,
+        startDateTime,
+        endDateTime,
         location,
         hash,
         limit: Number(limit),
@@ -85,5 +88,12 @@ export default async function event(req: NextApiRequest, res: NextApiResponse) {
     `Created event for ${JSON.stringify(event)} for user: ${user.address}`
   );
 
-  res.status(200).json({ data: event });
+  const created = await prisma.event.findMany({
+    where: { hash },
+    include: {
+      proposer: true,
+    },
+  });
+
+  res.status(200).json({ data: created });
 }

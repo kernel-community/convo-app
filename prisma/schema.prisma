@@ -28,6 +28,7 @@ model Event {
   limit              Int
   gCalEventRequested Boolean   @default(false)
   gCalEventId        String? // calendar id + event id - filled from the serverless function
+  gCalId             String?
   type               EventType @default(JUNTO)
   proposerId         String
   proposer           User      @relation(fields: [proposerId], references: [id], onDelete: Cascade)
