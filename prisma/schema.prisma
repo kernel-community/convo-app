@@ -51,3 +51,25 @@ model Rsvp {
 
   @@unique([eventId, attendeeId])
 }
+
+//  @help is there a better way to manage auth tokens?
+// plisss teach me
+model Google {
+  // credentials
+  id                      String   @id @default(uuid())
+  clientId                String
+  projectId               String
+  authUri                 String
+  tokenUri                String
+  authProviderX509CertUrl String
+  clientSecret            String
+  redirectUris            String[]
+  javascriptOrigins       String[]
+
+  // token
+  accessToken  String
+  refreshToken String
+  scope        String
+  tokenType    String
+  expiryDate   String
+}
