@@ -14,7 +14,6 @@ const SubmitRsvpSection = ({
   disabled?: boolean;
 }) => {
   const { isSignedIn } = useWallet();
-  console.log({ isSignedIn });
 
   return (
     <div className="mt-6">

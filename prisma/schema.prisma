@@ -15,21 +15,24 @@ enum EventType {
 }
 
 model Event {
-  id              String    @id @default(uuid())
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
-  title           String
-  descriptionHtml String?
-  startDateTime   DateTime
-  endDateTime     DateTime
-  location        String
-  hash            String
-  series          Boolean
-  limit           Int
-  type            EventType @default(JUNTO)
-  proposerId      String
-  proposer        User      @relation(fields: [proposerId], references: [id], onDelete: Cascade)
-  rsvps           Rsvp[]
+  id                 String    @id @default(uuid())
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+  title              String
+  descriptionHtml    String?
+  startDateTime      DateTime
+  endDateTime        DateTime
+  location           String
+  hash               String
+  series             Boolean
+  limit              Int
+  gCalEventRequested Boolean   @default(false)
+  gCalEventId        String? // calendar id + event id - filled from the serverless function
+  gCalId             String?
+  type               EventType @default(JUNTO)
+  proposerId         String
+  proposer           User      @relation(fields: [proposerId], references: [id], onDelete: Cascade)
+  rsvps              Rsvp[]
 }
 
 model User {
@@ -37,7 +40,7 @@ model User {
   address  String  @unique
   events   Event[]
   rsvps    Rsvp[]
-  nickname String  @default("Anonymous")// username for the app - can set in profile settings - will override "nickname" for all events proposed
+  nickname String  @default("Anonymous")
 }
 
 model Rsvp {
@@ -48,4 +51,26 @@ model Rsvp {
   attendee   User   @relation(fields: [attendeeId], references: [id])
 
   @@unique([eventId, attendeeId])
+}
+
+//  @help is there a better way to manage auth tokens?
+// plisss teach me
+model Google {
+  // credentials
+  id                      String   @id @default(uuid())
+  clientId                String
+  projectId               String
+  authUri                 String
+  tokenUri                String
+  authProviderX509CertUrl String
+  clientSecret            String
+  redirectUris            String[]
+  javascriptOrigins       String[]
+
+  // token
+  accessToken  String?
+  refreshToken String?
+  scope        String?
+  tokenType    String?
+  expiryDate   String?
 }

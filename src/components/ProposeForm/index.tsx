@@ -16,6 +16,7 @@ import useUser from "src/hooks/useUser";
 import Signature from "../EventPage/Signature";
 import FieldLabel from "../StrongText";
 import isNicknameSet from "src/utils/isNicknameSet";
+import Checkbox from "./FormFields/Checkbox";
 
 const SessionSchema = z.object({
   dateTime: z.date(),
@@ -39,6 +40,7 @@ const validationSchema = z.object({
     }),
   location: z.string(),
   nickname: z.string(),
+  gCalEvent: z.boolean(),
 });
 
 export type ClientEventInput = z.infer<typeof validationSchema>;
@@ -74,10 +76,11 @@ const ProposeForm = () => {
     control,
   } = useForm<ClientEventInput>({
     resolver: zodResolver(validationSchema),
+    defaultValues: { gCalEvent: true },
   });
   const { create } = useCreateEvent();
   const { isSignedIn, wallet } = useWallet();
-  const { user } = useUser({ address: wallet });
+  const { user } = useUser();
   const { signMessageAsync } = useSignMessage();
 
   const [openModalFlag, setOpenModalFlag] = useState(false);
@@ -92,23 +95,16 @@ const ProposeForm = () => {
   const openModal = () => setOpenModalFlag(true);
   const closeModal = () => setOpenModalFlag(false);
 
-  console.log({
-    user: !user,
-    nickname: !isNicknameSet(user?.nickname),
-    signedIn: !isSignedIn,
-  });
-
   // @todo
   const onSubmit: SubmitHandler<ClientEventInput> = async (data) => {
     const signature = await signMessageAsync({ message: JSON.stringify(data) });
     try {
       // display success modal
-      const created = await create({ event: data, signature, address: wallet });
+      await create({ event: data, signature, address: wallet });
       setModal({
         isError: false,
         message: "Success!",
       });
-      console.log({ created });
       openModal();
     } catch {
       // display error modal
@@ -191,6 +187,14 @@ const ProposeForm = () => {
           required={false}
         />
 
+        {/* google calendar event creation checkbox */}
+        <Checkbox
+          name="gCalEvent"
+          fieldName="Create a Google Calendar Event?"
+          register={register}
+          infoText="If checked, a google calendar event will be created and an option to receive an invite will be given to anyone who wants to RSVP"
+        />
+
         {/* nickname */}
         {user && isNicknameSet(user.nickname) && (
           <div>
@@ -209,8 +213,6 @@ const ProposeForm = () => {
           />
         )}
 
-        {/* @todo @angelagilhotra */}
-        {/* Access */}
         {!isSignedIn ? (
           <LoginButton />
         ) : (

@@ -8,11 +8,7 @@ import { useSession } from "next-auth/react";
 import { useState } from "react";
 import { useAccount, useQuery } from "wagmi";
 
-const useUser = ({
-  address,
-}: {
-  address: string | undefined | null;
-}): {
+const useUser = (): {
   isLoading: boolean;
   isError: boolean;
   user: User | undefined;
@@ -29,7 +25,7 @@ const useUser = ({
         const r = (
           await (
             await fetch("/api/query/user", {
-              body: JSON.stringify({ address }),
+              body: JSON.stringify({ address: data?.user.address }),
               method: "POST",
               headers: { "Content-type": "application/json" },
             })
@@ -42,7 +38,7 @@ const useUser = ({
       }
     },
     {
-      enabled: !isDisconnected && !!data && !!address,
+      enabled: !isDisconnected && !!data,
     }
   );
 

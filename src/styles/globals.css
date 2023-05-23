@@ -8,3 +8,19 @@
   font-weight: normal;
   font-display: swap;
 }
+
+@font-face {
+  font-family: "Cedarville_Cursive";
+  src: url("/fonts/Cedarville_Cursive/CedarvilleCursive-Regular.ttf");
+  font-style: normal;
+  font-weight: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Holland_Land";
+  src: url("/fonts/Holland_Land/Holland-Land.ttf");
+  font-style: normal;
+  font-weight: normal;
+  font-display: swap;
+}

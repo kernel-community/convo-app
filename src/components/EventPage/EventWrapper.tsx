@@ -2,36 +2,21 @@ import Hero from "../Hero";
 import { SessionsWrapper } from "./RsvpSection";
 import type { ClientEvent } from "src/types";
 import SubmitRsvpSection from "./SubmitRsvpSection";
-import useSubmitRsvp from "src/hooks/useSubmitRsvp";
 import EventDetails from "./EventDetails";
 import { useRsvpIntention } from "src/context/RsvpIntentionContext";
-import type { ReactNode } from "react";
 import { useState } from "react";
 import ConfirmationModal from "src/components/ConfirmationModal";
+import { z } from "zod";
+import useUser from "src/hooks/useUser";
+import ModalToConfirmRsvp from "./RsvpConfirmationForm/Modal";
 
-const ModalContent = ({
-  onClickConfirm,
-  children,
-}: {
-  onClickConfirm?: () => void;
-  children?: ReactNode;
-}) => {
-  // @todo @angelagilhotra add small form to get email
-  // and name
-  return (
-    <div className="flex h-full flex-col justify-between">
-      {children}
-      {onClickConfirm && (
-        <div>
-          <button onClick={onClickConfirm}>Confirm</button>
-        </div>
-      )}
-    </div>
-  );
-};
+export const rsvpInputSchema = z.object({
+  email: z.string().optional(),
+  nickname: z.string().optional(),
+});
+export type RsvpInput = z.infer<typeof rsvpInputSchema>;
 
 const EventWrapper = ({ event }: { event: ClientEvent }) => {
-  const { submit, isSubmitting } = useSubmitRsvp();
   const { totalUniqueRsvps, descriptionHtml, sessions, type, title, nickname } =
     event;
   const { rsvpIntention } = useRsvpIntention();
@@ -43,23 +28,21 @@ const EventWrapper = ({ event }: { event: ClientEvent }) => {
   const openModal = () => setOpenModalFlag(true);
   const closeModal = () => setOpenModalFlag(false);
 
-  const submitRsvp = async () => {
-    await submit();
+  const onClickRsvp = async () => {
     openModal();
   };
+
+  // @help when I try calling this hook
+  // in <ModalToConfirmRsvp /> above the user is
+  // returned as undefined (???)
+  const { user } = useUser();
 
   return (
     <>
       <ConfirmationModal
         isOpen={openModalFlag}
         onClose={closeModal}
-        content={
-          <ModalContent>
-            <div className="mt-4">
-              You are going to <span className="font-bold">{title}</span>
-            </div>
-          </ModalContent>
-        }
+        content={<ModalToConfirmRsvp title={title} user={user} />}
         title="RSVP for Event"
       />
       <Hero title={title} type={type} proposer={nickname} />
@@ -74,8 +57,7 @@ const EventWrapper = ({ event }: { event: ClientEvent }) => {
                   ? `Join ${totalUniqueRsvps} others in attending the event`
                   : `Be amongst the first few to RSVP!`
               }
-              handleSubmit={submitRsvp}
-              loading={isSubmitting}
+              handleSubmit={onClickRsvp}
               disabled={isDisabled}
             />
           </div>

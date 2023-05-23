@@ -24,8 +24,8 @@ const ConfirmationModal = ({
         content: {
           opacity: "100%",
           backgroundColor: "white",
-          width: "420px",
-          height: "320px",
+          width: "450px",
+          height: "450px",
           margin: "auto",
         },
         overlay: {},

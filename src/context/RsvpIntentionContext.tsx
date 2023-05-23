@@ -3,18 +3,22 @@ import type { ReactNode } from "react";
 import { createContext, useContext, useMemo, useState } from "react";
 import { useAccount } from "wagmi";
 
+export type RsvpIntention = {
+  eventIds: Array<string>;
+  attendeeAddress: string;
+  // following two fields are collected at the point of rsvp
+  email?: string;
+  nickname?: string;
+};
+
 export type AttendeeRsvp = {
-  rsvpIntention: {
-    eventIds: Array<string>;
-    attendeeAddress: string;
-  };
+  rsvpIntention: RsvpIntention;
   setRsvpIntention: ({
     eventIds,
     attendeeAddress,
-  }: {
-    eventIds: Array<string>;
-    attendeeAddress: string;
-  }) => void;
+    email,
+    nickname,
+  }: RsvpIntention) => void;
 };
 
 const defaultAttendeeRsvp: AttendeeRsvp = {
@@ -44,10 +48,13 @@ const RsvpIntentionProvider = ({ children }: { children: ReactNode }) => {
   // should probably throw an error if session is undefined
   // on the app we are redirecting to sign in when this happens
   // see /signin
-  const [rsvpIntention, setRsvpIntention] = useState({
+  const [rsvpIntention, setRsvpIntention] = useState<RsvpIntention>({
     attendeeAddress: session?.user.address || address || "",
-    eventIds: [] as Array<string>,
+    eventIds: [],
+    email: "",
+    nickname: "",
   });
+
   const value = useMemo(
     () => ({ rsvpIntention, setRsvpIntention }),
     [rsvpIntention]

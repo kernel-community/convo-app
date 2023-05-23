@@ -5,6 +5,7 @@ import type { Prisma } from "@prisma/client";
 import { nanoid } from "nanoid";
 import { ethers } from "ethers";
 
+// from validationSchema in `components/ProposeForm`
 type ClientEvent = {
   description?: string | undefined;
   title: string;
@@ -15,6 +16,8 @@ type ClientEvent = {
   }[];
   limit: string;
   location: string;
+  nickname?: string;
+  gCalEvent: boolean;
 };
 
 export default async function event(req: NextApiRequest, res: NextApiResponse) {
@@ -34,7 +37,15 @@ export default async function event(req: NextApiRequest, res: NextApiResponse) {
     throw new Error("Unauthorized: Signature mismatch");
   }
 
-  const { title, sessions, limit, location, description } = event;
+  const {
+    title,
+    sessions,
+    limit,
+    location,
+    description,
+    nickname,
+    gCalEvent: gCalEventRequested,
+  } = event;
 
   const user = await prisma.user.findUniqueOrThrow({
     where: {
@@ -42,20 +53,29 @@ export default async function event(req: NextApiRequest, res: NextApiResponse) {
     },
   });
 
-  const hash = nanoid(10);
+  // update nickname
+  await prisma.user.update({
+    where: { address },
+    data: { nickname },
+  });
 
+  const hash = nanoid(10);
   const eventPayload: Prisma.Enumerable<Prisma.EventCreateManyInput> =
     sessions.map((session) => {
+      const startDateTime = new Date(session.dateTime);
+      const endDateTime = new Date(session.dateTime);
+      endDateTime.setHours(startDateTime.getHours() + session.duration);
       return {
         title,
         descriptionHtml: description,
-        startDateTime: new Date(session.dateTime),
-        endDateTime: new Date(), // @todo,
+        startDateTime,
+        endDateTime,
         location,
         hash,
         limit: Number(limit),
         proposerId: user.id,
         series: sessions.length > 1,
+        gCalEventRequested,
       };
     });
 
@@ -68,5 +88,12 @@ export default async function event(req: NextApiRequest, res: NextApiResponse) {
     `Created event for ${JSON.stringify(event)} for user: ${user.address}`
   );
 
-  res.status(200).json({ data: event });
+  const created = await prisma.event.findMany({
+    where: { hash },
+    include: {
+      proposer: true,
+    },
+  });
+
+  res.status(200).json({ data: created });
 }
