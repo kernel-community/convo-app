@@ -10,7 +10,8 @@ export const serverSchema = z.object({
   NODE_ENV: z.enum(["development", "test", "production"]),
   ALCHEMY_ID: z.string(),
   NEXTAUTH_URL: z.string().url(),
-  NEXTAUTH_SECRET: z.string()
+  NEXTAUTH_SECRET: z.string(),
+  TEST_CALENDAR_ID: z.string()
 });
 
 /**
@@ -23,7 +24,8 @@ export const serverEnv = {
   NODE_ENV: process.env.NODE_ENV,
   ALCHEMY_ID: process.env.ALCHEMY_ID,
   NEXTAUTH_URL: process.env.NEXTAUTH_URL,
-  NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET
+  NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET,
+  TEST_CALENDAR_ID: process.env.TEST_CALENDAR_ID
 };
 
 /**
@@ -32,8 +34,8 @@ export const serverEnv = {
  * To expose them to the client, prefix them with `NEXT_PUBLIC_`.
  */
 export const clientSchema = z.object({
-  // NEXT_PUBLIC_CLIENTVAR: z.string(),
-  NEXT_PUBLIC_ALCHEMY_ID: z.string()
+  NEXT_PUBLIC_ALCHEMY_ID: z.string(),
+  NEXT_PUBLIC_TEST_CALENDAR_ID: z.string()
 });
 
 /**
@@ -43,6 +45,6 @@ export const clientSchema = z.object({
  * @type {{ [k in keyof z.infer<typeof clientSchema>]: z.infer<typeof clientSchema>[k] | undefined }}
  */
 export const clientEnv = {
-  // NEXT_PUBLIC_CLIENTVAR: process.env.NEXT_PUBLIC_CLIENTVAR,
-  NEXT_PUBLIC_ALCHEMY_ID: process.env.NEXT_PUBLIC_ALCHEMY_ID
+  NEXT_PUBLIC_ALCHEMY_ID: process.env.NEXT_PUBLIC_ALCHEMY_ID,
+  NEXT_PUBLIC_TEST_CALENDAR_ID: process.env.NEXT_PUBLIC_TEST_CALENDAR_ID
 };

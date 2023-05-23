@@ -1,1 +1,2 @@
 export const DEFAULT_USER_NICKNAME = "Anonymous";
+export const ADMIN_ADDRESSES = ["0x036a4d41d5c809B18c74c01E162B9b18DEC6B62b"];
