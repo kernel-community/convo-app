@@ -54,10 +54,12 @@ export default async function event(req: NextApiRequest, res: NextApiResponse) {
   });
 
   // update nickname
-  await prisma.user.update({
-    where: { address },
-    data: { nickname },
-  });
+  if (nickname) {
+    await prisma.user.update({
+      where: { address },
+      data: { nickname },
+    });
+  }
 
   const hash = nanoid(10);
   const eventPayload: Prisma.Enumerable<Prisma.EventCreateManyInput> =
