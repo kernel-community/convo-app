@@ -72,6 +72,7 @@ const useCreateEvent = () => {
       setIsSubmitting(false);
     }
 
+    // @note
     // we don't want to display if an error occurs here
     // the cron job would eventually pick this up
     // or an external action can fix this

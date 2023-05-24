@@ -16,9 +16,11 @@ import { rsvpInputSchema } from "../EventWrapper";
 const ModalToConfirmRsvp = ({
   title,
   user,
+  hideEmailRequest = true,
 }: {
   title: string;
   user?: User;
+  hideEmailRequest: boolean;
 }) => {
   const { submit } = useSubmitRsvp();
   const { rsvpIntention, setRsvpIntention } = useRsvpIntention();
@@ -37,59 +39,61 @@ const ModalToConfirmRsvp = ({
           Before confirming your spot in{" "}
           <span className="font-bold">{title}</span>
         </div>
-        <div className="pt-4">
-          <form
-            onSubmit={handleSubmit(onSubmit)}
-            className="align-center flex flex-col gap-6"
-          >
-            <div>
-              <FieldLabel>
-                Would you like to receive a google Calendar invite?
-              </FieldLabel>
-              <TextField
-                hideLabel
-                name="email"
-                fieldName="Email"
-                register={register}
-                errors={errors}
-                required={false}
-                onChange={(e) => {
-                  setRsvpIntention({
-                    ...rsvpIntention,
-                    email: e.target.value,
-                  });
-                }}
-              />
-            </div>
-
-            {/* nickname */}
-            {user && isNicknameSet(user.nickname) ? (
+        {!hideEmailRequest && (
+          <div className="pt-4">
+            <form
+              onSubmit={handleSubmit(onSubmit)}
+              className="align-center flex flex-col gap-6"
+            >
               <div>
-                <FieldLabel>Signing as</FieldLabel>
-                <Signature sign={user.nickname} style="handwritten" />
-              </div>
-            ) : (
-              <div>
-                <FieldLabel>nickname</FieldLabel>
+                <FieldLabel>
+                  Would you like to receive a google Calendar invite?
+                </FieldLabel>
                 <TextField
                   hideLabel
-                  name="nickname"
-                  fieldName="Nickname"
+                  name="email"
+                  fieldName="Email"
                   register={register}
                   errors={errors}
                   required={false}
                   onChange={(e) => {
                     setRsvpIntention({
                       ...rsvpIntention,
-                      nickname: e.target.value,
+                      email: e.target.value,
                     });
                   }}
                 />
               </div>
-            )}
-            <Button buttonText="Submit" type="submit" />
-          </form>
-        </div>
+
+              {/* nickname */}
+              {user && isNicknameSet(user.nickname) ? (
+                <div>
+                  <FieldLabel>Signing as</FieldLabel>
+                  <Signature sign={user.nickname} style="handwritten" />
+                </div>
+              ) : (
+                <div>
+                  <FieldLabel>nickname</FieldLabel>
+                  <TextField
+                    hideLabel
+                    name="nickname"
+                    fieldName="Nickname"
+                    register={register}
+                    errors={errors}
+                    required={false}
+                    onChange={(e) => {
+                      setRsvpIntention({
+                        ...rsvpIntention,
+                        nickname: e.target.value,
+                      });
+                    }}
+                  />
+                </div>
+              )}
+              <Button buttonText="Submit" type="submit" />
+            </form>
+          </div>
+        )}
       </div>
     </ModalContainer>
   );

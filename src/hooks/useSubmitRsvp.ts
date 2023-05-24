@@ -50,17 +50,30 @@ const addRsvpToDb = async (rsvp: RsvpIntention) => {
   return res;
 };
 
-/**
- * @todo @angelagilhotra
- * May 20, 2023
- * FIX the flow here --
- * useSubmitRsvp - to create an entry in the databse
- * useUpdateUser - to update nickname for a user
- * useSendGCalInvite - to send a google calendar invite if requested
- *
- * 3 separate hooks - can be called separately or onSubmit from the UI
- *
- */
+const sendGCalInvite = async (rsvp: RsvpIntention) => {
+  if (!rsvp.email || !rsvp.eventIds) {
+    console.log({ rsvp });
+    throw new Error("incorrect params");
+  }
+  let res;
+  try {
+    res = (
+      await (
+        await fetch("/api/actions/google/sendInvite", {
+          body: JSON.stringify({
+            events: rsvp.eventIds,
+            email: rsvp.email,
+          }),
+          method: "POST",
+          headers: { "Content-type": "application/json" },
+        })
+      ).json()
+    ).data;
+  } catch (err) {
+    throw err;
+  }
+  return res;
+};
 
 const useSubmitRsvp = () => {
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
@@ -74,8 +87,16 @@ const useSubmitRsvp = () => {
     }
     setIsSubmitting(true);
     try {
-      updateUser(rsvp, user?.address);
-      return addRsvpToDb(rsvp);
+      await updateUser(rsvp, user?.address);
+      await addRsvpToDb(rsvp);
+      if (rsvp.email) {
+        // the form to collect email in the confirmation modal
+        // is hidden if gCalId and gCalEventId is not
+        // found on the event
+        // for a series, it would be for the
+        // first event in the series
+        await sendGCalInvite(rsvp);
+      }
     } catch (err) {
       setIsSubmitting(false);
       setIsError(true);
