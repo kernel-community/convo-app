@@ -16,8 +16,6 @@ export default async function sendInviteHandler(
     ["events", "email"]
   );
 
-  console.log({ events, email });
-
   if (!events || !email) {
     throw new Error("`events` and/or `email` not found in req.body");
   }

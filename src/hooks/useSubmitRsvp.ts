@@ -52,7 +52,6 @@ const addRsvpToDb = async (rsvp: RsvpIntention) => {
 
 const sendGCalInvite = async (rsvp: RsvpIntention) => {
   if (!rsvp.email || !rsvp.eventIds) {
-    console.log({ rsvp });
     throw new Error("incorrect params");
   }
   let res;

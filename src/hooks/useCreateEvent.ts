@@ -79,8 +79,7 @@ const useCreateEvent = () => {
     // @help need a way for us to know this error occurred on the frontend
     try {
       if (createdInDb && event.gCalEvent) {
-        const createdInGcal = await createEventInGCal({ events: createdInDb });
-        console.log({ createdInGcal });
+        await createEventInGCal({ events: createdInDb });
       }
     } catch (err) {
       console.log(`Error in creating event in google calendar`);
