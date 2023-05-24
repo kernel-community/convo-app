@@ -52,8 +52,6 @@ export default async function callback(
     },
   });
 
-  console.log({ tokenUpdated });
-
   return res.status(200).json({
     data: "success",
   });

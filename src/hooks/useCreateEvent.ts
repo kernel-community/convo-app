@@ -72,14 +72,14 @@ const useCreateEvent = () => {
       setIsSubmitting(false);
     }
 
+    // @note
     // we don't want to display if an error occurs here
     // the cron job would eventually pick this up
     // or an external action can fix this
     // @help need a way for us to know this error occurred on the frontend
     try {
       if (createdInDb && event.gCalEvent) {
-        const createdInGcal = await createEventInGCal({ events: createdInDb });
-        console.log({ createdInGcal });
+        await createEventInGCal({ events: createdInDb });
       }
     } catch (err) {
       console.log(`Error in creating event in google calendar`);

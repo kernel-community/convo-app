@@ -5,7 +5,6 @@ export const isAdmin = (address: string | undefined | null): boolean => {
   const lowerCaseAddress = address.toLowerCase();
   const admins = ADMIN_ADDRESSES.map((addr) => addr.toLowerCase());
   if (admins.find((allowed) => lowerCaseAddress === allowed)) {
-    console.log(`admin address ${lowerCaseAddress}`);
     return true;
   }
   return false;

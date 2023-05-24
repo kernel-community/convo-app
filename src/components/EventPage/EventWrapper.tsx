@@ -37,12 +37,20 @@ const EventWrapper = ({ event }: { event: ClientEvent }) => {
   // returned as undefined (???)
   const { user } = useUser();
 
+  const hideEmailRequest = !(!!event.gCalEventId && !!event.gCalId);
+
   return (
     <>
       <ConfirmationModal
         isOpen={openModalFlag}
         onClose={closeModal}
-        content={<ModalToConfirmRsvp title={title} user={user} />}
+        content={
+          <ModalToConfirmRsvp
+            title={title}
+            user={user}
+            hideEmailRequest={hideEmailRequest}
+          />
+        }
         title="RSVP for Event"
       />
       <Hero title={title} type={type} proposer={nickname} />

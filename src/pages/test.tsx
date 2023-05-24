@@ -29,7 +29,6 @@ const About: NextPage = () => {
 
   const handleClick = () => refetch();
 
-  console.log({ isLoading, isError, data });
   return (
     <>
       <Main className="mx-auto px-4">
