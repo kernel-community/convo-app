@@ -33,6 +33,16 @@ model Event {
   proposerId         String
   proposer           User      @relation(fields: [proposerId], references: [id], onDelete: Cascade)
   rsvps              Rsvp[]
+  // @todo add forum link here
+  // based on Stewards' discussion on May 29, 2023
+  // we decided to keep emails association with Events
+  // and not Attendees (or Users) to enable Hosts to be
+  // able to see attendee emails (for [continuity](@todo add link here))
+  // but the database does not hold any association with
+  // emails <> eth addresses
+  // as soon as an event's endDateTime is in the past
+  // we clear this field on this model @todo
+  emails             String[]
 }
 
 model User {

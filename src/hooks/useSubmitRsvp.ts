@@ -37,6 +37,8 @@ const addRsvpToDb = async (rsvp: RsvpIntention) => {
             rsvp: {
               address: rsvp.attendeeAddress,
               events: rsvp.eventIds,
+              // add email to emails[] array in Event table
+              email: rsvp.email,
             },
           }),
           method: "POST",
