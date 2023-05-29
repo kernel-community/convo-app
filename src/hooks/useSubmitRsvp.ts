@@ -2,7 +2,7 @@ import type { User } from "@prisma/client";
 import { useState } from "react";
 import type { RsvpIntention } from "src/context/RsvpIntentionContext";
 import { useRsvpIntention } from "src/context/RsvpIntentionContext";
-import useUser from "./useUser";
+import { useUser } from "src/context/UserContext";
 
 const updateUser = async (rsvp: RsvpIntention, address: string | undefined) => {
   if (!address || !rsvp.nickname) return; // nothing to update
@@ -80,7 +80,7 @@ const useSubmitRsvp = () => {
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [isError, setIsError] = useState<boolean>(false);
   const { rsvpIntention: rsvp } = useRsvpIntention();
-  const { user } = useUser();
+  const { fetchedUser: user } = useUser();
   // create rsvp in the database
   const submit = async () => {
     if (rsvp.eventIds.length === 0) {
