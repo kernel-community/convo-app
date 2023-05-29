@@ -1,5 +1,5 @@
 import Button from "../Button";
-import useWallet from "src/hooks/useWallet";
+import { useUser } from "src/context/UserContext";
 import LoginButton from "../LoginButton";
 
 const SubmitRsvpSection = ({
@@ -13,7 +13,8 @@ const SubmitRsvpSection = ({
   loading?: boolean;
   disabled?: boolean;
 }) => {
-  const { isSignedIn } = useWallet();
+  const { fetchedUser: user } = useUser();
+  const { isSignedIn } = user;
 
   return (
     <div className="mt-6">

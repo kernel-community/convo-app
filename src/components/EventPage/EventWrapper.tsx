@@ -7,7 +7,7 @@ import { useRsvpIntention } from "src/context/RsvpIntentionContext";
 import { useState } from "react";
 import ConfirmationModal from "src/components/ConfirmationModal";
 import { z } from "zod";
-import useUser from "src/hooks/useUser";
+import { useUser } from "src/context/UserContext";
 import ModalToConfirmRsvp from "./RsvpConfirmationForm/Modal";
 
 export const rsvpInputSchema = z.object({
@@ -35,7 +35,7 @@ const EventWrapper = ({ event }: { event: ClientEvent }) => {
   // @help when I try calling this hook
   // in <ModalToConfirmRsvp /> above the user is
   // returned as undefined (???)
-  const { user } = useUser();
+  const { fetchedUser: user } = useUser();
 
   const hideEmailRequest = !(!!event.gCalEventId && !!event.gCalId);
 

@@ -7,12 +7,11 @@ import Button from "../Button";
 import { RichTextArea } from "./FormFields/RichText";
 import SessionsInput from "./FormFields/SessionsInput";
 import useCreateEvent from "src/hooks/useCreateEvent";
-import useWallet from "src/hooks/useWallet";
 import LoginButton from "../LoginButton";
 import { useSignMessage } from "wagmi";
 import ConfirmationModal from "../ConfirmationModal";
 import { useState } from "react";
-import useUser from "src/hooks/useUser";
+import { useUser } from "src/context/UserContext";
 import Signature from "../EventPage/Signature";
 import FieldLabel from "../StrongText";
 import isNicknameSet from "src/utils/isNicknameSet";
@@ -79,8 +78,7 @@ const ProposeForm = () => {
     defaultValues: { gCalEvent: true },
   });
   const { create } = useCreateEvent();
-  const { isSignedIn, wallet } = useWallet();
-  const { user } = useUser();
+  const { fetchedUser: user } = useUser();
   const { signMessageAsync } = useSignMessage();
 
   const [openModalFlag, setOpenModalFlag] = useState(false);
@@ -100,7 +98,7 @@ const ProposeForm = () => {
     const signature = await signMessageAsync({ message: JSON.stringify(data) });
     try {
       // display success modal
-      await create({ event: data, signature, address: wallet });
+      await create({ event: data, signature, address: user.address });
       setModal({
         isError: false,
         message: "Success!",
@@ -202,7 +200,7 @@ const ProposeForm = () => {
             <Signature sign={user.nickname} />
           </div>
         )}
-        {(!user || !isNicknameSet(user?.nickname) || !isSignedIn) && (
+        {(!user || !isNicknameSet(user?.nickname) || !user.isSignedIn) && (
           <TextField
             name="nickname"
             fieldName="How would you like to be known as?"
@@ -213,7 +211,7 @@ const ProposeForm = () => {
           />
         )}
 
-        {!isSignedIn ? (
+        {!user.isSignedIn ? (
           <LoginButton />
         ) : (
           <Button buttonText="Submit" type="submit" />

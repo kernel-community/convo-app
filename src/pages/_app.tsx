@@ -14,6 +14,7 @@ import type { GetSiweMessageOptions } from "@rainbow-me/rainbowkit-siwe-next-aut
 import { RainbowKitSiweNextAuthProvider } from "@rainbow-me/rainbowkit-siwe-next-auth";
 import { Analytics } from "@vercel/analytics/react";
 import { NextSeo } from "next-seo";
+import { UserProvider } from "src/context/UserContext";
 
 const queryClient = new QueryClient();
 const { chains, provider } = configureChains(
@@ -124,7 +125,9 @@ const MyApp = ({
           >
             <RainbowKitProvider chains={chains}>
               <QueryClientProvider client={queryClient}>
-                <Component {...pageProps} />
+                <UserProvider>
+                  <Component {...pageProps} />
+                </UserProvider>
               </QueryClientProvider>
             </RainbowKitProvider>
           </RainbowKitSiweNextAuthProvider>
