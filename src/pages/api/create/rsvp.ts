@@ -5,6 +5,7 @@ import { prisma } from "src/server/db";
 type RsvpRequest = {
   address: string;
   events: Array<string>;
+  email?: string;
 };
 
 export default async function rsvp(req: NextApiRequest, res: NextApiResponse) {
@@ -34,6 +35,28 @@ export default async function rsvp(req: NextApiRequest, res: NextApiResponse) {
       },
     })
   );
+  console.log(JSON.stringify(rsvp));
+  if (rsvp.email) {
+    for (let i = 0; i < rsvp.events.length; i++) {
+      const { emails } = await prisma.event.findUniqueOrThrow({
+        where: {
+          id: rsvp.events[i],
+        },
+        select: {
+          emails: true,
+        },
+      });
+      const updatedEmails = emails.concat(rsvp.email);
+      await prisma.event.update({
+        where: {
+          id: rsvp.events[i],
+        },
+        data: {
+          emails: updatedEmails,
+        },
+      });
+    }
+  }
 
   const response = await Promise.all(rsvps);
   const eventIds = response.map((r) => r.eventId);
