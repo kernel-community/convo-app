@@ -6,6 +6,7 @@ export const parseEvents = (
   events: Array<FullEvent>,
   reqHost: string
 ): Array<calendar_v3.Schema$Event> => {
+  const protocol = reqHost.includes("localhost") ? "http" : "https";
   const parsed = events.map((event) => {
     return {
       summary: `${event.title}`,
@@ -24,7 +25,7 @@ export const parseEvents = (
           event.proposer.nickname
             ? `\n\n${`Proposer: ${event.proposer.nickname}`}`
             : ""
-        }` + `${`\nRSVP here: https://${reqHost}/rsvp/${event.hash}`}`,
+        }` + `${`\nRSVP here: ${protocol}://${reqHost}/rsvp/${event.hash}`}`,
     };
   });
   return parsed;
