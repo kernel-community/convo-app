@@ -3,6 +3,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { prisma } from "src/server/db";
 import { google } from "googleapis";
 import { pick } from "lodash";
+import { credentials } from "./credentials";
 
 export default async function callback(
   req: NextApiRequest,
@@ -10,13 +11,31 @@ export default async function callback(
 ) {
   // code that was received in the callback
   const { code }: { code: string } = pick(req.body, ["code"]);
+  const {
+    clientId,
+    clientSecret,
+    redirectUris,
+    projectId,
+    authUri,
+    tokenUri,
+    authProviderX509CertUrl,
+    javascriptOrigins,
+  } = credentials;
 
-  // credentials from the db
-  const credentials = await prisma.google.findFirst();
-  if (!credentials) {
-    throw new Error("add credentials to db");
+  if (
+    !clientId ||
+    !clientSecret ||
+    !redirectUris ||
+    !projectId ||
+    !authUri ||
+    !tokenUri ||
+    !authProviderX509CertUrl ||
+    !javascriptOrigins
+  ) {
+    throw new Error(
+      "one of clientId, clientSecret, redirectUris, projectId, authUri, tokenUri, authProviderX509CertUrl, javascriptOrigins not defined"
+    );
   }
-  const { clientId, clientSecret, redirectUris } = credentials;
 
   const oAuth2Client = new google.auth.OAuth2(
     clientId,
@@ -39,20 +58,54 @@ export default async function callback(
   const { access_token, refresh_token, scope, token_type, expiry_date } =
     tokens;
 
-  const tokenUpdated = await prisma.google.update({
+  if (
+    !access_token ||
+    !refresh_token ||
+    !scope ||
+    !token_type ||
+    !expiry_date
+  ) {
+    throw new Error(
+      "Error: one of access_token || refresh_token || scope || token_type || expiry_date undefined"
+    );
+  }
+
+  const tokenUpdated = await prisma.google.upsert({
     where: {
-      id: credentials.id,
+      clientId,
     },
-    data: {
+    create: {
       accessToken: access_token?.toString(),
       refreshToken: refresh_token?.toString(),
       scope,
       tokenType: token_type?.toString(),
       expiryDate: expiry_date?.toString(),
+      clientId,
+      clientSecret,
+      redirectUris,
+      projectId,
+      authUri,
+      tokenUri,
+      authProviderX509CertUrl,
+      javascriptOrigins,
+    },
+    update: {
+      accessToken: access_token?.toString(),
+      refreshToken: refresh_token?.toString(),
+      scope,
+      tokenType: token_type?.toString(),
+      expiryDate: expiry_date?.toString(),
+      clientSecret,
+      redirectUris,
+      projectId,
+      authUri,
+      tokenUri,
+      authProviderX509CertUrl,
+      javascriptOrigins,
     },
   });
 
   return res.status(200).json({
-    data: "success",
+    data: tokenUpdated,
   });
 }

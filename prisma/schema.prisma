@@ -66,10 +66,12 @@ model Rsvp {
 //  @help is there a better way to manage auth tokens?
 // plisss teach me
 model Google {
-  // credentials
   id                      String   @id @default(uuid())
-  clientId                String
-  projectId               String
+  createdAt               DateTime  @default(now())
+
+  // credentials
+  clientId                String @unique
+  projectId               String 
   authUri                 String
   tokenUri                String
   authProviderX509CertUrl String
@@ -78,9 +80,9 @@ model Google {
   javascriptOrigins       String[]
 
   // token
-  accessToken  String?
-  refreshToken String?
-  scope        String?
-  tokenType    String?
-  expiryDate   String?
+  accessToken             String
+  refreshToken            String
+  scope                   String
+  tokenType               String
+  expiryDate              String
 }

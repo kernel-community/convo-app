@@ -6,7 +6,7 @@ export const getCalendar = async () => {
   try {
     auth = await getAuth();
   } catch (e) {
-    throw new Error("error in auth");
+    throw e;
   }
   const calendar = google.calendar({ version: "v3", auth });
   return calendar;
