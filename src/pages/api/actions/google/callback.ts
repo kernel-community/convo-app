@@ -3,12 +3,19 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { prisma } from "src/server/db";
 import { google } from "googleapis";
 import { pick } from "lodash";
-import { credentials } from "./credentials";
+import { getCredentials } from "./credentials";
 
 export default async function callback(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
+  const headers = req.headers;
+  const { origin }: { origin?: string | undefined | string[] } = pick(headers, [
+    "origin",
+  ]);
+  if (!origin) {
+    throw new Error("why is origin not defined???");
+  }
   // code that was received in the callback
   const { code }: { code: string } = pick(req.body, ["code"]);
   const {
@@ -20,7 +27,7 @@ export default async function callback(
     tokenUri,
     authProviderX509CertUrl,
     javascriptOrigins,
-  } = credentials;
+  } = getCredentials(origin);
 
   if (
     !clientId ||
@@ -82,7 +89,7 @@ export default async function callback(
       expiryDate: expiry_date?.toString(),
       clientId,
       clientSecret,
-      redirectUris,
+      redirectUris: redirectUris as string[],
       projectId,
       authUri,
       tokenUri,
@@ -96,7 +103,7 @@ export default async function callback(
       tokenType: token_type?.toString(),
       expiryDate: expiry_date?.toString(),
       clientSecret,
-      redirectUris,
+      redirectUris: redirectUris as string[],
       projectId,
       authUri,
       tokenUri,
