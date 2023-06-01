@@ -1,56 +1,41 @@
-import { useEffect, useState } from "react";
+import { useQuery } from "react-query";
+import { useUser } from "src/context/UserContext";
 
 const useUserRsvpForEvent = ({
   eventId,
-  attendeeAddress,
+  fetchOverride,
 }: {
   eventId: string;
-  attendeeAddress: string | undefined;
+  fetchOverride: boolean;
 }) => {
-  const [isFetching, setIsFetching] = useState<boolean>(true);
-  const [isRsvpd, setIsRsvpd] = useState<boolean>(false);
-  const getRsvp = async ({
-    address,
-    event,
-  }: {
-    address: string;
-    event: string;
-  }) => {
-    let res;
-    setIsFetching(true);
-    try {
-      res = (
-        await (
-          await fetch("/api/query/getUserRsvpForEvent", {
-            body: JSON.stringify({
-              address,
-              event,
-            }),
-            method: "POST",
-            headers: { "Content-type": "application/json" },
-          })
-        ).json()
-      ).data;
-    } catch (err) {
-      setIsFetching(false);
-      throw err;
+  const { fetchedUser: user } = useUser();
+  const { data, refetch, isFetching } = useQuery(
+    [`userRsvpForEvent-${user.address}-${eventId}`],
+    async () => {
+      try {
+        const r = (
+          await (
+            await fetch("/api/query/getUserRsvpForEvent", {
+              body: JSON.stringify({ address: user.address, event: eventId }),
+              method: "POST",
+              headers: { "Content-type": "application/json" },
+            })
+          ).json()
+        ).data;
+        return r.isRsvp as boolean;
+      } catch (err) {
+        throw err;
+      }
+    },
+    {
+      enabled: !!user.address && fetchOverride,
     }
-    setIsRsvpd(res.isRsvp);
-    setIsFetching(false);
-    return res;
-  };
-  useEffect(() => {
-    if (!attendeeAddress) return;
-    getRsvp({
-      address: attendeeAddress,
-      event: eventId,
-    });
-  }, [eventId, attendeeAddress]);
+  );
 
   return {
     isFetching,
-    refetch: getRsvp,
-    isRsvpd,
+    refetch,
+    isRsvpd: data,
   };
 };
 

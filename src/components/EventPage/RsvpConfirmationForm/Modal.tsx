@@ -5,13 +5,13 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import Button from "../../Button";
 import Signature from "../Signature";
 import isNicknameSet from "src/utils/isNicknameSet";
-import type { User } from "@prisma/client";
 import FieldLabel from "./FieldLabel";
 import ModalContainer from "./ModalContainer";
 import useSubmitRsvp from "src/hooks/useSubmitRsvp";
 import { useRsvpIntention } from "src/context/RsvpIntentionContext";
 import type { RsvpInput } from "../EventWrapper";
 import { rsvpInputSchema } from "../EventWrapper";
+import type { UserStatus } from "src/context/UserContext";
 
 const ModalToConfirmRsvp = ({
   title,
@@ -19,7 +19,7 @@ const ModalToConfirmRsvp = ({
   hideEmailRequest = true,
 }: {
   title: string;
-  user?: User;
+  user?: UserStatus;
   hideEmailRequest: boolean;
 }) => {
   const { submit } = useSubmitRsvp();
@@ -39,12 +39,12 @@ const ModalToConfirmRsvp = ({
           Before confirming your spot in{" "}
           <span className="font-bold">{title}</span>
         </div>
-        {!hideEmailRequest && (
-          <div className="pt-4">
-            <form
-              onSubmit={handleSubmit(onSubmit)}
-              className="align-center flex flex-col gap-6"
-            >
+        <div className="pt-4">
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            className="align-center flex flex-col gap-6"
+          >
+            {!hideEmailRequest && (
               <div>
                 <FieldLabel>
                   Would you like to receive a google Calendar invite?
@@ -64,36 +64,36 @@ const ModalToConfirmRsvp = ({
                   }}
                 />
               </div>
+            )}
 
-              {/* nickname */}
-              {user && isNicknameSet(user.nickname) ? (
-                <div>
-                  <FieldLabel>Signing as</FieldLabel>
-                  <Signature sign={user.nickname} style="handwritten" />
-                </div>
-              ) : (
-                <div>
-                  <FieldLabel>nickname</FieldLabel>
-                  <TextField
-                    hideLabel
-                    name="nickname"
-                    fieldName="Nickname"
-                    register={register}
-                    errors={errors}
-                    required={false}
-                    onChange={(e) => {
-                      setRsvpIntention({
-                        ...rsvpIntention,
-                        nickname: e.target.value,
-                      });
-                    }}
-                  />
-                </div>
-              )}
-              <Button buttonText="Submit" type="submit" />
-            </form>
-          </div>
-        )}
+            {/* nickname */}
+            {user && isNicknameSet(user.nickname) ? (
+              <div>
+                <FieldLabel>Signing as</FieldLabel>
+                <Signature sign={user.nickname} style="handwritten" />
+              </div>
+            ) : (
+              <div>
+                <FieldLabel>nickname</FieldLabel>
+                <TextField
+                  hideLabel
+                  name="nickname"
+                  fieldName="Nickname"
+                  register={register}
+                  errors={errors}
+                  required={false}
+                  onChange={(e) => {
+                    setRsvpIntention({
+                      ...rsvpIntention,
+                      nickname: e.target.value,
+                    });
+                  }}
+                />
+              </div>
+            )}
+            <Button buttonText="Submit" type="submit" />
+          </form>
+        </div>
       </div>
     </ModalContainer>
   );
