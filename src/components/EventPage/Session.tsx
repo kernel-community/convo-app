@@ -29,7 +29,8 @@ const Session = ({
     ((availableSeats ? availableSeats > 0 : false) && !isPast(startDateTime));
   const { isRsvpd } = useUserRsvpForEvent({
     eventId: data,
-    fetchOverride: active,
+    // dont fetch if active
+    dontFetch: !active,
   });
   console.log({
     eventId: data,

@@ -3,10 +3,10 @@ import { useUser } from "src/context/UserContext";
 
 const useUserRsvpForEvent = ({
   eventId,
-  fetchOverride,
+  dontFetch,
 }: {
   eventId: string;
-  fetchOverride: boolean;
+  dontFetch: boolean;
 }) => {
   const { fetchedUser: user } = useUser();
   const { data, refetch, isFetching } = useQuery(
@@ -28,7 +28,9 @@ const useUserRsvpForEvent = ({
       }
     },
     {
-      enabled: !!user.address && fetchOverride,
+      // fetch only if user.address is present
+      // and dontFetch is false
+      enabled: !!user.address && !dontFetch,
     }
   );
 

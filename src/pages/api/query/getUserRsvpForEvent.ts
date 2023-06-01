@@ -24,7 +24,7 @@ const getUserRsvpForEvent = async (
 
   console.log(`
     rsvp for event:${event} for address:${address}\n
-    ${rsvp}
+    ${JSON.stringify(rsvp)}
   `);
 
   res.status(200).json({
