@@ -94,11 +94,19 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
       !isNil(address) &&
       !isNil(fetchedUser.address)
     ) {
+      // user switched their wallet
       // @help the only case where this is catastrophic (choice of word, lol)
       // is when the user has filled up the propose form
       // and then they switch their account in their wallet
       // the app would reload, and the user signed out
       // not sure what's the best way to handle account switching
+      signOut();
+    }
+    if (isNil(address) && !isNil(fetchedUser.address)) {
+      // either the wallet is disconnected
+      // or signed out (never connected, user returned to the website)
+      // the session exists
+      // we want the user to sign in to the wallet
       signOut();
     }
   }, [address, fetchedUser, disconnect]);
