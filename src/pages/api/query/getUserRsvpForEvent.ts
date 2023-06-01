@@ -13,7 +13,7 @@ const getUserRsvpForEvent = async (
   const user = await prisma.user.findUniqueOrThrow({
     where: { address },
   });
-  const rsvp = prisma.rsvp.findUnique({
+  const rsvp = await prisma.rsvp.findUnique({
     where: {
       eventId_attendeeId: {
         eventId: event,

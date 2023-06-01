@@ -2,7 +2,7 @@ const Signature = ({
   sign,
   style = "fancy",
 }: {
-  sign: string | null;
+  sign: string | null | undefined;
   style?: "fancy" | "handwritten";
 }) => {
   let textSizeDefault = "text-4xl";

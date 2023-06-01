@@ -1,6 +1,7 @@
 import { isPast } from "src/utils/dateTime";
 import Image from "next/image";
 import cross from "public/vectors/cross.png";
+import useUserRsvpForEvent from "src/hooks/useUserRsvpForEvent";
 
 const Session = ({
   handleClick,
@@ -26,6 +27,14 @@ const Session = ({
   const active: boolean =
     (noLimit && !isPast(startDateTime)) ||
     ((availableSeats ? availableSeats > 0 : false) && !isPast(startDateTime));
+  const { isRsvpd } = useUserRsvpForEvent({
+    eventId: data,
+    fetchOverride: active,
+  });
+  console.log({
+    eventId: data,
+    isRsvpd,
+  });
   return (
     <label
       className={`

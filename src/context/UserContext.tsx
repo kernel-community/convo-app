@@ -1,11 +1,13 @@
 import type { User } from "@prisma/client";
+import { isNil } from "lodash";
 import { useSession } from "next-auth/react";
-import { createContext, useContext, useMemo, useState } from "react";
+import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import type { ReactNode } from "react";
 import { useQuery } from "react-query";
 import { useAccount, useDisconnect } from "wagmi";
+import { signOut } from "next-auth/react";
 
-export type UserStatus = User & {
+export type UserStatus = Partial<User> & {
   isSignedIn: boolean;
 };
 
@@ -16,9 +18,9 @@ export type FullUser = {
 
 const defaultFullUser: FullUser = {
   fetchedUser: {
-    id: "",
-    address: "",
-    nickname: "",
+    id: undefined,
+    address: undefined,
+    nickname: undefined,
     isSignedIn: false,
   },
   // eslint-disable-next-line @typescript-eslint/no-empty-function
@@ -37,15 +39,17 @@ const useUser = () => {
 
 const UserProvider = ({ children }: { children: ReactNode }) => {
   const { data } = useSession();
-  const { isDisconnected } = useAccount();
+  const { isDisconnected, address } = useAccount();
   const { disconnect } = useDisconnect();
   const [fetchedUser, setFetchedUser] = useState<UserStatus>(
     defaultFullUser.fetchedUser
   );
+
   // const wallet = fetchedUser?.address;
   // const isSignedIn = fetchedUser.address.length > 0 && !isDisconnected;
+
   useQuery(
-    ["user"],
+    [`user-${data?.user.address}`],
     async () => {
       try {
         const r = (
@@ -83,6 +87,21 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
       enabled: !isDisconnected && !!data,
     }
   );
+
+  useEffect(() => {
+    if (
+      address !== fetchedUser.address &&
+      !isNil(address) &&
+      !isNil(fetchedUser.address)
+    ) {
+      // @help the only case where this is catastrophic (choice of word, lol)
+      // is when the user has filled up the propose form
+      // and then they switch their account in their wallet
+      // the app would reload, and the user signed out
+      // not sure what's the best way to handle account switching
+      signOut();
+    }
+  }, [address, fetchedUser, disconnect]);
 
   const value = useMemo(
     () => ({
