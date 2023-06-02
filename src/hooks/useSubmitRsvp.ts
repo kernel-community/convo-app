@@ -27,7 +27,10 @@ const updateUser = async (rsvp: RsvpIntention, address: string | undefined) => {
   return res;
 };
 
-const addRsvpToDb = async (rsvp: RsvpIntention) => {
+const addRsvpToDb = async (
+  rsvp: RsvpIntention,
+  address: string | undefined
+) => {
   let res;
   try {
     res = (
@@ -35,7 +38,7 @@ const addRsvpToDb = async (rsvp: RsvpIntention) => {
         await fetch("/api/create/rsvp", {
           body: JSON.stringify({
             rsvp: {
-              address: rsvp.attendeeAddress,
+              address,
               events: rsvp.eventIds,
               // add email to emails[] array in Event table
               email: rsvp.email,
@@ -89,7 +92,7 @@ const useSubmitRsvp = () => {
     setIsSubmitting(true);
     try {
       await updateUser(rsvp, user?.address);
-      await addRsvpToDb(rsvp);
+      await addRsvpToDb(rsvp, user?.address);
       if (rsvp.email) {
         // the form to collect email in the confirmation modal
         // is hidden if gCalId and gCalEventId is not

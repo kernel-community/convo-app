@@ -22,11 +22,6 @@ const getUserRsvpForEvent = async (
     },
   });
 
-  console.log(`
-    rsvp for event:${event} for address:${address}\n
-    ${rsvp}
-  `);
-
   res.status(200).json({
     data: {
       isRsvp: !!rsvp,

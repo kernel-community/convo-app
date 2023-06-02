@@ -14,7 +14,7 @@ export const serverSchema = z.object({
   TEST_CALENDAR_ID: z.string(),
   PROD_HOST: z.string(),
   CLIENT_ID: z.string().min(1),
-  CLIENT_SECRET: z.string().min(1)
+  CLIENT_SECRET: z.string().min(1),
 });
 
 /**
@@ -31,8 +31,7 @@ export const serverEnv = {
   TEST_CALENDAR_ID: process.env.TEST_CALENDAR_ID,
   PROD_HOST: process.env.PROD_HOST,
   CLIENT_ID: process.env.CLIENT_ID,
-  CLIENT_SECRET: process.env.CLIENT_SECRET
-
+  CLIENT_SECRET: process.env.CLIENT_SECRET,
 };
 
 /**
@@ -42,7 +41,7 @@ export const serverEnv = {
  */
 export const clientSchema = z.object({
   NEXT_PUBLIC_ALCHEMY_ID: z.string(),
-  NEXT_PUBLIC_TEST_CALENDAR_ID: z.string()
+  NEXT_PUBLIC_TEST_CALENDAR_ID: z.string(),
 });
 
 /**
@@ -53,5 +52,5 @@ export const clientSchema = z.object({
  */
 export const clientEnv = {
   NEXT_PUBLIC_ALCHEMY_ID: process.env.NEXT_PUBLIC_ALCHEMY_ID,
-  NEXT_PUBLIC_TEST_CALENDAR_ID: process.env.NEXT_PUBLIC_TEST_CALENDAR_ID
+  NEXT_PUBLIC_TEST_CALENDAR_ID: process.env.NEXT_PUBLIC_TEST_CALENDAR_ID,
 };

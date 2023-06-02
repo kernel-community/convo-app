@@ -9,12 +9,7 @@ const Post = () => {
   const { eventHash } = query;
   const { isLoading, isError, data } = useEvent({ hash: eventHash });
   return (
-    <Main
-      className="
-      container
-      mx-auto
-    "
-    >
+    <Main className="px-6 sm:px-24">
       <RsvpIntentionProvider>
         {!isLoading && !isError && data && <EventWrapper event={data} />}
       </RsvpIntentionProvider>

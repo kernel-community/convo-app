@@ -1,8 +1,33 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import type { Session as ClientSession } from "src/types";
 import { isPast, getDateTimeString, sortSessions } from "src/utils/dateTime";
 import { useRsvpIntention } from "src/context/RsvpIntentionContext";
 import Session from "./Session";
+import ConfirmationModal from "../ConfirmationModal";
+import Button from "../Button";
+import { useUser } from "src/context/UserContext";
+import useUpdateRsvp from "src/hooks/useUpdateRsvp";
+
+const RemoveRSVPModal = ({
+  address,
+  eventId,
+}: {
+  address: string | null | undefined;
+  eventId: string | null | undefined;
+}) => {
+  const { fetch: updateRsvp } = useUpdateRsvp({
+    address,
+    eventId,
+    toRsvp: false,
+  });
+
+  if (!address || !eventId) {
+    console.log("there was an error", JSON.stringify({ address, eventId }));
+    return <div>There was an error; Try again?</div>;
+  }
+
+  return <Button buttonText="Cancel RSVP?" handleClick={() => updateRsvp()} />;
+};
 
 export const SessionsWrapper = ({
   sessions,
@@ -11,7 +36,23 @@ export const SessionsWrapper = ({
 }) => {
   const { rsvpIntention, setRsvpIntention } = useRsvpIntention();
   const { sessions: sortedSessions, active } = sortSessions(sessions);
-  const handleSessionSelect = (id: string, checked: boolean) => {
+  const { fetchedUser: user } = useUser();
+  const [openModalFlag, setOpenModalFlag] = useState(false);
+  const [cancelRsvpEventId, setCancelRsvpEventId] = useState<
+    string | undefined
+  >(undefined);
+  const openModal = () => setOpenModalFlag(true);
+  const closeModal = () => setOpenModalFlag(false);
+  const handleSessionSelect = (
+    id: string,
+    checked: boolean,
+    isEdit: boolean
+  ) => {
+    if (isEdit) {
+      // open modal to handle rsvp edit
+      setCancelRsvpEventId(() => id);
+      openModal();
+    }
     switch (checked) {
       case true:
         setRsvpIntention({
@@ -40,7 +81,15 @@ export const SessionsWrapper = ({
 
   return (
     <>
-      <div className="mt-3 flex flex-col gap-3">
+      <ConfirmationModal
+        isOpen={openModalFlag}
+        onClose={closeModal}
+        content={
+          <RemoveRSVPModal address={user.address} eventId={cancelRsvpEventId} />
+        }
+        title="EDIT YOUR RSVP"
+      />
+      <div className="w-100 [&>*]:my-3">
         {sortedSessions.map((session, key) => {
           const active =
             (session.noLimit && !isPast(session.startDateTime)) ||
