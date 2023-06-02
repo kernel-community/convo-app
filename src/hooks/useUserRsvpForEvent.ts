@@ -31,6 +31,7 @@ const useUserRsvpForEvent = ({
       // fetch only if user.address is present
       // and dontFetch is false
       enabled: !!user.address && !dontFetch,
+      refetchInterval: 5000,
     }
   );
 
