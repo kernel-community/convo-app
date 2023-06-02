@@ -28,9 +28,7 @@ const EventWrapper = ({ event }: { event: ClientEvent }) => {
   const openModal = () => setOpenModalFlag(true);
   const closeModal = () => setOpenModalFlag(false);
 
-  const onClickRsvp = async () => {
-    openModal();
-  };
+  const onClickRsvp = () => openModal();
 
   // @help when I try calling this hook
   // in <ModalToConfirmRsvp /> above the user is
@@ -56,19 +54,17 @@ const EventWrapper = ({ event }: { event: ClientEvent }) => {
       <Hero title={title} type={type} proposer={nickname} />
       <div className="mt-24 grid grid-cols-1 gap-12 lg:grid-cols-3">
         <EventDetails html={descriptionHtml} proposer={nickname} />
-        <div>
-          <div className="flex flex-col gap-2">
-            <SessionsWrapper sessions={sessions} />
-            <SubmitRsvpSection
-              text={
-                totalUniqueRsvps > 5
-                  ? `Join ${totalUniqueRsvps} others in attending the event`
-                  : `Be amongst the first few to RSVP!`
-              }
-              handleSubmit={onClickRsvp}
-              disabled={isDisabled}
-            />
-          </div>
+        <div className="min-w-100 flex flex-col gap-2">
+          <SessionsWrapper sessions={sessions} />
+          <SubmitRsvpSection
+            text={
+              totalUniqueRsvps > 5
+                ? `Join ${totalUniqueRsvps} others in attending the event`
+                : `Be amongst the first few to RSVP!`
+            }
+            handleSubmit={onClickRsvp}
+            disabled={isDisabled}
+          />
         </div>
       </div>
     </>

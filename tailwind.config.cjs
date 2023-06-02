@@ -40,7 +40,7 @@ module.exports = {
         primary: ["Libre Franklin", "sans-serif"],
         fancy: ["Licorice", "sans-serif"],
         /** another handwritten alternative: "Cedarville_Cursive" **/
-        handwritten: ["Holland_Land", "sans-serif"]
+        handwritten: ["Holland_Land", "sans-serif"],
       },
       fontSize: {
         xxs: "0.69rem",

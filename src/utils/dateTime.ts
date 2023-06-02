@@ -40,13 +40,11 @@ export const sortSessions = (sessions: Session[]) => {
   const activeSessions: Session[] = [];
   const inactiveSessions: Session[] = [];
   sessions.forEach((s) => {
-    const { startDateTime, noLimit, availableSeats } = s;
-    const active =
-      (noLimit && !isPast(startDateTime)) ||
-      (availableSeats > 0 && !isPast(startDateTime));
+    const { startDateTime } = s;
+    const isInPresent = !isPast(startDateTime);
 
-    if (active) activeSessions.push(s);
-    if (!active) inactiveSessions.push(s);
+    if (isInPresent) activeSessions.push(s);
+    if (!isInPresent) inactiveSessions.push(s);
   });
   activeSessions.sort(
     (s1, s2) =>
