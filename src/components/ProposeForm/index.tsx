@@ -16,6 +16,7 @@ import Signature from "../EventPage/Signature";
 import FieldLabel from "../StrongText";
 import isNicknameSet from "src/utils/isNicknameSet";
 import Checkbox from "./FormFields/Checkbox";
+import type { User } from "@prisma/client";
 
 const SessionSchema = z.object({
   dateTime: z.date(),
@@ -197,7 +198,7 @@ const ProposeForm = () => {
         {user && isNicknameSet(user.nickname) && (
           <div>
             <FieldLabel>Proposing as</FieldLabel>
-            <Signature sign={user.nickname} />
+            <Signature user={user as User} />
           </div>
         )}
         {(!user || !isNicknameSet(user?.nickname) || !user.isSignedIn) && (

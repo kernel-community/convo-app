@@ -8,6 +8,7 @@ const Post = () => {
   const { query } = useRouter();
   const { eventHash } = query;
   const { isLoading, isError, data } = useEvent({ hash: eventHash });
+  console.log({ data });
   return (
     <Main className="px-6 sm:px-24">
       <RsvpIntentionProvider>

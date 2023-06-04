@@ -27,7 +27,7 @@ model Event {
   series             Boolean
   limit              Int
   gCalEventRequested Boolean   @default(false)
-  gCalEventId        String? // calendar id + event id - filled from the serverless function
+  gCalEventId        String?
   gCalId             String?
   type               EventType @default(JUNTO)
   proposerId         String
@@ -71,7 +71,7 @@ model Google {
 
   // credentials
   clientId                String @unique
-  projectId               String 
+  projectId               String
   authUri                 String
   tokenUri                String
   authProviderX509CertUrl String

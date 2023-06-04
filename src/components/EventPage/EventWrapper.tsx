@@ -17,8 +17,15 @@ export const rsvpInputSchema = z.object({
 export type RsvpInput = z.infer<typeof rsvpInputSchema>;
 
 const EventWrapper = ({ event }: { event: ClientEvent }) => {
-  const { totalUniqueRsvps, descriptionHtml, sessions, type, title, nickname } =
-    event;
+  const {
+    totalUniqueRsvps,
+    descriptionHtml,
+    sessions,
+    type,
+    title,
+    nickname,
+    proposer,
+  } = event;
   const { rsvpIntention } = useRsvpIntention();
   const { eventIds } = rsvpIntention;
   const isDisabled = eventIds.length === 0;
@@ -53,7 +60,7 @@ const EventWrapper = ({ event }: { event: ClientEvent }) => {
       />
       <Hero title={title} type={type} proposer={nickname} />
       <div className="mt-24 grid grid-cols-1 gap-12 lg:grid-cols-3">
-        <EventDetails html={descriptionHtml} proposer={nickname} />
+        <EventDetails html={descriptionHtml} proposer={proposer} />
         <div className="min-w-100 flex flex-col gap-2">
           <SessionsWrapper sessions={sessions} />
           <SubmitRsvpSection

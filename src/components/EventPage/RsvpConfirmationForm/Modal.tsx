@@ -12,6 +12,7 @@ import { useRsvpIntention } from "src/context/RsvpIntentionContext";
 import type { RsvpInput } from "../EventWrapper";
 import { rsvpInputSchema } from "../EventWrapper";
 import type { UserStatus } from "src/context/UserContext";
+import { User } from "@prisma/client";
 
 const ModalToConfirmRsvp = ({
   title,
@@ -70,7 +71,7 @@ const ModalToConfirmRsvp = ({
             {user && isNicknameSet(user.nickname) ? (
               <div>
                 <FieldLabel>Signing as</FieldLabel>
-                <Signature sign={user.nickname} style="handwritten" />
+                <Signature user={user as User} style="handwritten" />
               </div>
             ) : (
               <div>
