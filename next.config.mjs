@@ -5,6 +5,11 @@
  */
 !process.env.SKIP_ENV_VALIDATION && (await import("./src/env/server.mjs"));
 
+const ContentSecurityPolicy = `
+  default-src 'self';
+  connect-src 'vitals.vercel-insights.com';
+`;
+
 /** @type {import("next").NextConfig} */
 const config = {
   reactStrictMode: true,
@@ -12,6 +17,19 @@ const config = {
   i18n: {
     locales: ["en"],
     defaultLocale: "en",
+  },
+  headers: async () => {
+    return [
+        {
+          source: "/(.*)",
+          headers: [
+            {
+              key: "Content-Security-Policy",
+              value: ContentSecurityPolicy.replace(/\s{2,}/g, " ").trim(),
+            }
+          ],
+        },
+      ];
   },
 };
 export default config;
