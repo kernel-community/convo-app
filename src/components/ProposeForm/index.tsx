@@ -17,6 +17,7 @@ import FieldLabel from "../StrongText";
 import isNicknameSet from "src/utils/isNicknameSet";
 import Checkbox from "./FormFields/Checkbox";
 import type { User } from "@prisma/client";
+import { AiOutlineEdit } from "react-icons/ai/index";
 
 const SessionSchema = z.object({
   dateTime: z.date(),
@@ -81,6 +82,7 @@ const ProposeForm = () => {
   const { create } = useCreateEvent();
   const { fetchedUser: user } = useUser();
   const { signMessageAsync } = useSignMessage();
+  const [isEditing, setIsEditing] = useState<boolean>(false);
 
   const [openModalFlag, setOpenModalFlag] = useState(false);
   const [modal, setModal] = useState<{
@@ -195,13 +197,25 @@ const ProposeForm = () => {
         />
 
         {/* nickname */}
-        {user && isNicknameSet(user.nickname) && (
+        {user && isNicknameSet(user.nickname) && !isEditing && (
           <div>
             <FieldLabel>Proposing as</FieldLabel>
-            <Signature user={user as User} />
+            <div className="mt-2 flex flex-row items-center gap-3">
+              <Signature user={user as User} />
+              <button
+                className="text-2xl"
+                type="button"
+                onClick={() => setIsEditing(true)}
+              >
+                <AiOutlineEdit />
+              </button>
+            </div>
           </div>
         )}
-        {(!user || !isNicknameSet(user?.nickname) || !user.isSignedIn) && (
+        {(!user ||
+          !isNicknameSet(user?.nickname) ||
+          !user.isSignedIn ||
+          isEditing) && (
           <TextField
             name="nickname"
             fieldName="How would you like to be known as?"

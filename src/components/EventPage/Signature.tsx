@@ -1,21 +1,13 @@
 import type { User } from "@prisma/client";
-import { useUser } from "src/context/UserContext";
 
-const Signature = ({
-  user,
-  style = "fancy",
-}: {
-  user: User;
-  style?: "fancy" | "handwritten";
-}) => {
+type SignatureStyle = "fancy" | "handwritten";
+
+const getStyles = (
+  style: SignatureStyle
+): { textSizeDefault: string; textSizeSmall: string; font: string } => {
   let textSizeDefault = "text-4xl";
   let textSizeSmall = "text-2xl";
   let font = "font-fancy";
-  const sign = user.nickname;
-
-  const { fetchedUser } = useUser();
-  const displayEditButton = fetchedUser.address === user.address;
-
   switch (style) {
     case "fancy":
       {
@@ -35,14 +27,31 @@ const Signature = ({
       /** do nothing */
     }
   }
+  return {
+    textSizeDefault,
+    textSizeSmall,
+    font,
+  };
+};
+
+const Signature = ({
+  user,
+  style = "fancy",
+}: {
+  user: User;
+  style?: SignatureStyle;
+}) => {
+  const sign = user.nickname;
+  // signature displayed is of the currently signed in user
+  const { font, textSizeDefault, textSizeSmall } = getStyles(style);
+
   return (
-    <div>
+    <div className="flex flex-row items-center gap-3">
       <div
         className={`${font} ${textSizeSmall} text-kernel md:${textSizeDefault}`}
       >
         {sign}
       </div>
-      {displayEditButton && <div>EDIT</div>}
     </div>
   );
 };

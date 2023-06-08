@@ -12,7 +12,7 @@ import { useRsvpIntention } from "src/context/RsvpIntentionContext";
 import type { RsvpInput } from "../EventWrapper";
 import { rsvpInputSchema } from "../EventWrapper";
 import type { UserStatus } from "src/context/UserContext";
-import { User } from "@prisma/client";
+import type { User } from "@prisma/client";
 
 const ModalToConfirmRsvp = ({
   title,
