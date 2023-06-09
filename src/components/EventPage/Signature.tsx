@@ -1,10 +1,10 @@
-const Signature = ({
-  sign,
-  style = "fancy",
-}: {
-  sign: string | null | undefined;
-  style?: "fancy" | "handwritten";
-}) => {
+import type { User } from "@prisma/client";
+
+type SignatureStyle = "fancy" | "handwritten";
+
+const getStyles = (
+  style: SignatureStyle
+): { textSizeDefault: string; textSizeSmall: string; font: string } => {
   let textSizeDefault = "text-4xl";
   let textSizeSmall = "text-2xl";
   let font = "font-fancy";
@@ -27,11 +27,31 @@ const Signature = ({
       /** do nothing */
     }
   }
+  return {
+    textSizeDefault,
+    textSizeSmall,
+    font,
+  };
+};
+
+const Signature = ({
+  user,
+  style = "fancy",
+}: {
+  user: User;
+  style?: SignatureStyle;
+}) => {
+  const sign = user.nickname;
+  // signature displayed is of the currently signed in user
+  const { font, textSizeDefault, textSizeSmall } = getStyles(style);
+
   return (
-    <div
-      className={`${font} ${textSizeSmall} text-kernel md:${textSizeDefault}`}
-    >
-      {sign}
+    <div className="flex flex-row items-center gap-3">
+      <div
+        className={`${font} ${textSizeSmall} text-kernel md:${textSizeDefault}`}
+      >
+        {sign}
+      </div>
     </div>
   );
 };

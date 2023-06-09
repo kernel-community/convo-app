@@ -85,7 +85,7 @@ export const Events = ({
             })
           )}
         {
-          // @todo
+          // @todo better loading state
           !isLoading &&
             data &&
             data.pages[0].data &&

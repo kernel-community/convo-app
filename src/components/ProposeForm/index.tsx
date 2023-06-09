@@ -10,12 +10,14 @@ import useCreateEvent from "src/hooks/useCreateEvent";
 import LoginButton from "../LoginButton";
 import { useSignMessage } from "wagmi";
 import ConfirmationModal from "../ConfirmationModal";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useUser } from "src/context/UserContext";
 import Signature from "../EventPage/Signature";
 import FieldLabel from "../StrongText";
 import isNicknameSet from "src/utils/isNicknameSet";
 import Checkbox from "./FormFields/Checkbox";
+import type { User } from "@prisma/client";
+import { AiOutlineEdit } from "react-icons/ai";
 
 const SessionSchema = z.object({
   dateTime: z.date(),
@@ -25,8 +27,8 @@ const SessionSchema = z.object({
 
 export type Session = z.infer<typeof SessionSchema>;
 
-const validationSchema = z.object({
-  title: z.string().min(1, "Title is required"),
+export const validationSchema = z.object({
+  title: z.string().min(1, "Title is required").default("ee"),
   description: z.string().optional(),
   sessions: z.array(SessionSchema),
   limit: z
@@ -67,21 +69,29 @@ const ModalContent = ({
   return <div className={getColor(type)}>{message && <p>{message}</p>}</div>;
 };
 
-const ProposeForm = () => {
+const ProposeForm = ({ event }: { event?: ClientEventInput }) => {
+  console.log({ event });
   const {
     register,
+    reset,
     handleSubmit,
     formState: { errors },
     control,
   } = useForm<ClientEventInput>({
     resolver: zodResolver(validationSchema),
-    defaultValues: { gCalEvent: true },
+    defaultValues: useMemo(() => {
+      return event;
+    }, [event]),
   });
+
+  useEffect(() => reset(event), [event]);
+
   const { create } = useCreateEvent();
   const { fetchedUser: user } = useUser();
   const { signMessageAsync } = useSignMessage();
 
-  const [openModalFlag, setOpenModalFlag] = useState(false);
+  const [openModalFlag, setOpenModalFlag] = useState<boolean>(false);
+  const [isEditingNickname, setIsEditingNickname] = useState<boolean>(false);
   const [modal, setModal] = useState<{
     isError: boolean;
     message: string;
@@ -194,13 +204,25 @@ const ProposeForm = () => {
         />
 
         {/* nickname */}
-        {user && isNicknameSet(user.nickname) && (
+        {user && isNicknameSet(user.nickname) && !isEditingNickname && (
           <div>
             <FieldLabel>Proposing as</FieldLabel>
-            <Signature sign={user.nickname} />
+            <div className="mt-2 flex flex-row items-center gap-3">
+              <Signature user={user as User} />
+              <button
+                className="text-2xl"
+                type="button"
+                onClick={() => setIsEditingNickname(true)}
+              >
+                <AiOutlineEdit />
+              </button>
+            </div>
           </div>
         )}
-        {(!user || !isNicknameSet(user?.nickname) || !user.isSignedIn) && (
+        {(!user ||
+          !isNicknameSet(user?.nickname) ||
+          !user.isSignedIn ||
+          isEditingNickname) && (
           <TextField
             name="nickname"
             fieldName="How would you like to be known as?"

@@ -1,6 +1,7 @@
 // given a hash
 // fetch event details
 import { useQuery } from "react-query";
+import { ClientEvent } from "src/types";
 
 const useEvent = ({ hash }: { hash?: string | string[] }) => {
   const { isLoading, isError, data, refetch } = useQuery(
@@ -30,7 +31,7 @@ const useEvent = ({ hash }: { hash?: string | string[] }) => {
   return {
     isLoading,
     isError,
-    data,
+    data: data as ClientEvent,
     refetch,
   };
 };

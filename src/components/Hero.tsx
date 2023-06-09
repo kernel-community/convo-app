@@ -1,24 +1,6 @@
-const Hero = ({
-  title,
-  type,
-  proposer,
-}: {
-  title?: string;
-  type?: string;
-  proposer?: string | null;
-}) => {
+const Hero = ({ title }: { title?: string }) => {
   return (
     <div className="flex flex-col justify-items-start">
-      <div
-        className="
-            font-secondary
-            text-base
-            uppercase text-kernel
-            sm:text-lg
-          "
-      >
-        {type}
-      </div>
       <div
         className="
           py-5
@@ -31,9 +13,6 @@ const Hero = ({
         "
       >
         {title}
-      </div>
-      <div className="font-secondary text-lg sm:text-xl">
-        by&nbsp;{proposer || "Anonymous"}
       </div>
     </div>
   );
