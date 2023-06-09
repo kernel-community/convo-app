@@ -9,6 +9,8 @@ import ConfirmationModal from "src/components/ConfirmationModal";
 import { z } from "zod";
 import { useUser } from "src/context/UserContext";
 import ModalToConfirmRsvp from "./RsvpConfirmationForm/Modal";
+import Button from "../Button";
+import { useRouter } from "next/router";
 
 export const rsvpInputSchema = z.object({
   email: z.string().optional(),
@@ -16,34 +18,29 @@ export const rsvpInputSchema = z.object({
 });
 export type RsvpInput = z.infer<typeof rsvpInputSchema>;
 
-const EventWrapper = ({ event }: { event: ClientEvent }) => {
-  const {
-    totalUniqueRsvps,
-    descriptionHtml,
-    sessions,
-    type,
-    title,
-    nickname,
-    proposer,
-  } = event;
+const EventWrapper = ({
+  event,
+  isEditable,
+}: {
+  event: ClientEvent;
+  isEditable: boolean;
+}) => {
+  const { totalUniqueRsvps, descriptionHtml, sessions, title, proposer } =
+    event;
   const { rsvpIntention } = useRsvpIntention();
   const { eventIds } = rsvpIntention;
   const isDisabled = eventIds.length === 0;
-
   const [openModalFlag, setOpenModalFlag] = useState(false);
-
   const openModal = () => setOpenModalFlag(true);
   const closeModal = () => setOpenModalFlag(false);
-
   const onClickRsvp = () => openModal();
-
   // @help when I try calling this hook
   // in <ModalToConfirmRsvp /> above the user is
   // returned as undefined (???)
   const { fetchedUser: user } = useUser();
-
   const hideEmailRequest = !(!!event.gCalEventId && !!event.gCalId);
-
+  const router = useRouter();
+  const navigateToEditPage = () => router.push(`/edit/${event.hash}`);
   return (
     <>
       <ConfirmationModal
@@ -58,20 +55,27 @@ const EventWrapper = ({ event }: { event: ClientEvent }) => {
         }
         title="RSVP for Event"
       />
-      <Hero title={title} type={type} proposer={nickname} />
+      <div className="flex flex-row items-center justify-between">
+        <Hero title={title} />
+        <Button buttonText="Edit event" handleClick={navigateToEditPage} />
+      </div>
       <div className="mt-24 grid grid-cols-1 gap-12 lg:grid-cols-3">
         <EventDetails html={descriptionHtml} proposer={proposer} />
         <div className="min-w-100 flex flex-col gap-2">
-          <SessionsWrapper sessions={sessions} />
-          <SubmitRsvpSection
-            text={
-              totalUniqueRsvps > 5
-                ? `Join ${totalUniqueRsvps} others in attending the event`
-                : `Be amongst the first few to RSVP!`
-            }
-            handleSubmit={onClickRsvp}
-            disabled={isDisabled}
-          />
+          {!isEditable && (
+            <>
+              <SessionsWrapper sessions={sessions} />
+              <SubmitRsvpSection
+                text={
+                  totalUniqueRsvps > 5
+                    ? `Join ${totalUniqueRsvps} others in attending the event`
+                    : `Be amongst the first few to RSVP!`
+                }
+                handleSubmit={onClickRsvp}
+                disabled={isDisabled}
+              />
+            </>
+          )}
         </div>
       </div>
     </>
