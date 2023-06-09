@@ -57,7 +57,9 @@ const EventWrapper = ({
       />
       <div className="flex flex-row items-center justify-between">
         <Hero title={title} />
-        <Button buttonText="Edit event" handleClick={navigateToEditPage} />
+        {isEditable && (
+          <Button buttonText="Edit event" handleClick={navigateToEditPage} />
+        )}
       </div>
       <div className="mt-24 grid grid-cols-1 gap-12 lg:grid-cols-3">
         <EventDetails html={descriptionHtml} proposer={proposer} />
