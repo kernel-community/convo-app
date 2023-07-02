@@ -31,6 +31,7 @@ const DateTimeWrapper = ({
               displayDelete={session.count !== 0}
               handleDelete={deleteSessionData}
               deleteSessionData={deleteSessionData}
+              session={session}
             />
           );
         })}

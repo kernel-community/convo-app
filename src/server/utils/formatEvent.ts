@@ -1,4 +1,4 @@
-import type { ClientEvent, ServerEvent } from "src/types";
+import type { ClientEvent, EventsRequest, ServerEvent } from "src/types";
 import totalUniqueRSVPs from "src/utils/totalUniqueRsvps";
 
 // all events in the input array have the same hash
@@ -35,7 +35,18 @@ const formatEvent = (event: Array<ServerEvent>): ClientEvent => {
 };
 
 // all events in the input array have different hashes
-export const formatEvents = (events: Array<ServerEvent>): Array<ClientEvent> =>
-  events.map((event) => formatEvent([event]));
+export const formatEvents = (
+  events: Array<ServerEvent>,
+  filter?: EventsRequest["filter"]
+): Array<ClientEvent> => {
+  let res = events.map((event) => formatEvent([event]));
+  if (filter) {
+    if (filter.userId) {
+      // filter by userId
+      res = res.filter((event) => event.proposerId === filter.userId);
+    }
+  }
+  return res;
+};
 
 export default formatEvent;

@@ -70,12 +70,11 @@ const ModalContent = ({
 };
 
 const ProposeForm = ({ event }: { event?: ClientEventInput }) => {
-  console.log({ event });
   const {
     register,
     reset,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, defaultValues },
     control,
   } = useForm<ClientEventInput>({
     resolver: zodResolver(validationSchema),
@@ -162,6 +161,7 @@ const ProposeForm = ({ event }: { event?: ClientEventInput }) => {
               errors={errors}
               name={field.name}
               fieldName="Description"
+              value={defaultValues?.description}
             />
           )}
         />
@@ -172,7 +172,12 @@ const ProposeForm = ({ event }: { event?: ClientEventInput }) => {
           control={control}
           rules={{ required: true }}
           render={({ field }) => (
-            <SessionsInput handleChange={field.onChange} />
+            <SessionsInput
+              handleChange={field.onChange}
+              preFillSessions={
+                defaultValues?.sessions as ClientEventInput["sessions"]
+              }
+            />
           )}
         />
 

@@ -3,6 +3,7 @@ import deleteIcon from "../../../../public/vectors/delete.png";
 import DefaultDatePicker from "react-datepicker";
 import { useState } from "react";
 import "react-datepicker/dist/react-datepicker.css";
+import { Session } from "src/components/ProposeForm/index";
 
 export type DateTimeHandleChangeType = (
   type: "dateTime" | "duration",
@@ -17,15 +18,19 @@ const DateTime = ({
   handleChange,
   handleDelete,
   deleteSessionData,
+  session,
 }: {
   count: number;
   displayDelete: boolean;
   handleChange: DateTimeHandleChangeType;
   handleDelete?: DateTimeHandleDeleteType;
   deleteSessionData: DateTimeHandleDeleteType;
+  session?: Session;
 }) => {
   const now = new Date();
-  const [startDate, setStartDate] = useState<Date>();
+  const [startDate, setStartDate] = useState<Date | undefined>(
+    session?.dateTime
+  );
   return (
     <div
       className={`
@@ -58,7 +63,7 @@ const DateTime = ({
           placeholder={"duration (in hours)"}
           required
           className="rounded-lg font-primary focus:border-primary focus:ring-primary"
-          defaultValue={1}
+          defaultValue={session?.duration}
         />
       </div>
 

@@ -22,6 +22,7 @@ export const RichTextArea = ({
   errors,
   fieldName,
   infoText,
+  value,
 }: {
   name: keyof ClientEventInput;
   fieldName?: string;
@@ -29,6 +30,7 @@ export const RichTextArea = ({
   // @help need better type here 😥
   handleChange: any;
   errors?: Partial<FieldErrorsImpl<ClientEventInput>>;
+  value?: string;
 }) => {
   const isError = errors && errors[name];
 
@@ -60,6 +62,7 @@ export const RichTextArea = ({
       },
     },
     onUpdate: ({ editor }) => handleChange(editor.getHTML()),
+    content: value,
   });
 
   const setLink = useCallback(() => {

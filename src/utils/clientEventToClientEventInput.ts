@@ -6,7 +6,6 @@ import { ClientEventInput } from "src/components/ProposeForm";
 import { ClientEvent } from "src/types";
 
 const parse = (event: ClientEvent): ClientEventInput => {
-  console.log("PARSING");
   const {
     title,
     descriptionHtml,
@@ -25,19 +24,9 @@ const parse = (event: ClientEvent): ClientEventInput => {
       };
     }
   );
-  console.log("RETURNING");
-  console.log({
-    title,
-    description: "jello",
-    sessions: parsedSessions,
-    limit: limit.toString(),
-    location,
-    nickname,
-    gCalEvent: gCalEventRequested,
-  });
   return {
     title,
-    description: "jello",
+    description: descriptionHtml || "",
     sessions: parsedSessions,
     limit: limit.toString(),
     location,
