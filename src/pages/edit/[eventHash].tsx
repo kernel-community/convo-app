@@ -1,6 +1,7 @@
 import type { NextPage } from "next";
 import { useRouter } from "next/router";
-import ProposeForm, { ClientEventInput } from "src/components/ProposeForm";
+import type { ClientEventInput } from "src/components/ProposeForm";
+import ProposeForm from "src/components/ProposeForm";
 import useEvent from "src/hooks/useEvent";
 import Main from "src/layouts/Main";
 import parse from "src/utils/clientEventToClientEventInput";
