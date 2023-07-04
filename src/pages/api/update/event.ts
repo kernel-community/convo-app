@@ -6,7 +6,7 @@ import _ from "lodash";
 import { prisma } from "src/server/db";
 import { ethers } from "ethers";
 import { getEventStartAndEnd } from "src/utils/dateTime";
-import { ClientEvent, Session } from "../create/event";
+import type { ClientEvent, Session } from "../create/event";
 
 export type ClientEditableEvent = Omit<ClientEvent, "sessions"> & {
   sessions: Array<Session & { id: string }>;
