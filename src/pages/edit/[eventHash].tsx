@@ -1,10 +1,10 @@
 import type { NextPage } from "next";
 import { useRouter } from "next/router";
 import ProposeForm, { ClientEventInput } from "src/components/ProposeForm";
-import { useUser } from "src/context/UserContext";
 import useEvent from "src/hooks/useEvent";
 import Main from "src/layouts/Main";
 import parse from "src/utils/clientEventToClientEventInput";
+import NotFoundPage from "../404";
 
 const Edit: NextPage = () => {
   const { query } = useRouter();
@@ -16,6 +16,10 @@ const Edit: NextPage = () => {
   const clientEventInput: ClientEventInput | undefined = data
     ? parse(data)
     : undefined;
+
+  if (!clientEventInput) {
+    return <NotFoundPage />;
+  }
 
   return (
     <>
