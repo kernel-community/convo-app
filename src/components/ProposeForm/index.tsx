@@ -233,6 +233,12 @@ const ProposeForm = ({ event }: { event?: ClientEventInput }) => {
                 updated.
               </div>
             )}
+            {/*
+             * @note
+             * No option to create a google calendar event if one doesn't exist already
+             * because there might be a mismatch in RSVPs - anyone RSVP'd before won't be
+             * added by default (cuz we don't have their email)
+             */}
           </>
         ) : (
           <Checkbox
