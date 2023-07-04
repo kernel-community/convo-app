@@ -4,6 +4,7 @@ import type { FullEvent } from "src/pages/api/actions/google/createEvent";
 import { getEvent } from "./getEvent";
 
 type UpdatableFullEvents = Array<FullEvent>;
+
 type ParsedEvents = Array<
   calendar_v3.Schema$Event & {
     gCalEventId?: string;
@@ -52,7 +53,10 @@ export const updateEvents = async ({
   calendarId,
   reqHost,
 }: {
-  events: { updated: UpdatableFullEvents; deleted: UpdatableFullEvents };
+  events: {
+    updated: UpdatableFullEvents;
+    deleted: UpdatableFullEvents;
+  };
   calendarId: string;
   reqHost: string;
 }): Promise<
