@@ -1,3 +1,6 @@
+/**
+ * deletes all sessions if sessions array is empty
+ */
 import type { NextApiRequest, NextApiResponse } from "next";
 import _ from "lodash";
 import { prisma } from "src/server/db";
