@@ -27,16 +27,8 @@ export default async function event(req: NextApiRequest, res: NextApiResponse) {
   if (!isVerified) {
     throw new Error("Unauthorized: Signature mismatch");
   }
-  const {
-    title,
-    sessions,
-    limit,
-    location,
-    description,
-    nickname,
-    // gCalEvent: gCalEventRequested, // @todo
-    hash,
-  } = event;
+  const { title, sessions, limit, location, description, nickname, hash } =
+    event;
 
   // update nickname
   if (nickname) {
@@ -81,6 +73,9 @@ export default async function event(req: NextApiRequest, res: NextApiResponse) {
         descriptionHtml: description,
         title,
       },
+      include: {
+        proposer: true,
+      },
     });
   });
 
@@ -103,11 +98,19 @@ export default async function event(req: NextApiRequest, res: NextApiResponse) {
     return prisma.event.update({
       where: { id: event.id },
       data: { isDeleted: true },
+      include: {
+        proposer: true,
+      },
     });
   });
 
   // mark all missing event ids as Deleted
   const deleted = await Promise.all(markIsDeletedPromise);
+
+  console.log(`
+    Events updated: ${JSON.stringify(updated)}\n
+    Events deleted: ${JSON.stringify(deleted)}
+  `);
 
   res.status(200).json({
     data: {

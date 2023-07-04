@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { ClientEventInput, Session } from "src/components/ProposeForm";
+import type { ClientEventInput } from "src/components/ProposeForm";
 import type { FullEvent } from "src/pages/api/actions/google/createEvent";
 
 // if the event is being edited, expect a hash in the object
@@ -13,13 +13,38 @@ const updateEventInDb = async ({
   event: ClientEventInput;
   signature: string;
   address?: string | null;
-}) => {
+}): Promise<{
+  updated: Array<FullEvent>;
+  deleted: Array<FullEvent>;
+}> => {
   let res;
   try {
     res = (
       await (
         await fetch("/api/update/event", {
           body: JSON.stringify({ event, signature, address }),
+          method: "POST",
+          headers: { "Content-type": "application/json" },
+        })
+      ).json()
+    ).data;
+  } catch (err) {
+    throw err;
+  }
+  return res;
+};
+
+const updateEventInGCal = async ({
+  events,
+}: {
+  events: { updated?: Array<FullEvent>; deleted?: Array<FullEvent> };
+}) => {
+  let res;
+  try {
+    res = (
+      await (
+        await fetch("/api/actions/google/updateEvent", {
+          body: JSON.stringify({ events }),
           method: "POST",
           headers: { "Content-type": "application/json" },
         })
@@ -48,14 +73,26 @@ const useUpdateEvent = () => {
 
     // fetch array of events of the hash from db
     let updated: Array<FullEvent> | undefined = undefined;
+    let deleted: Array<FullEvent> | undefined = undefined;
     try {
-      updated = await updateEventInDb({ event, signature, address });
+      ({ updated, deleted } = await updateEventInDb({
+        event,
+        signature,
+        address,
+      }));
     } catch (err) {
       setIsError(true);
       setIsSubmitting(false);
     }
 
     // @todo @angelagilhotra update event in google calendar
+    try {
+      if (updated && event.gCalEvent) {
+        await updateEventInGCal({ events: { updated, deleted } });
+      }
+    } catch (err) {
+      console.log(`Error in updating events in google calendar`);
+    }
 
     setIsSubmitting(false);
     return updated;

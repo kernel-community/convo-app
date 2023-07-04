@@ -1,4 +1,4 @@
-import type { SubmitHandler } from "react-hook-form";
+import type { FieldErrorsImpl, SubmitHandler } from "react-hook-form";
 import { useForm, Controller } from "react-hook-form";
 import TextField from "./FormFields/TextField";
 import { z } from "zod";
@@ -73,6 +73,8 @@ const ModalContent = ({
 };
 
 const ProposeForm = ({ event }: { event?: ClientEventInput }) => {
+  const { fetchedUser: user } = useUser();
+
   const isEditing = !!event;
   const {
     register,
@@ -83,15 +85,24 @@ const ProposeForm = ({ event }: { event?: ClientEventInput }) => {
   } = useForm<ClientEventInput>({
     resolver: zodResolver(validationSchema),
     defaultValues: useMemo(() => {
-      return event;
-    }, [event]),
+      const DEFAULT_EVENT: Partial<ClientEventInput> = event || {
+        sessions: [
+          {
+            dateTime: new Date(),
+            duration: 1,
+            count: 0,
+          },
+        ],
+        nickname: user.nickname,
+      };
+      return DEFAULT_EVENT;
+    }, [event, user]),
   });
 
   useEffect(() => reset(event), [event]);
 
   const { create } = useCreateEvent();
   const { update } = useUpdateEvent();
-  const { fetchedUser: user } = useUser();
   const { signMessageAsync } = useSignMessage();
 
   const [openModalFlag, setOpenModalFlag] = useState<boolean>(false);
@@ -107,6 +118,12 @@ const ProposeForm = ({ event }: { event?: ClientEventInput }) => {
   const openModal = () => setOpenModalFlag(true);
   const closeModal = () => setOpenModalFlag(false);
 
+  // @help better handling required here
+  // display on the ui
+  const onInvalid = (errors: Partial<FieldErrorsImpl<ClientEventInput>>) => {
+    console.log("INVALID submission");
+    console.error(errors);
+  };
   // @todo
   const onSubmit: SubmitHandler<ClientEventInput> = async (data) => {
     try {
@@ -158,7 +175,7 @@ const ProposeForm = ({ event }: { event?: ClientEventInput }) => {
       />
 
       <form
-        onSubmit={handleSubmit(onSubmit)}
+        onSubmit={handleSubmit(onSubmit, onInvalid)}
         className={`align-center flex flex-col gap-6`}
       >
         {/* Title */}
