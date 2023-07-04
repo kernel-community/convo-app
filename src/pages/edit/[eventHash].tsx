@@ -1,18 +1,25 @@
 import type { NextPage } from "next";
 import { useRouter } from "next/router";
 import ProposeForm, { ClientEventInput } from "src/components/ProposeForm";
-import { useUser } from "src/context/UserContext";
 import useEvent from "src/hooks/useEvent";
 import Main from "src/layouts/Main";
 import parse from "src/utils/clientEventToClientEventInput";
+import NotFoundPage from "../404";
 
 const Edit: NextPage = () => {
   const { query } = useRouter();
   const { eventHash } = query;
   const { data } = useEvent({ hash: eventHash });
+
+  // check to see if eventHash from query exists in the database
+  // parse and pre-fill event data in the form
   const clientEventInput: ClientEventInput | undefined = data
     ? parse(data)
     : undefined;
+
+  if (!clientEventInput) {
+    return <NotFoundPage />;
+  }
 
   return (
     <>

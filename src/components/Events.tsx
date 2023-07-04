@@ -6,8 +6,8 @@ import type { ClientEvent } from "src/types";
 import Link from "next/link";
 import { useInfiniteQuery } from "react-query";
 import { useInView } from "react-intersection-observer";
-import type { EventsRequest } from "src/pages/api/query/getEvents";
 import { DateTime } from "luxon";
+import { EventsRequest } from "src/types";
 
 export const Events = ({
   type,
@@ -15,7 +15,8 @@ export const Events = ({
   highlight,
   take,
   infinite, // to implement or not to implement the infinite scroll
-}: Pick<EventsRequest, "type"> & {
+  filter,
+}: Pick<EventsRequest, "type" | "filter"> & {
   title?: string;
   highlight?: string;
   take?: number;
@@ -31,13 +32,14 @@ export const Events = ({
     fetchNextPage,
     hasNextPage,
   } = useInfiniteQuery(
-    `events_${type}`,
+    `events_${type}_${filter}`,
     async ({ pageParam = "" }) => {
       const requestObject: EventsRequest = {
         type,
         now: DateTime.now().toJSDate(),
         take,
         fromId: pageParam,
+        filter,
       };
       const r = await (
         await fetch("api/query/getEvents", {

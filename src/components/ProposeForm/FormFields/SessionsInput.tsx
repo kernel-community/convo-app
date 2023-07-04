@@ -5,26 +5,32 @@ import type {
   DateTimeHandleChangeType,
   DateTimeHandleDeleteType,
 } from "./DateTime";
-import type { Session as SessionType } from "..";
+import type { ClientEventInput, Session as SessionType } from "..";
 import _ from "lodash";
 
 export type HandleResetSessionsType = (flag: boolean) => void;
 
+const DEFAULT_SESSIONS: Array<SessionType> = [
+  {
+    dateTime: new Date(),
+    duration: 1,
+    count: 0,
+  },
+];
+
 const SessionsInput = ({
   handleChange,
   danger,
+  preFillSessions,
 }: {
   handleChange: (sessions: Array<SessionType>) => void;
   danger?: boolean;
+  preFillSessions?: ClientEventInput["sessions"];
 }) => {
   const [isRecurring, setIsRecurring] = useState<boolean>(false);
-  const [sessions, setSessions] = useState<Array<SessionType>>([
-    {
-      dateTime: new Date(),
-      duration: 1,
-      count: 0,
-    },
-  ]);
+  const [sessions, setSessions] = useState<Array<SessionType>>(
+    preFillSessions || DEFAULT_SESSIONS
+  );
 
   const handleSetSessions: DateTimeHandleChangeType = (type, count, value) => {
     let sessionToUpdate = sessions.find((s) => s.count === count);

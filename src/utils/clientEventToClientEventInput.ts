@@ -6,7 +6,6 @@ import { ClientEventInput } from "src/components/ProposeForm";
 import { ClientEvent } from "src/types";
 
 const parse = (event: ClientEvent): ClientEventInput => {
-  console.log("PARSING");
   const {
     title,
     descriptionHtml,
@@ -15,6 +14,7 @@ const parse = (event: ClientEvent): ClientEventInput => {
     location,
     nickname,
     gCalEventRequested,
+    hash,
   } = event;
   const parsedSessions: ClientEventInput["sessions"] = sessions.map(
     (session, key) => {
@@ -22,27 +22,19 @@ const parse = (event: ClientEvent): ClientEventInput => {
         dateTime: new Date(session.startDateTime),
         duration: 1,
         count: key,
+        id: session.id,
       };
     }
   );
-  console.log("RETURNING");
-  console.log({
-    title,
-    description: "jello",
-    sessions: parsedSessions,
-    limit: limit.toString(),
-    location,
-    nickname,
-    gCalEvent: gCalEventRequested,
-  });
   return {
     title,
-    description: "jello",
+    description: descriptionHtml || "",
     sessions: parsedSessions,
     limit: limit.toString(),
     location,
     nickname,
     gCalEvent: gCalEventRequested,
+    hash,
   };
 };
 

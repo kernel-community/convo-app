@@ -19,3 +19,14 @@ export type ClientEvent = Omit<ServerEvent, "startDateTime" | "endDateTime"> & {
   endDateTime: string;
   nickname: string;
 };
+
+export type EventsRequest = {
+  type: "live" | "upcoming" | "past" | "today" | "week" | "month";
+  now: Date | string;
+  take?: number;
+  fromId?: string;
+  skip?: number;
+  filter?: {
+    userId?: string; // filters by user id
+  };
+};

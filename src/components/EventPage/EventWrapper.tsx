@@ -78,6 +78,12 @@ const EventWrapper = ({
               />
             </>
           )}
+          {/*
+           * @todo @angelagilhotra
+           * display all events
+           * + number of RSVPs for each
+           * + an option to send an email to all RSVPs (only if gCal exists)
+           */}
         </div>
       </div>
     </>

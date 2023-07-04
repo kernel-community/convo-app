@@ -5,14 +5,7 @@ import { prisma } from "src/server/db";
 import type { ClientEvent, ServerEvent } from "src/types";
 import { formatEvents } from "src/server/utils/formatEvent";
 import { Prisma } from "@prisma/client";
-
-export type EventsRequest = {
-  type: "live" | "upcoming" | "past" | "today" | "week" | "month";
-  now: Date | string;
-  take?: number;
-  fromId?: string;
-  skip?: number;
-};
+import { EventsRequest } from "src/types";
 
 // now = from where to start fetching; reference
 export default async function getEvents(
@@ -25,7 +18,14 @@ export default async function getEvents(
     fromId = "",
     type,
     skip,
-  }: EventsRequest = _.pick(req.body, ["now", "take", "fromId", "type"]);
+    filter,
+  }: EventsRequest = _.pick(req.body, [
+    "now",
+    "take",
+    "fromId",
+    "type",
+    "filter",
+  ]);
   const Now = DateTime.fromISO(now as string).toJSDate();
   const tomorrow12Am = DateTime.fromJSDate(Now)
     .plus({ days: 1 })
@@ -163,7 +163,7 @@ export default async function getEvents(
       throw new Error(`type ${type} invalid`);
     }
   }
-  events = formatEvents(serverEvents);
+  events = formatEvents(serverEvents, filter);
 
   const lastEvent = events[events.length - 1];
   const nextId = events.length === take && lastEvent ? lastEvent.id : undefined;

@@ -4,16 +4,19 @@ import { prisma } from "src/server/db";
 import type { Prisma } from "@prisma/client";
 import { nanoid } from "nanoid";
 import { ethers } from "ethers";
+import { getEventStartAndEnd } from "src/utils/dateTime";
 
 // from validationSchema in `components/ProposeForm`
-type ClientEvent = {
+
+export type Session = {
+  dateTime: Date;
+  duration: number;
+  count: number;
+};
+export type ClientEvent = {
   description?: string | undefined;
   title: string;
-  sessions: {
-    dateTime: Date;
-    duration: number;
-    count: number;
-  }[];
+  sessions: Session[];
   limit: string;
   location: string;
   nickname?: string;
@@ -64,9 +67,10 @@ export default async function event(req: NextApiRequest, res: NextApiResponse) {
   const hash = nanoid(10);
   const eventPayload: Prisma.Enumerable<Prisma.EventCreateManyInput> =
     sessions.map((session) => {
-      const startDateTime = new Date(session.dateTime);
-      const endDateTime = new Date(session.dateTime);
-      endDateTime.setHours(startDateTime.getHours() + session.duration);
+      const { startDateTime, endDateTime } = getEventStartAndEnd(
+        session.dateTime,
+        session.duration
+      );
       return {
         title,
         descriptionHtml: description,

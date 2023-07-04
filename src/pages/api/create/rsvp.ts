@@ -35,7 +35,6 @@ export default async function rsvp(req: NextApiRequest, res: NextApiResponse) {
       },
     })
   );
-  console.log(JSON.stringify(rsvp));
   if (rsvp.email) {
     for (let i = 0; i < rsvp.events.length; i++) {
       const { emails } = await prisma.event.findUniqueOrThrow({

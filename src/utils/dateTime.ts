@@ -62,3 +62,16 @@ export const sortSessions = (sessions: Session[]) => {
     inactiveSessions: inactiveSessions,
   };
 };
+
+export const getEventStartAndEnd = (
+  dateTime: Date,
+  duration: number
+): { startDateTime: Date; endDateTime: Date } => {
+  const startDateTime = new Date(dateTime);
+  const endDateTime = new Date(dateTime);
+  endDateTime.setHours(startDateTime.getHours() + duration);
+  return {
+    startDateTime,
+    endDateTime,
+  };
+};

@@ -1,4 +1,4 @@
-import type { SubmitHandler } from "react-hook-form";
+import type { FieldErrorsImpl, SubmitHandler } from "react-hook-form";
 import { useForm, Controller } from "react-hook-form";
 import TextField from "./FormFields/TextField";
 import { z } from "zod";
@@ -7,6 +7,7 @@ import Button from "../Button";
 import { RichTextArea } from "./FormFields/RichText";
 import SessionsInput from "./FormFields/SessionsInput";
 import useCreateEvent from "src/hooks/useCreateEvent";
+import useUpdateEvent from "src/hooks/useUpdateEvent";
 import LoginButton from "../LoginButton";
 import { useSignMessage } from "wagmi";
 import ConfirmationModal from "../ConfirmationModal";
@@ -23,6 +24,7 @@ const SessionSchema = z.object({
   dateTime: z.date(),
   duration: z.number().min(0.1, "Invalid duration"),
   count: z.number(),
+  id: z.string().optional(),
 });
 
 export type Session = z.infer<typeof SessionSchema>;
@@ -42,6 +44,7 @@ export const validationSchema = z.object({
   location: z.string(),
   nickname: z.string(),
   gCalEvent: z.boolean(),
+  hash: z.string().optional(),
 });
 
 export type ClientEventInput = z.infer<typeof validationSchema>;
@@ -70,24 +73,36 @@ const ModalContent = ({
 };
 
 const ProposeForm = ({ event }: { event?: ClientEventInput }) => {
-  console.log({ event });
+  const { fetchedUser: user } = useUser();
+
+  const isEditing = !!event;
   const {
     register,
     reset,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, defaultValues },
     control,
   } = useForm<ClientEventInput>({
     resolver: zodResolver(validationSchema),
     defaultValues: useMemo(() => {
-      return event;
-    }, [event]),
+      const DEFAULT_EVENT: Partial<ClientEventInput> = event || {
+        sessions: [
+          {
+            dateTime: new Date(),
+            duration: 1,
+            count: 0,
+          },
+        ],
+        nickname: user.nickname,
+      };
+      return DEFAULT_EVENT;
+    }, [event, user]),
   });
 
   useEffect(() => reset(event), [event]);
 
   const { create } = useCreateEvent();
-  const { fetchedUser: user } = useUser();
+  const { update } = useUpdateEvent();
   const { signMessageAsync } = useSignMessage();
 
   const [openModalFlag, setOpenModalFlag] = useState<boolean>(false);
@@ -103,12 +118,33 @@ const ProposeForm = ({ event }: { event?: ClientEventInput }) => {
   const openModal = () => setOpenModalFlag(true);
   const closeModal = () => setOpenModalFlag(false);
 
+  // @help better handling required here
+  // display on the ui
+  const onInvalid = (errors: Partial<FieldErrorsImpl<ClientEventInput>>) => {
+    console.log("INVALID submission");
+    console.error(errors);
+  };
   // @todo
   const onSubmit: SubmitHandler<ClientEventInput> = async (data) => {
-    const signature = await signMessageAsync({ message: JSON.stringify(data) });
     try {
+      if (isEditing) {
+        const messageToSign = { ...data, hash: event?.hash };
+        const signature = await signMessageAsync({
+          message: JSON.stringify(messageToSign),
+        });
+        await update({
+          event: messageToSign,
+          signature,
+          address: user.address,
+        });
+      } else {
+        const signature = await signMessageAsync({
+          message: JSON.stringify(data),
+        });
+        await create({ event: data, signature, address: user.address });
+      }
+
       // display success modal
-      await create({ event: data, signature, address: user.address });
       setModal({
         isError: false,
         message: "Success!",
@@ -139,7 +175,7 @@ const ProposeForm = ({ event }: { event?: ClientEventInput }) => {
       />
 
       <form
-        onSubmit={handleSubmit(onSubmit)}
+        onSubmit={handleSubmit(onSubmit, onInvalid)}
         className={`align-center flex flex-col gap-6`}
       >
         {/* Title */}
@@ -162,6 +198,7 @@ const ProposeForm = ({ event }: { event?: ClientEventInput }) => {
               errors={errors}
               name={field.name}
               fieldName="Description"
+              value={defaultValues?.description}
             />
           )}
         />
@@ -172,7 +209,12 @@ const ProposeForm = ({ event }: { event?: ClientEventInput }) => {
           control={control}
           rules={{ required: true }}
           render={({ field }) => (
-            <SessionsInput handleChange={field.onChange} />
+            <SessionsInput
+              handleChange={field.onChange}
+              preFillSessions={
+                defaultValues?.sessions as ClientEventInput["sessions"]
+              }
+            />
           )}
         />
 
@@ -195,13 +237,34 @@ const ProposeForm = ({ event }: { event?: ClientEventInput }) => {
           required={false}
         />
 
-        {/* google calendar event creation checkbox */}
-        <Checkbox
-          name="gCalEvent"
-          fieldName="Create a Google Calendar Event?"
-          register={register}
-          infoText="If checked, a google calendar event will be created and an option to receive an invite will be given to anyone who wants to RSVP"
-        />
+        {/**
+         * google calendar event creation checkbox
+         * if isEditing -> display an info message saying that the google calendar event will be updated
+         * @todo @angelagilhotra display an option to delete the google calendar event
+         */}
+        {isEditing ? (
+          <>
+            {event.gCalEvent && (
+              <div>
+                Google calendar event associated with this event will be
+                updated.
+              </div>
+            )}
+            {/*
+             * @note
+             * No option to create a google calendar event if one doesn't exist already
+             * because there might be a mismatch in RSVPs - anyone RSVP'd before won't be
+             * added by default (cuz we don't have their email)
+             */}
+          </>
+        ) : (
+          <Checkbox
+            name="gCalEvent"
+            fieldName="Create a Google Calendar Event?"
+            register={register}
+            infoText="If checked, a google calendar event will be created and an option to receive an invite will be given to anyone who wants to RSVP"
+          />
+        )}
 
         {/* nickname */}
         {user && isNicknameSet(user.nickname) && !isEditingNickname && (
