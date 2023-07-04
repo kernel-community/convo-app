@@ -32,18 +32,14 @@ const Home: NextPage = () => {
                 text-kernel
               "
           >
-            {/* Spark a thought,&nbsp; */}
+            Wander off in a&nbsp;
             <Link href="/propose">
               <span className="relative inline-block cursor-pointer before:absolute before:-inset-1 before:block before:-skew-y-3 before:bg-highlight">
                 <span className="relative text-primary">
-                  <span className="underline decoration-dotted">
-                    Start a Convo
-                  </span>
-                  .
+                  <span className="underline decoration-dotted">Convo</span>
                 </span>
               </span>
             </Link>
-            &nbsp;Make a Friend.
           </div>
         </div>
         <div className="mt-12 px-12 lg:px-32 xl:px-40 2xl:px-52">
