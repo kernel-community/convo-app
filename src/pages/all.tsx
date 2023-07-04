@@ -2,7 +2,7 @@ import type { NextPage } from "next";
 import Main from "src/layouts/Main";
 import { Events } from "src/components/Events";
 import { useState } from "react";
-import { EventsRequest } from "src/types";
+import type { EventsRequest } from "src/types";
 import Button from "src/components/Button";
 import { useUser } from "src/context/UserContext";
 
