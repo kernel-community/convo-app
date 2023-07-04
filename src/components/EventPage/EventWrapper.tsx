@@ -25,8 +25,17 @@ const EventWrapper = ({
   event: ClientEvent;
   isEditable: boolean;
 }) => {
-  const { totalUniqueRsvps, descriptionHtml, sessions, title, proposer } =
-    event;
+  const {
+    totalUniqueRsvps,
+    descriptionHtml,
+    sessions,
+    title,
+    proposer,
+    isDeleted,
+  } = event;
+
+  // @todo display a message saying
+  console.log({ isDeleted });
   const { rsvpIntention } = useRsvpIntention();
   const { eventIds } = rsvpIntention;
   const isDisabled = eventIds.length === 0;
