@@ -7,7 +7,7 @@ import Link from "next/link";
 import { useInfiniteQuery } from "react-query";
 import { useInView } from "react-intersection-observer";
 import { DateTime } from "luxon";
-import { EventsRequest } from "src/types";
+import type { EventsRequest } from "src/types";
 
 export const Events = ({
   type,

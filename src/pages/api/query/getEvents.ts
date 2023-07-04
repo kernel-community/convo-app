@@ -5,7 +5,7 @@ import { prisma } from "src/server/db";
 import type { ClientEvent, ServerEvent } from "src/types";
 import { formatEvents } from "src/server/utils/formatEvent";
 import { Prisma } from "@prisma/client";
-import { EventsRequest } from "src/types";
+import type { EventsRequest } from "src/types";
 
 // now = from where to start fetching; reference
 export default async function getEvents(
