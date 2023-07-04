@@ -10,15 +10,17 @@ import Button from "src/components/Button";
 import useUpdateEvent from "src/hooks/useUpdateEvent";
 import { useSignMessage } from "wagmi";
 import { useUser } from "src/context/UserContext";
+import NotAllowedPage from "src/components/NotAllowedPage";
+import { useEffect, useState } from "react";
 
 const Edit: NextPage = () => {
   const { query } = useRouter();
   const { eventHash } = query;
   const { data } = useEvent({ hash: eventHash });
-
   const { signMessageAsync } = useSignMessage();
   const { update } = useUpdateEvent();
   const { fetchedUser: user } = useUser();
+  const [isInvalidRequest, setInvalidRequest] = useState(false);
 
   // check to see if eventHash from query exists in the database
   // parse and pre-fill event data in the form
@@ -26,8 +28,22 @@ const Edit: NextPage = () => {
     ? parse(data)
     : undefined;
 
+  useEffect(() => {
+    if (data && user && user.id !== data.proposerId) {
+      setInvalidRequest(true);
+    }
+  }, [user, data]);
+
   if (!clientEventInput) {
     return <NotFoundPage />;
+  }
+
+  if (isInvalidRequest) {
+    return (
+      <NotAllowedPage
+        message={`Event ${data.hash} is owned by ${data.proposer.nickname}. Connected account is ${user.address} (${user.nickname})`}
+      />
+    );
   }
 
   const deleteEvent = async () => {
