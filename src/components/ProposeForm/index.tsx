@@ -7,6 +7,7 @@ import Button from "../Button";
 import { RichTextArea } from "./FormFields/RichText";
 import SessionsInput from "./FormFields/SessionsInput";
 import useCreateEvent from "src/hooks/useCreateEvent";
+import useUpdateEvent from "src/hooks/useUpdateEvent";
 import LoginButton from "../LoginButton";
 import { useSignMessage } from "wagmi";
 import ConfirmationModal from "../ConfirmationModal";
@@ -23,6 +24,7 @@ const SessionSchema = z.object({
   dateTime: z.date(),
   duration: z.number().min(0.1, "Invalid duration"),
   count: z.number(),
+  id: z.string().optional(),
 });
 
 export type Session = z.infer<typeof SessionSchema>;
@@ -42,6 +44,7 @@ export const validationSchema = z.object({
   location: z.string(),
   nickname: z.string(),
   gCalEvent: z.boolean(),
+  hash: z.string().optional(),
 });
 
 export type ClientEventInput = z.infer<typeof validationSchema>;
@@ -70,6 +73,7 @@ const ModalContent = ({
 };
 
 const ProposeForm = ({ event }: { event?: ClientEventInput }) => {
+  const isEditing = !!event;
   const {
     register,
     reset,
@@ -86,6 +90,7 @@ const ProposeForm = ({ event }: { event?: ClientEventInput }) => {
   useEffect(() => reset(event), [event]);
 
   const { create } = useCreateEvent();
+  const { update } = useUpdateEvent();
   const { fetchedUser: user } = useUser();
   const { signMessageAsync } = useSignMessage();
 
@@ -104,10 +109,25 @@ const ProposeForm = ({ event }: { event?: ClientEventInput }) => {
 
   // @todo
   const onSubmit: SubmitHandler<ClientEventInput> = async (data) => {
-    const signature = await signMessageAsync({ message: JSON.stringify(data) });
     try {
+      if (isEditing) {
+        const messageToSign = { ...data, hash: event?.hash };
+        const signature = await signMessageAsync({
+          message: JSON.stringify(messageToSign),
+        });
+        await update({
+          event: messageToSign,
+          signature,
+          address: user.address,
+        });
+      } else {
+        const signature = await signMessageAsync({
+          message: JSON.stringify(data),
+        });
+        await create({ event: data, signature, address: user.address });
+      }
+
       // display success modal
-      await create({ event: data, signature, address: user.address });
       setModal({
         isError: false,
         message: "Success!",
@@ -200,13 +220,28 @@ const ProposeForm = ({ event }: { event?: ClientEventInput }) => {
           required={false}
         />
 
-        {/* google calendar event creation checkbox */}
-        <Checkbox
-          name="gCalEvent"
-          fieldName="Create a Google Calendar Event?"
-          register={register}
-          infoText="If checked, a google calendar event will be created and an option to receive an invite will be given to anyone who wants to RSVP"
-        />
+        {/**
+         * google calendar event creation checkbox
+         * if isEditing -> display an info message saying that the google calendar event will be updated
+         * @todo @angelagilhotra display an option to delete the google calendar event
+         */}
+        {isEditing ? (
+          <>
+            {event.gCalEvent && (
+              <div>
+                Google calendar event associated with this event will be
+                updated.
+              </div>
+            )}
+          </>
+        ) : (
+          <Checkbox
+            name="gCalEvent"
+            fieldName="Create a Google Calendar Event?"
+            register={register}
+            infoText="If checked, a google calendar event will be created and an option to receive an invite will be given to anyone who wants to RSVP"
+          />
+        )}
 
         {/* nickname */}
         {user && isNicknameSet(user.nickname) && !isEditingNickname && (

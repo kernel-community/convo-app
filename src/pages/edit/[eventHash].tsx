@@ -10,6 +10,9 @@ const Edit: NextPage = () => {
   const { query } = useRouter();
   const { eventHash } = query;
   const { data } = useEvent({ hash: eventHash });
+
+  // check to see if eventHash from query exists in the database
+  // parse and pre-fill event data in the form
   const clientEventInput: ClientEventInput | undefined = data
     ? parse(data)
     : undefined;

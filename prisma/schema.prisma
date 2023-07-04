@@ -26,6 +26,11 @@ model Event {
   hash               String
   series             Boolean
   limit              Int
+
+  // for deleted events
+  // can be purged periodically
+  isDeleted          Boolean @default(false)
+
   gCalEventRequested Boolean   @default(false)
   gCalEventId        String?
   gCalId             String?
@@ -41,7 +46,7 @@ model Event {
   // but the database does not hold any association with
   // emails <> eth addresses
   // as soon as an event's endDateTime is in the past
-  // we clear this field on this model @todo
+  // we can purge this field on this model (@todo @angelagilhotra)
   emails             String[]
 }
 

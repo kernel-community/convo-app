@@ -14,6 +14,7 @@ const parse = (event: ClientEvent): ClientEventInput => {
     location,
     nickname,
     gCalEventRequested,
+    hash,
   } = event;
   const parsedSessions: ClientEventInput["sessions"] = sessions.map(
     (session, key) => {
@@ -21,6 +22,7 @@ const parse = (event: ClientEvent): ClientEventInput => {
         dateTime: new Date(session.startDateTime),
         duration: 1,
         count: key,
+        id: session.id,
       };
     }
   );
@@ -32,6 +34,7 @@ const parse = (event: ClientEvent): ClientEventInput => {
     location,
     nickname,
     gCalEvent: gCalEventRequested,
+    hash,
   };
 };
 

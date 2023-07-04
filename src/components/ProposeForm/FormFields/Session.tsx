@@ -19,6 +19,13 @@ const DateTimeWrapper = ({
   danger?: boolean;
   sessions: Array<Session>;
 }) => {
+  /**
+   * @todo @angelagilhotra
+   * sort sessions
+   * editable => dateTime is in future
+   * non editable => dateTime is in past
+   * display DateTime component
+   */
   return (
     <div className="space-between flex flex-col gap-4">
       <div className="divide-y-2 divide-gray-200">
