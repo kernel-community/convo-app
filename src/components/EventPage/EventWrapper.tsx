@@ -11,6 +11,7 @@ import { useUser } from "src/context/UserContext";
 import ModalToConfirmRsvp from "./RsvpConfirmationForm/Modal";
 import Button from "../Button";
 import { useRouter } from "next/router";
+import { isPast } from "src/utils/dateTime";
 
 export const rsvpInputSchema = z.object({
   email: z.string().optional(),
@@ -66,7 +67,7 @@ const EventWrapper = ({
       />
       <div className="flex flex-row items-center justify-between">
         <Hero title={title} />
-        {isEditable && (
+        {isEditable && !isPast(event.startDateTime) && (
           <Button buttonText="Edit event" handleClick={navigateToEditPage} />
         )}
       </div>
