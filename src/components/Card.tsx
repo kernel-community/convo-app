@@ -65,7 +65,7 @@ export const Card = ({
         m-4
         flex
         cursor-pointer
-        flex-col rounded-lg
+        flex-col rounded-xl
         ${cardColor}
         p-4
         text-primary-muted
