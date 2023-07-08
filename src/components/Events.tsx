@@ -17,11 +17,13 @@ export const Events = ({
   highlight,
   take,
   infinite, // to implement or not to implement the infinite scroll
+  showFilterPanel = false,
 }: Pick<EventsRequest, "type"> & {
   title?: string;
   highlight?: string;
   take?: number;
   infinite?: boolean;
+  showFilterPanel?: boolean;
 }) => {
   const { fetchedUser: user } = useUser();
   const [filterObject, setFilterObject] =
@@ -69,7 +71,7 @@ export const Events = ({
   return (
     <div>
       <Title text={title} highlight={highlight} className="mb-3" />
-      {user.isSignedIn && (
+      {user.isSignedIn && showFilterPanel && (
         <div className="my-3 flex flex-row gap-3">
           <Button
             buttonText="by me"

@@ -25,7 +25,7 @@ const Archive: NextPage = () => {
           >
             Archive
           </div>
-          <Events type="past" take={50} infinite={true} />
+          <Events type="past" take={50} infinite={true} showFilterPanel />
         </div>
       </Main>
     </>
