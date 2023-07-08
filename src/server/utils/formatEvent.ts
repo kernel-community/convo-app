@@ -48,7 +48,7 @@ export const formatEvents = (
     if (filter.rsvpUserId) {
       res = res.filter((event) => {
         // @ts-expect-error nottt sure why @help
-        event.rsvps.map((r) => r.attendeeId).includes(filter.rsvpUserId);
+        return event.rsvps.map((r) => r.attendeeId).includes(filter.rsvpUserId);
       });
     }
   }

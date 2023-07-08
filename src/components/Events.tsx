@@ -38,7 +38,7 @@ export const Events = ({
     fetchNextPage,
     hasNextPage,
   } = useInfiniteQuery(
-    `events_${type}_${filterObject}`,
+    `events_${type}_${JSON.stringify(filterObject)}`,
     async ({ pageParam = "" }) => {
       const requestObject: EventsRequest = {
         type,
