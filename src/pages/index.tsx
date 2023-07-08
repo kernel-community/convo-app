@@ -15,17 +15,6 @@ const Home: NextPage = () => {
         >
           <div
             className="
-              font-heading
-              text-5xl
-              font-bold text-primary
-              lg:py-5
-              lg:text-7xl
-            "
-          >
-            Convo.
-          </div>
-          <div
-            className="
                 pt-12
                 font-secondary
                 text-lg
@@ -33,14 +22,22 @@ const Home: NextPage = () => {
               "
           >
             Wander off in a&nbsp;
-            <Link href="/propose">
-              <span className="relative inline-block cursor-pointer before:absolute before:-inset-1 before:block before:-skew-y-3 before:bg-highlight">
-                <span className="relative text-primary">
-                  <span className="underline decoration-dotted">Convo</span>
-                </span>
-              </span>
-            </Link>
           </div>
+          <Link href="/propose">
+            <span className="relative mt-2 inline-block cursor-pointer before:absolute before:-inset-1 before:block before:-skew-y-3 before:bg-highlight">
+              <div
+                className="
+              relative
+              font-heading
+              text-5xl font-bold
+              text-primary
+              lg:text-7xl
+            "
+              >
+                Convo.
+              </div>
+            </span>
+          </Link>
         </div>
         <div className="mt-12 px-12 lg:px-32 xl:px-40 2xl:px-52">
           <div className="mt-12">
