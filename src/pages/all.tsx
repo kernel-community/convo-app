@@ -1,16 +1,8 @@
 import type { NextPage } from "next";
 import Main from "src/layouts/Main";
 import { Events } from "src/components/Events";
-import { useState } from "react";
-import type { EventsRequest } from "src/types";
-import Button from "src/components/Button";
-import { useUser } from "src/context/UserContext";
 
 const All: NextPage = () => {
-  const [filterObject, setFilterObject] =
-    useState<EventsRequest["filter"]>(undefined);
-  const { fetchedUser: user } = useUser();
-
   return (
     <>
       <Main>
@@ -33,29 +25,8 @@ const All: NextPage = () => {
           >
             all upcoming
           </div>
-          <div className="flex flex-row gap-3">
-            <Button
-              buttonText="by me"
-              handleClick={() => {
-                return setFilterObject({
-                  userId: user.id,
-                });
-              }}
-            />
-            <Button
-              buttonText="all"
-              handleClick={() => {
-                return setFilterObject(undefined);
-              }}
-            />
-          </div>
 
-          <Events
-            type={"upcoming"}
-            take={50}
-            infinite={true}
-            filter={filterObject}
-          />
+          <Events type={"upcoming"} take={50} infinite={true} />
         </div>
       </Main>
     </>

@@ -7,21 +7,25 @@ import Link from "next/link";
 import { useInfiniteQuery } from "react-query";
 import { useInView } from "react-intersection-observer";
 import { DateTime } from "luxon";
+import Button from "src/components/Button";
+import { useUser } from "src/context/UserContext";
+import { useState } from "react";
 import type { EventsRequest } from "src/types";
-
 export const Events = ({
   type,
   title,
   highlight,
   take,
   infinite, // to implement or not to implement the infinite scroll
-  filter,
-}: Pick<EventsRequest, "type" | "filter"> & {
+}: Pick<EventsRequest, "type"> & {
   title?: string;
   highlight?: string;
   take?: number;
   infinite?: boolean;
 }) => {
+  const { fetchedUser: user } = useUser();
+  const [filterObject, setFilterObject] =
+    useState<EventsRequest["filter"]>(undefined);
   const { ref, inView } = useInView();
   const {
     isLoading,
@@ -32,14 +36,14 @@ export const Events = ({
     fetchNextPage,
     hasNextPage,
   } = useInfiniteQuery(
-    `events_${type}_${filter}`,
+    `events_${type}_${filterObject}`,
     async ({ pageParam = "" }) => {
       const requestObject: EventsRequest = {
         type,
         now: DateTime.now().toJSDate(),
         take,
         fromId: pageParam,
-        filter,
+        filter: filterObject,
       };
       const r = await (
         await fetch("api/query/getEvents", {
@@ -65,6 +69,33 @@ export const Events = ({
   return (
     <div>
       <Title text={title} highlight={highlight} className="mb-3" />
+      {user.isSignedIn && (
+        <div className="my-3 flex flex-row gap-3">
+          <Button
+            buttonText="by me"
+            handleClick={() => {
+              return setFilterObject({
+                proposerId: user.id,
+              });
+            }}
+          />
+          <Button
+            buttonText="all"
+            handleClick={() => {
+              return setFilterObject(undefined);
+            }}
+          />
+          <Button
+            buttonText="my rsvps"
+            handleClick={() => {
+              return setFilterObject({
+                proposerId: undefined,
+                rsvpUserId: user.id,
+              });
+            }}
+          />
+        </div>
+      )}
       <div className="sm:flex sm:flex-row sm:flex-wrap sm:gap-4">
         {data &&
           data.pages.map((page) =>
