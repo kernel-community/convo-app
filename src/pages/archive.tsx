@@ -1,16 +1,8 @@
 import type { NextPage } from "next";
 import Main from "src/layouts/Main";
 import { Events } from "src/components/Events";
-import { useState } from "react";
-import type { EventsRequest } from "src/types";
-import { useUser } from "src/context/UserContext";
-import Button from "src/components/Button";
 
 const Archive: NextPage = () => {
-  const [filterObject, setFilterObject] =
-    useState<EventsRequest["filter"]>(undefined);
-  const { fetchedUser: user } = useUser();
-
   return (
     <>
       <Main>
@@ -33,23 +25,7 @@ const Archive: NextPage = () => {
           >
             Archive
           </div>
-          <div className="flex flex-row gap-3">
-            <Button
-              buttonText="by me"
-              handleClick={() => {
-                return setFilterObject({
-                  userId: user.id,
-                });
-              }}
-            />
-            <Button
-              buttonText="all"
-              handleClick={() => {
-                return setFilterObject(undefined);
-              }}
-            />
-          </div>
-          <Events type="past" take={50} infinite={true} filter={filterObject} />
+          <Events type="past" take={50} infinite={true} showFilterPanel />
         </div>
       </Main>
     </>

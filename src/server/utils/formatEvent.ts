@@ -41,9 +41,15 @@ export const formatEvents = (
 ): Array<ClientEvent> => {
   let res = events.map((event) => formatEvent([event]));
   if (filter) {
-    if (filter.userId) {
+    if (filter.proposerId) {
       // filter by userId
-      res = res.filter((event) => event.proposerId === filter.userId);
+      res = res.filter((event) => event.proposerId === filter.proposerId);
+    }
+    if (filter.rsvpUserId) {
+      res = res.filter((event) => {
+        // @ts-expect-error nottt sure why @help
+        return event.rsvps.map((r) => r.attendeeId).includes(filter.rsvpUserId);
+      });
     }
   }
   return res;

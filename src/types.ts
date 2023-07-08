@@ -27,6 +27,7 @@ export type EventsRequest = {
   fromId?: string;
   skip?: number;
   filter?: {
-    userId?: string; // filters by user id
+    proposerId?: string; // proposerId
+    rsvpUserId?: string;
   };
 };

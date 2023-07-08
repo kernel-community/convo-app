@@ -28,6 +28,10 @@ module.exports = {
           muted: "#FAFCFC",
           DEFAULT: "#E5EEEF",
         },
+        card: {
+          one: "#212144",
+          two: "#3838B4"
+        }
       },
       fontFamily: {
         inter: ["Inter", "sans-serif"],

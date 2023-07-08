@@ -30,12 +30,13 @@ const Button = ({
           hover:shadow-outline
           `
         }
-        rounded-lg
+        rounded-xl
         py-2
         px-16
         font-secondary
         text-lg
         uppercase
+        drop-shadow-xl
         transition-shadow
         duration-300
         ease-in-out
