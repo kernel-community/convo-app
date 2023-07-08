@@ -57,6 +57,7 @@ export const Card = ({
       total: Number(limit),
     });
   }, [RSVP, limit]);
+  const cardColor = isSeries ? "bg-card-two" : "bg-card-one";
   return (
     <div
       className={`
@@ -65,9 +66,7 @@ export const Card = ({
         flex
         cursor-pointer
         flex-col rounded-lg
-        bg-white
-        bg-gradient-to-tl
-        from-indigo-900 to-slate-900
+        ${cardColor}
         p-4
         text-primary-muted
         transition-shadow
@@ -77,7 +76,7 @@ export const Card = ({
         sm:h-64 sm:w-64 lg:w-72
       `}
     >
-      <div className="flex w-full flex-row justify-between gap-3">
+      <div className="flex w-full flex-row justify-between gap-3 align-top">
         <div className="flex flex-col justify-start">
           {/* <div className='font-secondary uppercase lg:text-sm sm:text-xs text-xxs'>
             {type}
@@ -86,21 +85,20 @@ export const Card = ({
             className="
             font-heading
             text-base
+            text-white
             sm:text-xl
-            lg:text-2xl
           "
           >
             {title.replace(/\s/g, "").length < 25
               ? title
               : title.substring(0, 25) + "..."}
           </div>
-          <div className="font-primary text-xxs sm:text-xs lg:text-sm">
-            {by}
-          </div>
+          <div className="font-primary text-xxs sm:text-xs">{by}</div>
         </div>
-        <div className="flex shrink-0 flex-col items-center place-self-center font-secondary">
-          <div className="text-xxs sm:text-base lg:text-lg">
-            {prettyDate.date}, {prettyDate.month}
+        <div className="flex shrink-0 flex-col items-center font-secondary">
+          <div className="flex flex-col text-sm">
+            <div>{prettyDate.date}</div>
+            <div>{prettyDate.month}</div>
           </div>
           <div className="text-xxs sm:text-xs 2xl:text-sm">
             {prettyDate.time}
@@ -115,9 +113,7 @@ export const Card = ({
         flex-row
         items-center
         font-primary
-        text-xxs
-        sm:text-sm
-        lg:text-base
+        text-sm
       "
       >
         <Article
@@ -132,11 +128,11 @@ export const Card = ({
       </div>
       <div className="flex flex-row justify-between">
         {seats.available > 0 && !isPast && !isSeries && (
-          <div className="font-primary text-sm font-thin lg:text-base">
+          <div className="font-primary text-xs font-thin">
             <span>
               {seats.available} / {seats.total}
             </span>
-            <span className="text-xs lg:text-sm">&nbsp;seats available</span>
+            <span className="text-xxs">&nbsp;seats available</span>
           </div>
         )}
         {seats.total !== 0 && seats.available <= 0 && (
