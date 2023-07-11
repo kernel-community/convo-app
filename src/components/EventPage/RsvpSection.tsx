@@ -15,6 +15,21 @@ const RemoveRSVPModal = ({
   address: string | null | undefined;
   eventId: string | null | undefined;
 }) => {
+  const [isSuccess, setIsSuccess] = useState<boolean>(false);
+  const [isError, setIsError] = useState<boolean>(false);
+
+  const onClickCancel = async () => {
+    try {
+      await updateRsvp();
+    } catch (err) {
+      console.error("There was an Error", JSON.stringify(err));
+      setIsError(true);
+      setIsSuccess(false);
+      return;
+    }
+    setIsError(false);
+    setIsSuccess(true);
+  };
   const { fetch: updateRsvp } = useUpdateRsvp({
     address,
     eventId,
@@ -26,7 +41,15 @@ const RemoveRSVPModal = ({
     return <div>There was an error; Try again?</div>;
   }
 
-  return <Button buttonText="Cancel RSVP?" handleClick={() => updateRsvp()} />;
+  if (isSuccess) {
+    return <div>Cancelled RSVP</div>;
+  }
+
+  if (isError) {
+    return <div>There was an Error :(</div>;
+  }
+
+  return <Button buttonText="Cancel RSVP?" handleClick={onClickCancel} />;
 };
 
 export const SessionsWrapper = ({
@@ -87,7 +110,7 @@ export const SessionsWrapper = ({
         content={
           <RemoveRSVPModal address={user.address} eventId={cancelRsvpEventId} />
         }
-        title="EDIT YOUR RSVP"
+        title="Edit your RSVP"
       />
       <div className="w-100 [&>*]:my-3">
         {sortedSessions.map((session, key) => {
