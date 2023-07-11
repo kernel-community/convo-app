@@ -99,6 +99,7 @@ const ProposeForm = ({ event }: { event?: ClientEventInput }) => {
     }, [event, user]),
   });
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => reset(event), [event]);
 
   const { create } = useCreateEvent();
