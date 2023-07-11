@@ -7,10 +7,31 @@ import Link from "next/link";
 import { useInfiniteQuery } from "react-query";
 import { useInView } from "react-intersection-observer";
 import { DateTime } from "luxon";
-import Button from "src/components/Button";
 import { useUser } from "src/context/UserContext";
 import { useState } from "react";
 import type { EventsRequest } from "src/types";
+
+const FilterButton = ({
+  onClick,
+  text,
+  active,
+}: {
+  onClick: React.MouseEventHandler<HTMLDivElement>;
+  text: string;
+  active: boolean;
+}) => {
+  return (
+    <div
+      className={`cursor-pointer font-secondary ${
+        active ? "border-spacing-4 border-b-2 border-black" : ""
+      }`}
+      onClick={onClick}
+    >
+      {text}
+    </div>
+  );
+};
+
 export const Events = ({
   type,
   title,
@@ -72,29 +93,32 @@ export const Events = ({
     <div>
       <Title text={title} highlight={highlight} className="mb-3" />
       {user.isSignedIn && showFilterPanel && (
-        <div className="my-3 flex flex-row gap-3">
-          <Button
-            buttonText="by me"
-            handleClick={() => {
+        <div className="my-8 flex flex-row gap-12">
+          <FilterButton
+            text="all"
+            onClick={() => {
+              return setFilterObject(undefined);
+            }}
+            active={!filterObject}
+          />
+          <FilterButton
+            text="by me"
+            onClick={() => {
               return setFilterObject({
                 proposerId: user.id,
               });
             }}
+            active={!!filterObject?.proposerId}
           />
-          <Button
-            buttonText="all"
-            handleClick={() => {
-              return setFilterObject(undefined);
-            }}
-          />
-          <Button
-            buttonText="my rsvps"
-            handleClick={() => {
+          <FilterButton
+            text="my rsvps"
+            onClick={() => {
               return setFilterObject({
                 proposerId: undefined,
                 rsvpUserId: user.id,
               });
             }}
+            active={!!filterObject?.rsvpUserId}
           />
         </div>
       )}

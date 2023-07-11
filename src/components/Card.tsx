@@ -41,7 +41,7 @@ export const Card = ({
     setPrettyDate({
       date: d.toFormat("dd"),
       month: d.toFormat("LLL"),
-      time: d.toFormat("hh: mm a"),
+      time: d.toFormat("hh:mm a"),
     });
     if (d.diffNow().milliseconds < 0) setIsPast(true);
   }, [startDateTime]);
@@ -96,9 +96,9 @@ export const Card = ({
           <div className="font-primary text-xxs sm:text-xs">{by}</div>
         </div>
         <div className="flex shrink-0 flex-col items-center font-secondary">
-          <div className="flex flex-col text-sm">
-            <div>{prettyDate.date}</div>
+          <div className="flex flex-row items-center gap-1 text-sm">
             <div>{prettyDate.month}</div>
+            <div>{prettyDate.date}</div>
           </div>
           <div className="text-xxs sm:text-xs 2xl:text-sm">
             {prettyDate.time}
