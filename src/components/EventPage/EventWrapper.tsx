@@ -32,11 +32,11 @@ const EventWrapper = ({
     sessions,
     title,
     proposer,
-    isDeleted,
+    // @todo handle deleted event display
+    // isDeleted,
   } = event;
 
-  // @todo display a message saying
-  console.log({ isDeleted });
+  // @todo deleted event handling
   const { rsvpIntention } = useRsvpIntention();
   const { eventIds } = rsvpIntention;
   const isDisabled = eventIds.length === 0;
