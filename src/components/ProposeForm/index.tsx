@@ -19,6 +19,7 @@ import isNicknameSet from "src/utils/isNicknameSet";
 import Checkbox from "./FormFields/Checkbox";
 import type { User } from "@prisma/client";
 import { AiOutlineEdit } from "react-icons/ai";
+import { useRouter } from "next/navigation";
 
 const SessionSchema = z.object({
   dateTime: z.date(),
@@ -74,7 +75,7 @@ const ModalContent = ({
 
 const ProposeForm = ({ event }: { event?: ClientEventInput }) => {
   const { fetchedUser: user } = useUser();
-
+  const { push } = useRouter();
   const isEditing = !!event;
   const {
     register,
@@ -105,7 +106,6 @@ const ProposeForm = ({ event }: { event?: ClientEventInput }) => {
   const { create } = useCreateEvent();
   const { update } = useUpdateEvent();
   const { signMessageAsync } = useSignMessage();
-
   const [openModalFlag, setOpenModalFlag] = useState<boolean>(false);
   const [isEditingNickname, setIsEditingNickname] = useState<boolean>(false);
   const [modal, setModal] = useState<{
@@ -125,7 +125,6 @@ const ProposeForm = ({ event }: { event?: ClientEventInput }) => {
     console.log("INVALID submission");
     console.error(errors);
   };
-  // @todo
   const onSubmit: SubmitHandler<ClientEventInput> = async (data) => {
     try {
       if (isEditing) {
@@ -133,22 +132,31 @@ const ProposeForm = ({ event }: { event?: ClientEventInput }) => {
         const signature = await signMessageAsync({
           message: JSON.stringify(messageToSign),
         });
-        await update({
+        const updated = await update({
           event: messageToSign,
           signature,
           address: user.address,
         });
+        if (!updated) throw "undefined response returned from `updated`";
+        if (!updated[0]) throw "empty array returned from `updated`";
+        push(`/rsvp/${updated[0]?.hash}`);
       } else {
         const signature = await signMessageAsync({
           message: JSON.stringify(data),
         });
-        await create({ event: data, signature, address: user.address });
+        const created = await create({
+          event: data,
+          signature,
+          address: user.address,
+        });
+        if (!created) throw "undefined response returned";
+        if (!created[0]) throw "empty array returned";
+        push(`/rsvp/${created[0]?.hash}`);
       }
-
       // display success modal
       setModal({
         isError: false,
-        message: "Success!",
+        message: "Success! Redirecting to your event.",
       });
       openModal();
     } catch {
