@@ -22,7 +22,6 @@ export default async function getEventByHash(
       },
     },
   });
-  console.log({ event: JSON.stringify(event, null, 2) });
   const formattedEvent = formatEvent(event);
   res.status(200).json({ data: formattedEvent });
 }
