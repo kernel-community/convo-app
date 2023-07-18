@@ -23,7 +23,7 @@ const Home: NextPage = () => {
           >
             Wander off in a&nbsp;
           </div>
-          <Link href="/propose">
+          <Link href="/all">
             <span className="relative mt-2 inline-block cursor-pointer before:absolute before:-inset-1 before:block before:-skew-y-3 before:bg-highlight">
               <div
                 className="
