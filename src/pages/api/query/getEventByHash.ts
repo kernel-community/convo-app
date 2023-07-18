@@ -13,8 +13,16 @@ export default async function getEventByHash(
   }
   const event = await prisma.event.findMany({
     where: { hash },
-    include: { proposer: true, rsvps: true },
+    include: {
+      proposer: true,
+      rsvps: {
+        include: {
+          attendee: true,
+        },
+      },
+    },
   });
+  console.log({ event: JSON.stringify(event, null, 2) });
   const formattedEvent = formatEvent(event);
   res.status(200).json({ data: formattedEvent });
 }
