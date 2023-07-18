@@ -2,7 +2,11 @@ import type { Event, Rsvp, User } from "@prisma/client";
 
 export type ServerEvent = Event & {
   proposer: User;
-  rsvps: Array<Rsvp>;
+  rsvps: Array<
+    Rsvp & {
+      attendee: User;
+    }
+  >;
 };
 export type Session = Pick<ServerEvent, "id" | "limit" | "rsvps"> & {
   rsvpCount: number;

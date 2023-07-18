@@ -63,7 +63,7 @@ const RsvpStatus = ({
   return <></>;
 };
 
-const EventDateTime = ({
+export const EventDateTime = ({
   date,
   time,
 }: Pick<SessionParams, "date" | "time">) => {
@@ -75,7 +75,7 @@ const EventDateTime = ({
   );
 };
 
-const Seats = ({
+export const Seats = ({
   availableSeats,
   totalSeats,
   noLimit,
