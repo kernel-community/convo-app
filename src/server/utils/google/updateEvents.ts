@@ -74,7 +74,6 @@ export const updateEvents = async ({
 
   const allEvents = [...events.updated, ...deletedEvents];
   const parsedEvents = parseEvents(allEvents, reqHost);
-  console.log({ parsedEvents });
 
   const calendar = await getCalendar();
 
