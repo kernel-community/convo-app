@@ -15,22 +15,23 @@ enum EventType {
 }
 
 model Event {
-  id                 String    @id @default(uuid())
-  createdAt          DateTime  @default(now())
-  updatedAt          DateTime  @updatedAt
-  title              String
-  descriptionHtml    String?
-  startDateTime      DateTime
-  endDateTime        DateTime
-  location           String
-  hash               String
-  series             Boolean
-  limit              Int
+  id              String   @id @default(uuid())
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  title           String
+  descriptionHtml String?
+  startDateTime   DateTime
+  endDateTime     DateTime
+  location        String
+  hash            String
+  series          Boolean
+  limit           Int
 
   // for deleted events
   // can be purged periodically
-  isDeleted          Boolean @default(false)
+  isDeleted Boolean @default(false)
 
+  // google
   gCalEventRequested Boolean   @default(false)
   gCalEventId        String?
   gCalId             String?
@@ -71,11 +72,11 @@ model Rsvp {
 //  @help is there a better way to manage auth tokens?
 // plisss teach me
 model Google {
-  id                      String   @id @default(uuid())
-  createdAt               DateTime  @default(now())
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
 
   // credentials
-  clientId                String @unique
+  clientId                String   @unique
   projectId               String
   authUri                 String
   tokenUri                String
@@ -85,9 +86,18 @@ model Google {
   javascriptOrigins       String[]
 
   // token
-  accessToken             String
-  refreshToken            String
-  scope                   String
-  tokenType               String
-  expiryDate              String
+  accessToken  String
+  refreshToken String
+  scope        String
+  tokenType    String
+  expiryDate   String
+}
+
+model Slack {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  botToken  String
+  channel  String
+
+  @@unique([botToken, channel])
 }
