@@ -63,7 +63,7 @@ const getColor = (type: ModalMessage) => {
   }
 };
 
-const ModalContent = ({
+export const ModalContent = ({
   message,
   type,
 }: {

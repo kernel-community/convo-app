@@ -28,6 +28,7 @@
     "@prisma/client": "^4.16.2",
     "@rainbow-me/rainbowkit": "^0.8.1",
     "@rainbow-me/rainbowkit-siwe-next-auth": "^0.1.5",
+    "@slack/web-api": "^6.8.1",
     "@tailwindcss/forms": "^0.5.3",
     "@tailwindcss/typography": "^0.5.8",
     "@tiptap/core": "^2.0.3",
