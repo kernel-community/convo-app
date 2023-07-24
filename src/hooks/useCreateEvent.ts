@@ -48,6 +48,24 @@ const createEventInGCal = async ({ events }: { events: Array<FullEvent> }) => {
   return res;
 };
 
+const notifyAllChannelsOnSlack = async (id: string) => {
+  let res;
+  try {
+    res = (
+      await (
+        await fetch("/api/actions/slack/notifyAll", {
+          body: JSON.stringify({ eventId: id, type: "new" }),
+          method: "POST",
+          headers: { "Content-type": "application/json" },
+        })
+      ).json()
+    ).data;
+  } catch (err) {
+    throw err;
+  }
+  return res;
+};
+
 const useCreateEvent = () => {
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [isError, setIsError] = useState<boolean>(false);
@@ -83,6 +101,14 @@ const useCreateEvent = () => {
       }
     } catch (err) {
       console.log(`Error in creating event in google calendar`);
+    }
+
+    try {
+      if (createdInDb && createdInDb[0]) {
+        await notifyAllChannelsOnSlack(createdInDb[0].id);
+      }
+    } catch (err) {
+      console.log(`Error in sending slack message notification`);
     }
 
     setIsSubmitting(false);
