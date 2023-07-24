@@ -14,7 +14,7 @@ export default async function sendSlackNotificationForEvent(
   // fetch all bots from database
   // trigger message
 
-  const { eventId } = pick(req.body, ["eventId"]);
+  const { eventId, type } = pick(req.body, ["eventId", "type"]);
   const { host }: { host?: string | undefined | string[] } = pick(headersList, [
     "host",
   ]);
@@ -45,6 +45,7 @@ export default async function sendSlackNotificationForEvent(
   const { blocks, text, icon, username } = prepareSlackMessage({
     event,
     reqHost: host || prodHost,
+    type, // "new" | "reminder" | "updated"
   });
 
   let bots,
