@@ -15,6 +15,7 @@ import { useCallback } from "react";
 import type { FieldErrorsImpl } from "react-hook-form";
 import type { ClientEventInput } from "..";
 import FieldLabel from "../../StrongText";
+type handleChangeType = (e: any) => void;
 
 export const RichTextArea = ({
   name,
@@ -27,8 +28,7 @@ export const RichTextArea = ({
   name: keyof ClientEventInput;
   fieldName?: string;
   infoText?: string;
-  // @help need better type here 😥
-  handleChange: any;
+  handleChange: handleChangeType;
   errors?: Partial<FieldErrorsImpl<ClientEventInput>>;
   value?: string;
 }) => {

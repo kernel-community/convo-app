@@ -81,21 +81,20 @@ export const updateEvents = async ({
   // fetch and prefill attendees so the API doesn't wipe them
   // idk why google apis do that 🤷🏽‍♀️
   for (let i = 0; i < parsedEvents.length; i++) {
-    if (!parsedEvents[i]) continue;
-    // @ts-expect-error -- @help not sure why ts is throwing an error here
-    // for parsedEvents[i] to be potentially undefined
-    if (parsedEvents[i].isDeleted) {
-      // @ts-expect-error -- ???
-      eventsToUpdate.push(parsedEvents[i]);
+    const parsedEvent = parsedEvents[i];
+    if (parsedEvent == undefined) {
       continue;
+    } else if (parsedEvent.isDeleted) {
+      eventsToUpdate.push(parsedEvent);
+      continue;
+    } else {
+      const event = await getEvent(calendarId, parsedEvent.gCalEventId ?? "");
+      const attendees = event.attendees || [];
+      eventsToUpdate.push({
+        ...parsedEvent,
+        attendees,
+      });
     }
-    // @ts-expect-error -- ???
-    const event = await getEvent(calendarId, parsedEvents[i].gCalEventId);
-    const attendees = event.attendees || [];
-    eventsToUpdate.push({
-      ...parsedEvents[i],
-      attendees,
-    });
   }
 
   // update event on google calendar

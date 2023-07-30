@@ -14,7 +14,7 @@ export const sessionDatesValidity = (
 };
 
 export const isPast = (date: string): boolean => {
-  const zone = DateTime.local().zoneName;
+  const zone = DateTime.local().zoneName ?? DateTime.utc().zone;
   const time = DateTime.fromISO(date, { zone });
   const now = DateTime.local();
   return now > time;
@@ -24,7 +24,7 @@ export const getDateTimeString = (
   date: string, // iso string with offset
   option: "date" | "time"
 ): string => {
-  const zone = DateTime.local().zoneName;
+  const zone = DateTime.local().zoneName ?? DateTime.utc().zone;
   const time = DateTime.fromISO(date, { zone });
   switch (option) {
     case "date":
