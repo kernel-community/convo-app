@@ -36,9 +36,7 @@ const SessionsInput = ({
     let sessionToUpdate = sessions.find((s) => s.count === count);
     switch (type) {
       case "dateTime": {
-        // @help converting value to string only to satisfy ts error
-        // `value` can either be number (for duration) or Date (for dateTime)
-        const dateTime = new Date(value.toString());
+        const dateTime = new Date(value as Date);
 
         // new session, add to array
         if (!sessionToUpdate) {
@@ -63,16 +61,14 @@ const SessionsInput = ({
         return setSessions(updatedSessions);
       }
       case "duration": {
-        // @help converting value to string only to satisfy ts error
-        // `value` can either be number (for duration) or Date (for dateTime)
-        const duration = Number(value);
+        const duration = Number(value ?? 1);
 
         // new session, add to array
         if (!sessionToUpdate) {
           const updatedSessions = sessions.concat([
             {
               dateTime: new Date(),
-              duration: 1,
+              duration: duration,
               count,
             },
           ]);

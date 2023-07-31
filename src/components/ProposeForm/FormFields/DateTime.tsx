@@ -60,10 +60,10 @@ const DateTime = ({
           type="number"
           name="duration"
           onChange={(e) => handleChange("duration", count, e.target.value)}
-          placeholder={"duration (in hours)"}
+          placeholder={"Duration (in hours)"}
           required
           className="rounded-lg font-primary focus:border-primary focus:ring-primary"
-          defaultValue={session?.duration}
+          // defaultValue={session?.duration}
         />
       </div>
 
