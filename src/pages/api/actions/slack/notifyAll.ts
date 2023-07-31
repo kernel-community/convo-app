@@ -4,11 +4,11 @@ import { prisma } from "src/server/db";
 import { pick } from "lodash";
 import { prepareSlackMessage } from "src/server/utils/slack/prepareSlackMessage";
 
-export default async function sendSlackNotificationForEvent(
+export default async function notifyAll(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  console.log("[api] actions/slack/sendMessage");
+  console.log("[api] actions/slack/notifyAll");
   const headersList = req.headers;
 
   // fetch all bots from database

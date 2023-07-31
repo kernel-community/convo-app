@@ -21,6 +21,7 @@ export type ClientEvent = {
   location: string;
   nickname?: string;
   gCalEvent: boolean;
+  email?: string;
 };
 
 export default async function event(req: NextApiRequest, res: NextApiResponse) {

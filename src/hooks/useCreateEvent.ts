@@ -30,13 +30,19 @@ const createEventInDb = async ({
   return res;
 };
 
-const createEventInGCal = async ({ events }: { events: Array<FullEvent> }) => {
+const createEventInGCal = async ({
+  events,
+  proposerEmail,
+}: {
+  events: Array<FullEvent>;
+  proposerEmail?: string;
+}) => {
   let res;
   try {
     res = (
       await (
         await fetch("/api/actions/google/createEvent", {
-          body: JSON.stringify({ events }),
+          body: JSON.stringify({ events, proposerEmail }),
           method: "POST",
           headers: { "Content-type": "application/json" },
         })
@@ -97,7 +103,10 @@ const useCreateEvent = () => {
     // @help need a way for us to know this error occurred on the frontend
     try {
       if (createdInDb && event.gCalEvent) {
-        await createEventInGCal({ events: createdInDb });
+        await createEventInGCal({
+          events: createdInDb,
+          proposerEmail: event.email,
+        });
       }
     } catch (err) {
       console.log(`Error in creating event in google calendar`);
