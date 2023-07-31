@@ -49,6 +49,18 @@ model Event {
   // as soon as an event's endDateTime is in the past
   // we can purge this field on this model (@todo @angelagilhotra)
   emails             String[]
+
+  // if the event was imported from convo.kernel.community
+  // if it was, we do not have their RSVPs, since this version uses
+  // user's addresses to make them unique and the previous version used
+  // email addresses
+  // having isImported = true, means
+  // the UI will show an info box mentioning "This event was imported from the previous version of the app
+  // and the total number of RSVPs might not be accurate. Please email
+  // if you'd like to query any data related to RSVPs for this particular event"
+  // the emails[], gcaleventREquested, gcalEventId will be accurate for these events
+  // the proposer data will be inaccurate
+  isImported         Boolean @default(false)
 }
 
 model User {
