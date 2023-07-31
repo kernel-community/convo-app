@@ -46,6 +46,7 @@ export const validationSchema = z.object({
   nickname: z.string(),
   gCalEvent: z.boolean(),
   hash: z.string().optional(),
+  email: z.string().optional(),
 });
 
 export type ClientEventInput = z.infer<typeof validationSchema>;
@@ -83,6 +84,7 @@ const ProposeForm = ({ event }: { event?: ClientEventInput }) => {
     handleSubmit,
     formState: { errors, defaultValues },
     control,
+    watch,
   } = useForm<ClientEventInput>({
     resolver: zodResolver(validationSchema),
     defaultValues: useMemo(() => {
@@ -99,6 +101,8 @@ const ProposeForm = ({ event }: { event?: ClientEventInput }) => {
       return DEFAULT_EVENT;
     }, [event, user]),
   });
+
+  const isGcalEventRequested = watch("gCalEvent");
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => reset(event), [event]);
@@ -269,9 +273,21 @@ const ProposeForm = ({ event }: { event?: ClientEventInput }) => {
         ) : (
           <Checkbox
             name="gCalEvent"
-            fieldName="Create a Google Calendar Event?"
+            fieldName="Create a Calendar Event?"
             register={register}
-            infoText="If checked, a google calendar event will be created and an option to receive an invite will be given to anyone who wants to RSVP"
+            infoText="If checked, a Google Calendar Cvent will be created and an option to receive an invite will be given to anyone who wants to RSVP"
+          />
+        )}
+
+        {/* email if gcalevent=true */}
+        {!isEditing && isGcalEventRequested && (
+          <TextField
+            name="email"
+            fieldName="Email"
+            register={register}
+            errors={errors}
+            required={false}
+            infoText="Please enter the email you would like to receive calendar event invite on"
           />
         )}
 
