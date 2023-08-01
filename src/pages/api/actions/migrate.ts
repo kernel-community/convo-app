@@ -5,12 +5,13 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
+  let created;
   try {
-    migrate();
+    created = await migrate();
   } catch (err) {
     throw err;
   }
   res.status(200).json({
-    data: "ok",
+    data: created,
   });
 }

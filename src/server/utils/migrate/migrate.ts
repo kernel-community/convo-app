@@ -4,6 +4,7 @@ import { data } from "./data";
 
 export const migrate = async () => {
   const events = data.data;
+  const allCreated: string[] = [];
   for (let i = 0; i < events.length; i++) {
     const {
       hash,
@@ -25,7 +26,7 @@ export const migrate = async () => {
 
     if (alreadyExists) continue;
     const gcal = GoogleCalendar[0]!;
-    await prisma.event.create({
+    const created = await prisma.event.create({
       data: {
         title,
         descriptionHtml,
@@ -54,5 +55,7 @@ export const migrate = async () => {
         emails: RSVP.map((r: { attendeeEmail: string }) => r.attendeeEmail),
       },
     });
+    allCreated.push(created.id);
   }
+  return allCreated;
 };
