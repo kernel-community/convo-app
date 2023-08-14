@@ -82,19 +82,24 @@ export const updateEvents = async ({
   // idk why google apis do that 🤷🏽‍♀️
   for (let i = 0; i < parsedEvents.length; i++) {
     const parsedEvent = parsedEvents[i];
-    if (parsedEvent == undefined) {
+    if (!parsedEvent) {
       continue;
-    } else if (parsedEvent.isDeleted) {
+    }
+    if (parsedEvent.isDeleted) {
       eventsToUpdate.push(parsedEvent);
       continue;
-    } else {
-      const event = await getEvent(calendarId, parsedEvent.gCalEventId ?? "");
-      const attendees = event.attendees || [];
-      eventsToUpdate.push({
-        ...parsedEvent,
-        attendees,
-      });
     }
+    if (!parsedEvent.gCalEventId) {
+      // throw??
+      console.log("gcalEvent id in parsed event not found");
+      continue;
+    }
+    const event = await getEvent(calendarId, parsedEvent.gCalEventId);
+    const attendees = event.attendees || [];
+    eventsToUpdate.push({
+      ...parsedEvent,
+      attendees,
+    });
   }
 
   // update event on google calendar

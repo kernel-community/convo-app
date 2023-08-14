@@ -68,7 +68,7 @@ const SessionsInput = ({
           const updatedSessions = sessions.concat([
             {
               dateTime: new Date(),
-              duration: duration,
+              duration,
               count,
             },
           ]);
