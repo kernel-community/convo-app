@@ -7,6 +7,7 @@ export const migrate = async () => {
   const allCreated: string[] = [];
   for (let i = 0; i < events.length; i++) {
     const {
+      id,
       hash,
       title,
       descriptionHtml,
@@ -20,14 +21,46 @@ export const migrate = async () => {
       GoogleCalendar,
       RSVP,
     } = events[i]!;
-    const alreadyExists = await prisma.event.findFirst({
-      where: { hash },
-    });
+    // const alreadyExists = await prisma.event.findFirst({
+    //   where: { hash },
+    // });
 
-    if (alreadyExists) continue;
+    // if (alreadyExists) continue;
     const gcal = GoogleCalendar[0]!;
-    const created = await prisma.event.create({
-      data: {
+    const created = await prisma.event.upsert({
+      where: {
+        id: id.toString(),
+      },
+      create: {
+        id: id.toString(),
+        title,
+        descriptionHtml,
+        startDateTime,
+        endDateTime,
+        location,
+        hash,
+        limit,
+        type: "JUNTO",
+        isImported: true,
+        proposer: {
+          connectOrCreate: {
+            where: {
+              address: proposerEmail,
+            },
+            create: {
+              nickname: proposer.username,
+              address: proposerEmail,
+            },
+          },
+        },
+        series,
+        gCalEventRequested: !!gcal,
+        gCalEventId: gcal ? gcal?.gCalEventId : undefined,
+        gCalId: gcal ? gcal?.gCalCalendarId : undefined,
+        emails: RSVP.map((r: { attendeeEmail: string }) => r.attendeeEmail),
+      },
+      update: {
+        id: id.toString(),
         title,
         descriptionHtml,
         startDateTime,
