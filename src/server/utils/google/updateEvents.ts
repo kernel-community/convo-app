@@ -81,19 +81,23 @@ export const updateEvents = async ({
   // fetch and prefill attendees so the API doesn't wipe them
   // idk why google apis do that 🤷🏽‍♀️
   for (let i = 0; i < parsedEvents.length; i++) {
-    if (!parsedEvents[i]) continue;
-    // @ts-expect-error -- @help not sure why ts is throwing an error here
-    // for parsedEvents[i] to be potentially undefined
-    if (parsedEvents[i].isDeleted) {
-      // @ts-expect-error -- ???
-      eventsToUpdate.push(parsedEvents[i]);
+    const parsedEvent = parsedEvents[i];
+    if (!parsedEvent) {
       continue;
     }
-    // @ts-expect-error -- ???
-    const event = await getEvent(calendarId, parsedEvents[i].gCalEventId);
+    if (parsedEvent.isDeleted) {
+      eventsToUpdate.push(parsedEvent);
+      continue;
+    }
+    if (!parsedEvent.gCalEventId) {
+      // throw??
+      console.log("gcalEvent id in parsed event not found");
+      continue;
+    }
+    const event = await getEvent(calendarId, parsedEvent.gCalEventId);
     const attendees = event.attendees || [];
     eventsToUpdate.push({
-      ...parsedEvents[i],
+      ...parsedEvent,
       attendees,
     });
   }
