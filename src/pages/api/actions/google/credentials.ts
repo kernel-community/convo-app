@@ -16,7 +16,8 @@ const credentials = {
     "http://localhost:3000",
     "https://convo-app-gray.vercel.app",
     "https://convo.kernel.community",
-    "https://convo.cafe",
+    "https://www.convo.cafe",
+    "https://www.viaconvo.xyz",
   ],
 };
 
