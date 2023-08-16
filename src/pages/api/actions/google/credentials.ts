@@ -2,7 +2,8 @@ const redirectUris = [
   "http://localhost:3000/admin/google/callback",
   "https://convo-app-gray.vercel.app/admin/google/callback",
   "https://convo.kernel.community/admin/google/callback",
-  "https://convo.cafe/admin/google/callback",
+  "https://www.convo.cafe/admin/google/callback",
+  "https://www.viaconvo.xyz/admin/google/callback",
 ];
 
 const credentials = {
