@@ -31,7 +31,8 @@ module.exports = {
         card: {
           one: "#212144",
           two: "#3838B4"
-        }
+        },
+        warn: "#EF6262"
       },
       fontFamily: {
         inter: ["Inter", "sans-serif"],

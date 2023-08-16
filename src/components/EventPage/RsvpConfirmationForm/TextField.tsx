@@ -16,6 +16,7 @@ const TextField = ({
   onChange,
   label,
   hideLabel = false,
+  disabled = false,
 }: {
   name: keyof RsvpInput;
   fieldName?: string;
@@ -29,6 +30,7 @@ const TextField = ({
   onChange?: (e: ChangeEvent<HTMLInputElement>) => void;
   label?: string;
   hideLabel?: boolean;
+  disabled?: boolean;
 }) => {
   const isError = errors && errors[name];
   return (
@@ -45,22 +47,23 @@ const TextField = ({
         <input
           type="text"
           className={`
-          rounded-lg
-          ${` ` + className + ` `}
-          ${
-            isError
-              ? `
-            border-red-300 ring-red-300
-            focus:border-red-500 focus:ring-red-500`
-              : `
-            border-gray-300 ring-gray-300
-            focus:border-primary focus:ring-primary`
-          }
+            rounded-lg
+            ${` ` + className + ` `}
+            ${
+              isError
+                ? `
+              border-red-300 ring-red-300
+              focus:border-red-500 focus:ring-red-500`
+                : `
+              border-gray-300 ring-gray-300
+              focus:border-primary focus:ring-primary`
+            }
+            ${disabled ? `bg-gray-200` : ``}
           `}
           placeholder={placeholder}
           {...register(name, { required, onChange })}
           value={value}
-          disabled={!!value}
+          disabled={disabled || !!value}
         />
         <div className="font-primary text-sm lowercase text-red-400">
           {/*
