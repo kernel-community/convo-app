@@ -17,10 +17,10 @@ const ITEMS = [
     text: "archive",
     href: "/archive",
   },
-  // {
-  //   text: "about",
-  //   href: "/about",
-  // },
+  {
+    text: "about",
+    href: "/about",
+  },
   {
     text: "propose",
     href: "/propose",
