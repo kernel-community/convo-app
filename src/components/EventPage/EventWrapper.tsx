@@ -134,20 +134,15 @@ const EventWrapper = ({
     title,
     proposer,
     // @todo handle deleted event display
-    // isDeleted,
+    isDeleted,
+    isImported,
   } = event;
 
-  // @todo deleted event handling
   const { rsvpIntention } = useRsvpIntention();
   const { eventIds } = rsvpIntention;
   const isDisabled = eventIds.length === 0;
   const [openModalFlag, setOpenModalFlag] = useState(false);
-  const openModal = () => setOpenModalFlag(true);
   const closeModal = () => setOpenModalFlag(false);
-  const onClickRsvp = () => openModal();
-  // @help when I try calling this hook
-  // in <ModalToConfirmRsvp /> above the user is
-  // returned as undefined (???)
   const { fetchedUser: user } = useUser();
   const hideEmailRequest = !(!!event.gCalEventId && !!event.gCalId);
   const router = useRouter();
@@ -167,7 +162,7 @@ const EventWrapper = ({
         title="RSVP for Event"
       />
       <div className="flex flex-row items-center justify-between">
-        <Hero title={title} />
+        <Hero title={title} isImported={isImported} isDeleted={isDeleted} />
         {isEditable && (
           <Button buttonText="Edit event" handleClick={navigateToEditPage} />
         )}
@@ -184,8 +179,8 @@ const EventWrapper = ({
                   ? `Join ${totalUniqueRsvps} others in attending the event`
                   : `Be amongst the first few to RSVP!`
               }
-              handleSubmit={onClickRsvp}
               disabled={isDisabled}
+              event={event}
             />
           )}
         </div>
