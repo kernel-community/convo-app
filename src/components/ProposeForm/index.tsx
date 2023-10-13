@@ -20,6 +20,7 @@ import Checkbox from "./FormFields/Checkbox";
 import type { User } from "@prisma/client";
 import { AiOutlineEdit } from "react-icons/ai";
 import { useRouter } from "next/navigation";
+import { OVERRIDE_GOOGLE_EVENT_CREATION } from "src/utils/constants";
 
 const SessionSchema = z.object({
   dateTime: z.date(),
@@ -97,12 +98,13 @@ const ProposeForm = ({ event }: { event?: ClientEventInput }) => {
           },
         ],
         nickname: user.nickname,
+        gCalEvent: true,
       };
       return DEFAULT_EVENT;
     }, [event, user]),
   });
-
   const isGcalEventRequested = watch("gCalEvent");
+  const overrideGCalEventRequested = OVERRIDE_GOOGLE_EVENT_CREATION;
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => reset(event), [event]);
@@ -255,7 +257,7 @@ const ProposeForm = ({ event }: { event?: ClientEventInput }) => {
          * if isEditing -> display an info message saying that the google calendar event will be updated
          * @todo @angelagilhotra display an option to delete the google calendar event
          */}
-        {isEditing ? (
+        {isEditing && (
           <>
             {event.gCalEvent && (
               <div>
@@ -270,17 +272,21 @@ const ProposeForm = ({ event }: { event?: ClientEventInput }) => {
              * added by default (cuz we don't have their email)
              */}
           </>
-        ) : (
+        )}
+        {/* if not editing and override = false, give user option to create google calendar event */}
+        {!isEditing && !overrideGCalEventRequested && (
           <Checkbox
             name="gCalEvent"
             fieldName="Create a Calendar Event?"
             register={register}
-            infoText="If checked, a Google Calendar Cvent will be created and an option to receive an invite will be given to anyone who wants to RSVP"
+            infoText="If checked, a Google Calendar event will be created and an option to receive an invite will be given to anyone who wants to RSVP"
           />
         )}
 
-        {/* email if gcalevent=true */}
-        {!isEditing && isGcalEventRequested && (
+        {/* if not editing & override = true, create google calendar event, no option (no checkbox displayed) */}
+
+        {/* email input if not editing and if gcalevent=true OR override = true */}
+        {!isEditing && (isGcalEventRequested || overrideGCalEventRequested) && (
           <TextField
             name="email"
             fieldName="Email"
