@@ -1,34 +1,10 @@
 import type { NextPage } from "next";
-import { useQuery } from "react-query";
-import Button from "src/components/Button";
+import { useUser } from "src/context/UserContext";
 import Main from "src/layouts/Main";
 
-const About: NextPage = () => {
-  const { isLoading, isError, data, refetch } = useQuery(
-    `test_google_auth`,
-    async () => {
-      try {
-        const r = (
-          await (
-            await fetch("/api/actions/google/getCalendar", {
-              method: "POST",
-              headers: { "Content-type": "application/json" },
-            })
-          ).json()
-        ).data;
-        return r;
-      } catch (err) {
-        throw err;
-      }
-    },
-    {
-      refetchInterval: 6000000000,
-      enabled: false,
-    }
-  );
-
-  const handleClick = () => refetch();
-
+const Test: NextPage = () => {
+  const { fetchedUser: user } = useUser();
+  console.log({ user });
   return (
     <>
       <Main className="mx-auto px-4">
@@ -50,7 +26,7 @@ const About: NextPage = () => {
             sm:text-4xl
           "
             >
-              <Button buttonText="Fetch Calendar" handleClick={handleClick} />
+              Hello{user.isSignedIn && `, ${user.nickname}`}
             </div>
           </div>
         </div>
@@ -59,4 +35,4 @@ const About: NextPage = () => {
   );
 };
 
-export default About;
+export default Test;
