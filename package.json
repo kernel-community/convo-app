@@ -94,8 +94,5 @@
   },
   "ct3aMetadata": {
     "initVersion": "7.2.0"
-  },
-  "overrides": {
-    "wagmi": "0.9.6"
   }
 }
