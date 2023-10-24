@@ -1,5 +1,3 @@
-import kernelIcon from "public/images/kernel-small.png";
-import Image from "next/image";
 import Link from "next/link";
 export const Branding = () => {
   return (
@@ -10,8 +8,7 @@ export const Branding = () => {
         py-5 uppercase
         `}
       >
-        <Image src={kernelIcon} width={24} height={24} alt={""} />
-        kernel
+        convo
       </div>
     </Link>
   );
