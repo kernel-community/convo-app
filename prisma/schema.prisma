@@ -39,17 +39,6 @@ model Event {
   proposerId         String
   proposer           User      @relation(fields: [proposerId], references: [id], onDelete: Cascade)
   rsvps              Rsvp[]
-  // @todo add forum link here
-  // based on Stewards' discussion on May 29, 2023
-  // we decided to keep emails association with Events
-  // and not Attendees (or Users) to enable Hosts to be
-  // able to see attendee emails (for [continuity](@todo add link here))
-  // but the database does not hold any association with
-  // emails <> eth addresses
-  // as soon as an event's endDateTime is in the past
-  // we can purge this field on this model (@todo @angelagilhotra)
-  emails             String[]
-
   // if the event was imported from convo.kernel.community
   // if it was, we do not have their RSVPs, since this version uses
   // user's addresses to make them unique and the previous version used
@@ -60,15 +49,16 @@ model Event {
   // if you'd like to query any data related to RSVPs for this particular event"
   // the emails[], gcaleventREquested, gcalEventId will be accurate for these events
   // the proposer data will be inaccurate
-  isImported         Boolean @default(false)
+  isImported         Boolean   @default(false)
 }
 
 model User {
   id       String  @id @default(uuid())
-  address  String  @unique
+  email    String? @unique
+  address  String? @unique
+  nickname String  @default("Anonymous")
   events   Event[]
   rsvps    Rsvp[]
-  nickname String  @default("Anonymous")
 }
 
 model Rsvp {
@@ -109,7 +99,7 @@ model Slack {
   id        String   @id @default(uuid())
   createdAt DateTime @default(now())
   botToken  String
-  channel  String
+  channel   String
 
   @@unique([botToken, channel])
 }

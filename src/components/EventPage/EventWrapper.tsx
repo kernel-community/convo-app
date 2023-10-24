@@ -4,11 +4,7 @@ import type { ClientEvent } from "src/types";
 import SubmitRsvpSection from "./SubmitRsvpSection";
 import EventDetails from "./EventDetails";
 import { useRsvpIntention } from "src/context/RsvpIntentionContext";
-import { useState } from "react";
-import ConfirmationModal from "src/components/ConfirmationModal";
 import { z } from "zod";
-import { useUser } from "src/context/UserContext";
-import ModalToConfirmRsvp from "./RsvpConfirmationForm/Modal";
 import Button from "../Button";
 import { useRouter } from "next/router";
 import { getDateTimeString } from "src/utils/dateTime";
@@ -83,7 +79,7 @@ const SessionsDetailsNonSubmittable = ({
                           <div key={key}>
                             {formatUserIdentity(
                               rsvp.attendee.nickname,
-                              rsvp.attendee.address
+                              rsvp.attendee.address || ""
                             )}
                           </div>
                         );
@@ -141,26 +137,10 @@ const EventWrapper = ({
   const { rsvpIntention } = useRsvpIntention();
   const { eventIds } = rsvpIntention;
   const isDisabled = eventIds.length === 0;
-  const [openModalFlag, setOpenModalFlag] = useState(false);
-  const closeModal = () => setOpenModalFlag(false);
-  const { fetchedUser: user } = useUser();
-  const hideEmailRequest = !(!!event.gCalEventId && !!event.gCalId);
   const router = useRouter();
   const navigateToEditPage = () => router.push(`/edit/${event.hash}`);
   return (
     <>
-      <ConfirmationModal
-        isOpen={openModalFlag}
-        onClose={closeModal}
-        content={
-          <ModalToConfirmRsvp
-            title={title}
-            user={user}
-            hideEmailRequest={hideEmailRequest}
-          />
-        }
-        title="RSVP for Event"
-      />
       <div className="flex flex-row items-center justify-between">
         <Hero title={title} isImported={isImported} isDeleted={isDeleted} />
         {isEditable && (

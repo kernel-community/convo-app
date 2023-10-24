@@ -2,44 +2,18 @@ import { QueryClient, QueryClientProvider } from "react-query";
 import "@rainbow-me/rainbowkit/styles.css";
 import "../styles/globals.css";
 import type { AppProps } from "next/app";
-import { getDefaultWallets, RainbowKitProvider } from "@rainbow-me/rainbowkit";
-import { configureChains, createClient, WagmiConfig } from "wagmi";
-import { mainnet } from "wagmi/chains";
-import { alchemyProvider } from "wagmi/providers/alchemy";
-import { publicProvider } from "wagmi/providers/public";
-import { env } from "src/env/client.mjs";
-import { SessionProvider } from "next-auth/react";
-import type { Session } from "next-auth";
-import type { GetSiweMessageOptions } from "@rainbow-me/rainbowkit-siwe-next-auth";
-import { RainbowKitSiweNextAuthProvider } from "@rainbow-me/rainbowkit-siwe-next-auth";
 import { Analytics } from "@vercel/analytics/react";
 import { NextSeo } from "next-seo";
 import { UserProvider } from "src/context/UserContext";
+import { DynamicContextProvider } from "@dynamic-labs/sdk-react";
+import { DynamicWagmiConnector } from "@dynamic-labs/wagmi-connector";
+import { updateUser } from "src/utils/updateUser";
+import { DEFAULT_USER_NICKNAME } from "src/utils/constants";
 
 const queryClient = new QueryClient();
-const { chains, provider } = configureChains(
-  [mainnet],
-  [alchemyProvider({ apiKey: env.NEXT_PUBLIC_ALCHEMY_ID }), publicProvider()]
-);
-const { connectors } = getDefaultWallets({
-  appName: "Convo",
-  chains,
-});
-const wagmiClient = createClient({
-  autoConnect: true,
-  connectors,
-  provider,
-});
-const getSiweMessageOptions: GetSiweMessageOptions = () => ({
-  statement: "Sign in to Convo",
-});
 
-const MyApp = ({
-  Component,
-  pageProps: { session, ...pageProps },
-}: AppProps<{
-  session: Session;
-}>) => {
+const MyApp = ({ Component, pageProps: { ...pageProps } }: AppProps) => {
+  const createUser = updateUser;
   return (
     <>
       <NextSeo
@@ -118,21 +92,38 @@ const MyApp = ({
           },
         ]}
       />
-      <SessionProvider session={session}>
-        <WagmiConfig client={wagmiClient}>
-          <RainbowKitSiweNextAuthProvider
-            getSiweMessageOptions={getSiweMessageOptions}
-          >
-            <RainbowKitProvider chains={chains}>
-              <QueryClientProvider client={queryClient}>
-                <UserProvider>
-                  <Component {...pageProps} />
-                </UserProvider>
-              </QueryClientProvider>
-            </RainbowKitProvider>
-          </RainbowKitSiweNextAuthProvider>
-        </WagmiConfig>
-      </SessionProvider>
+      <DynamicContextProvider
+        settings={{
+          environmentId:
+            process.env.NEXT_PUBLIC_DYNAMIC_ENVIRONMENT_ID ||
+            "1a5bf4c4-4082-44b8-a8c2-d80d80c39feb",
+          eventsCallbacks: {
+            onAuthSuccess: async ({ user, primaryWallet }) => {
+              await createUser({
+                address: primaryWallet?.address,
+                email: user.email,
+                nickname: user.username || DEFAULT_USER_NICKNAME,
+                id: user.userId, // @dev @note important
+              });
+            },
+            onUserProfileUpdate: async (user) => {
+              await updateUser({
+                email: user.email,
+                nickname: user.username || DEFAULT_USER_NICKNAME,
+                id: user.userId, // @dev @note important
+              });
+            },
+          },
+        }}
+      >
+        <DynamicWagmiConnector>
+          <QueryClientProvider client={queryClient}>
+            <UserProvider>
+              <Component {...pageProps} />
+            </UserProvider>
+          </QueryClientProvider>
+        </DynamicWagmiConnector>
+      </DynamicContextProvider>
       <Analytics />
     </>
   );

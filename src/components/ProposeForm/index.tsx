@@ -18,7 +18,6 @@ import FieldLabel from "../StrongText";
 import isNicknameSet from "src/utils/isNicknameSet";
 import Checkbox from "./FormFields/Checkbox";
 import type { User } from "@prisma/client";
-import { AiOutlineEdit } from "react-icons/ai";
 import { useRouter } from "next/navigation";
 import { OVERRIDE_GOOGLE_EVENT_CREATION } from "src/utils/constants";
 
@@ -113,7 +112,6 @@ const ProposeForm = ({ event }: { event?: ClientEventInput }) => {
   const { update } = useUpdateEvent();
   const { signMessageAsync } = useSignMessage();
   const [openModalFlag, setOpenModalFlag] = useState<boolean>(false);
-  const [isEditingNickname, setIsEditingNickname] = useState<boolean>(false);
   const [modal, setModal] = useState<{
     isError: boolean;
     message: string;
@@ -298,25 +296,15 @@ const ProposeForm = ({ event }: { event?: ClientEventInput }) => {
         )}
 
         {/* nickname */}
-        {user && isNicknameSet(user.nickname) && !isEditingNickname && (
+        {user && isNicknameSet(user.nickname) && (
           <div>
             <FieldLabel>Proposing as</FieldLabel>
             <div className="mt-2 flex flex-row items-center gap-3">
               <Signature user={user as User} />
-              <button
-                className="text-2xl"
-                type="button"
-                onClick={() => setIsEditingNickname(true)}
-              >
-                <AiOutlineEdit />
-              </button>
             </div>
           </div>
         )}
-        {(!user ||
-          !isNicknameSet(user?.nickname) ||
-          !user.isSignedIn ||
-          isEditingNickname) && (
+        {(!user || !isNicknameSet(user?.nickname) || !user.isSignedIn) && (
           <TextField
             name="nickname"
             fieldName="How would you like to be known as?"

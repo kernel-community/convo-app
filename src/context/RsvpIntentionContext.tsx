@@ -3,14 +3,11 @@ import { createContext, useContext, useMemo, useState } from "react";
 
 export type RsvpIntention = {
   eventIds: Array<string>;
-  // following two fields are collected at the point of rsvp
-  email?: string;
-  nickname?: string;
 };
 
 export type AttendeeRsvp = {
   rsvpIntention: RsvpIntention;
-  setRsvpIntention: ({ eventIds, email, nickname }: RsvpIntention) => void;
+  setRsvpIntention: ({ eventIds }: RsvpIntention) => void;
 };
 
 const defaultAttendeeRsvp: AttendeeRsvp = {
@@ -39,8 +36,6 @@ const RsvpIntentionProvider = ({ children }: { children: ReactNode }) => {
   // see /signin
   const [rsvpIntention, setRsvpIntention] = useState<RsvpIntention>({
     eventIds: [],
-    email: "",
-    nickname: "",
   });
 
   const value = useMemo(

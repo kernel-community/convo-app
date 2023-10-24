@@ -3,18 +3,17 @@ import _ from "lodash";
 import { prisma } from "src/server/db";
 
 type RsvpRequest = {
-  address: string;
+  userId: string;
   events: Array<string>;
-  email?: string;
 };
 
 export default async function rsvp(req: NextApiRequest, res: NextApiResponse) {
   const { rsvp }: { rsvp: RsvpRequest } = _.pick(req.body, ["rsvp"]);
-  if (!rsvp || !rsvp.address || !rsvp.events) {
+  if (!rsvp || !rsvp.userId || !rsvp.events) {
     throw new Error(`invalid request body: ${JSON.stringify(rsvp)}`);
   }
   const user = await prisma.user.findUniqueOrThrow({
-    where: { address: rsvp.address },
+    where: { id: rsvp.userId },
   });
   const { id: attendeeId } = user;
   const rsvps = rsvp.events.map((eventId) =>
@@ -35,27 +34,6 @@ export default async function rsvp(req: NextApiRequest, res: NextApiResponse) {
       },
     })
   );
-  if (rsvp.email) {
-    for (let i = 0; i < rsvp.events.length; i++) {
-      const { emails } = await prisma.event.findUniqueOrThrow({
-        where: {
-          id: rsvp.events[i],
-        },
-        select: {
-          emails: true,
-        },
-      });
-      const updatedEmails = emails.concat(rsvp.email);
-      await prisma.event.update({
-        where: {
-          id: rsvp.events[i],
-        },
-        data: {
-          emails: updatedEmails,
-        },
-      });
-    }
-  }
 
   const response = await Promise.all(rsvps);
   const eventIds = response.map((r) => r.eventId);

@@ -3,6 +3,7 @@ import { Branding } from "./Branding";
 import Image from "next/image";
 import menu from "public/vectors/menu.png";
 import { useState } from "react";
+import { DynamicWidget } from "@dynamic-labs/sdk-react";
 
 const ITEMS = [
   {
@@ -43,12 +44,13 @@ export const Navbar = () => {
         sm:flex
       `}
       >
-        {/* <Branding /> */}
+        <Branding />
         <div className="flex flex-grow flex-row items-center justify-center gap-8">
           {ITEMS.map((item, key) => (
             <Item text={item.text} href={item.href} key={key} />
           ))}
         </div>
+        <DynamicWidget />
       </div>
       <div
         className={`
@@ -99,6 +101,7 @@ export const Navbar = () => {
             <Item text={item.text} href={item.href} key={key} />
           ))}
         </div>
+        <DynamicWidget />
       </div>
     </>
   );

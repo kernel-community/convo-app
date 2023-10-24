@@ -92,7 +92,6 @@ const SubmitRsvpSection = ({
                     onChange={(e) => {
                       setRsvpIntention({
                         ...rsvpIntention,
-                        email: e.target.value,
                       });
                     }}
                     disabled={isDisabled}
@@ -127,7 +126,6 @@ const SubmitRsvpSection = ({
                     onChange={(e) => {
                       setRsvpIntention({
                         ...rsvpIntention,
-                        nickname: e.target.value,
                       });
                     }}
                     disabled={isDisabled}

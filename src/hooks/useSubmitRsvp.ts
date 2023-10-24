@@ -1,36 +1,9 @@
-import type { User } from "@prisma/client";
 import { useState } from "react";
 import type { RsvpIntention } from "src/context/RsvpIntentionContext";
 import { useRsvpIntention } from "src/context/RsvpIntentionContext";
 import { useUser } from "src/context/UserContext";
 
-const updateUser = async (rsvp: RsvpIntention, address: string | undefined) => {
-  if (!address || !rsvp.nickname) return; // nothing to update
-  let res;
-  const user: Partial<User> = {
-    address,
-    nickname: rsvp.nickname,
-  };
-  try {
-    res = (
-      await (
-        await fetch("/api/update/user", {
-          body: JSON.stringify({ user }),
-          method: "POST",
-          headers: { "Content-type": "application/json" },
-        })
-      ).json()
-    ).data;
-  } catch (err) {
-    throw err;
-  }
-  return res;
-};
-
-const addRsvpToDb = async (
-  rsvp: RsvpIntention,
-  address: string | undefined
-) => {
+const addRsvpToDb = async (rsvp: RsvpIntention, userId: string | undefined) => {
   let res;
   try {
     res = (
@@ -38,10 +11,8 @@ const addRsvpToDb = async (
         await fetch("/api/create/rsvp", {
           body: JSON.stringify({
             rsvp: {
-              address,
+              userId,
               events: rsvp.eventIds,
-              // add email to emails[] array in Event table
-              email: rsvp.email,
             },
           }),
           method: "POST",
@@ -55,8 +26,8 @@ const addRsvpToDb = async (
   return res;
 };
 
-const sendGCalInvite = async (rsvp: RsvpIntention) => {
-  if (!rsvp.email || !rsvp.eventIds) {
+const sendGCalInvite = async (rsvp: RsvpIntention, email: string) => {
+  if (!rsvp.eventIds) {
     throw new Error("incorrect params");
   }
   let res;
@@ -66,7 +37,7 @@ const sendGCalInvite = async (rsvp: RsvpIntention) => {
         await fetch("/api/actions/google/sendInvite", {
           body: JSON.stringify({
             events: rsvp.eventIds,
-            email: rsvp.email,
+            email,
           }),
           method: "POST",
           headers: { "Content-type": "application/json" },
@@ -91,15 +62,9 @@ const useSubmitRsvp = () => {
     }
     setIsSubmitting(true);
     try {
-      await updateUser(rsvp, user?.address);
-      await addRsvpToDb(rsvp, user?.address);
-      if (rsvp.email) {
-        // the form to collect email in the confirmation modal
-        // is hidden if gCalId and gCalEventId is not
-        // found on the event
-        // for a series, it would be for the
-        // first event in the series
-        await sendGCalInvite(rsvp);
+      await addRsvpToDb(rsvp, user.id);
+      if (user.email) {
+        await sendGCalInvite(rsvp, user.email);
       }
     } catch (err) {
       setIsSubmitting(false);

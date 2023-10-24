@@ -6,10 +6,10 @@ export default async function getUser(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  const { address } = _.pick(req.body, ["address"]);
+  const { userId } = _.pick(req.body, ["userId"]);
   const user = await prisma.user.findUniqueOrThrow({
     where: {
-      address,
+      id: userId,
     },
   });
   res.status(200).json({
