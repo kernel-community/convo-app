@@ -3,7 +3,9 @@ import { Branding } from "./Branding";
 import Image from "next/image";
 import menu from "public/vectors/menu.png";
 import { useState } from "react";
-import { DynamicWidget } from "@dynamic-labs/sdk-react";
+import { DynamicUserProfile, useDynamicContext } from "@dynamic-labs/sdk-react";
+import Button from "../Button";
+import { useUser } from "src/context/UserContext";
 
 const ITEMS = [
   {
@@ -28,6 +30,31 @@ const ITEMS = [
   },
 ];
 
+const ConnectButton = () => {
+  const { fetchedUser: user } = useUser();
+  const { setShowAuthFlow, setShowDynamicUserProfile } = useDynamicContext();
+
+  if (user.isSignedIn) {
+    // display user profile
+    return (
+      <div>
+        <button onClick={() => setShowDynamicUserProfile(true)}>
+          Signing as {user.nickname}
+        </button>
+        <DynamicUserProfile />
+      </div>
+    );
+  }
+  return (
+    <Button
+      handleClick={() => {
+        setShowAuthFlow(true);
+      }}
+      buttonText="Login"
+    />
+  );
+};
+
 export const Navbar = () => {
   const [active, setActive] = useState<boolean>(false);
   const openMenu = () => setActive(!active);
@@ -50,7 +77,7 @@ export const Navbar = () => {
             <Item text={item.text} href={item.href} key={key} />
           ))}
         </div>
-        <DynamicWidget />
+        <ConnectButton />
       </div>
       <div
         className={`
@@ -101,7 +128,7 @@ export const Navbar = () => {
             <Item text={item.text} href={item.href} key={key} />
           ))}
         </div>
-        <DynamicWidget />
+        <ConnectButton />
       </div>
     </>
   );
