@@ -5,13 +5,19 @@ import { prisma } from "src/server/db";
 
 export default async function user(req: NextApiRequest, res: NextApiResponse) {
   const { user }: { user: Partial<User> } = _.pick(req.body, ["user"]);
-  const fetched = user.id
+
+  const fetchWithUserId = user.id
     ? await prisma.user.findUnique({
-        where: {
-          id: user.id,
-        },
+        where: { id: user.id },
       })
     : undefined;
+
+  const fetchWithAddress = await prisma.user.findUnique({
+    where: { address: user.address ?? "" },
+  });
+
+  const fetched = fetchWithUserId || fetchWithAddress;
+
   let updated;
   if (!fetched) {
     // create
