@@ -1,11 +1,13 @@
+import { useDynamicContext } from "@dynamic-labs/sdk-react";
 import Button from "./Button";
 
 const LoginButton = () => {
-  const openConnectModal = () => {
-    console.log("open connect modal here");
-  };
+  const { setShowAuthFlow } = useDynamicContext();
   return (
-    <Button handleClick={openConnectModal} buttonText="Sign in With Wallet" />
+    <Button
+      buttonText="Sign in With Wallet"
+      handleClick={() => setShowAuthFlow(true)}
+    />
   );
 };
 export default LoginButton;
