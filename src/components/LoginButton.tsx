@@ -1,8 +1,9 @@
-import { useConnectModal } from "@rainbow-me/rainbowkit";
 import Button from "./Button";
 
 const LoginButton = () => {
-  const { openConnectModal } = useConnectModal();
+  const openConnectModal = () => {
+    console.log("open connect modal here");
+  };
   return (
     <Button handleClick={openConnectModal} buttonText="Sign in With Wallet" />
   );
