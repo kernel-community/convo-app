@@ -4,7 +4,6 @@ import Main from "src/layouts/Main";
 
 const Test: NextPage = () => {
   const { fetchedUser: user } = useUser();
-  console.log({ user });
   return (
     <>
       <Main className="mx-auto px-4">
