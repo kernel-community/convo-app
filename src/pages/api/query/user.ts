@@ -7,7 +7,7 @@ export default async function getUser(
   res: NextApiResponse
 ) {
   const { userId } = _.pick(req.body, ["userId"]);
-  const user = await prisma.user.findUniqueOrThrow({
+  const user = await prisma.user.findUnique({
     where: {
       id: userId,
     },

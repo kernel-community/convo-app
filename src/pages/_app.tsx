@@ -97,20 +97,22 @@ const MyApp = ({ Component, pageProps: { ...pageProps } }: AppProps) => {
             process.env.NEXT_PUBLIC_DYNAMIC_ENVIRONMENT_ID ||
             "1a5bf4c4-4082-44b8-a8c2-d80d80c39feb",
           eventsCallbacks: {
-            onAuthSuccess: async ({ user, primaryWallet }) => {
-              await createUser({
+            onAuthSuccess: async ({ primaryWallet, user }) => {
+              const createdUser = await createUser({
                 address: primaryWallet?.address,
                 email: user.email,
                 nickname: user.username || DEFAULT_USER_NICKNAME,
                 id: user.userId, // @dev @note important
               });
+              return createdUser;
             },
             onUserProfileUpdate: async (user) => {
-              await updateUser({
+              const updatedUser = await updateUser({
                 email: user.email,
                 nickname: user.username || DEFAULT_USER_NICKNAME,
                 id: user.userId, // @dev @note important
               });
+              return updatedUser;
             },
           },
         }}
