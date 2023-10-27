@@ -68,6 +68,7 @@ export default async function getEvents(
             endDateTime: {
               gte: Now,
             },
+            isDeleted: false,
           },
           orderBy: {
             startDateTime: "asc",
@@ -87,6 +88,7 @@ export default async function getEvents(
             endDateTime: {
               lt: Now,
             },
+            isDeleted: false,
           },
           orderBy: {
             startDateTime: "desc",
@@ -102,6 +104,7 @@ export default async function getEvents(
             startDateTime: {
               gt: Now,
             },
+            isDeleted: false,
           },
           orderBy: {
             startDateTime: "asc",
@@ -120,6 +123,7 @@ export default async function getEvents(
             endDateTime: {
               lt: tomorrow12Am,
             },
+            isDeleted: false,
           },
           orderBy: {
             startDateTime: "asc",
@@ -138,6 +142,7 @@ export default async function getEvents(
             endDateTime: {
               lt: sevenDaysFromNow,
             },
+            isDeleted: false,
           },
           orderBy: {
             startDateTime: "asc",
@@ -156,6 +161,7 @@ export default async function getEvents(
             endDateTime: {
               lt: startOfNextMonth,
             },
+            isDeleted: false,
           },
           orderBy: {
             startDateTime: "asc",
