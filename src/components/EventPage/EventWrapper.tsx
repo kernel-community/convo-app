@@ -160,7 +160,6 @@ const EventWrapper = ({
                   : `Be amongst the first few to RSVP!`
               }
               disabled={isDisabled}
-              event={event}
             />
           )}
         </div>

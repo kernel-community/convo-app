@@ -132,7 +132,11 @@ const ProposeForm = ({ event }: { event?: ClientEventInput }) => {
   const onSubmit: SubmitHandler<ClientEventInput> = async (data) => {
     try {
       if (isEditing) {
-        const messageToSign = { ...data, hash: event?.hash };
+        const messageToSign = {
+          ...data,
+          hash: event?.hash,
+          email: user.email || "",
+        };
         const signature = await signMessageAsync({
           message: JSON.stringify(messageToSign),
         });
@@ -271,28 +275,36 @@ const ProposeForm = ({ event }: { event?: ClientEventInput }) => {
              */}
           </>
         )}
-        {/* if not editing and override = false, give user option to create google calendar event */}
-        {!isEditing && !overrideGCalEventRequested && (
-          <Checkbox
-            name="gCalEvent"
-            fieldName="Create a Calendar Event?"
-            register={register}
-            infoText="If checked, a Google Calendar event will be created and an option to receive an invite will be given to anyone who wants to RSVP"
-          />
-        )}
 
         {/* if not editing & override = true, create google calendar event, no option (no checkbox displayed) */}
 
         {/* email input if not editing and if gcalevent=true OR override = true */}
-        {!isEditing && (isGcalEventRequested || overrideGCalEventRequested) && (
+        {/* {!isEditing && (
           <TextField
             name="email"
             fieldName="Email"
             register={register}
             errors={errors}
             required={false}
-            infoText="Please enter the email you would like to receive calendar event invite on"
+            infoText="You will receive the calendar invite on the following email. To edit, please click on your username in the navbar"
+            value={user.email ?? ""}
           />
+        )} */}
+
+        {user && user.email && (
+          <div>
+            <FieldLabel>
+              Email
+              <div className="font-primary text-sm font-light lowercase">
+                You will receive the google calendar event invite on the
+                following email
+              </div>
+            </FieldLabel>
+            <div className="mt-2 flex flex-row items-center gap-3">
+              {/* <Signature user={user as User} /> */}
+              {user.email}
+            </div>
+          </div>
         )}
 
         {/* nickname */}
