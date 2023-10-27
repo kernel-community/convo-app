@@ -1,4 +1,5 @@
 import type { ServerEvent } from "src/types";
+import { stripHtml } from "string-strip-html";
 
 type SlackEventMessage = {
   blocks: SlackMessageBlocks[];
@@ -42,10 +43,10 @@ export const prepareSlackMessage = ({
   const { title, descriptionHtml, hash, proposer } = event;
   const protocol = reqHost.includes("localhost") ? "http" : "https";
   const url = `${protocol}://${reqHost}/rsvp/${hash}`;
-
+  const parsedDescription = stripHtml(descriptionHtml ?? "").result;
   const description =
-    `${descriptionHtml?.substring(0, 250)}` +
-    `${descriptionHtml && descriptionHtml?.length > 250 ? "..." : ""}`;
+    `${parsedDescription.substring(0, 250)}` +
+    `${parsedDescription.length > 250 ? "..." : ""}`;
 
   const { text, icon } = getUsernameAndText(type);
 
