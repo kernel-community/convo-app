@@ -6,19 +6,17 @@ import type { FullEvent } from "src/pages/api/actions/google/createEvent";
 
 const createEventInDb = async ({
   event,
-  signature,
-  address,
+  userId,
 }: {
   event: ClientEventInput;
-  signature: string;
-  address?: string | null;
+  userId?: string | null;
 }) => {
   let res;
   try {
     res = (
       await (
         await fetch("/api/create/event", {
-          body: JSON.stringify({ event, signature, address }),
+          body: JSON.stringify({ event, userId }),
           method: "POST",
           headers: { "Content-type": "application/json" },
         })
@@ -78,19 +76,17 @@ const useCreateEvent = () => {
 
   const create = async ({
     event,
-    signature,
-    address,
+    userId,
   }: {
     event: ClientEventInput;
-    signature: string;
-    address?: string | null;
+    userId?: string | null;
   }) => {
-    if (!address) return;
+    if (!userId) return;
     setIsSubmitting(true);
 
     let createdInDb: Array<FullEvent> | undefined = undefined;
     try {
-      createdInDb = await createEventInDb({ event, signature, address });
+      createdInDb = await createEventInDb({ event, userId });
     } catch (err) {
       setIsError(true);
       setIsSubmitting(false);

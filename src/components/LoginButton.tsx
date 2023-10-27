@@ -4,10 +4,7 @@ import Button from "./Button";
 const LoginButton = () => {
   const { setShowAuthFlow } = useDynamicContext();
   return (
-    <Button
-      buttonText="Sign in With Wallet"
-      handleClick={() => setShowAuthFlow(true)}
-    />
+    <Button buttonText="Sign in" handleClick={() => setShowAuthFlow(true)} />
   );
 };
 export default LoginButton;

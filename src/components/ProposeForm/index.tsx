@@ -9,17 +9,13 @@ import SessionsInput from "./FormFields/SessionsInput";
 import useCreateEvent from "src/hooks/useCreateEvent";
 import useUpdateEvent from "src/hooks/useUpdateEvent";
 import LoginButton from "../LoginButton";
-import { useSignMessage } from "wagmi";
 import ConfirmationModal from "../ConfirmationModal";
 import { useEffect, useMemo, useState } from "react";
 import { useUser } from "src/context/UserContext";
 import Signature from "../EventPage/Signature";
 import FieldLabel from "../StrongText";
-import isNicknameSet from "src/utils/isNicknameSet";
-import Checkbox from "./FormFields/Checkbox";
 import type { User } from "@prisma/client";
 import { useRouter } from "next/navigation";
-import { OVERRIDE_GOOGLE_EVENT_CREATION } from "src/utils/constants";
 
 const SessionSchema = z.object({
   dateTime: z.date(),
@@ -43,7 +39,7 @@ export const validationSchema = z.object({
       message: "Please enter a positive integer",
     }),
   location: z.string(),
-  nickname: z.string(),
+  nickname: z.string().optional(),
   gCalEvent: z.boolean(),
   hash: z.string().optional(),
   email: z.string().optional(),
@@ -84,7 +80,6 @@ const ProposeForm = ({ event }: { event?: ClientEventInput }) => {
     handleSubmit,
     formState: { errors, defaultValues },
     control,
-    watch,
   } = useForm<ClientEventInput>({
     resolver: zodResolver(validationSchema),
     defaultValues: useMemo(() => {
@@ -102,15 +97,12 @@ const ProposeForm = ({ event }: { event?: ClientEventInput }) => {
       return DEFAULT_EVENT;
     }, [event, user]),
   });
-  const isGcalEventRequested = watch("gCalEvent");
-  const overrideGCalEventRequested = OVERRIDE_GOOGLE_EVENT_CREATION;
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => reset(event), [event]);
 
   const { create } = useCreateEvent();
   const { update } = useUpdateEvent();
-  const { signMessageAsync } = useSignMessage();
   const [openModalFlag, setOpenModalFlag] = useState<boolean>(false);
   const [modal, setModal] = useState<{
     isError: boolean;
@@ -132,30 +124,16 @@ const ProposeForm = ({ event }: { event?: ClientEventInput }) => {
   const onSubmit: SubmitHandler<ClientEventInput> = async (data) => {
     try {
       if (isEditing) {
-        const messageToSign = {
-          ...data,
-          hash: event?.hash,
-          email: user.email || "",
-        };
-        const signature = await signMessageAsync({
-          message: JSON.stringify(messageToSign),
-        });
         const updated = await update({
-          event: messageToSign,
-          signature,
-          address: user.address,
+          event: data,
         });
         if (!updated) throw "undefined response returned from `updated`";
         if (!updated[0]) throw "empty array returned from `updated`";
         push(`/rsvp/${updated[0]?.hash}`);
       } else {
-        const signature = await signMessageAsync({
-          message: JSON.stringify(data),
-        });
         const created = await create({
           event: data,
-          signature,
-          address: user.address,
+          userId: user.id,
         });
         if (!created) throw "undefined response returned";
         if (!created[0]) throw "empty array returned";
@@ -167,8 +145,8 @@ const ProposeForm = ({ event }: { event?: ClientEventInput }) => {
         message: "Success! Redirecting to your event.",
       });
       openModal();
-    } catch {
-      // display error modal
+    } catch (err) {
+      console.log(err);
       setModal({
         isError: true,
         message: "There was an error!",
@@ -276,21 +254,6 @@ const ProposeForm = ({ event }: { event?: ClientEventInput }) => {
           </>
         )}
 
-        {/* if not editing & override = true, create google calendar event, no option (no checkbox displayed) */}
-
-        {/* email input if not editing and if gcalevent=true OR override = true */}
-        {/* {!isEditing && (
-          <TextField
-            name="email"
-            fieldName="Email"
-            register={register}
-            errors={errors}
-            required={false}
-            infoText="You will receive the calendar invite on the following email. To edit, please click on your username in the navbar"
-            value={user.email ?? ""}
-          />
-        )} */}
-
         {user && user.email && (
           <div>
             <FieldLabel>
@@ -308,24 +271,12 @@ const ProposeForm = ({ event }: { event?: ClientEventInput }) => {
         )}
 
         {/* nickname */}
-        {user && isNicknameSet(user.nickname) && (
-          <div>
-            <FieldLabel>Proposing as</FieldLabel>
-            <div className="mt-2 flex flex-row items-center gap-3">
-              <Signature user={user as User} />
-            </div>
+        <div>
+          <FieldLabel>Proposing as</FieldLabel>
+          <div className="mt-2 flex flex-row items-center gap-3">
+            <Signature user={user as User} />
           </div>
-        )}
-        {(!user || !isNicknameSet(user?.nickname) || !user.isSignedIn) && (
-          <TextField
-            name="nickname"
-            fieldName="How would you like to be known as?"
-            register={register}
-            errors={errors}
-            required={false}
-            infoText="This name is for display (and sharing) purposes only"
-          />
-        )}
+        </div>
 
         {!user.isSignedIn ? (
           <LoginButton />

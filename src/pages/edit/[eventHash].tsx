@@ -8,7 +8,6 @@ import parse from "src/utils/clientEventToClientEventInput";
 import NotFoundPage from "../404";
 import Button from "src/components/Button";
 import useUpdateEvent from "src/hooks/useUpdateEvent";
-import { useSignMessage } from "wagmi";
 import { useUser } from "src/context/UserContext";
 import NotAllowedPage from "src/components/NotAllowedPage";
 import { useEffect, useState } from "react";
@@ -17,7 +16,6 @@ const Edit: NextPage = () => {
   const { query } = useRouter();
   const { eventHash } = query;
   const { data } = useEvent({ hash: eventHash });
-  const { signMessageAsync } = useSignMessage();
   const { update } = useUpdateEvent();
   const { fetchedUser: user } = useUser();
   const [isInvalidRequest, setInvalidRequest] = useState(false);
@@ -47,19 +45,12 @@ const Edit: NextPage = () => {
   }
 
   const deleteEvent = async () => {
-    const messageToSign = {
+    const event = {
       ...clientEventInput,
       sessions: [],
       hash: eventHash as string,
     };
-    const signature = await signMessageAsync({
-      message: JSON.stringify(messageToSign),
-    });
-    await update({
-      event: messageToSign,
-      signature,
-      address: user.address,
-    });
+    await update({ event });
   };
 
   return (

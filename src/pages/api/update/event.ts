@@ -17,29 +17,11 @@ export type ClientEditableEvent = Omit<ClientEvent, "sessions"> & {
 export default async function event(req: NextApiRequest, res: NextApiResponse) {
   const {
     event,
-    signature,
-    address,
   }: {
     event: ClientEditableEvent;
-    signature: string;
-    address: string;
-  } = _.pick(req.body, ["event", "signature", "address"]);
-  const isVerified =
-    ethers.utils.verifyMessage(JSON.stringify(event), signature) === address;
+  } = _.pick(req.body, ["event"]);
 
-  if (!isVerified) {
-    throw new Error("Unauthorized: Signature mismatch");
-  }
-  const { title, sessions, limit, location, description, nickname, hash } =
-    event;
-
-  // update nickname
-  if (nickname) {
-    await prisma.user.update({
-      where: { address },
-      data: { nickname },
-    });
-  }
+  const { title, sessions, limit, location, description, hash } = event;
 
   /**
    *

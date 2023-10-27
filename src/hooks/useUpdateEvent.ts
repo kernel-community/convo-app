@@ -7,12 +7,8 @@ import type { FullEvent } from "src/pages/api/actions/google/createEvent";
 
 const updateEventInDb = async ({
   event,
-  signature,
-  address,
 }: {
   event: ClientEventInput;
-  signature: string;
-  address?: string | null;
 }): Promise<{
   updated: Array<FullEvent>;
   deleted: Array<FullEvent>;
@@ -22,7 +18,7 @@ const updateEventInDb = async ({
     res = (
       await (
         await fetch("/api/update/event", {
-          body: JSON.stringify({ event, signature, address }),
+          body: JSON.stringify({ event }),
           method: "POST",
           headers: { "Content-type": "application/json" },
         })
@@ -59,16 +55,7 @@ const updateEventInGCal = async ({
 const useUpdateEvent = () => {
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [isError, setIsError] = useState<boolean>(false);
-  const update = async ({
-    event,
-    signature,
-    address,
-  }: {
-    event: ClientEventInput;
-    signature: string;
-    address?: string | null;
-  }) => {
-    if (!address) return;
+  const update = async ({ event }: { event: ClientEventInput }) => {
     setIsSubmitting(true);
 
     // fetch array of events of the hash from db
@@ -77,8 +64,6 @@ const useUpdateEvent = () => {
     try {
       ({ updated, deleted } = await updateEventInDb({
         event,
-        signature,
-        address,
       }));
     } catch (err) {
       setIsError(true);

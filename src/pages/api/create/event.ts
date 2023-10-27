@@ -3,10 +3,7 @@ import _ from "lodash";
 import { prisma } from "src/server/db";
 import type { Prisma } from "@prisma/client";
 import { nanoid } from "nanoid";
-import { ethers } from "ethers";
 import { getEventStartAndEnd } from "src/utils/dateTime";
-
-// from validationSchema in `components/ProposeForm`
 
 export type Session = {
   dateTime: Date;
@@ -27,19 +24,11 @@ export type ClientEvent = {
 export default async function event(req: NextApiRequest, res: NextApiResponse) {
   const {
     event,
-    signature,
-    address,
+    userId,
   }: {
     event: ClientEvent;
-    signature: string;
-    address: string;
-  } = _.pick(req.body, ["event", "signature", "address"]);
-  const isVerified =
-    ethers.utils.verifyMessage(JSON.stringify(event), signature) === address;
-
-  if (!isVerified) {
-    throw new Error("Unauthorized: Signature mismatch");
-  }
+    userId: string;
+  } = _.pick(req.body, ["event", "userId"]);
 
   const {
     title,
@@ -47,23 +36,14 @@ export default async function event(req: NextApiRequest, res: NextApiResponse) {
     limit,
     location,
     description,
-    nickname,
     gCalEvent: gCalEventRequested,
   } = event;
 
   const user = await prisma.user.findUniqueOrThrow({
     where: {
-      address,
+      id: userId,
     },
   });
-
-  // update nickname
-  if (nickname) {
-    await prisma.user.update({
-      where: { address },
-      data: { nickname },
-    });
-  }
 
   const hash = nanoid(10);
   const eventPayload: Prisma.Enumerable<Prisma.EventCreateManyInput> =
