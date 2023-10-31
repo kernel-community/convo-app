@@ -93,6 +93,7 @@ const ProposeForm = ({ event }: { event?: ClientEventInput }) => {
         ],
         nickname: user.nickname,
         gCalEvent: true,
+        email: user.email ?? "",
       };
       return DEFAULT_EVENT;
     }, [event, user]),
