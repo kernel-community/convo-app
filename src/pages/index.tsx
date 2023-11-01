@@ -35,28 +35,39 @@ const Home: NextPage = () => {
                 text-kernel
               "
           >
-            Why are we alive, if not to
+            Why are we alive, if not to{" "}
             <Link href="/propose">
-              <span className="cursor-pointer">
-                <FancyHighlight>
-                  <span className="underline decoration-dashed">
-                    make connections
-                  </span>
-                </FancyHighlight>
-                <span className="ml-1">?</span>
-              </span>
+              <span className="cursor-pointer">make connections?</span>
             </Link>
+          </div>
+          <div
+            className="
+            pt-3
+            font-secondary
+            text-lg
+            text-kernel
+          "
+          >
+            <span className="cursor-pointer">
+              <FancyHighlight>
+                <span className="underline decoration-dashed">
+                  Propose a convo
+                </span>
+                <span className="">.</span>
+              </FancyHighlight>
+            </span>
+            . Share stories, remember memories, explore ideas, learn together.
           </div>
         </div>
         <div className="mt-12 px-12 lg:px-32 xl:px-40 2xl:px-52">
           {/* <div className="mt-12">
             <Events type="live" highlight="Live" take={6} />
           </div> */}
-          <div className="mt-12">
+          {/* <div className="mt-12">
             <Events type="today" title="upcoming" highlight="today" take={6} />
-          </div>
+          </div> */}
           <div className="mt-12">
-            <Events type="week" highlight="next 7 days" take={6} />
+            <Events type="month" highlight="next 28 days" take={6} />
           </div>
         </div>
       </Main>
