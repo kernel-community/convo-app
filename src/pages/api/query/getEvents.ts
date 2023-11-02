@@ -4,6 +4,7 @@ import { DateTime } from "luxon";
 import { prisma } from "src/server/db";
 import type { ClientEvent, ServerEvent } from "src/types";
 import { formatEvents } from "src/server/utils/formatEvent";
+import type { EventType } from "@prisma/client";
 import { Prisma } from "@prisma/client";
 import type { EventsRequest } from "src/types";
 
@@ -53,6 +54,12 @@ export default async function getEvents(
     },
     distinct: [Prisma.EventScalarFieldEnum.hash],
   };
+  const defaultWheres = {
+    isDeleted: false,
+    type: {
+      not: "INTERVIEW" as EventType,
+    },
+  };
   let events: Array<ClientEvent> = [];
   let serverEvents: Array<ServerEvent> = [];
   switch (type) {
@@ -68,7 +75,7 @@ export default async function getEvents(
             endDateTime: {
               gte: Now,
             },
-            isDeleted: false,
+            ...defaultWheres,
           },
           orderBy: {
             startDateTime: "asc",
@@ -88,7 +95,7 @@ export default async function getEvents(
             endDateTime: {
               lt: Now,
             },
-            isDeleted: false,
+            ...defaultWheres,
           },
           orderBy: {
             startDateTime: "desc",
@@ -104,7 +111,7 @@ export default async function getEvents(
             startDateTime: {
               gt: Now,
             },
-            isDeleted: false,
+            ...defaultWheres,
           },
           orderBy: {
             startDateTime: "asc",
@@ -123,7 +130,7 @@ export default async function getEvents(
             endDateTime: {
               lt: tomorrow12Am,
             },
-            isDeleted: false,
+            ...defaultWheres,
           },
           orderBy: {
             startDateTime: "asc",
@@ -142,7 +149,7 @@ export default async function getEvents(
             endDateTime: {
               lt: sevenDaysFromNow,
             },
-            isDeleted: false,
+            ...defaultWheres,
           },
           orderBy: {
             startDateTime: "asc",
@@ -161,7 +168,7 @@ export default async function getEvents(
             endDateTime: {
               lt: startOfNextMonth,
             },
-            isDeleted: false,
+            ...defaultWheres,
           },
           orderBy: {
             startDateTime: "asc",
@@ -169,6 +176,24 @@ export default async function getEvents(
         });
       }
       break;
+    case "collection": {
+      // special category
+      if (!filter?.collectionId) {
+        throw new Error("Collection ID not provided for type collection");
+      }
+      const collection = await prisma.collection.findUniqueOrThrow({
+        where: {
+          id: filter.collectionId,
+        },
+        include: {
+          events: {
+            ...defaultIncludes,
+          },
+        },
+      });
+      serverEvents = collection.events;
+      break;
+    }
     default: {
       throw new Error(`type ${type} invalid`);
     }

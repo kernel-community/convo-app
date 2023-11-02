@@ -1,4 +1,4 @@
-import type { Event, Rsvp, User } from "@prisma/client";
+import type { Collection, Event, Rsvp, User } from "@prisma/client";
 
 export type ServerEvent = Event & {
   proposer: User;
@@ -25,13 +25,23 @@ export type ClientEvent = Omit<ServerEvent, "startDateTime" | "endDateTime"> & {
 };
 
 export type EventsRequest = {
-  type: "live" | "upcoming" | "past" | "today" | "week" | "month";
+  type:
+    | "live"
+    | "upcoming"
+    | "past"
+    | "today"
+    | "week"
+    | "month"
+    | "collection";
   now: Date | string;
   take?: number;
   fromId?: string;
   skip?: number;
   filter?: {
-    proposerId?: string; // proposerId
+    proposerId?: string;
     rsvpUserId?: string;
+    collectionId?: string;
   };
 };
+
+export type FullCollection = Collection & { user: User; events: Event[] };

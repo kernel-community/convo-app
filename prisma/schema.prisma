@@ -12,7 +12,7 @@ datasource db {
 
 enum EventType {
   JUNTO
-  INTERVIEW
+  INTERVIEW // @note could be "unlisted" @anggxyz
 }
 
 model Event {
@@ -33,13 +33,14 @@ model Event {
   isDeleted Boolean @default(false)
 
   // google
-  gCalEventRequested Boolean   @default(false)
+  gCalEventRequested Boolean      @default(false)
   gCalEventId        String?
   gCalId             String?
-  type               EventType @default(JUNTO)
+  type               EventType    @default(JUNTO)
   proposerId         String
-  proposer           User      @relation(fields: [proposerId], references: [id], onDelete: Cascade)
+  proposer           User         @relation(fields: [proposerId], references: [id], onDelete: Cascade)
   rsvps              Rsvp[]
+  collections        Collection[]
   // if the event was imported from convo.kernel.community
   // if it was, we do not have their RSVPs, since this version uses
   // user's addresses to make them unique and the previous version used
@@ -50,16 +51,26 @@ model Event {
   // if you'd like to query any data related to RSVPs for this particular event"
   // the emails[], gcaleventREquested, gcalEventId will be accurate for these events
   // the proposer data will be inaccurate
-  isImported         Boolean   @default(false)
+  isImported         Boolean      @default(false)
 }
 
 model User {
-  id       String  @id @default(uuid())
-  email    String? @unique
-  address  String? @unique
-  nickname String  @default("Anonymous")
-  events   Event[]
-  rsvps    Rsvp[]
+  id          String       @id @default(uuid())
+  email       String?      @unique
+  address     String?      @unique
+  nickname    String       @default("Anonymous")
+  events      Event[]
+  rsvps       Rsvp[]
+  collections Collection[]
+}
+
+model Collection {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  name      String
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  events    Event[]
 }
 
 model Rsvp {

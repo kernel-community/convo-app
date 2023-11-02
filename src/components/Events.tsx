@@ -10,6 +10,7 @@ import { DateTime } from "luxon";
 import { useUser } from "src/context/UserContext";
 import { useState } from "react";
 import type { EventsRequest } from "src/types";
+import { useRouter } from "next/router";
 
 const FilterButton = ({
   onClick,
@@ -37,19 +38,22 @@ export const Events = ({
   title,
   highlight,
   take,
-  infinite, // to implement or not to implement the infinite scroll
+  infinite = false, // to implement or not to implement the infinite scroll
   showFilterPanel = false,
+  preFilterObject,
 }: Pick<EventsRequest, "type"> & {
   title?: string;
   highlight?: string;
   take?: number;
   infinite?: boolean;
   showFilterPanel?: boolean;
+  preFilterObject?: EventsRequest["filter"];
 }) => {
   const { fetchedUser: user } = useUser();
   const [filterObject, setFilterObject] =
-    useState<EventsRequest["filter"]>(undefined);
+    useState<EventsRequest["filter"]>(preFilterObject);
   const { ref, inView } = useInView();
+  const { basePath } = useRouter();
   const {
     isLoading,
     isError,
@@ -69,7 +73,7 @@ export const Events = ({
         filter: filterObject,
       };
       const r = await (
-        await fetch("api/query/getEvents", {
+        await fetch(`${basePath}/api/query/getEvents`, {
           body: JSON.stringify(requestObject),
           method: "POST",
           headers: { "Content-type": "application/json" },
