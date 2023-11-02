@@ -12,6 +12,7 @@ datasource db {
 
 enum EventType {
   JUNTO
+  INTERVIEW
 }
 
 model Event {

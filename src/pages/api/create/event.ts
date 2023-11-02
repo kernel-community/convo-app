@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import _ from "lodash";
 import { prisma } from "src/server/db";
-import type { Prisma } from "@prisma/client";
+import type { EventType, Prisma } from "@prisma/client";
 import { nanoid } from "nanoid";
 import { getEventStartAndEnd } from "src/utils/dateTime";
 
@@ -19,6 +19,7 @@ export type ClientEvent = {
   nickname?: string;
   gCalEvent: boolean;
   email?: string;
+  type?: EventType;
 };
 
 export default async function event(req: NextApiRequest, res: NextApiResponse) {
@@ -37,6 +38,7 @@ export default async function event(req: NextApiRequest, res: NextApiResponse) {
     location,
     description,
     gCalEvent: gCalEventRequested,
+    type,
   } = event;
 
   const user = await prisma.user.findUniqueOrThrow({
@@ -63,6 +65,7 @@ export default async function event(req: NextApiRequest, res: NextApiResponse) {
         proposerId: user.id,
         series: sessions.length > 1,
         gCalEventRequested,
+        type,
       };
     });
 
@@ -70,17 +73,14 @@ export default async function event(req: NextApiRequest, res: NextApiResponse) {
   await prisma.event.createMany({
     data: eventPayload,
   });
-
   console.log(
     `Created event for ${JSON.stringify(event)} for user: ${user.address}`
   );
-
   const created = await prisma.event.findMany({
     where: { hash },
     include: {
       proposer: true,
     },
   });
-
-  res.status(200).json({ data: created });
+  return res.status(200).json({ data: created });
 }

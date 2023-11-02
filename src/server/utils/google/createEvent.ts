@@ -1,6 +1,8 @@
 import type { calendar_v3 } from "googleapis";
 import { getCalendar } from "./getCalendar";
 import type { FullEvent } from "src/pages/api/actions/google/createEvent";
+import type { EventType } from "@prisma/client";
+import { CALENDAR_IDS } from "src/utils/constants";
 
 export const parseEvents = (
   events: Array<FullEvent>,
@@ -30,25 +32,37 @@ export const parseEvents = (
   });
   return parsed;
 };
-
+const getCalendarId = (eventType: EventType | undefined | null) => {
+  switch (eventType) {
+    case "INTERVIEW":
+      return CALENDAR_IDS.interviews;
+    case "JUNTO":
+      return CALENDAR_IDS.convoProd;
+    default:
+      return CALENDAR_IDS.convoProd;
+  }
+};
 export const createEvents = async ({
   events,
-  calendarId,
   reqHost,
+  isProd,
 }: {
   events: Array<FullEvent>;
-  calendarId: string;
   reqHost: string;
+  isProd?: boolean;
 }): Promise<
   Array<{
     calendarEventId: string | null | undefined;
     databaseEventId: string | undefined;
+    calendarId: string | null | undefined;
   }>
 > => {
   const parsedEvents = parseEvents(events, reqHost);
-
   const calendar = await getCalendar();
   const createPromises = parsedEvents.map((e) => {
+    const calendarId = isProd
+      ? getCalendarId(e.eventType as EventType)
+      : CALENDAR_IDS.test;
     return calendar.events.insert({
       calendarId,
       requestBody: e,
@@ -60,6 +74,7 @@ export const createEvents = async ({
     return {
       calendarEventId: i.data.id,
       databaseEventId: events[key]?.id,
+      calendarId: i.data.organizer?.email,
     };
   });
 

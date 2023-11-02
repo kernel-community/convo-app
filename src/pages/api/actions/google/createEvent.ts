@@ -44,20 +44,10 @@ export default async function createEventHandler(
   }
   const isProd = host === prodHost;
 
-  const calendarId = isProd
-    ? process.env.CONVO_PROD_CALENDAR_ID
-    : process.env.TEST_CALENDAR_ID;
-
-  if (!calendarId) {
-    throw new Error(`
-      Calendar ID not defined in .env. Expecting CONVO_PROD_CALENDAR_ID or TEST_CALENDAR_ID
-    `);
-  }
-
   const ids = await createEvents({
-    calendarId,
     events,
     reqHost: host || prodHost,
+    isProd,
   });
 
   const updatePromises = ids.map((id) => {
@@ -65,7 +55,7 @@ export default async function createEventHandler(
       where: { id: id.databaseEventId },
       data: {
         gCalEventId: id.calendarEventId,
-        gCalId: calendarId,
+        gCalId: id.calendarId,
       },
     });
   });
