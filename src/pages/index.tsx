@@ -51,7 +51,7 @@ const Home: NextPage = () => {
             <span className="cursor-pointer">
               <FancyHighlight>
                 <span className="underline decoration-dashed">
-                  Propose a convo
+                  <Link href={"/propose"}>Propose a convo</Link>
                 </span>
                 <span className="">.</span>
               </FancyHighlight>
