@@ -35,6 +35,7 @@ const Post = () => {
           <Events
             type="collection"
             preFilterObject={{ collectionId: collection.id }}
+            take={50}
           />
         )}
       </div>
