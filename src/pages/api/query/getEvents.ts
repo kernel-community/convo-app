@@ -192,6 +192,9 @@ export default async function getEvents(
         },
       });
       serverEvents = collection.events;
+      serverEvents.sort((a, b) =>
+        new Date(a.startDateTime) < new Date(b.startDateTime) ? 1 : 0
+      );
       break;
     }
     default: {
