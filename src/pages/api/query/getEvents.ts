@@ -192,9 +192,13 @@ export default async function getEvents(
         },
       });
       serverEvents = collection.events;
-      serverEvents.sort((a, b) =>
-        new Date(a.startDateTime) < new Date(b.startDateTime) ? 1 : 0
-      );
+      serverEvents = serverEvents.sort((a, b) => {
+        const aStart = new Date(a.startDateTime);
+        const bStart = new Date(b.startDateTime);
+        if (aStart < bStart) return -1;
+        if (aStart < bStart) return 1;
+        else return 0;
+      });
       break;
     }
     default: {
