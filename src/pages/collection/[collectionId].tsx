@@ -37,7 +37,8 @@ const Post = () => {
             preFilterObject={{
               collection: { id: collection.id, when: "upcoming" },
             }}
-            infinite
+            infinite={false}
+            take={100}
             title="upcoming"
           />
         )}
@@ -47,7 +48,8 @@ const Post = () => {
             preFilterObject={{
               collection: { id: collection.id, when: "past" },
             }}
-            infinite
+            take={100}
+            infinite={false}
             title="past"
           />
         )}
