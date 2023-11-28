@@ -39,7 +39,7 @@ export const Events = ({
   highlight,
   take,
   infinite = false, // to implement or not to implement the infinite scroll
-  showFilterPanel = false,
+  showFilterPanel = false, // only works when user logged in
   preFilterObject,
 }: Pick<EventsRequest, "type"> & {
   title?: string;

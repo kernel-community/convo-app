@@ -40,7 +40,10 @@ export type EventsRequest = {
   filter?: {
     proposerId?: string;
     rsvpUserId?: string;
-    collectionId?: string;
+    collection?: {
+      id: string;
+      when: "past" | "upcoming";
+    };
   };
 };
 

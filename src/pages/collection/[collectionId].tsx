@@ -30,12 +30,25 @@ const Post = () => {
           <span className="text-kernel-light">{collection?.user.nickname}</span>{" "}
         </div>
       </div>
-      <div>
+      <div className="mt-8">
         {collection && (
           <Events
             type="collection"
-            preFilterObject={{ collectionId: collection.id }}
-            take={50}
+            preFilterObject={{
+              collection: { id: collection.id, when: "upcoming" },
+            }}
+            infinite
+            title="upcoming"
+          />
+        )}
+        {collection && (
+          <Events
+            type="collection"
+            preFilterObject={{
+              collection: { id: collection.id, when: "past" },
+            }}
+            infinite
+            title="past"
           />
         )}
       </div>

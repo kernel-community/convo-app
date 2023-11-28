@@ -178,19 +178,50 @@ export default async function getEvents(
       break;
     case "collection": {
       // special category
-      if (!filter?.collectionId) {
+      if (!filter?.collection) {
         throw new Error("Collection ID not provided for type collection");
       }
-      const collection = await prisma.collection.findUniqueOrThrow({
-        where: {
-          id: filter.collectionId,
-        },
-        include: {
-          events: {
-            ...defaultIncludes,
+      let collection;
+      if (filter.collection.when === "past") {
+        collection = await prisma.collection.findUniqueOrThrow({
+          where: {
+            id: filter.collection.id,
           },
-        },
-      });
+          include: {
+            events: {
+              ...defaultIncludes,
+              where: {
+                startDateTime: {
+                  lt: Now,
+                },
+                endDateTime: {
+                  lt: Now,
+                },
+              },
+            },
+          },
+        });
+      }
+      if (filter.collection.when === "upcoming") {
+        collection = await prisma.collection.findUniqueOrThrow({
+          where: {
+            id: filter.collection.id,
+          },
+          include: {
+            events: {
+              ...defaultIncludes,
+              where: {
+                startDateTime: {
+                  gt: Now,
+                },
+              },
+            },
+          },
+        });
+      }
+      if (!collection) {
+        throw new Error("`when` needs to be either `upcoming` or `past`");
+      }
       serverEvents = collection.events;
       serverEvents = serverEvents.sort((a, b) => {
         const aStart = new Date(a.startDateTime);
