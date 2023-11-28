@@ -161,7 +161,7 @@ const EventWrapper = ({
       </div>
       {isPartOfCollection && (
         <div className="font-primary">
-          {`The event is part of ${
+          {`This event is part of ${
             collections.length > 1 ? "" : "the "
           } collection${collections.length > 1 ? "s" : ""}:`}
           {collectionHrefs}
