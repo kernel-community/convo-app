@@ -12,6 +12,7 @@ import type { Session as ClientSession } from "src/types";
 import { EventDateTime, Seats } from "./Session";
 import formatUserIdentity from "src/utils/formatUserIdentity";
 import isNicknameSet from "src/utils/isNicknameSet";
+import Link from "next/link";
 
 const TransitioningArrow = () => {
   return (
@@ -132,6 +133,7 @@ const EventWrapper = ({
     // @todo handle deleted event display
     isDeleted,
     isImported,
+    collections,
   } = event;
 
   const { rsvpIntention } = useRsvpIntention();
@@ -139,6 +141,16 @@ const EventWrapper = ({
   const isDisabled = eventIds.length === 0;
   const router = useRouter();
   const navigateToEditPage = () => router.push(`/edit/${event.hash}`);
+  const isPartOfCollection = collections.length > 0;
+  const collectionHrefs = collections.map((c, k) => (
+    <Link key={k} href={`/collection/${c.id}`}>
+      {" "}
+      <span className="text-kernel-light underline decoration-dotted">
+        {c.name}
+      </span>
+      {k + 1 !== collections.length ? "," : ""}
+    </Link>
+  ));
   return (
     <>
       <div className="flex flex-row items-center justify-between">
@@ -147,6 +159,14 @@ const EventWrapper = ({
           <Button buttonText="Edit event" handleClick={navigateToEditPage} />
         )}
       </div>
+      {isPartOfCollection && (
+        <div className="font-primary">
+          {`The event is part of ${
+            collections.length > 1 ? "" : "the "
+          } collection${collections.length > 1 ? "s" : ""}:`}
+          {collectionHrefs}
+        </div>
+      )}
       <div className="mt-24 grid grid-cols-1 gap-12 lg:grid-cols-3">
         <EventDetails html={descriptionHtml} proposer={proposer} />
         <div className="min-w-100 flex flex-col gap-2">

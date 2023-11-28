@@ -35,6 +35,7 @@ export default async function notifyAll(
           attendee: true,
         },
       },
+      collections: true,
     },
   });
 

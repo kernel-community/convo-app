@@ -20,6 +20,7 @@ export default async function getEventByHash(
           attendee: true,
         },
       },
+      collections: true,
     },
   });
   const formattedEvent = formatEvent(event);

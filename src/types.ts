@@ -7,6 +7,7 @@ export type ServerEvent = Event & {
       attendee: User;
     }
   >;
+  collections: Array<Collection>;
 };
 export type Session = Pick<ServerEvent, "id" | "limit" | "rsvps"> & {
   rsvpCount: number;

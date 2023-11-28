@@ -51,6 +51,7 @@ export default async function getEvents(
           attendee: true,
         },
       },
+      collections: true,
     },
     distinct: [Prisma.EventScalarFieldEnum.hash],
   };
