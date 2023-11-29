@@ -11,6 +11,7 @@ import { useUser } from "src/context/UserContext";
 import { useState } from "react";
 import type { EventsRequest } from "src/types";
 import { useRouter } from "next/router";
+import EventLoadingState from "./EventLoadingState";
 
 const FilterButton = ({
   onClick,
@@ -160,8 +161,9 @@ export const Events = ({
         }
         {
           // @todo
-          isLoading || (isFetching && <div>Loading...</div>)
+          isLoading || (isFetching && <EventLoadingState />)
         }
+
         {isError && <div>There was an error in fetching</div>}
         {isFetchingNextPage && <div></div>}
       </div>

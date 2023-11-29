@@ -1,6 +1,31 @@
 import { DateTime as DT } from "luxon";
+import type { ReactNode } from "react";
 import { useEffect, useState } from "react";
 import { Article } from "./Article";
+
+export const CardTemplate = ({ children }: { children: ReactNode }) => {
+  return (
+    <div
+      className={`
+    lg:h-62
+    m-4
+    flex
+    cursor-pointer
+    flex-col rounded-xl
+    bg-card-one
+    p-4
+    text-primary-muted
+    transition-shadow
+    duration-300
+    ease-in-out hover:shadow-outline
+    sm:m-0 sm:h-64 sm:w-64
+    lg:w-72
+    `}
+    >
+      {children}
+    </div>
+  );
+};
 export const Card = ({
   title,
   description,
@@ -57,25 +82,9 @@ export const Card = ({
       total: Number(limit),
     });
   }, [RSVP, limit]);
-  const cardColor = isSeries ? "bg-card-two" : "bg-card-one";
+  // const cardColor = isSeries ? "bg-card-two" : "bg-card-one";
   return (
-    <div
-      className={`
-        lg:h-62
-        m-4
-        flex
-        cursor-pointer
-        flex-col rounded-xl
-        ${cardColor}
-        p-4
-        text-primary-muted
-        transition-shadow
-        duration-300
-        ease-in-out
-        hover:shadow-outline sm:m-0
-        sm:h-64 sm:w-64 lg:w-72
-      `}
-    >
+    <CardTemplate>
       <div className="flex w-full flex-row justify-between gap-3 align-top">
         <div className="flex flex-col justify-start">
           {/* <div className='font-secondary uppercase lg:text-sm sm:text-xs text-xxs'>
@@ -144,6 +153,6 @@ export const Card = ({
           <div className="font-primary text-xxs uppercase">event series</div>
         )}
       </div>
-    </div>
+    </CardTemplate>
   );
 };
