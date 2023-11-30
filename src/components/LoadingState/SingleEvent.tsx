@@ -1,4 +1,4 @@
-import { CardTemplate } from "./Card";
+import { CardTemplate } from "../Card";
 
 const EventLoadingState = () => {
   return (

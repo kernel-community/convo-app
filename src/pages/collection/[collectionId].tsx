@@ -2,18 +2,20 @@ import { useRouter } from "next/router";
 import Main from "src/layouts/Main";
 import useCollection from "src/hooks/useCollection";
 import { Events } from "src/components/Events";
+import TitleLoadingState from "src/components/LoadingState/Title";
 
 const Post = () => {
   const { query } = useRouter();
   const { collectionId } = query;
   const {
-    isLoading,
+    isLoading: isCollectionLoading,
     isError,
     data: collection,
   } = useCollection({ collectionId });
 
   return (
     <Main className="px-6 sm:px-24">
+      <div></div>
       <div
         className="
               font-heading
@@ -24,13 +26,26 @@ const Post = () => {
               lg:py-5
             "
       >
-        {collection?.name}
-        <div className="font-primary text-base font-thin normal-case italic">
-          This is a collection of Convos curated by{" "}
-          <span className="text-kernel-light">{collection?.user.nickname}</span>{" "}
+        {isCollectionLoading ? <TitleLoadingState thicc /> : collection?.name}
+        <div className="pt-2 font-primary text-base font-thin normal-case italic">
+          {isCollectionLoading ? (
+            <TitleLoadingState />
+          ) : (
+            <>
+              This is a collection of Convos curated by{" "}
+              <span className="text-kernel-light">
+                {collection?.user.nickname}
+              </span>
+            </>
+          )}
         </div>
       </div>
       <div className="mt-8">
+        {isCollectionLoading && (
+          <div>
+            <TitleLoadingState thicc />
+          </div>
+        )}
         {collection && (
           <Events
             type="collection"
