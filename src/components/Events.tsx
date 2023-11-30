@@ -127,9 +127,18 @@ export const Events = ({
           />
         </div>
       )}
-      <div className="sm:flex sm:flex-row sm:flex-wrap sm:gap-4">
-        {data &&
-          data.pages.map((page) =>
+
+      {(!data || isLoading || isFetching) && (
+        <div className="pb-3 sm:flex sm:flex-row sm:flex-wrap sm:gap-4">
+          <EventLoadingState />
+          <EventLoadingState />
+          <EventLoadingState />
+        </div>
+      )}
+
+      {data && (
+        <div className="sm:flex sm:flex-row sm:flex-wrap sm:gap-4">
+          {data.pages.map((page) =>
             page.data.map((u: ClientEvent, k: Key) => {
               return (
                 <Link href={`/rsvp/${u.hash}`} key={k}>
@@ -148,19 +157,20 @@ export const Events = ({
               );
             })
           )}
-        {!isLoading &&
-          data &&
-          data.pages[0].data &&
-          data.pages[0].data.length === 0 && (
-            <div className="font-primary lowercase">
-              no events to display here
-            </div>
-          )}
-        {isLoading || (isFetching && <EventLoadingState />)}
+          {isLoading || (isFetching && <EventLoadingState />)}
+          {!isLoading &&
+            data &&
+            data.pages[0].data &&
+            data.pages[0].data.length === 0 && (
+              <div className="font-primary lowercase">
+                no events to display here
+              </div>
+            )}
+          {isError && <div>There was an error in fetching</div>}
+          {isFetchingNextPage && <div></div>}
+        </div>
+      )}
 
-        {isError && <div>There was an error in fetching</div>}
-        {isFetchingNextPage && <div></div>}
-      </div>
       {infinite && infinite === true && (
         <div ref={ref} className="invisible">
           Intersection Observer Marker
