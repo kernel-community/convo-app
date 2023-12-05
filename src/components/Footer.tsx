@@ -17,7 +17,7 @@ const Footer = () => {
             rel="noopener noreferrer"
             className="uppercase text-secondary"
           >
-            KERNEL
+            Kernel
           </a>
         </span>
       </div>

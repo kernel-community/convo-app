@@ -17,21 +17,21 @@ const MyApp = ({ Component, pageProps: { ...pageProps } }: AppProps) => {
     <>
       <NextSeo
         titleTemplate="Convo | %s"
-        defaultTitle="KERNEL Convo"
+        defaultTitle="Kernel Convo"
         description="A home for conversations taking place in the Kernel network"
         openGraph={{
           url: "https://convo.kernel.community",
-          title: "KERNEL Conversations",
+          title: "Kernel Conversations",
           description:
             "A home for conversations taking place in the Kernel network",
           images: [
             {
               url: "https://confab-frontend.vercel.app/images/banner.jpg",
-              alt: "KERNEL squares and circles",
+              alt: "Kernel squares and circles",
               type: "image/jpeg",
             },
           ],
-          site_name: "KERNEL Convo",
+          site_name: "Kernel Convo",
         }}
         twitter={{
           handle: "@kernel0x",
