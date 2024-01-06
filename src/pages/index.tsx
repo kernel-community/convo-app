@@ -3,6 +3,7 @@ import Main from "src/layouts/Main";
 import Link from "next/link";
 import { Events } from "src/components/Events";
 import type { ReactNode } from "react";
+import Button from "src/components/Button";
 const Home: NextPage = () => {
   return (
     <>
@@ -59,16 +60,13 @@ const Home: NextPage = () => {
             . Share stories, remember memories, explore ideas, learn together.
           </div>
         </div>
-        <div className="mt-12 px-12 lg:px-32 xl:px-40 2xl:px-52">
-          {/* <div className="mt-12">
-            <Events type="live" highlight="Live" take={6} />
-          </div> */}
-          {/* <div className="mt-12">
-            <Events type="today" title="upcoming" highlight="today" take={6} />
-          </div> */}
+        <div className="mt-12 flex flex-col items-center gap-6 px-12 lg:px-32 xl:px-40 2xl:px-52">
           <div className="mt-12">
             <Events type="month" highlight="next 28 days" take={6} />
           </div>
+          <Link href={"/all"}>
+            <Button buttonText="See all Convos" />
+          </Link>
         </div>
       </Main>
     </>
