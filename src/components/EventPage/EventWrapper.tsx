@@ -78,24 +78,11 @@ const SessionsDetailsNonSubmittable = ({
                       if (isNicknameSet(rsvp.attendee.nickname)) {
                         return (
                           <div key={key}>
-                            {formatUserIdentity(
-                              rsvp.attendee.nickname,
-                              rsvp.attendee.address || ""
-                            )}
+                            {formatUserIdentity(rsvp.attendee.nickname)}
                           </div>
                         );
                       }
                     })}
-                    <div>
-                      {nonAnonRsvpCount ? "+ " : ""}
-                      {anonRsvpCount}{" "}
-                      {nonAnonRsvpCount
-                        ? anonRsvpCount > 1
-                          ? "others"
-                          : "other"
-                        : ""}{" "}
-                      RSVPd anonymously
-                    </div>
                   </div>
                 ) : (
                   <div className="group-open:animate-fadeIn mt-3 h-10 text-neutral-600">
