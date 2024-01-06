@@ -221,6 +221,7 @@ const ProposeForm = ({ event }: { event?: ClientEventInput }) => {
           register={register}
           errors={errors}
           required={false}
+          infoText="Enter 0 for no limit"
         />
 
         {/* Location */}
