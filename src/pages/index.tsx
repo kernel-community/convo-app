@@ -60,11 +60,11 @@ const Home: NextPage = () => {
             . Share stories, remember memories, explore ideas, learn together.
           </div>
         </div>
-        <div className="mt-12 flex flex-col items-center gap-6 px-12 lg:px-32 xl:px-40 2xl:px-52">
+        <div className="mt-12 flex flex-col gap-6 px-12 lg:px-32 xl:px-40 2xl:px-52">
           <div className="mt-12">
             <Events type="month" highlight="next 28 days" take={6} />
           </div>
-          <Link href={"/all"}>
+          <Link href={"/all"} className="self-center">
             <Button buttonText="See all Convos" />
           </Link>
         </div>
