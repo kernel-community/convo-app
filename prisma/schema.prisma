@@ -74,12 +74,13 @@ model Collection {
 }
 
 model Rsvp {
-  id         String @id @default(uuid())
-  createdAt  DateTime @default(now())
-  eventId    String
-  event      Event  @relation(fields: [eventId], references: [id])
-  attendeeId String
-  attendee   User   @relation(fields: [attendeeId], references: [id])
+  id                      String   @id @default(uuid())
+  createdAt               DateTime @default(now())
+  eventId                 String
+  event                   Event    @relation(fields: [eventId], references: [id])
+  attendeeId              String
+  attendee                User     @relation(fields: [attendeeId], references: [id])
+  isAddedToGoogleCalendar Boolean  @default(false)
 
   @@unique([eventId, attendeeId])
 }
