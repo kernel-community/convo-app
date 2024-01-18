@@ -26,7 +26,11 @@ const addRsvpToDb = async (rsvp: RsvpIntention, userId: string | undefined) => {
   return res;
 };
 
-const sendGCalInvite = async (rsvp: RsvpIntention, email: string) => {
+const sendGCalInvite = async (
+  rsvp: RsvpIntention,
+  email: string,
+  id: string
+) => {
   if (!rsvp.eventIds) {
     throw new Error("incorrect params");
   }
@@ -38,6 +42,7 @@ const sendGCalInvite = async (rsvp: RsvpIntention, email: string) => {
           body: JSON.stringify({
             events: rsvp.eventIds,
             email,
+            userId: id,
           }),
           method: "POST",
           headers: { "Content-type": "application/json" },
@@ -55,6 +60,7 @@ const useSubmitRsvp = () => {
   const [isError, setIsError] = useState<boolean>(false);
   const { rsvpIntention: rsvp } = useRsvpIntention();
   const { fetchedUser: user } = useUser();
+
   // create rsvp in the database
   const submit = async () => {
     if (rsvp.eventIds.length === 0) {
@@ -63,19 +69,25 @@ const useSubmitRsvp = () => {
     setIsSubmitting(true);
     try {
       await addRsvpToDb(rsvp, user.id);
-      if (user.email) {
-        await sendGCalInvite(rsvp, user.email);
-      }
     } catch (err) {
       setIsSubmitting(false);
       setIsError(true);
       throw err;
     }
+    try {
+      if (user.email && user.id) {
+        await sendGCalInvite(rsvp, user.email, user.id);
+      }
+    } catch (err) {
+      /** */
+      console.error(err);
+    } // do nothing for google calendar error, cuz we can't really do anything
   };
   return {
     submit,
     isSubmitting,
     isError,
+    resetError: setIsError,
   };
 };
 
