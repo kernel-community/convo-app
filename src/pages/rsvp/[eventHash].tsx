@@ -13,7 +13,7 @@ const Post = () => {
   const isEditable = user.id === data?.proposer.id;
 
   return (
-    <Main className="px-52">
+    <Main className="px-6 lg:px-52">
       <RsvpIntentionProvider>
         {!isLoading && !isError && data && (
           <EventWrapper event={data} isEditable={isEditable} />
