@@ -21,7 +21,15 @@ const main = async () => {
     const eventId = allRsvps[i]?.eventId;
     const attendeeEmail = allRsvps[i]?.attendee.email;
     const attendeeId = allRsvps[i]?.attendeeId;
-    if (!eventId || !attendeeEmail || !attendeeId) {
+    const gCalCalendarId = allRsvps[i]?.event.gCalId;
+    const gCalEventId = allRsvps[i]?.event.gCalEventId;
+    if (
+      !eventId ||
+      !attendeeEmail ||
+      !attendeeId ||
+      !gCalEventId ||
+      !gCalCalendarId
+    ) {
       continue;
     }
     try {
