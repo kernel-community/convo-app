@@ -128,14 +128,6 @@ export const Events = ({
         </div>
       )}
 
-      {(!data || isLoading || isFetching) && (
-        <div className="pb-3 sm:flex sm:flex-row sm:flex-wrap sm:gap-4">
-          <EventLoadingState />
-          <EventLoadingState />
-          <EventLoadingState />
-        </div>
-      )}
-
       {data && (
         <div className="sm:flex sm:flex-row sm:flex-wrap sm:gap-4">
           {data.pages.map((page) =>
@@ -168,6 +160,13 @@ export const Events = ({
             )}
           {isError && <div>There was an error in fetching</div>}
           {isFetchingNextPage && <div></div>}
+        </div>
+      )}
+      {(!data || isLoading || isFetching) && (
+        <div className="py-3 sm:flex sm:flex-row sm:flex-wrap sm:gap-4">
+          <EventLoadingState />
+          <EventLoadingState />
+          <EventLoadingState />
         </div>
       )}
 
