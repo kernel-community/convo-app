@@ -28,9 +28,8 @@ const SubmitRsvpSection = ({
   const { handleSubmit } = useForm<RsvpInput>({
     resolver: zodResolver(rsvpInputSchema),
   });
-  const { submit } = useSubmitRsvp();
+  const { submit, isError, resetError } = useSubmitRsvp();
 
-  const [isError, setIsError] = useState<boolean>(false);
   const [isSuccess, setIsSuccess] = useState<boolean>(false);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
@@ -42,13 +41,11 @@ const SubmitRsvpSection = ({
       await submit();
     } catch (err) {
       console.error("There was an error", JSON.stringify(err));
-      setIsError(true);
       setIsSuccess(false);
       setIsSubmitting(false);
       return;
     }
     setIsSuccess(true);
-    setIsError(false);
     setIsSubmitting(false);
   };
   return (
@@ -87,7 +84,7 @@ const SubmitRsvpSection = ({
                 There was an error.{" "}
                 <span
                   className="cursor-pointer underline"
-                  onClick={() => setIsError(false)}
+                  onClick={() => resetError(false)}
                 >
                   {" "}
                   Try Again{" "}
@@ -95,7 +92,10 @@ const SubmitRsvpSection = ({
               </InfoBox>
             )}
             {isSuccess && (
-              <InfoBox type="info">RSVP submitted successfully</InfoBox>
+              <InfoBox type="info">
+                RSVP submitted successfully. You should receive a Google
+                Calendar event invite soon.
+              </InfoBox>
             )}
           </div>
         )}

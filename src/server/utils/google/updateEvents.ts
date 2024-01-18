@@ -8,6 +8,7 @@ type UpdatableFullEvents = Array<FullEvent>;
 type ParsedEvents = Array<
   calendar_v3.Schema$Event & {
     gCalEventId?: string;
+    gCalId?: string | null;
     isDeleted?: boolean;
     databaseId?: string;
   }
@@ -26,6 +27,7 @@ export const parseEvents = (
     return {
       databaseId: event.id,
       isDeleted: event.isDeleted,
+      gCalId: event.gCalId,
       gCalEventId: event.gCalEventId,
       summary: title,
       start: {
@@ -50,14 +52,12 @@ export const parseEvents = (
 
 export const updateEvents = async ({
   events,
-  calendarId,
   reqHost,
 }: {
   events: {
     updated: UpdatableFullEvents;
     deleted: UpdatableFullEvents;
   };
-  calendarId: string;
   reqHost: string;
 }): Promise<
   Array<{
@@ -82,6 +82,7 @@ export const updateEvents = async ({
   // idk why google apis do that 🤷🏽‍♀️
   for (let i = 0; i < parsedEvents.length; i++) {
     const parsedEvent = parsedEvents[i];
+    const calendarId = parsedEvent?.gCalId;
     if (!parsedEvent) {
       continue;
     }
@@ -91,7 +92,12 @@ export const updateEvents = async ({
     }
     if (!parsedEvent.gCalEventId) {
       // throw??
-      console.log("gcalEvent id in parsed event not found");
+      console.error("gcalEvent id in parsed event not found");
+      continue;
+    }
+    if (!calendarId) {
+      // throw?
+      console.error(`gCalId not defined for the event`);
       continue;
     }
     const event = await getEvent(calendarId, parsedEvent.gCalEventId);
@@ -105,7 +111,6 @@ export const updateEvents = async ({
   // update event on google calendar
   const updateGcalPromises = eventsToUpdate.map((e) => {
     return calendar.events.update({
-      calendarId,
       eventId: e.gCalEventId,
       requestBody: e,
     });

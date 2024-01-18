@@ -29,20 +29,8 @@ export default async function createEventHandler(
   if (!prodHost) {
     throw new Error("set prodHost in .env -- the host of the app in prod");
   }
-  const isProd = host === prodHost;
-
-  const calendarId = isProd
-    ? process.env.CONVO_PROD_CALENDAR_ID
-    : process.env.TEST_CALENDAR_ID;
-
-  if (!calendarId) {
-    throw new Error(`
-      Calendar ID not defined in .env. Expecting CONVO_PROD_CALENDAR_ID or TEST_CALENDAR_ID
-    `);
-  }
 
   const ids = await updateEvents({
-    calendarId,
     events,
     reqHost: host || prodHost,
   });
