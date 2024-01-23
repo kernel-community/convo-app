@@ -16,7 +16,8 @@
     "format": "prettier --check --ignore-path .gitignore .",
     "format:fix": "prettier --write --ignore-path .gitignore .",
     "prepare": "husky install",
-    "vercel:build": "git commit --allow-empty -m 'Trigger Build' && git push"
+    "vercel:build": "git commit --allow-empty -m 'Trigger Build' && git push",
+    "prod": "git checkout main && git merge staging && git push && git checkout staging"
   },
   "lint-staged": {
     "*.{jsx,js,tsx,ts}": "prettier --write"
