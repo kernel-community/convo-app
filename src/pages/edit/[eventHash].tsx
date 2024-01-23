@@ -6,7 +6,7 @@ import useEvent from "src/hooks/useEvent";
 import Main from "src/layouts/Main";
 import parse from "src/utils/clientEventToClientEventInput";
 import NotFoundPage from "../404";
-import Button from "src/components/Button";
+import { Button } from "src/components/ui/button";
 import useUpdateEvent from "src/hooks/useUpdateEvent";
 import { useUser } from "src/context/UserContext";
 import NotAllowedPage from "src/components/NotAllowedPage";
@@ -56,23 +56,24 @@ const Edit: NextPage = () => {
   return (
     <>
       <Main>
-        <div className="flex flex-col items-center justify-center">
-          <div
-            className="
-            mx-auto
-            font-heading
-            text-5xl
-            font-extrabold
-            text-primary
-            sm:text-5xl
-          "
-          >
-            Editing: {clientEventInput?.title}
+        <div className="flex flex-col items-center justify-center lg:px-64">
+          <div className="flex w-full flex-row items-center justify-between">
+            <div
+              className="
+              font-heading
+              text-5xl
+              font-extrabold
+              text-primary
+              sm:text-5xl
+            "
+            >
+              Editing: {clientEventInput?.title}
+            </div>
+            <Button onClick={deleteEvent}>Delete all events?</Button>
           </div>
-          <Button buttonText="Delete all events" handleClick={deleteEvent} />
-          <div className="my-12 w-full border border-primary lg:w-9/12"></div>
+          <div className="my-12 w-full border border-primary"></div>
         </div>
-        <div className="lg:px-32">
+        <div className="lg:px-96">
           <ProposeForm event={clientEventInput} />
         </div>
       </Main>

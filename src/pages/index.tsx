@@ -3,7 +3,7 @@ import Main from "src/layouts/Main";
 import Link from "next/link";
 import { Events } from "src/components/Events";
 import type { ReactNode } from "react";
-import Button from "src/components/Button";
+import { Button } from "src/components/ui/button";
 const Home: NextPage = () => {
   return (
     <>
@@ -65,7 +65,7 @@ const Home: NextPage = () => {
             <Events type="month" highlight="next 28 days" take={6} />
           </div>
           <Link href={"/all"} className="self-center">
-            <Button buttonText="See all Convos" />
+            <Button>See all Convos</Button>
           </Link>
         </div>
       </Main>

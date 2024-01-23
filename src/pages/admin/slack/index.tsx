@@ -1,6 +1,6 @@
 import type { NextPage } from "next";
 import Main from "src/layouts/Main";
-import Button from "src/components/Button";
+import { Button } from "src/components/ui/button";
 import { useState } from "react";
 import type { FieldErrorsImpl, SubmitHandler } from "react-hook-form";
 import { useForm } from "react-hook-form";
@@ -97,7 +97,7 @@ const Slack: NextPage = () => {
               errors={errors}
               required={false}
             />
-            <Button buttonText="Submit" type="submit" />
+            <Button type="submit">Submit</Button>
           </form>
         </div>
       </Main>
