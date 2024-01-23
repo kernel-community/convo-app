@@ -2,6 +2,7 @@ import type { Event, User } from "@prisma/client";
 import { pick } from "lodash";
 import type { NextApiRequest, NextApiResponse } from "next";
 import { updateEvents } from "src/server/utils/google/updateEvents";
+import { DEFAULT_HOST } from "src/utils/constants";
 
 export type FullEvent = Event & {
   proposer: User;
@@ -25,14 +26,9 @@ export default async function createEventHandler(
     throw new Error("`event` not found in req.body");
   }
 
-  const prodHost = process.env.PROD_HOST;
-  if (!prodHost) {
-    throw new Error("set prodHost in .env -- the host of the app in prod");
-  }
-
   const ids = await updateEvents({
     events,
-    reqHost: host || prodHost,
+    reqHost: host || DEFAULT_HOST,
   });
 
   res.status(200).json({
