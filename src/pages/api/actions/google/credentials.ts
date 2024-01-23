@@ -4,6 +4,9 @@ const redirectUris = [
   "https://convo.kernel.community/admin/google/callback",
   "https://www.convo.cafe/admin/google/callback",
   "https://www.viaconvo.xyz/admin/google/callback",
+  "https://kernel.convo.cafe/admin/google/callback",
+  "https://early.convo.cafe/admin/google/callback",
+  "https://convo.cafe/admin/google/callback",
 ];
 
 const credentials = {
