@@ -120,7 +120,13 @@ const MyApp = ({ Component, pageProps: { ...pageProps } }: AppProps) => {
         <DynamicWagmiConnector>
           <QueryClientProvider client={queryClient}>
             <UserProvider>
-              <Component {...pageProps} />
+              <div
+                vaul-drawer-wrapper=""
+                suppressHydrationWarning
+                className="bg-background"
+              >
+                <Component {...pageProps} />
+              </div>
             </UserProvider>
           </QueryClientProvider>
         </DynamicWagmiConnector>

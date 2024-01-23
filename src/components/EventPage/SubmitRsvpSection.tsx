@@ -1,4 +1,3 @@
-import Button from "../Button";
 import { useUser } from "src/context/UserContext";
 import LoginButton from "../LoginButton";
 import FieldLabel from "../StrongText";
@@ -13,6 +12,7 @@ import isNicknameSet from "src/utils/isNicknameSet";
 import Signature from "./Signature";
 import type { User } from "@prisma/client";
 import { InfoBox } from "../InfoBox";
+import { Button } from "../ui/button";
 
 const SubmitRsvpSection = ({
   text,
@@ -74,10 +74,11 @@ const SubmitRsvpSection = ({
               <Button
                 type="submit"
                 disabled={disabled}
-                displayLoading={isLoading}
-                buttonText={`RSVP`}
+                // displayLoading={isLoading}
                 className="mt-3 w-full"
-              />
+              >
+                RSVP
+              </Button>
             </form>
             {isError && (
               <InfoBox type="error">

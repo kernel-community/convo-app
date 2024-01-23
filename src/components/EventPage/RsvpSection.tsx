@@ -4,7 +4,7 @@ import { isPast, getDateTimeString, sortSessions } from "src/utils/dateTime";
 import { useRsvpIntention } from "src/context/RsvpIntentionContext";
 import Session from "./Session";
 import ConfirmationModal from "../ConfirmationModal";
-import Button from "../Button";
+import { Button } from "../ui/button";
 import { useUser } from "src/context/UserContext";
 import useUpdateRsvp from "src/hooks/useUpdateRsvp";
 
@@ -49,7 +49,7 @@ const RemoveRSVPModal = ({
     return <div>There was an Error :(</div>;
   }
 
-  return <Button buttonText="Cancel RSVP?" handleClick={onClickCancel} />;
+  return <Button onClick={onClickCancel}>Cancel RSVP?</Button>;
 };
 
 export const SessionsWrapper = ({
