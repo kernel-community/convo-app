@@ -19,6 +19,9 @@ const credentials = {
     "https://convo.kernel.community",
     "https://www.convo.cafe",
     "https://www.viaconvo.xyz",
+    "https://kernel.convo.cafe",
+    "https://early.convo.cafe",
+    "https://convo.cafe",
   ],
 };
 
