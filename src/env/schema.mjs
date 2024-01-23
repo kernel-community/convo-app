@@ -8,9 +8,7 @@ import { z } from "zod";
 export const serverSchema = z.object({
   DATABASE_URL: z.string().url(),
   NODE_ENV: z.enum(["development", "test", "production"]),
-  PROD_HOST: z.string(),
-  CLIENT_ID: z.string().min(1),
-  CLIENT_SECRET: z.string().min(1)
+  TEST_CALENDAR_ID: z.string().min(1)
 });
 
 /**
@@ -21,9 +19,7 @@ export const serverSchema = z.object({
 export const serverEnv = {
   DATABASE_URL: process.env.DATABASE_URL,
   NODE_ENV: process.env.NODE_ENV,
-  PROD_HOST: process.env.PROD_HOST,
-  CLIENT_ID: process.env.CLIENT_ID,
-  CLIENT_SECRET: process.env.CLIENT_SECRET,
+  TEST_CALENDAR_ID: process.env.TEST_CALENDAR_ID,
 };
 
 /**
@@ -32,7 +28,8 @@ export const serverEnv = {
  * To expose them to the client, prefix them with `NEXT_PUBLIC_`.
  */
 export const clientSchema = z.object({
-  NEXT_PUBLIC_DYNAMIC_ENVIRONMENT_ID: z.string()
+  NEXT_PUBLIC_DYNAMIC_ENVIRONMENT_ID: z.string(),
+  NEXT_PUBLIC_TEST_CALENDAR_ID: z.string()
 });
 
 /**
@@ -42,5 +39,6 @@ export const clientSchema = z.object({
  * @type {{ [k in keyof z.infer<typeof clientSchema>]: z.infer<typeof clientSchema>[k] | undefined }}
  */
 export const clientEnv = {
-  NEXT_PUBLIC_DYNAMIC_ENVIRONMENT_ID: process.env.NEXT_PUBLIC_DYNAMIC_ENVIRONMENT_ID
+  NEXT_PUBLIC_DYNAMIC_ENVIRONMENT_ID: process.env.NEXT_PUBLIC_DYNAMIC_ENVIRONMENT_ID,
+  NEXT_PUBLIC_TEST_CALENDAR_ID: process.env.NEXT_PUBLIC_TEST_CALENDAR_ID
 };
