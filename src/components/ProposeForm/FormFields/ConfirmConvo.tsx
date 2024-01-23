@@ -33,6 +33,7 @@ export const ConfirmConvoCredenza = ({
   action: () => Promise<void>;
   isLoading: boolean;
 }) => {
+}) => {
   return (
     <Credenza open={openModalFlag} onOpenChange={setOpenModalFlag}>
       <CredenzaContent className="h-[32rem]">
