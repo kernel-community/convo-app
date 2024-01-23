@@ -12,6 +12,8 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { createEvents } from "src/server/utils/google/createEvent";
 import { prisma } from "src/server/db";
 import { sendInvite } from "src/server/utils/google/sendInvite";
+import { DEFAULT_HOST } from "src/utils/constants";
+import isProd from "src/server/utils/isProd";
 
 export type FullEvent = Event & {
   proposer: User;
@@ -38,16 +40,10 @@ export default async function createEventHandler(
     throw new Error("`event` not found in req.body");
   }
 
-  const prodHost = process.env.PROD_HOST;
-  if (!prodHost) {
-    throw new Error("set prodHost in .env -- the host of the app in prod");
-  }
-  const isProd = host === prodHost;
-
   const ids = await createEvents({
     events,
-    reqHost: host || prodHost,
-    isProd,
+    reqHost: host || DEFAULT_HOST,
+    isProd: isProd(host),
   });
 
   const updatePromises = ids.map((id) => {
