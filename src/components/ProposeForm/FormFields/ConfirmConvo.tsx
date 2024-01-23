@@ -43,7 +43,7 @@ export const ConfirmConvoCredenza = ({
             before clicking submit
           </CredenzaDescription>
         </CredenzaHeader>
-        <CredenzaBody className="flex h-full flex-col items-start overflow-scroll">
+        <CredenzaBody className="flex h-full flex-col items-start overflow-auto">
           <div className="grid grid-cols-[40%_60%] gap-y-4">
             <FieldLabel>Title</FieldLabel>
             <div>{convoToCreateData?.title}</div>
