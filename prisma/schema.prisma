@@ -13,6 +13,7 @@ datasource db {
 enum EventType {
   JUNTO
   INTERVIEW // @note could be "unlisted" @anggxyz
+  TEST
 }
 
 model Event {
