@@ -1,5 +1,4 @@
 import type { NextPage } from "next";
-import { useRouter } from "next/router";
 import type { ClientEventInput } from "src/components/ProposeForm";
 import ProposeForm from "src/components/ProposeForm";
 import useEvent from "src/hooks/useEvent";
@@ -11,14 +10,18 @@ import useUpdateEvent from "src/hooks/useUpdateEvent";
 import { useUser } from "src/context/UserContext";
 import NotAllowedPage from "src/components/NotAllowedPage";
 import { useEffect, useState } from "react";
+import { Skeleton } from "src/components/ui/skeleton";
+import ConfirmDeleteCredenza from "../../components/EventPage/ConfirmDelete";
+import { useRouter } from "next/router";
 
 const Edit: NextPage = () => {
-  const { query } = useRouter();
+  const { query, push } = useRouter();
   const { eventHash } = query;
   const { data } = useEvent({ hash: eventHash });
-  const { update } = useUpdateEvent();
+  const { update, isSubmitting: isLoading } = useUpdateEvent();
   const { fetchedUser: user } = useUser();
   const [isInvalidRequest, setInvalidRequest] = useState(false);
+  const [openModalFlag, setOpenModalFlag] = useState<boolean>(false);
 
   // check to see if eventHash from query exists in the database
   // parse and pre-fill event data in the form
@@ -51,11 +54,18 @@ const Edit: NextPage = () => {
       hash: eventHash as string,
     };
     await update({ event });
+    push(`/rsvp/${event.hash}`);
   };
 
   return (
     <>
       <Main>
+        <ConfirmDeleteCredenza
+          openModalFlag={openModalFlag}
+          setOpenModalFlag={setOpenModalFlag}
+          action={deleteEvent}
+          isLoading={isLoading}
+        />
         <div className="flex flex-col items-center justify-center lg:px-64">
           <div className="flex w-full flex-col items-center justify-between sm:flex-row">
             <div
@@ -70,7 +80,15 @@ const Edit: NextPage = () => {
             >
               Editing: {clientEventInput?.title}
             </div>
-            <Button onClick={deleteEvent}>Delete all events?</Button>
+            {isLoading ? (
+              <Button disabled className="w-[250px] p-0">
+                <Skeleton className="bg-gray-550 h-full w-full" />
+              </Button>
+            ) : (
+              <Button onClick={() => setOpenModalFlag(true)}>
+                Delete all events?
+              </Button>
+            )}
           </div>
           <div className="my-12 w-full border border-primary"></div>
         </div>

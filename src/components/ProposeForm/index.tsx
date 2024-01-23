@@ -15,7 +15,7 @@ import Signature from "../EventPage/Signature";
 import FieldLabel from "../StrongText";
 import type { User } from "@prisma/client";
 import { useRouter } from "next/navigation";
-import { ConfirmConvoCredenza } from "./FormFields/ConfirmConvo";
+import { ConfirmConvoCredenza } from "./ConfirmConvo";
 
 const SessionSchema = z.object({
   dateTime: z.date(),

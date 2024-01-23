@@ -142,7 +142,9 @@ const EventWrapper = ({
     <>
       <div className="flex flex-row items-center justify-between">
         <Hero title={title} isImported={isImported} isDeleted={isDeleted} />
-        {isEditable && <Button onClick={navigateToEditPage}>Edit Event</Button>}
+        {isEditable && !event.isDeleted && (
+          <Button onClick={navigateToEditPage}>Edit Event</Button>
+        )}
       </div>
       {isPartOfCollection && (
         <div className="font-primary">

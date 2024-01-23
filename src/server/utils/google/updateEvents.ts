@@ -83,7 +83,6 @@ export const updateEvents = async ({
   // idk why google apis do that 🤷🏽‍♀️
   for (let i = 0; i < parsedEvents.length; i++) {
     const parsedEvent = parsedEvents[i];
-    const calendarId = parsedEvent?.gCalId;
     if (!parsedEvent) {
       continue;
     }
@@ -91,16 +90,12 @@ export const updateEvents = async ({
       eventsToUpdate.push(parsedEvent);
       continue;
     }
-    if (!parsedEvent.gCalEventId) {
+    if (!parsedEvent.gCalEventId || !parsedEvent.gCalId) {
       // throw??
-      console.error("gcalEvent id in parsed event not found");
+      console.error("gcalEvent id or gCalId in parsed event not found");
       continue;
     }
-    if (!calendarId) {
-      // throw?
-      console.error(`gCalId not defined for the event`);
-      continue;
-    }
+    const calendarId = parsedEvent.gCalId;
     const event = await getEvent(calendarId, parsedEvent.gCalEventId);
     const attendees = event.attendees || [];
     eventsToUpdate.push({
@@ -124,7 +119,7 @@ export const updateEvents = async ({
     if (!e.gCalId) {
       throw "e.gCalId undefined";
     }
-    return calendar.events.update({
+    return calendar.events.patch({
       eventId: e.gCalEventId,
       calendarId: e.gCalId,
       requestBody: requestBody,

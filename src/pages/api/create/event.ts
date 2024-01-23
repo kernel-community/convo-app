@@ -21,6 +21,7 @@ export type ClientEvent = {
   gCalEvent: boolean;
   email?: string;
   type?: EventType;
+  hash?: string;
 };
 
 export default async function event(req: NextApiRequest, res: NextApiResponse) {
@@ -30,7 +31,7 @@ export default async function event(req: NextApiRequest, res: NextApiResponse) {
   }: {
     event: ClientEvent;
     userId: string;
-  } = _.pick(req.body, ["event", "userId"]);
+  } = _.pick(req.body, ["event", "userId", "hash"]);
   const headersList = req.headers;
   const { host }: { host?: string | undefined | string[] } = pick(headersList, [
     "host",
@@ -51,7 +52,7 @@ export default async function event(req: NextApiRequest, res: NextApiResponse) {
     },
   });
 
-  const hash = nanoid(10);
+  const hash = event.hash || nanoid(10);
   const eventPayload: Prisma.Enumerable<Prisma.EventCreateManyInput> =
     sessions.map((session) => {
       const { startDateTime, endDateTime } = getEventStartAndEnd(

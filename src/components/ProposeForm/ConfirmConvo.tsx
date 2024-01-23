@@ -1,5 +1,5 @@
 import type { Dispatch, SetStateAction } from "react";
-import type { ClientEventInput } from "..";
+import type { ClientEventInput } from ".";
 import { getDateTimeString } from "src/utils/dateTime";
 import {
   Credenza,
@@ -16,7 +16,7 @@ import Signature from "src/components/EventPage/Signature";
 import { Article } from "src/components/Article";
 import type { User } from "@prisma/client";
 import type { UserStatus } from "src/context/UserContext";
-import TitleLoadingState from "src/components/LoadingState/Title";
+import { Skeleton } from "src/components/ui/skeleton";
 
 export const ConfirmConvoCredenza = ({
   openModalFlag,
@@ -90,7 +90,9 @@ export const ConfirmConvoCredenza = ({
               Confirm{" "}
             </Button>
           )}
-          {isLoading && <TitleLoadingState thicc />}
+          {isLoading && (
+            <Skeleton className="h-[40px] w-full rounded-lg bg-slate-400" />
+          )}
         </CredenzaFooter>
       </CredenzaContent>
     </Credenza>
