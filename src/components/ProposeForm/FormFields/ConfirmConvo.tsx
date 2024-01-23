@@ -16,7 +16,7 @@ import Signature from "src/components/EventPage/Signature";
 import { Article } from "src/components/Article";
 import type { User } from "@prisma/client";
 import type { UserStatus } from "src/context/UserContext";
-import type { SubmitHandler } from "react-hook-form";
+import TitleLoadingState from "src/components/LoadingState/Title";
 
 export const ConfirmConvoCredenza = ({
   openModalFlag,
@@ -24,14 +24,15 @@ export const ConfirmConvoCredenza = ({
   convoToCreateData,
   user,
   action,
+  isLoading,
 }: {
   openModalFlag: boolean;
   setOpenModalFlag: Dispatch<SetStateAction<boolean>>;
   convoToCreateData: ClientEventInput | undefined;
   user: UserStatus;
   action: () => Promise<void>;
+  isLoading: boolean;
 }) => {
-  console.log({ convoToCreateData });
   return (
     <Credenza open={openModalFlag} onOpenChange={setOpenModalFlag}>
       <CredenzaContent className="h-[32rem]">
@@ -70,9 +71,13 @@ export const ConfirmConvoCredenza = ({
           </div>
         </CredenzaBody>
         <CredenzaFooter>
-          {convoToCreateData && (
-            <Button onClick={() => action()}> Confirm </Button>
+          {convoToCreateData && !isLoading && (
+            <Button onClick={() => action()} className="w-full">
+              {" "}
+              Confirm{" "}
+            </Button>
           )}
+          {isLoading && <TitleLoadingState thicc />}
         </CredenzaFooter>
       </CredenzaContent>
     </Credenza>
