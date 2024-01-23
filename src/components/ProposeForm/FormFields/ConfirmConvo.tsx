@@ -25,6 +25,7 @@ export const ConfirmConvoCredenza = ({
   user,
   action,
   isLoading,
+  isEditing,
 }: {
   openModalFlag: boolean;
   setOpenModalFlag: Dispatch<SetStateAction<boolean>>;
@@ -32,18 +33,30 @@ export const ConfirmConvoCredenza = ({
   user: UserStatus;
   action: () => Promise<void>;
   isLoading: boolean;
+  isEditing: boolean;
 }) => {
   return (
     <Credenza open={openModalFlag} onOpenChange={setOpenModalFlag}>
       <CredenzaContent className="h-[32rem]">
         <CredenzaHeader>
-          <CredenzaTitle>Confirm Convo</CredenzaTitle>
-          <CredenzaDescription>
-            You are proposing a convo for Kernel. Confirm all details below
-            before clicking submit
-          </CredenzaDescription>
+          {isEditing ? (
+            <CredenzaTitle>Confirm Edits to Convo</CredenzaTitle>
+          ) : (
+            <CredenzaTitle>Confirm Convo</CredenzaTitle>
+          )}
+          {isEditing ? (
+            <CredenzaDescription>
+              You are editing the Convo. Confirm all details below before
+              clicking submit.
+            </CredenzaDescription>
+          ) : (
+            <CredenzaDescription>
+              You are proposing a Convo for Kernel. Confirm all details below
+              before clicking submit.
+            </CredenzaDescription>
+          )}
         </CredenzaHeader>
-        <CredenzaBody className="flex h-full flex-col items-start overflow-scroll">
+        <CredenzaBody className="flex h-full flex-col items-start overflow-auto">
           <div className="grid grid-cols-[40%_60%] gap-y-4">
             <FieldLabel>Title</FieldLabel>
             <div>{convoToCreateData?.title}</div>

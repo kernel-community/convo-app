@@ -1,9 +1,10 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import _ from "lodash";
+import _, { pick } from "lodash";
 import { prisma } from "src/server/db";
 import type { EventType, Prisma } from "@prisma/client";
 import { nanoid } from "nanoid";
 import { getEventStartAndEnd } from "src/utils/dateTime";
+import isProd from "src/utils/isProd";
 
 export type Session = {
   dateTime: Date;
@@ -30,7 +31,10 @@ export default async function event(req: NextApiRequest, res: NextApiResponse) {
     event: ClientEvent;
     userId: string;
   } = _.pick(req.body, ["event", "userId"]);
-
+  const headersList = req.headers;
+  const { host }: { host?: string | undefined | string[] } = pick(headersList, [
+    "host",
+  ]);
   const {
     title,
     sessions,
@@ -65,7 +69,7 @@ export default async function event(req: NextApiRequest, res: NextApiResponse) {
         proposerId: user.id,
         series: sessions.length > 1,
         gCalEventRequested,
-        type,
+        type: isProd(host) ? type : "TEST",
       };
     });
 

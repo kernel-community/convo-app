@@ -57,11 +57,12 @@ const Edit: NextPage = () => {
     <>
       <Main>
         <div className="flex flex-col items-center justify-center lg:px-64">
-          <div className="flex w-full flex-row items-center justify-between">
+          <div className="flex w-full flex-col items-center justify-between sm:flex-row">
             <div
               className="
+              px-8
               font-heading
-              text-5xl
+              text-4xl
               font-extrabold
               text-primary
               sm:text-5xl
@@ -73,7 +74,7 @@ const Edit: NextPage = () => {
           </div>
           <div className="my-12 w-full border border-primary"></div>
         </div>
-        <div className="lg:px-96">
+        <div className="px-8 lg:px-96">
           <ProposeForm event={clientEventInput} />
         </div>
       </Main>

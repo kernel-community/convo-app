@@ -4,7 +4,6 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import _ from "lodash";
 import { prisma } from "src/server/db";
-import { ethers } from "ethers";
 import { getEventStartAndEnd } from "src/utils/dateTime";
 import type { ClientEvent, Session } from "../create/event";
 
