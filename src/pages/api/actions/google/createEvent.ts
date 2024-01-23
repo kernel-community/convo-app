@@ -13,7 +13,6 @@ import { createEvents } from "src/server/utils/google/createEvent";
 import { prisma } from "src/server/db";
 import { sendInvite } from "src/server/utils/google/sendInvite";
 import { DEFAULT_HOST } from "src/utils/constants";
-import isProd from "src/server/utils/isProd";
 
 export type FullEvent = Event & {
   proposer: User;
@@ -43,7 +42,6 @@ export default async function createEventHandler(
   const ids = await createEvents({
     events,
     reqHost: host || DEFAULT_HOST,
-    isProd: isProd(host),
   });
 
   const updatePromises = ids.map((id) => {

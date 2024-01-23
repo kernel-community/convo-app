@@ -2,6 +2,7 @@ import type { calendar_v3 } from "googleapis";
 import { getCalendar } from "./getCalendar";
 import type { FullEvent } from "src/pages/api/actions/google/createEvent";
 import { getEvent } from "./getEvent";
+import { pick } from "lodash";
 
 type UpdatableFullEvents = Array<FullEvent>;
 
@@ -20,8 +21,8 @@ export const parseEvents = (
 ): ParsedEvents => {
   const protocol = reqHost.includes("localhost") ? "http" : "https";
   const parsed = events.map((event) => {
-    if (!event.gCalEventId) {
-      throw new Error(`gCalEventId not found for: ${event}`);
+    if (!event.gCalEventId || !event.gCalId) {
+      throw new Error(`gCalEventId or gCalId not found for: ${event}`);
     }
     const title = event.isDeleted ? `CANCELLED: ${event.title}` : event.title;
     return {
@@ -110,9 +111,23 @@ export const updateEvents = async ({
 
   // update event on google calendar
   const updateGcalPromises = eventsToUpdate.map((e) => {
+    const requestBody = pick(e, [
+      "summary",
+      "attendees",
+      "start",
+      "end",
+      "guestsCanSeeOtherGuests",
+      "guestsCanInviteOthers",
+      "location",
+      "description",
+    ]);
+    if (!e.gCalId) {
+      throw "e.gCalId undefined";
+    }
     return calendar.events.update({
       eventId: e.gCalEventId,
-      requestBody: e,
+      calendarId: e.gCalId,
+      requestBody: requestBody,
     });
   });
   const updated = await Promise.all(updateGcalPromises);
