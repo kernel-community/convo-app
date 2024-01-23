@@ -1,16 +1,17 @@
-import type { calendar_v3 } from "googleapis";
 import { getCalendar } from "./getCalendar";
 import type { FullEvent } from "src/pages/api/actions/google/createEvent";
 import type { EventType } from "@prisma/client";
 import { CALENDAR_IDS } from "src/utils/constants";
+import type { calendar_v3 } from "googleapis";
 
 export const parseEvents = (
   events: Array<FullEvent>,
   reqHost: string
-): Array<calendar_v3.Schema$Event> => {
+): Array<calendar_v3.Schema$Event & { calendarId: string }> => {
   const protocol = reqHost.includes("localhost") ? "http" : "https";
   const parsed = events.map((event) => {
     return {
+      calendarId: getCalendarId(event.type),
       summary: `${event.title}`,
       attendees: [],
       start: {
@@ -38,6 +39,8 @@ const getCalendarId = (eventType: EventType | undefined | null) => {
       return CALENDAR_IDS.interviews;
     case "JUNTO":
       return CALENDAR_IDS.convoProd;
+    case "TEST":
+      return CALENDAR_IDS.test;
     default:
       return CALENDAR_IDS.convoProd;
   }
@@ -45,11 +48,9 @@ const getCalendarId = (eventType: EventType | undefined | null) => {
 export const createEvents = async ({
   events,
   reqHost,
-  isProd,
 }: {
   events: Array<FullEvent>;
   reqHost: string;
-  isProd?: boolean;
 }): Promise<
   Array<{
     calendarEventId: string | null | undefined;
@@ -60,11 +61,8 @@ export const createEvents = async ({
   const parsedEvents = parseEvents(events, reqHost);
   const calendar = await getCalendar();
   const createPromises = parsedEvents.map((e) => {
-    const calendarId = isProd
-      ? getCalendarId(e.eventType as EventType)
-      : CALENDAR_IDS.test;
     return calendar.events.insert({
-      calendarId,
+      calendarId: e.calendarId,
       requestBody: e,
     });
   });
