@@ -3,7 +3,7 @@ import deleteIcon from "../../../../public/vectors/delete.png";
 import DefaultDatePicker from "react-datepicker";
 import { useState } from "react";
 import "react-datepicker/dist/react-datepicker.css";
-import { Session } from "src/components/ProposeForm/index";
+import type { Session } from "src/components/ProposeForm/index";
 
 export type DateTimeHandleChangeType = (
   type: "dateTime" | "duration",
