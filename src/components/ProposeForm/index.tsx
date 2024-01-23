@@ -109,8 +109,6 @@ const ProposeForm = ({ event }: { event?: ClientEventInput }) => {
 
   const [convoToCreateData, setConvoToCreateData] =
     useState<ClientEventInput>();
-  const openModal = () => setOpenModalFlag(true);
-  const closeModal = () => setOpenModalFlag(false);
 
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -163,6 +161,7 @@ const ProposeForm = ({ event }: { event?: ClientEventInput }) => {
         user={user}
         action={createConvo}
         isLoading={loading}
+        isEditing={isEditing}
       />
       <form
         onSubmit={handleSubmit(onSubmit, onInvalid)}
