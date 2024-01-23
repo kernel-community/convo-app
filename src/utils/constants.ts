@@ -10,5 +10,5 @@ export const CALENDAR_IDS = {
   interviews: "c_9i24ls2obk0lh5feigb860m22s@group.calendar.google.com",
 };
 
-export const STAGING = "early.convo.cafe";
+export const STAGING = "staging.convo.cafe";
 export const DEFAULT_HOST = "convo.cafe";
