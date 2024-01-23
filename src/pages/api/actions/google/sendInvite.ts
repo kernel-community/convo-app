@@ -7,11 +7,6 @@ export default async function sendInviteHandler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  const headersList = req.headers;
-  const { host }: { host?: string | undefined | string[] } = pick(headersList, [
-    "host",
-  ]);
-
   const { events, email }: { events: Array<string>; email: string } = pick(
     req.body,
     ["events", "email"]
@@ -19,11 +14,6 @@ export default async function sendInviteHandler(
 
   if (!events || !email) {
     throw new Error("`events` and/or `email` not found in req.body");
-  }
-
-  const prodHost = process.env.PROD_HOST;
-  if (!prodHost) {
-    throw new Error("set prodHost in .env -- the host of the app in prod");
   }
 
   await sendInvite({

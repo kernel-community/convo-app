@@ -3,6 +3,7 @@ import { WebClient } from "@slack/web-api";
 import { prisma } from "src/server/db";
 import { pick } from "lodash";
 import { prepareSlackMessage } from "src/server/utils/slack/prepareSlackMessage";
+import { DEFAULT_HOST } from "src/utils/constants";
 
 export default async function notifyAll(
   req: NextApiRequest,
@@ -18,11 +19,6 @@ export default async function notifyAll(
   const { host }: { host?: string | undefined | string[] } = pick(headersList, [
     "host",
   ]);
-
-  const prodHost = process.env.PROD_HOST;
-  if (!prodHost) {
-    throw new Error("set prodHost in .env -- the host of the app in prod");
-  }
 
   const event = await prisma.event.findUnique({
     where: {
@@ -45,7 +41,7 @@ export default async function notifyAll(
 
   const { blocks, text, icon, username } = prepareSlackMessage({
     event,
-    reqHost: host || prodHost,
+    reqHost: host || DEFAULT_HOST,
     type, // "new" | "reminder" | "updated"
   });
 

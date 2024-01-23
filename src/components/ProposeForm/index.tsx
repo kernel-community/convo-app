@@ -162,6 +162,7 @@ const ProposeForm = ({ event }: { event?: ClientEventInput }) => {
         convoToCreateData={convoToCreateData}
         user={user}
         action={createConvo}
+        isLoading={loading}
       />
       <form
         onSubmit={handleSubmit(onSubmit, onInvalid)}
