@@ -2,8 +2,8 @@
  * converts an object of type ClientEvent to ClientEventInput
  */
 
-import { ClientEventInput } from "src/components/ProposeForm";
-import { ClientEvent } from "src/types";
+import type { ClientEventInput } from "src/components/ProposeForm";
+import type { ClientEvent } from "src/types";
 
 const parse = (event: ClientEvent): ClientEventInput => {
   const {
@@ -18,9 +18,11 @@ const parse = (event: ClientEvent): ClientEventInput => {
   } = event;
   const parsedSessions: ClientEventInput["sessions"] = sessions.map(
     (session, key) => {
+      const start = new Date(session.startDateTime);
+      const end = new Date(session.endDateTime);
       return {
-        dateTime: new Date(session.startDateTime),
-        duration: 1,
+        dateTime: start,
+        duration: Math.abs(end.getTime() - start.getTime()) / 36e5,
         count: key,
         id: session.id,
       };
