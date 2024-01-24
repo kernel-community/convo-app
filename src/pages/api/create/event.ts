@@ -75,17 +75,26 @@ export default async function event(req: NextApiRequest, res: NextApiResponse) {
     });
 
   // prisma.create events
-  await prisma.event.createMany({
-    data: eventPayload,
-  });
+  // const created = await prisma.event.createMany({
+  //   data: eventPayload,
+  // });
+  const createEventsPromises = eventPayload.map((event) =>
+    prisma.event.create({
+      data: event,
+      include: {
+        proposer: true,
+      },
+    })
+  );
+  const created = await Promise.all(createEventsPromises);
   console.log(
     `Created event for ${JSON.stringify(event)} for user: ${user.address}`
   );
-  const created = await prisma.event.findMany({
-    where: { hash },
-    include: {
-      proposer: true,
-    },
-  });
+  // const created = await prisma.event.findMany({
+  //   where: { hash },
+  //   include: {
+  //     proposer: true,
+  //   },
+  // });
   return res.status(200).json({ data: created });
 }
