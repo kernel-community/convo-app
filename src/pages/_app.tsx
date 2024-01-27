@@ -11,19 +11,23 @@ import { DEFAULT_USER_NICKNAME } from "src/utils/constants";
 import CursorsContextProvider from "src/context/CursorsContext";
 import SharedSpace from "src/components/SharedSpace";
 import { useRouter } from "next/router";
+import { useEffect, useState } from "react";
 
 const queryClient = new QueryClient();
 
 const MyApp = ({ Component, pageProps: { ...pageProps } }: AppProps) => {
   const router = useRouter();
   const createUser = updateUser;
-  const room = `convo-room-${router.pathname.substring(1)}-${
-    process.env.NODE_ENV
-  }`;
   const host = process.env.NEXT_PUBLIC_PARTYKIT_SERVER_HOST;
   if (!host) {
     throw new Error("NEXT_PUBLIC_PARTYKIT_SERVER_HOST not defined");
   }
+  const [room, setRoom] = useState<string>("convo-room");
+  useEffect(() => {
+    const route = router.asPath.replace(/[^a-zA-Z ]/g, "");
+    console.log(route);
+    setRoom(`convo-room-${route}-${process.env.NODE_ENV}`);
+  }, [router.asPath]);
 
   return (
     <>
