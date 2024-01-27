@@ -8,8 +8,6 @@ export default async function getEventByIds(
   res: NextApiResponse
 ) {
   const { ids } = _.pick(req.body, ["ids"]);
-  console.log("[api] getEventByIds");
-  console.log({ ids });
   if (!ids || ids.length === 0) {
     throw new Error("id undefined in req.body");
   }

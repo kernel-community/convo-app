@@ -7,7 +7,6 @@ const getUserRsvpForEvent = async (
   res: NextApiResponse
 ) => {
   const { userId, event } = _.pick(req.body, ["userId", "event"]);
-  console.log({ userId, event });
   if (!userId || !event) {
     throw new Error(`invalid request body: ${JSON.stringify(req.body)}`);
   }
