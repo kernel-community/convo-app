@@ -3,55 +3,19 @@ import type { Session as ClientSession } from "src/types";
 import { isPast, getDateTimeString, sortSessions } from "src/utils/dateTime";
 import { useRsvpIntention } from "src/context/RsvpIntentionContext";
 import Session from "./Session";
-import ConfirmationModal from "../ConfirmationModal";
 import { Button } from "../ui/button";
 import { useUser } from "src/context/UserContext";
 import useUpdateRsvp from "src/hooks/useUpdateRsvp";
-
-const RemoveRSVPModal = ({
-  address,
-  eventId,
-}: {
-  address: string | null | undefined;
-  eventId: string | null | undefined;
-}) => {
-  const [isSuccess, setIsSuccess] = useState<boolean>(false);
-  const [isError, setIsError] = useState<boolean>(false);
-
-  const onClickCancel = async () => {
-    try {
-      await updateRsvp();
-    } catch (err) {
-      console.error("There was an Error", JSON.stringify(err));
-      setIsError(true);
-      setIsSuccess(false);
-      return;
-    }
-    setIsError(false);
-    setIsSuccess(true);
-  };
-  const { fetch: updateRsvp } = useUpdateRsvp({
-    address,
-    eventId,
-    toRsvp: false,
-  });
-
-  if (!address || !eventId) {
-    console.log("there was an error", JSON.stringify({ address, eventId }));
-    return <div>There was an error; Try again?</div>;
-  }
-
-  if (isSuccess) {
-    return <div>Cancelled RSVP</div>;
-  }
-
-  if (isError) {
-    return <div>There was an Error :(</div>;
-  }
-
-  return <Button onClick={onClickCancel}>Cancel RSVP?</Button>;
-};
-
+import {
+  Credenza,
+  CredenzaBody,
+  CredenzaContent,
+  CredenzaDescription,
+  CredenzaFooter,
+  CredenzaHeader,
+  CredenzaTitle,
+} from "../ui/credenza";
+import useEventsFromId from "src/hooks/useEventsFromId";
 export const SessionsWrapper = ({
   sessions,
 }: {
@@ -65,7 +29,6 @@ export const SessionsWrapper = ({
     string | undefined
   >(undefined);
   const openModal = () => setOpenModalFlag(true);
-  const closeModal = () => setOpenModalFlag(false);
   const handleSessionSelect = (
     id: string,
     checked: boolean,
@@ -102,16 +65,69 @@ export const SessionsWrapper = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sessions]);
 
+  const { isLoading, data } = useEventsFromId({
+    ids: [cancelRsvpEventId ?? ""],
+  });
+  const [isDeleting, setIsDeleting] = useState<boolean>(false);
+  const onClickCancel = async () => {
+    setIsDeleting(true);
+    try {
+      await updateRsvp();
+    } catch (err) {
+      setIsDeleting(false);
+      console.error("There was an Error", JSON.stringify(err));
+      return;
+    }
+    setIsDeleting(false);
+    setOpenModalFlag(false);
+  };
+
+  const { fetch: updateRsvp } = useUpdateRsvp({
+    userId: user.id,
+    eventId: cancelRsvpEventId,
+    toRsvp: false,
+  });
   return (
     <>
-      <ConfirmationModal
-        isOpen={openModalFlag}
-        onClose={closeModal}
-        content={
-          <RemoveRSVPModal address={user.address} eventId={cancelRsvpEventId} />
-        }
-        title="Edit your RSVP"
-      />
+      <Credenza open={openModalFlag} onOpenChange={setOpenModalFlag}>
+        <CredenzaContent>
+          <CredenzaHeader>
+            <CredenzaTitle>Remove RSVP from Convo?</CredenzaTitle>
+            <CredenzaDescription>
+              Confirm to remove your RSVP from the selected Convo
+            </CredenzaDescription>
+          </CredenzaHeader>
+          <CredenzaBody>
+            {data && data.sessions && data.sessions[0] && (
+              <div>
+                Your RSVP will be removed from:
+                <div>
+                  {getDateTimeString(
+                    new Date(data.sessions[0].startDateTime).toISOString(),
+                    "date"
+                  )}
+                  ,{" "}
+                  {getDateTimeString(
+                    new Date(data.sessions[0].startDateTime).toISOString(),
+                    "time"
+                  )}
+                </div>
+              </div>
+            )}
+          </CredenzaBody>
+          <CredenzaFooter>
+            <div className="flex w-full flex-col gap-1">
+              <Button
+                onClick={() => onClickCancel()}
+                className="w-full"
+                isLoading={isLoading || isDeleting}
+              >
+                Confirm
+              </Button>
+            </div>
+          </CredenzaFooter>
+        </CredenzaContent>
+      </Credenza>
       <div className="w-100 [&>*]:my-3">
         {sortedSessions.map((session, key) => {
           const active =

@@ -6,12 +6,13 @@ const getUserRsvpForEvent = async (
   req: NextApiRequest,
   res: NextApiResponse
 ) => {
-  const { address, event } = _.pick(req.body, ["address", "event"]);
-  if (!address || !event) {
+  const { userId, event } = _.pick(req.body, ["userId", "event"]);
+  console.log({ userId, event });
+  if (!userId || !event) {
     throw new Error(`invalid request body: ${JSON.stringify(req.body)}`);
   }
   const user = await prisma.user.findUniqueOrThrow({
-    where: { address },
+    where: { id: userId },
   });
   const rsvp = await prisma.rsvp.findUnique({
     where: {

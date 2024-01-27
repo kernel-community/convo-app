@@ -42,7 +42,7 @@ const Edit: NextPage = () => {
   if (isInvalidRequest) {
     return (
       <NotAllowedPage
-        message={`Event ${data.hash} is owned by ${data.proposer.nickname}. Connected account is ${user.address} (${user.nickname})`}
+        message={`Event ${data.hash} is owned by ${data.proposer.nickname}. Connected account is ${user.id} (${user.nickname})`}
       />
     );
   }

@@ -39,7 +39,7 @@ export default async function rsvp(req: NextApiRequest, res: NextApiResponse) {
   const eventIds = response.map((r) => r.eventId);
 
   console.log(
-    `added RSVP for ${JSON.stringify(eventIds)} for user: ${user.address}`
+    `added RSVP for ${JSON.stringify(eventIds)} for user: ${user.id}`
   );
 
   res.status(200).json({ data: eventIds });

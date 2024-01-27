@@ -1,8 +1,4 @@
 export const DEFAULT_USER_NICKNAME = "Anonymous";
-export const ADMIN_ADDRESSES = [
-  "0x036a4d41d5c809B18c74c01E162B9b18DEC6B62b",
-  "0xb12EEEc8aFC6230B34247bB9562b2e467A0B470E",
-];
 
 export const CALENDAR_IDS = {
   convoProd: "c_jbo7pqegjcra855vidt3iio044@group.calendar.google.com",

@@ -88,13 +88,7 @@ export default async function event(req: NextApiRequest, res: NextApiResponse) {
   );
   const created = await Promise.all(createEventsPromises);
   console.log(
-    `Created event for ${JSON.stringify(event)} for user: ${user.address}`
+    `Created event for ${JSON.stringify(event)} for user: ${user.id}`
   );
-  // const created = await prisma.event.findMany({
-  //   where: { hash },
-  //   include: {
-  //     proposer: true,
-  //   },
-  // });
   return res.status(200).json({ data: created });
 }

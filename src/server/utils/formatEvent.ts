@@ -3,7 +3,7 @@ import totalUniqueRSVPs from "src/utils/totalUniqueRsvps";
 
 // all events in the input array have the same hash
 const formatEvent = (event: Array<ServerEvent>): ClientEvent => {
-  if (event.length === 0) {
+  if (event.length === 0 || !event) {
     throw new Error("[utils/formatEvent] input event array empty");
   }
   const firstInSeries = event[0];

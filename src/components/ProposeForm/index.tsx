@@ -47,29 +47,6 @@ export const validationSchema = z.object({
 
 export type ClientEventInput = z.infer<typeof validationSchema>;
 
-type ModalMessage = "error" | "success" | "info";
-
-const getColor = (type: ModalMessage) => {
-  switch (type) {
-    case "error":
-      return "text-red-600";
-    case "info":
-      return "text-blue-600";
-    case "success":
-      return "text-green-600";
-  }
-};
-
-export const ModalContent = ({
-  message,
-  type,
-}: {
-  message?: string;
-  type: ModalMessage;
-}) => {
-  return <div className={getColor(type)}>{message && <p>{message}</p>}</div>;
-};
-
 const ProposeForm = ({ event }: { event?: ClientEventInput }) => {
   const { fetchedUser: user } = useUser();
   const { push } = useRouter();

@@ -150,9 +150,8 @@ const Session = ({
   const { isRsvpd } = useUserRsvpForEvent({
     eventId: data,
     // dont fetch if in the past
-    dontFetch: !isInPresent,
+    dontFetch: false,
   });
-
   return (
     <Wrapper
       isInPresent={isInPresent}

@@ -12,11 +12,11 @@ export default async function user(req: NextApiRequest, res: NextApiResponse) {
       })
     : undefined;
 
-  const fetchWithAddress = await prisma.user.findUnique({
-    where: { address: user.address ?? "" },
+  const fetchWithEmail = await prisma.user.findUnique({
+    where: { email: user.email ?? "" },
   });
 
-  const fetched = fetchWithUserId || fetchWithAddress;
+  const fetched = fetchWithUserId || fetchWithEmail;
 
   let updated;
   if (!fetched) {
