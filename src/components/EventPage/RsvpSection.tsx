@@ -61,7 +61,7 @@ export const SessionsWrapper = ({
     setRsvpIntention({
       ...rsvpIntention,
       eventIds: active
-        .filter((event) => event.availableSeats > 0)
+        .filter((event) => event.availableSeats > 0 || event.noLimit)
         .map((a) => a.id),
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
