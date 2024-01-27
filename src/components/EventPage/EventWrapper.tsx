@@ -5,9 +5,9 @@ import SubmitRsvpSection from "./SubmitRsvpSection";
 import EventDetails from "./EventDetails";
 import { useRsvpIntention } from "src/context/RsvpIntentionContext";
 import { z } from "zod";
-import Button from "../Button";
+import { Button } from "../ui/button";
 import { useRouter } from "next/router";
-import { getDateTimeString } from "src/utils/dateTime";
+import { getDateTimeString, sortSessions } from "src/utils/dateTime";
 import type { Session as ClientSession } from "src/types";
 import { EventDateTime, Seats } from "./Session";
 import formatUserIdentity from "src/utils/formatUserIdentity";
@@ -44,19 +44,11 @@ const SessionsDetailsNonSubmittable = ({
 }: {
   sessions: Array<ClientSession>;
 }) => {
+  const { sessions: sortedSessions } = sortSessions(sessions);
   return (
     <div>
       <div className="mx-auto mt-8 grid max-w-xl divide-y divide-neutral-200">
-        {sessions.map((session, key) => {
-          let anonRsvpCount = 0;
-          let nonAnonRsvpCount = 0;
-          session.rsvps.map((rsvp) => {
-            if (!isNicknameSet(rsvp.attendee.nickname)) {
-              anonRsvpCount++;
-            } else {
-              nonAnonRsvpCount++;
-            }
-          });
+        {sortedSessions.map((session, key) => {
           return (
             <div className="py-5" key={key}>
               <details className="group">
@@ -142,8 +134,8 @@ const EventWrapper = ({
     <>
       <div className="flex flex-row items-center justify-between">
         <Hero title={title} isImported={isImported} isDeleted={isDeleted} />
-        {isEditable && (
-          <Button buttonText="Edit event" handleClick={navigateToEditPage} />
+        {isEditable && !event.isDeleted && (
+          <Button onClick={navigateToEditPage}>Edit Event</Button>
         )}
       </div>
       {isPartOfCollection && (

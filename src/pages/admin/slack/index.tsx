@@ -1,14 +1,11 @@
 import type { NextPage } from "next";
 import Main from "src/layouts/Main";
-import Button from "src/components/Button";
-import { useState } from "react";
+import { Button } from "src/components/ui/button";
 import type { FieldErrorsImpl, SubmitHandler } from "react-hook-form";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import TextField from "src/components/SlackAdminPage/TextField";
-import ConfirmationModal from "src/components/ConfirmationModal";
-import { ModalContent } from "src/components/ProposeForm";
 
 const botInputSchema = z.object({
   botToken: z.string().min(1),
@@ -28,19 +25,10 @@ const Slack: NextPage = () => {
           })
         ).json()
       ).data;
-      // display success modal
-      setModal({
-        isError: false,
-        message: `Success! ${JSON.stringify(r)}`,
-      });
-      openModal();
+      console.log("done");
       return r;
     } catch (err) {
-      setModal({
-        isError: true,
-        message: "There was an error!",
-      });
-      openModal();
+      console.log("there was an error");
       throw err;
     }
   };
@@ -54,29 +42,9 @@ const Slack: NextPage = () => {
   } = useForm<BotInput>({
     resolver: zodResolver(botInputSchema),
   });
-  const [openModalFlag, setOpenModalFlag] = useState<boolean>(false);
-  const [modal, setModal] = useState<{
-    isError: boolean;
-    message: string;
-  }>({
-    isError: false,
-    message: "",
-  });
-  const openModal = () => setOpenModalFlag(true);
-  const closeModal = () => setOpenModalFlag(false);
+
   return (
     <>
-      <ConfirmationModal
-        isOpen={openModalFlag}
-        onClose={closeModal}
-        content={
-          <ModalContent
-            message={modal.message}
-            type={modal.isError ? "error" : "success"}
-          />
-        }
-        title="Slack Bot Update"
-      />
       <Main>
         <div className="flex flex-col items-center justify-center">
           <form
@@ -97,7 +65,7 @@ const Slack: NextPage = () => {
               errors={errors}
               required={false}
             />
-            <Button buttonText="Submit" type="submit" />
+            <Button type="submit">Submit</Button>
           </form>
         </div>
       </Main>

@@ -10,13 +10,13 @@ const useUserRsvpForEvent = ({
 }) => {
   const { fetchedUser: user } = useUser();
   const { data, refetch, isFetching } = useQuery(
-    [`userRsvpForEvent-${user.address}-${eventId}`],
+    [`userRsvpForEvent-${user.id}-${eventId}`],
     async () => {
       try {
         const r = (
           await (
             await fetch("/api/query/getUserRsvpForEvent", {
-              body: JSON.stringify({ address: user.address, event: eventId }),
+              body: JSON.stringify({ userId: user.id, event: eventId }),
               method: "POST",
               headers: { "Content-type": "application/json" },
             })
@@ -28,9 +28,7 @@ const useUserRsvpForEvent = ({
       }
     },
     {
-      // fetch only if user.address is present
-      // and dontFetch is false
-      enabled: !!user.address && !dontFetch,
+      enabled: !dontFetch && !!user.id,
       refetchInterval: 5000,
     }
   );

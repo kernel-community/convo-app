@@ -37,9 +37,7 @@ export default async function collection(
     },
   });
   console.log(
-    `Created collection for ${JSON.stringify(collection)} for user: ${
-      user.address
-    }`
+    `Created collection for ${JSON.stringify(collection)} for user: ${user.id}`
   );
 
   return res.status(200).json({ data: collection });

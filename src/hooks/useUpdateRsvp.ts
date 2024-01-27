@@ -1,7 +1,7 @@
 import { useQuery } from "react-query";
 
 type RsvpUpdateRequest = {
-  address: string | null | undefined;
+  userId: string | null | undefined;
   eventId: string | null | undefined;
   toRsvp: boolean; // false to remove rsvp, true to add rsvp
 };

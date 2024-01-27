@@ -3,19 +3,19 @@ import { useForm, Controller } from "react-hook-form";
 import TextField from "./FormFields/TextField";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import Button from "../Button";
+import { Button } from "../ui/button";
 import { RichTextArea } from "./FormFields/RichText";
 import SessionsInput from "./FormFields/SessionsInput";
 import useCreateEvent from "src/hooks/useCreateEvent";
 import useUpdateEvent from "src/hooks/useUpdateEvent";
 import LoginButton from "../LoginButton";
-import ConfirmationModal from "../ConfirmationModal";
 import { useEffect, useMemo, useState } from "react";
 import { useUser } from "src/context/UserContext";
 import Signature from "../EventPage/Signature";
 import FieldLabel from "../StrongText";
 import type { User } from "@prisma/client";
 import { useRouter } from "next/navigation";
+import { ConfirmConvoCredenza } from "./ConfirmConvo";
 
 const SessionSchema = z.object({
   dateTime: z.date(),
@@ -46,29 +46,6 @@ export const validationSchema = z.object({
 });
 
 export type ClientEventInput = z.infer<typeof validationSchema>;
-
-type ModalMessage = "error" | "success" | "info";
-
-const getColor = (type: ModalMessage) => {
-  switch (type) {
-    case "error":
-      return "text-red-600";
-    case "info":
-      return "text-blue-600";
-    case "success":
-      return "text-green-600";
-  }
-};
-
-export const ModalContent = ({
-  message,
-  type,
-}: {
-  message?: string;
-  type: ModalMessage;
-}) => {
-  return <div className={getColor(type)}>{message && <p>{message}</p>}</div>;
-};
 
 const ProposeForm = ({ event }: { event?: ClientEventInput }) => {
   const { fetchedUser: user } = useUser();
@@ -104,17 +81,13 @@ const ProposeForm = ({ event }: { event?: ClientEventInput }) => {
 
   const { create } = useCreateEvent();
   const { update } = useUpdateEvent();
-  const [openModalFlag, setOpenModalFlag] = useState<boolean>(false);
-  const [modal, setModal] = useState<{
-    isError: boolean;
-    message: string;
-  }>({
-    isError: false,
-    message: "",
-  });
 
-  const openModal = () => setOpenModalFlag(true);
-  const closeModal = () => setOpenModalFlag(false);
+  const [openModalFlag, setOpenModalFlag] = useState<boolean>(false);
+
+  const [convoToCreateData, setConvoToCreateData] =
+    useState<ClientEventInput>();
+
+  const [loading, setLoading] = useState<boolean>(false);
 
   // @help better handling required here
   // display on the ui
@@ -122,18 +95,23 @@ const ProposeForm = ({ event }: { event?: ClientEventInput }) => {
     console.log("INVALID submission");
     console.error(errors);
   };
-  const onSubmit: SubmitHandler<ClientEventInput> = async (data) => {
+  const createConvo = async () => {
+    setLoading(true);
+    if (!convoToCreateData) {
+      console.error("convo to create data not found");
+      return;
+    }
     try {
       if (isEditing) {
         const updated = await update({
-          event: data,
+          event: convoToCreateData,
         });
         if (!updated) throw "undefined response returned from `updated`";
         if (!updated[0]) throw "empty array returned from `updated`";
         push(`/rsvp/${updated[0]?.hash}`);
       } else {
         const created = await create({
-          event: data,
+          event: convoToCreateData,
           userId: user.id,
         });
         if (!created) throw "undefined response returned";
@@ -141,35 +119,27 @@ const ProposeForm = ({ event }: { event?: ClientEventInput }) => {
         push(`/rsvp/${created[0]?.hash}`);
       }
       // display success modal
-      setModal({
-        isError: false,
-        message: "Success! Redirecting to your event.",
-      });
-      openModal();
     } catch (err) {
       console.log(err);
-      setModal({
-        isError: true,
-        message: "There was an error!",
-      });
-      openModal();
+      setLoading(false);
     }
+    setLoading(false);
   };
-
+  const onSubmit: SubmitHandler<ClientEventInput> = async (data) => {
+    setConvoToCreateData(() => data); // ensures immediate update to state
+    setOpenModalFlag(true);
+  };
   return (
     <>
-      <ConfirmationModal
-        isOpen={openModalFlag}
-        onClose={closeModal}
-        content={
-          <ModalContent
-            message={modal.message}
-            type={modal.isError ? "error" : "success"}
-          />
-        }
-        title="Propose Event"
+      <ConfirmConvoCredenza
+        openModalFlag={openModalFlag}
+        setOpenModalFlag={setOpenModalFlag}
+        convoToCreateData={convoToCreateData}
+        user={user}
+        action={createConvo}
+        isLoading={loading}
+        isEditing={isEditing}
       />
-
       <form
         onSubmit={handleSubmit(onSubmit, onInvalid)}
         className={`align-center flex flex-col gap-6`}
@@ -283,7 +253,7 @@ const ProposeForm = ({ event }: { event?: ClientEventInput }) => {
         {!user.isSignedIn ? (
           <LoginButton />
         ) : (
-          <Button buttonText="Submit" type="submit" />
+          <Button type="submit">Submit</Button>
         )}
       </form>
     </>

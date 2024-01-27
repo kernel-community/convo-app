@@ -1,9 +1,9 @@
 import type { NextPage } from "next";
 import { useQuery } from "react-query";
-import Button from "src/components/Button";
 import Main from "src/layouts/Main";
 import { useEffect } from "react";
 import router from "next/router";
+import { Button } from "src/components/ui/button";
 
 const Google: NextPage = () => {
   const { isLoading, isError, data, refetch } = useQuery(
@@ -46,10 +46,7 @@ const Google: NextPage = () => {
         "
         >
           <div className="flex flex-col items-center justify-center">
-            <Button
-              buttonText="Get Google Access Token"
-              handleClick={handleClick}
-            />
+            <Button onClick={handleClick}>Get Google Access Token</Button>
           </div>
         </div>
       </Main>

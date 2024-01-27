@@ -6,20 +6,20 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { prisma } from "src/server/db";
 
 type RsvpUpdateRequest = {
-  address: string;
+  userId: string;
   eventId: string;
   toRsvp: boolean; // false to remove rsvp, true to add rsvp
 };
 
 export default async function rsvp(req: NextApiRequest, res: NextApiResponse) {
   const { rsvp }: { rsvp: RsvpUpdateRequest } = pick(req.body, ["rsvp"]);
-  if (!rsvp || !rsvp.address || !rsvp.eventId) {
+  if (!rsvp || !rsvp.userId || !rsvp.eventId) {
     throw new Error(`invalid request body: ${JSON.stringify(rsvp)}`);
   }
-  const { address, eventId, toRsvp } = rsvp;
+  const { userId, eventId, toRsvp } = rsvp;
   const user = await prisma.user.findUniqueOrThrow({
     where: {
-      address,
+      id: userId,
     },
   });
   let result;

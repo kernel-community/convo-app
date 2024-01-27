@@ -2,6 +2,7 @@ import type { calendar_v3 } from "googleapis";
 import { getCalendar } from "./getCalendar";
 import type { FullEvent } from "src/pages/api/actions/google/createEvent";
 import { getEvent } from "./getEvent";
+import { pick } from "lodash";
 
 type UpdatableFullEvents = Array<FullEvent>;
 
@@ -20,8 +21,8 @@ export const parseEvents = (
 ): ParsedEvents => {
   const protocol = reqHost.includes("localhost") ? "http" : "https";
   const parsed = events.map((event) => {
-    if (!event.gCalEventId) {
-      throw new Error(`gCalEventId not found for: ${event}`);
+    if (!event.gCalEventId || !event.gCalId) {
+      throw new Error(`gCalEventId or gCalId not found for: ${event}`);
     }
     const title = event.isDeleted ? `CANCELLED: ${event.title}` : event.title;
     return {
@@ -82,7 +83,6 @@ export const updateEvents = async ({
   // idk why google apis do that 🤷🏽‍♀️
   for (let i = 0; i < parsedEvents.length; i++) {
     const parsedEvent = parsedEvents[i];
-    const calendarId = parsedEvent?.gCalId;
     if (!parsedEvent) {
       continue;
     }
@@ -90,16 +90,12 @@ export const updateEvents = async ({
       eventsToUpdate.push(parsedEvent);
       continue;
     }
-    if (!parsedEvent.gCalEventId) {
+    if (!parsedEvent.gCalEventId || !parsedEvent.gCalId) {
       // throw??
-      console.error("gcalEvent id in parsed event not found");
+      console.error("gcalEvent id or gCalId in parsed event not found");
       continue;
     }
-    if (!calendarId) {
-      // throw?
-      console.error(`gCalId not defined for the event`);
-      continue;
-    }
+    const calendarId = parsedEvent.gCalId;
     const event = await getEvent(calendarId, parsedEvent.gCalEventId);
     const attendees = event.attendees || [];
     eventsToUpdate.push({
@@ -110,9 +106,23 @@ export const updateEvents = async ({
 
   // update event on google calendar
   const updateGcalPromises = eventsToUpdate.map((e) => {
-    return calendar.events.update({
+    const requestBody = pick(e, [
+      "summary",
+      "attendees",
+      "start",
+      "end",
+      "guestsCanSeeOtherGuests",
+      "guestsCanInviteOthers",
+      "location",
+      "description",
+    ]);
+    if (!e.gCalId) {
+      throw "e.gCalId undefined";
+    }
+    return calendar.events.patch({
       eventId: e.gCalEventId,
-      requestBody: e,
+      calendarId: e.gCalId,
+      requestBody: requestBody,
     });
   });
   const updated = await Promise.all(updateGcalPromises);

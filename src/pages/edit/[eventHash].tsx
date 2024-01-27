@@ -1,24 +1,27 @@
 import type { NextPage } from "next";
-import { useRouter } from "next/router";
 import type { ClientEventInput } from "src/components/ProposeForm";
 import ProposeForm from "src/components/ProposeForm";
 import useEvent from "src/hooks/useEvent";
 import Main from "src/layouts/Main";
 import parse from "src/utils/clientEventToClientEventInput";
 import NotFoundPage from "../404";
-import Button from "src/components/Button";
+import { Button } from "src/components/ui/button";
 import useUpdateEvent from "src/hooks/useUpdateEvent";
 import { useUser } from "src/context/UserContext";
 import NotAllowedPage from "src/components/NotAllowedPage";
 import { useEffect, useState } from "react";
+import { Skeleton } from "src/components/ui/skeleton";
+import ConfirmDeleteCredenza from "../../components/EventPage/ConfirmDelete";
+import { useRouter } from "next/router";
 
 const Edit: NextPage = () => {
-  const { query } = useRouter();
+  const { query, push } = useRouter();
   const { eventHash } = query;
   const { data } = useEvent({ hash: eventHash });
-  const { update } = useUpdateEvent();
+  const { update, isSubmitting: isLoading } = useUpdateEvent();
   const { fetchedUser: user } = useUser();
   const [isInvalidRequest, setInvalidRequest] = useState(false);
+  const [openModalFlag, setOpenModalFlag] = useState<boolean>(false);
 
   // check to see if eventHash from query exists in the database
   // parse and pre-fill event data in the form
@@ -39,7 +42,7 @@ const Edit: NextPage = () => {
   if (isInvalidRequest) {
     return (
       <NotAllowedPage
-        message={`Event ${data.hash} is owned by ${data.proposer.nickname}. Connected account is ${user.address} (${user.nickname})`}
+        message={`Event ${data.hash} is owned by ${data.proposer.nickname}. Connected account is ${user.id} (${user.nickname})`}
       />
     );
   }
@@ -51,28 +54,45 @@ const Edit: NextPage = () => {
       hash: eventHash as string,
     };
     await update({ event });
+    push(`/rsvp/${event.hash}`);
   };
 
   return (
     <>
       <Main>
-        <div className="flex flex-col items-center justify-center">
-          <div
-            className="
-            mx-auto
-            font-heading
-            text-5xl
-            font-extrabold
-            text-primary
-            sm:text-5xl
-          "
-          >
-            Editing: {clientEventInput?.title}
+        <ConfirmDeleteCredenza
+          openModalFlag={openModalFlag}
+          setOpenModalFlag={setOpenModalFlag}
+          action={deleteEvent}
+          isLoading={isLoading}
+        />
+        <div className="flex flex-col items-center justify-center lg:px-64">
+          <div className="flex w-full flex-col items-center justify-between sm:flex-row">
+            <div
+              className="
+              px-8
+              font-heading
+              text-4xl
+              font-extrabold
+              text-primary
+              sm:text-5xl
+            "
+            >
+              Editing: {clientEventInput?.title}
+            </div>
+            {isLoading ? (
+              <Button disabled className="w-[250px] p-0">
+                <Skeleton className="bg-gray-550 h-full w-full" />
+              </Button>
+            ) : (
+              <Button onClick={() => setOpenModalFlag(true)}>
+                Delete all events?
+              </Button>
+            )}
           </div>
-          <Button buttonText="Delete all events" handleClick={deleteEvent} />
-          <div className="my-12 w-full border border-primary lg:w-9/12"></div>
+          <div className="my-12 w-full border border-primary"></div>
         </div>
-        <div className="lg:px-32">
+        <div className="px-8 lg:px-96">
           <ProposeForm event={clientEventInput} />
         </div>
       </Main>

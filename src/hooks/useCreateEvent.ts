@@ -33,7 +33,7 @@ const createEventInGCal = async ({
   proposerEmail,
 }: {
   events: Array<FullEvent>;
-  proposerEmail?: string;
+  proposerEmail?: string | null;
 }) => {
   let res;
   try {
@@ -99,13 +99,17 @@ const useCreateEvent = () => {
     // @help need a way for us to know this error occurred on the frontend
     try {
       if (createdInDb && event.gCalEvent) {
+        const email = createdInDb[0]?.proposer.email;
+        if (!email) {
+          throw new Error(`email not found (${userId})`);
+        }
         await createEventInGCal({
           events: createdInDb,
-          proposerEmail: event.email,
+          proposerEmail: email,
         });
       }
     } catch (err) {
-      console.log(`Error in creating event in google calendar`);
+      console.error(`Error in creating event in google calendar`);
     }
 
     try {
