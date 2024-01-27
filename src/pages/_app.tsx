@@ -17,7 +17,9 @@ const queryClient = new QueryClient();
 const MyApp = ({ Component, pageProps: { ...pageProps } }: AppProps) => {
   const router = useRouter();
   const createUser = updateUser;
-  const room = `convo-room-${router.pathname.substring(1)}`;
+  const room = `convo-room-${router.pathname.substring(1)}-${
+    process.env.NODE_ENV
+  }`;
   const host = process.env.NEXT_PUBLIC_PARTYKIT_SERVER_HOST;
   if (!host) {
     throw new Error("NEXT_PUBLIC_PARTYKIT_SERVER_HOST not defined");
