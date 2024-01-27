@@ -8,6 +8,7 @@ import { DynamicContextProvider } from "@dynamic-labs/sdk-react";
 import { DynamicWagmiConnector } from "@dynamic-labs/wagmi-connector";
 import { updateUser } from "src/utils/updateUser";
 import { DEFAULT_USER_NICKNAME } from "src/utils/constants";
+import { Room } from "./Room";
 
 const queryClient = new QueryClient();
 
@@ -91,46 +92,48 @@ const MyApp = ({ Component, pageProps: { ...pageProps } }: AppProps) => {
           },
         ]}
       />
-      <DynamicContextProvider
-        settings={{
-          environmentId:
-            process.env.NEXT_PUBLIC_DYNAMIC_ENVIRONMENT_ID ||
-            "1a5bf4c4-4082-44b8-a8c2-d80d80c39feb",
-          eventsCallbacks: {
-            onAuthSuccess: async ({ primaryWallet, user }) => {
-              const createdUser = await createUser({
-                address: primaryWallet?.address,
-                email: user.email,
-                nickname: user.username || DEFAULT_USER_NICKNAME,
-                id: user.userId, // @dev @note important
-              });
-              return createdUser;
+      <Room>
+        <DynamicContextProvider
+          settings={{
+            environmentId:
+              process.env.NEXT_PUBLIC_DYNAMIC_ENVIRONMENT_ID ||
+              "1a5bf4c4-4082-44b8-a8c2-d80d80c39feb",
+            eventsCallbacks: {
+              onAuthSuccess: async ({ primaryWallet, user }) => {
+                const createdUser = await createUser({
+                  address: primaryWallet?.address,
+                  email: user.email,
+                  nickname: user.username || DEFAULT_USER_NICKNAME,
+                  id: user.userId, // @dev @note important
+                });
+                return createdUser;
+              },
+              onUserProfileUpdate: async (user) => {
+                const updatedUser = await updateUser({
+                  email: user.email,
+                  nickname: user.username || DEFAULT_USER_NICKNAME,
+                  id: user.userId, // @dev @note important
+                });
+                return updatedUser;
+              },
             },
-            onUserProfileUpdate: async (user) => {
-              const updatedUser = await updateUser({
-                email: user.email,
-                nickname: user.username || DEFAULT_USER_NICKNAME,
-                id: user.userId, // @dev @note important
-              });
-              return updatedUser;
-            },
-          },
-        }}
-      >
-        <DynamicWagmiConnector>
-          <QueryClientProvider client={queryClient}>
-            <UserProvider>
-              <div
-                vaul-drawer-wrapper=""
-                suppressHydrationWarning
-                className="bg-background"
-              >
-                <Component {...pageProps} />
-              </div>
-            </UserProvider>
-          </QueryClientProvider>
-        </DynamicWagmiConnector>
-      </DynamicContextProvider>
+          }}
+        >
+          <DynamicWagmiConnector>
+            <QueryClientProvider client={queryClient}>
+              <UserProvider>
+                <div
+                  vaul-drawer-wrapper=""
+                  suppressHydrationWarning
+                  className="bg-background"
+                >
+                  <Component {...pageProps} />
+                </div>
+              </UserProvider>
+            </QueryClientProvider>
+          </DynamicWagmiConnector>
+        </DynamicContextProvider>
+      </Room>
       <Analytics />
     </>
   );

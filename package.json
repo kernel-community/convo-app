@@ -26,6 +26,8 @@
     "@dynamic-labs/sdk-react": "^0.18.27",
     "@dynamic-labs/wagmi-connector": "^0.18.27",
     "@hookform/resolvers": "^2.9.11",
+    "@liveblocks/client": "^1.9.7",
+    "@liveblocks/react": "^1.9.7",
     "@prisma/client": "^5.8.1",
     "@radix-ui/react-dialog": "^1.0.5",
     "@radix-ui/react-separator": "^1.0.3",

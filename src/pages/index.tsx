@@ -4,7 +4,12 @@ import Link from "next/link";
 import { Events } from "src/components/Events";
 import type { ReactNode } from "react";
 import { Button } from "src/components/ui/button";
+import { useOthers } from "src/utils/liveblocks.config";
+
 const Home: NextPage = () => {
+  const others = useOthers();
+  const userCount = others.length;
+  console.log(`There are ${userCount} other user(s) online`);
   return (
     <>
       <Main>
