@@ -32,7 +32,7 @@ export default function SharedSpace({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     // Add the class 'overflow-hidden' on body to prevent scrolling
-    document.body.classList.add("overflow-hidden");
+    // document.body.classList.add("overflow-hidden");
     // Scroll to top
     window.scrollTo(0, 0);
     return () => {
