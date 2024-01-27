@@ -8,11 +8,22 @@ import { DynamicContextProvider } from "@dynamic-labs/sdk-react";
 import { DynamicWagmiConnector } from "@dynamic-labs/wagmi-connector";
 import { updateUser } from "src/utils/updateUser";
 import { DEFAULT_USER_NICKNAME } from "src/utils/constants";
+import CursorsContextProvider from "src/context/CursorsContext";
+import SharedSpace from "src/components/SharedSpace";
 
 const queryClient = new QueryClient();
 
 const MyApp = ({ Component, pageProps: { ...pageProps } }: AppProps) => {
   const createUser = updateUser;
+  const { searchParams } = pageProps;
+  const room =
+    typeof searchParams?.partyroom === "string"
+      ? searchParams.partyroom
+      : "voronoi-room";
+  const host =
+    typeof searchParams?.partyhost === "string"
+      ? searchParams.partyhost
+      : "convo-party.anggxyz.partykit.dev";
   return (
     <>
       <NextSeo
@@ -125,7 +136,11 @@ const MyApp = ({ Component, pageProps: { ...pageProps } }: AppProps) => {
                 suppressHydrationWarning
                 className="bg-background"
               >
-                <Component {...pageProps} />
+                <CursorsContextProvider room={room} host={host}>
+                  <SharedSpace>
+                    <Component {...pageProps} />
+                  </SharedSpace>
+                </CursorsContextProvider>
               </div>
             </UserProvider>
           </QueryClientProvider>
