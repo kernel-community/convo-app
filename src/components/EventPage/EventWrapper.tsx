@@ -39,7 +39,7 @@ const TransitioningArrow = () => {
 // displayed when currently logged in user
 // is the owner of the event
 // accordian component
-const SessionsDetailsNonSubmittable = ({
+export const SessionsDetailsNonSubmittable = ({
   sessions,
 }: {
   sessions: Array<ClientSession>;

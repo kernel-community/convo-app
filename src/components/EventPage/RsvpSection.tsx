@@ -18,6 +18,7 @@ import {
 import useEventsFromId from "src/hooks/useEventsFromId";
 import isNicknameSet from "src/utils/isNicknameSet";
 import formatUserIdentity from "src/utils/formatUserIdentity";
+import { SessionsDetailsNonSubmittable } from "./EventWrapper";
 
 const TransitioningArrow = () => {
   return (
@@ -176,33 +177,7 @@ export const SessionsWrapper = ({
             {Intl.DateTimeFormat().resolvedOptions().timeZone}
           </span>
         </div>
-        {sortedSessions.map((session, key) => {
-          const userRsvp = session.rsvps.some(
-            (rsvp) => rsvp.attendeeId === user.id
-          );
-          return (
-            <>
-              {userRsvp && (
-                <details className="group">
-                  <summary className="flex cursor-pointer list-none items-center justify-between font-medium">
-                    See All Rsvps list <TransitioningArrow />
-                  </summary>
-                  <div className="group-open:animate-fadeIn mt-3 overflow-y-auto text-neutral-600">
-                    {session.rsvps.map((rsvp: any, key: any) => {
-                      if (isNicknameSet(rsvp.attendee.nickname)) {
-                        return (
-                          <div key={key}>
-                            {formatUserIdentity(rsvp.attendee.nickname)}
-                          </div>
-                        );
-                      }
-                    })}
-                  </div>
-                </details>
-              )}
-            </>
-          );
-        })}
+        <SessionsDetailsNonSubmittable sessions={sessions} />
       </div>
     </>
   );
