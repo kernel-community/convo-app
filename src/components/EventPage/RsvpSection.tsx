@@ -16,29 +16,8 @@ import {
   CredenzaTitle,
 } from "../ui/credenza";
 import useEventsFromId from "src/hooks/useEventsFromId";
-import isNicknameSet from "src/utils/isNicknameSet";
-import formatUserIdentity from "src/utils/formatUserIdentity";
 import { SessionsDetailsNonSubmittable } from "./EventWrapper";
 
-const TransitioningArrow = () => {
-  return (
-    <span className="transition group-open:rotate-180">
-      <svg
-        fill="none"
-        height="24"
-        shape-rendering="geometricPrecision"
-        stroke="currentColor"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        stroke-width="1.5"
-        viewBox="0 0 24 24"
-        width="24"
-      >
-        <path d="M6 9l6 6 6-6"></path>
-      </svg>
-    </span>
-  );
-};
 export const SessionsWrapper = ({
   sessions,
 }: {
