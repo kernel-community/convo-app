@@ -4,12 +4,12 @@ const EventLoadingState = () => {
   return (
     <CardTemplate>
       <div
-        className="relative isolate h-full
-        w-full
+        className="relative isolate min-h-[180px] w-full
         overflow-hidden
-        rounded-lg shadow-xl
-        shadow-kernel/5 before:border-t
-        before:border-skin/30
+        rounded-lg
+        shadow-xl shadow-kernel/5
+        before:border-t before:border-skin/30
+        sm:h-full
     "
       >
         <div
@@ -18,7 +18,7 @@ const EventLoadingState = () => {
         ></div>
         <div
           className="
-        absolute h-full w-full space-y-5 rounded-2xl
+        rounded-2xl absolute h-full w-full space-y-5
         bg-secondary/5
 
       "

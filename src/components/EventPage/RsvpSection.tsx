@@ -62,11 +62,12 @@ export const SessionsWrapper = ({
   useEffect(() => {
     setRsvpIntention({
       ...rsvpIntention,
-      eventIds: active.map((a) => a.id),
+      eventIds: active
+        .filter((event) => event.availableSeats > 0 || event.noLimit)
+        .map((a) => a.id),
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sessions]);
-
   const { isLoading, data } = useEventsFromId({
     ids: [cancelRsvpEventId ?? ""],
   });
