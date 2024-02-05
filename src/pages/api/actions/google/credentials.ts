@@ -5,7 +5,6 @@ const redirectUris = [
   "https://www.convo.cafe/admin/google/callback",
   "https://www.viaconvo.xyz/admin/google/callback",
   "https://kernel.convo.cafe/admin/google/callback",
-  "https://early.convo.cafe/admin/google/callback",
   "https://convo.cafe/admin/google/callback",
   "https://staging.convo.cafe/admin/google/callback",
 ];
@@ -16,7 +15,6 @@ const javascriptOrigins = [
   "https://www.convo.cafe",
   "https://www.viaconvo.xyz",
   "https://kernel.convo.cafe",
-  "https://early.convo.cafe",
   "https://convo.cafe",
   "https://staging.convo.cafe",
 ];

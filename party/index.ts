@@ -12,7 +12,7 @@ type Cursor = {
   // cursor fields are only set on first message
   x?: number;
   y?: number;
-  pointer?: "mouse" | "touch";
+  pointer?: "mouse" | "touch" | "spark";
   lastUpdate?: number;
 };
 
