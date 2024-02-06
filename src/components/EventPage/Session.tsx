@@ -3,6 +3,12 @@ import Image from "next/image";
 import cross from "public/vectors/cross.png";
 import useUserRsvpForEvent from "src/hooks/useUserRsvpForEvent";
 import type { ReactNode } from "react";
+import { LuCalendarCheck2 } from "react-icons/lu";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "src/components/ui/tooltip";
 
 type SessionParams = {
   handleClick: (id: string, checked: boolean, isEdit: boolean) => void;
@@ -31,8 +37,14 @@ const RsvpStatus = ({
   if (isRsvp) {
     return (
       <div className="my-auto flex-1 text-left text-xs uppercase">
-        <div>You&apos;re&nbsp;going</div>
-        <div>Edit?</div>
+        <Tooltip>
+          <TooltipTrigger>
+            <LuCalendarCheck2 className="h-5 w-5" />
+            <TooltipContent>
+              <p>Remove RSVP</p>
+            </TooltipContent>
+          </TooltipTrigger>
+        </Tooltip>
       </div>
     );
   }
