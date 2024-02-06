@@ -28,7 +28,6 @@ const useUserRsvpForConvo = ({
             })
           ).json()
         ).data;
-        console.log({ r });
         return r.rsvps as Array<Rsvp>;
       } catch (err) {
         throw err;
