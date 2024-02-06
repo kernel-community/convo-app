@@ -29,10 +29,12 @@ const SubmitRsvpSection = ({
   text,
   loading,
   disabled,
+  buttonText,
 }: {
   text?: string;
   loading?: boolean;
   disabled?: boolean;
+  buttonText?: string;
 }) => {
   const { fetchedUser: user } = useUser();
   const { isSignedIn } = user;
@@ -157,7 +159,7 @@ const SubmitRsvpSection = ({
                   disabled={disabled}
                   className="mt-3 w-full"
                 >
-                  RSVP
+                  {buttonText || "RSVP"}
                 </Button>
               </form>
             </div>
