@@ -16,7 +16,6 @@ import {
   CredenzaTitle,
 } from "../ui/credenza";
 import useEventsFromId from "src/hooks/useEventsFromId";
-import { SessionsDetailsNonSubmittable } from "./EventWrapper";
 import { ScrollArea } from "src/components/ui/scroll-area";
 
 export const SessionsWrapper = ({
@@ -181,7 +180,6 @@ export const SessionsWrapper = ({
             {Intl.DateTimeFormat().resolvedOptions().timeZone}
           </span>
         </div>
-        <SessionsDetailsNonSubmittable sessions={sessions} />
       </div>
     </>
   );

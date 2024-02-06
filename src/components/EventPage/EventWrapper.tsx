@@ -14,6 +14,7 @@ import formatUserIdentity from "src/utils/formatUserIdentity";
 import isNicknameSet from "src/utils/isNicknameSet";
 import Link from "next/link";
 import useUserRsvpForConvo from "src/hooks/useUserRsvpForConvo";
+import useEvent from "src/hooks/useEvent";
 
 const TransitioningArrow = () => {
   return (
@@ -35,6 +36,45 @@ const TransitioningArrow = () => {
   );
 };
 
+export const RsvpCount = ({
+  sessionId,
+  summaryData,
+}: {
+  sessionId: string;
+  summaryData: JSX.Element;
+}) => {
+  const { query } = useRouter();
+  const { eventHash } = query;
+  const { data } = useEvent({ hash: eventHash });
+  const { sessions } = data;
+  const { sessions: sortedSessions } = sortSessions(sessions);
+  const session = sortedSessions.find((session) => session.id === sessionId);
+  return (
+    <details className="group">
+      <summary className="cursor-pointer list-none font-medium">
+        {summaryData}
+      </summary>
+      {session && session?.rsvpCount > 0 ? (
+        <div className="group-open:animate-fadeIn mt-3 h-auto max-h-32 overflow-y-auto text-neutral-600">
+          {session.rsvps.map((rsvp, key) => {
+            if (isNicknameSet(rsvp.attendee.nickname)) {
+              return (
+                <div key={key}>
+                  {formatUserIdentity(rsvp.attendee.nickname)}
+                </div>
+              );
+            }
+          })}
+        </div>
+      ) : (
+        <div className="group-open:animate-fadeIn mt-3 h-10 text-neutral-600">
+          No RSVPs yet
+        </div>
+      )}
+    </details>
+  );
+};
+
 // sessions wrapper component that doesnt
 // allow RSVPing
 // displayed when currently logged in user
@@ -52,37 +92,23 @@ export const SessionsDetailsNonSubmittable = ({
         {sortedSessions.map((session, key) => {
           return (
             <div className="py-5" key={key}>
-              <details className="group">
-                <summary className="flex cursor-pointer list-none items-center justify-between font-medium">
-                  <EventDateTime
-                    date={getDateTimeString(session.startDateTime, "date")}
-                    time={getDateTimeString(session.startDateTime, "time")}
-                  />
-                  <Seats
-                    availableSeats={session.availableSeats}
-                    totalSeats={session.limit}
-                    noLimit={session.noLimit}
-                  />
-                  <TransitioningArrow />
-                </summary>
-                {session.rsvpCount > 0 ? (
-                  <div className="group-open:animate-fadeIn mt-3 h-32 overflow-y-auto text-neutral-600">
-                    {session.rsvps.map((rsvp, key) => {
-                      if (isNicknameSet(rsvp.attendee.nickname)) {
-                        return (
-                          <div key={key}>
-                            {formatUserIdentity(rsvp.attendee.nickname)}
-                          </div>
-                        );
-                      }
-                    })}
-                  </div>
-                ) : (
-                  <div className="group-open:animate-fadeIn mt-3 h-10 text-neutral-600">
-                    No RSVPs yet
-                  </div>
-                )}
-              </details>
+              <RsvpCount
+                sessionId={session.id}
+                summaryData={
+                  <span className="flex items-center justify-between">
+                    <EventDateTime
+                      date={getDateTimeString(session.startDateTime, "date")}
+                      time={getDateTimeString(session.startDateTime, "time")}
+                    />
+                    <Seats
+                      availableSeats={session.availableSeats}
+                      totalSeats={session.limit}
+                      noLimit={session.noLimit}
+                    />
+                    <TransitioningArrow />
+                  </span>
+                }
+              />
             </div>
           );
         })}
