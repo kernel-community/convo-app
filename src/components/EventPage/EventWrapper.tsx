@@ -13,6 +13,7 @@ import { EventDateTime, Seats } from "./Session";
 import formatUserIdentity from "src/utils/formatUserIdentity";
 import isNicknameSet from "src/utils/isNicknameSet";
 import Link from "next/link";
+import useUserRsvpForConvo from "src/hooks/useUserRsvpForConvo";
 
 const TransitioningArrow = () => {
   return (
@@ -114,8 +115,9 @@ const EventWrapper = ({
     isImported,
     collections,
   } = event;
-
   const { rsvpIntention } = useRsvpIntention();
+  const { rsvps } = useUserRsvpForConvo({ hash: event.hash });
+
   const { eventIds } = rsvpIntention;
   const isDisabled = eventIds.length === 0;
   const router = useRouter();
@@ -159,6 +161,7 @@ const EventWrapper = ({
                   : `Be amongst the first few to RSVP!`
               }
               disabled={isDisabled}
+              buttonText={rsvps && rsvps.length > 0 ? "Update RSVP" : "RSVP"}
             />
           )}
         </div>

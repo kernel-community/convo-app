@@ -12,6 +12,7 @@ import CursorsContextProvider from "src/context/CursorsContext";
 import SharedSpace from "src/components/SharedSpace";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
+import { TooltipProvider } from "src/components/ui/tooltip";
 
 const queryClient = new QueryClient();
 
@@ -143,7 +144,9 @@ const MyApp = ({ Component, pageProps: { ...pageProps } }: AppProps) => {
               >
                 <CursorsContextProvider room={room} host={host}>
                   <SharedSpace>
-                    <Component {...pageProps} />
+                    <TooltipProvider>
+                      <Component {...pageProps} />
+                    </TooltipProvider>
                   </SharedSpace>
                 </CursorsContextProvider>
               </div>

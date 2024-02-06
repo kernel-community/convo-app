@@ -3,7 +3,7 @@ import type { Session as ClientSession } from "src/types";
 import { isPast, getDateTimeString, sortSessions } from "src/utils/dateTime";
 import { useRsvpIntention } from "src/context/RsvpIntentionContext";
 import Session from "./Session";
-import { Button } from "../ui/button";
+import { Button } from "src/components/ui/button";
 import { useUser } from "src/context/UserContext";
 import useUpdateRsvp from "src/hooks/useUpdateRsvp";
 import {
@@ -17,6 +17,7 @@ import {
 } from "../ui/credenza";
 import useEventsFromId from "src/hooks/useEventsFromId";
 import { SessionsDetailsNonSubmittable } from "./EventWrapper";
+import { ScrollArea } from "src/components/ui/scroll-area";
 
 export const SessionsWrapper = ({
   sessions,
@@ -24,7 +25,11 @@ export const SessionsWrapper = ({
   sessions: ClientSession[];
 }) => {
   const { rsvpIntention, setRsvpIntention } = useRsvpIntention();
-  const { sessions: sortedSessions, active } = sortSessions(sessions);
+  const {
+    sessions: sortedSessions,
+    active,
+    inactiveSessions,
+  } = sortSessions(sessions);
   const { fetchedUser: user } = useUser();
   const [openModalFlag, setOpenModalFlag] = useState(false);
   const [cancelRsvpEventId, setCancelRsvpEventId] = useState<
@@ -132,7 +137,7 @@ export const SessionsWrapper = ({
         </CredenzaContent>
       </Credenza>
       <div className="w-100 [&>*]:my-3">
-        {sortedSessions.map((session, key) => {
+        {active.map((session, key) => {
           const active =
             (session.noLimit && !isPast(session.startDateTime)) ||
             (session.availableSeats > 0 && !isPast(session.startDateTime));
@@ -151,6 +156,25 @@ export const SessionsWrapper = ({
             />
           );
         })}
+        <div className="font-primary">Other sessions:</div>
+        <ScrollArea className="h-[150px] w-[100%] rounded-md border p-4">
+          {inactiveSessions.map((session, key) => {
+            return (
+              <Session
+                handleClick={handleSessionSelect}
+                key={key}
+                data={session.id}
+                date={getDateTimeString(session.startDateTime, "date")}
+                time={getDateTimeString(session.startDateTime, "time")}
+                availableSeats={session.availableSeats}
+                totalSeats={session.limit}
+                noLimit={session.noLimit}
+                isChecked={false}
+                startDateTime={session.startDateTime}
+              />
+            );
+          })}
+        </ScrollArea>
         <div className="font-secondary text-sm font-light lowercase">
           in your local timezone&nbsp;
           <span className="font-semibold">

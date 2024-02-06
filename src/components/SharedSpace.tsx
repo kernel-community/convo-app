@@ -2,7 +2,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { useCursors } from "src/context/CursorsContext";
 import OtherCursor from "src/components/OtherCursor";
 import SelfCursor from "src/components/SelfCursor";
