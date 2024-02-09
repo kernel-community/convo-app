@@ -12,6 +12,14 @@ export default async function rsvp(req: NextApiRequest, res: NextApiResponse) {
   if (!rsvp || !rsvp.userId || !rsvp.events) {
     throw new Error(`invalid request body: ${JSON.stringify(rsvp)}`);
   }
+  const event = await prisma.event.findUniqueOrThrow({
+    where: { id: rsvp.events[0] },
+  });
+  const eventLimit = event.limit;
+  const eventRsvpsLength = event.rsvps.length;
+  if (eventLimit != 0 && eventRsvpsLength > eventLimit) {
+    res.status(410).json({ data: "RSVP not allowed!" });
+  }
   const user = await prisma.user.findUniqueOrThrow({
     where: { id: rsvp.userId },
   });
