@@ -155,25 +155,29 @@ export const SessionsWrapper = ({
             />
           );
         })}
-        <div className="font-primary">Other sessions:</div>
-        <ScrollArea className="h-[150px] w-[100%] rounded-md border p-4">
-          {inactiveSessions.map((session, key) => {
-            return (
-              <Session
-                handleClick={handleSessionSelect}
-                key={key}
-                data={session.id}
-                date={getDateTimeString(session.startDateTime, "date")}
-                time={getDateTimeString(session.startDateTime, "time")}
-                availableSeats={session.availableSeats}
-                totalSeats={session.limit}
-                noLimit={session.noLimit}
-                isChecked={false}
-                startDateTime={session.startDateTime}
-              />
-            );
-          })}
-        </ScrollArea>
+        {inactiveSessions && inactiveSessions.length > 0 && (
+          <>
+            <div className="font-primary">Other sessions:</div>
+            <ScrollArea className="h-[150px] w-[100%] rounded-md border p-4">
+              {inactiveSessions.map((session, key) => {
+                return (
+                  <Session
+                    handleClick={handleSessionSelect}
+                    key={key}
+                    data={session.id}
+                    date={getDateTimeString(session.startDateTime, "date")}
+                    time={getDateTimeString(session.startDateTime, "time")}
+                    availableSeats={session.availableSeats}
+                    totalSeats={session.limit}
+                    noLimit={session.noLimit}
+                    isChecked={false}
+                    startDateTime={session.startDateTime}
+                  />
+                );
+              })}
+            </ScrollArea>
+          </>
+        )}
         <div className="font-secondary text-sm font-light lowercase">
           in your local timezone&nbsp;
           <span className="font-semibold">
