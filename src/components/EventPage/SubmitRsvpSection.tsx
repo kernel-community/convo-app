@@ -132,7 +132,7 @@ const SubmitRsvpSection = ({
           </CredenzaFooter>
         </CredenzaContent>
       </Credenza>
-      <div className="mt-6">
+      <div>
         <div className="flex flex-col gap-2">
           <span className="font-primary text-sm font-light lowercase italic">
             {text}
