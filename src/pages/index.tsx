@@ -15,18 +15,16 @@ const Home: NextPage = () => {
           lg:pl-64
         "
         >
-          <Link href="/all">
-            <div
-              className="
-                my-2
-                font-heading text-5xl
-                font-bold
-                lg:text-7xl
-              "
-            >
-              Convo
-            </div>
-          </Link>
+          <div
+            className="
+              my-2
+              font-heading text-5xl
+              font-bold
+              lg:text-7xl
+            "
+          >
+            Convo
+          </div>
           <div
             className="
                 ml-2

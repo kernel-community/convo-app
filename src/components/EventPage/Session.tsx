@@ -41,10 +41,13 @@ const RsvpStatus = ({
       <div className="my-auto flex-1 text-left text-xs uppercase">
         <Tooltip>
           <TooltipTrigger>
-            <LuCalendarCheck2
-              onClick={() => handleClick(data, false, true)}
-              className="h-5 w-5"
-            />
+            <span className="flex flex-row items-center gap-1">
+              <LuCalendarCheck2
+                onClick={() => handleClick(data, false, true)}
+                className="h-5 w-5"
+              />
+              <span>Edit?</span>
+            </span>
             <TooltipContent>
               <p>Remove RSVP</p>
             </TooltipContent>
