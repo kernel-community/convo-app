@@ -34,11 +34,11 @@ const MyApp = ({ Component, pageProps: { ...pageProps } }: AppProps) => {
     <>
       <NextSeo
         titleTemplate="Convo | %s"
-        defaultTitle="Kernel Convo"
+        defaultTitle="Convo Cafe"
         description="A home for conversations taking place in the Kernel network"
         openGraph={{
           url: "https://convo.kernel.community",
-          title: "Kernel Conversations",
+          title: "Convo Cafe, by Kernel",
           description:
             "A home for conversations taking place in the Kernel network",
           images: [
@@ -48,7 +48,7 @@ const MyApp = ({ Component, pageProps: { ...pageProps } }: AppProps) => {
               type: "image/jpeg",
             },
           ],
-          site_name: "Kernel Convo",
+          site_name: "Convo Cafe",
         }}
         twitter={{
           handle: "@kernel0x",
