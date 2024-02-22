@@ -17,6 +17,7 @@ import {
 } from "../ui/credenza";
 import useEventsFromId from "src/hooks/useEventsFromId";
 import { ScrollArea } from "src/components/ui/scroll-area";
+
 export const SessionsWrapper = ({
   sessions,
 }: {
