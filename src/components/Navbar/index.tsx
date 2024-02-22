@@ -16,8 +16,10 @@ export const Navbar = () => {
         `}
       >
         <Branding />
-        <Items />
-        <ConnectButton />
+        <div className="inline-flex flex-row items-center gap-4">
+          <Items />
+          <ConnectButton />
+        </div>
       </div>
     </>
   );
