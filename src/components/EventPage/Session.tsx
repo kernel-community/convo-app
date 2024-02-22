@@ -130,7 +130,6 @@ const Wrapper = ({
   data: SessionParams["data"];
   isSeatAvailable: boolean;
 }) => {
-  // please forgive me for all the naming below
   const basic = `cursor-pointer items-center transform transition duration-500 [&>*]:p-2 rounded-md flex py-2.5`;
   const inPresentStyle = `bg-slate-200 hover:bg-slate-300`;
   const seatAvailable = isSeatAvailable && !isRsvpd;
@@ -138,30 +137,10 @@ const Wrapper = ({
   const look = `${basic} ${
     isInPresent && seatAvailable ? inPresentStyle : ""
   } ${!seatAvailable ? seatUnavailableStyle : ""}`;
-
   if (isRsvpd) {
     return <div className={look}>{children}</div>;
   }
   return <label className={look}>{children}</label>;
-};
-const TransitioningArrow = () => {
-  return (
-    <span className="transition group-open:rotate-180">
-      <svg
-        fill="none"
-        height="24"
-        shape-rendering="geometricPrecision"
-        stroke="currentColor"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        stroke-width="1.5"
-        viewBox="0 0 24 24"
-        width="24"
-      >
-        <path d="M6 9l6 6 6-6"></path>
-      </svg>
-    </span>
-  );
 };
 const Session = ({
   handleClick,
@@ -185,34 +164,28 @@ const Session = ({
     dontFetch: false,
   });
   return (
-    <RsvpCount
-      sessionId={data}
-      summaryData={
-        <Wrapper
-          isInPresent={isInPresent}
-          data={data}
-          handleClick={handleClick}
-          isRsvpd={isRsvpd}
-          isSeatAvailable={isSeatAvailable}
-        >
-          <RsvpStatus
-            handleClick={handleClick}
-            isInPresent={isInPresent}
-            isRsvp={isRsvpd}
-            data={data}
-            isChecked={isChecked}
-            isSeatAvailable={isSeatAvailable}
-          />
-          <EventDateTime date={date} time={time} />
-          <Seats
-            availableSeats={availableSeats}
-            totalSeats={totalSeats}
-            noLimit={noLimit}
-          />
-          {user.isSignedIn && isRsvpd && <TransitioningArrow />}
-        </Wrapper>
-      }
-    />
+    <Wrapper
+      isInPresent={isInPresent}
+      data={data}
+      handleClick={handleClick}
+      isRsvpd={isRsvpd}
+      isSeatAvailable={isSeatAvailable}
+    >
+      <RsvpStatus
+        handleClick={handleClick}
+        isInPresent={isInPresent}
+        isRsvp={isRsvpd}
+        data={data}
+        isChecked={isChecked}
+        isSeatAvailable={isSeatAvailable}
+      />
+      <EventDateTime date={date} time={time} />
+      <Seats
+        availableSeats={availableSeats}
+        totalSeats={totalSeats}
+        noLimit={noLimit}
+      />
+    </Wrapper>
   );
 };
 export default Session;
