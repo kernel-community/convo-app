@@ -42,10 +42,10 @@ export const Items = () => {
         <Fragment key={index}>
           <Link href={item.href}>
             <span
-              className={`inline-flex cursor-pointer flex-row items-center gap-2 text-sm font-light lowercase
+              className={`inline-flex cursor-pointer flex-row items-center gap-2 text-sm font-light lowercase text-slate-400
                     ${
                       isActive(item.href)
-                        ? "rounded-full bg-zinc-600/50 px-[0.7rem] py-[0.3rem]"
+                        ? "rounded-full bg-zinc-600/50 px-[0.7rem] py-[0.3rem] text-slate-200"
                         : "bg-transparent"
                     }
                     `}

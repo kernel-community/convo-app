@@ -35,6 +35,7 @@ export const SessionsWrapper = ({
     string | undefined
   >(undefined);
   const openModal = () => setOpenModalFlag(true);
+  const closeModal = () => setOpenModalFlag(false);
   const handleSessionSelect = (
     id: string,
     checked: boolean,
@@ -96,45 +97,64 @@ export const SessionsWrapper = ({
   });
   return (
     <>
-      <Credenza open={openModalFlag} onOpenChange={setOpenModalFlag}>
-        <CredenzaContent>
-          <CredenzaHeader>
-            <CredenzaTitle>Remove RSVP from Convo?</CredenzaTitle>
-            <CredenzaDescription>
-              Confirm to remove your RSVP from the selected Convo
-            </CredenzaDescription>
-          </CredenzaHeader>
-          <CredenzaBody>
-            {data && data.sessions && data.sessions[0] && (
-              <div>
-                Your RSVP will be removed from:
+      {data && data.sessions && data.sessions[0] && (
+        <Credenza open={openModalFlag} onOpenChange={setOpenModalFlag}>
+          <CredenzaContent>
+            <CredenzaHeader>
+              <CredenzaTitle>You are going to {data.title}</CredenzaTitle>
+              <CredenzaDescription>Your RSVP details</CredenzaDescription>
+            </CredenzaHeader>
+            <CredenzaBody>
+              <div className="flex flex-col gap-8">
                 <div>
-                  {getDateTimeString(
-                    new Date(data.sessions[0].startDateTime).toISOString(),
-                    "date"
-                  )}
-                  ,{" "}
-                  {getDateTimeString(
-                    new Date(data.sessions[0].startDateTime).toISOString(),
-                    "time"
-                  )}
+                  Your RSVP is confirmed for the session on
+                  <span className="cursor-crosshair rounded-full px-2 py-1 font-bold underline decoration-dashed hover:bg-slate-300">
+                    {getDateTimeString(
+                      new Date(data.sessions[0].startDateTime).toISOString(),
+                      "date"
+                    )}
+                    ,{" "}
+                    {getDateTimeString(
+                      new Date(data.sessions[0].startDateTime).toISOString(),
+                      "time"
+                    )}
+                  </span>{" "}
+                  happening at
+                  <span className="cursor-crosshair rounded-full px-2 py-1 font-bold underline decoration-dashed hover:bg-slate-300">
+                    {data.location}.
+                  </span>
+                </div>
+                {/* todo @anggxyz */}
+                <div>
+                  All RSVPs automatically receive an email with a calendar
+                  invite, but if the email couldnt find you, click here to{" "}
+                  <span className="cursor-pointer rounded-full bg-zinc-600 px-2 py-1 text-white hover:shadow-outline hover:shadow-slate-300">
+                    add to calendar
+                  </span>{" "}
+                  manually.
+                </div>
+                <div>
+                  If instead you changed your mind and would like to remove your
+                  RSVP from this session click here to{" "}
+                  <span
+                    className="cursor-pointer rounded-full bg-red-500 px-2 py-1 text-white hover:shadow-outline hover:shadow-slate-300"
+                    onClick={() => onClickCancel()}
+                  >
+                    {isLoading || isDeleting
+                      ? "removing RSVP..."
+                      : "Remove RSVP"}
+                  </span>
                 </div>
               </div>
-            )}
-          </CredenzaBody>
-          <CredenzaFooter>
-            <div className="flex w-full flex-col gap-1">
-              <Button
-                onClick={() => onClickCancel()}
-                className="w-full"
-                isLoading={isLoading || isDeleting}
-              >
-                Confirm
-              </Button>
-            </div>
-          </CredenzaFooter>
-        </CredenzaContent>
-      </Credenza>
+            </CredenzaBody>
+            <CredenzaFooter>
+              <div className="flex w-full flex-col gap-1">
+                <Button onClick={closeModal}>Close</Button>
+              </div>
+            </CredenzaFooter>
+          </CredenzaContent>
+        </Credenza>
+      )}
       <div className="w-100 [&>*]:my-3">
         {active.map((session, key) => {
           const active =

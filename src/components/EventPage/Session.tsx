@@ -4,13 +4,7 @@ import cross from "public/vectors/cross.png";
 import useUserRsvpForEvent from "src/hooks/useUserRsvpForEvent";
 import type { ReactNode } from "react";
 import { LuCalendarCheck2 } from "react-icons/lu";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "src/components/ui/tooltip";
 import { useUser } from "src/context/UserContext";
-import { RsvpCount } from "./EventWrapper";
 
 type SessionParams = {
   handleClick: (id: string, checked: boolean, isEdit: boolean) => void;
@@ -39,20 +33,13 @@ const RsvpStatus = ({
   if (isRsvp) {
     return (
       <div className="my-auto flex-1 text-left text-xs uppercase">
-        <Tooltip>
-          <TooltipTrigger>
-            <span className="flex flex-row items-center gap-1">
-              <LuCalendarCheck2
-                onClick={() => handleClick(data, false, true)}
-                className="h-5 w-5"
-              />
-              <span>Edit?</span>
-            </span>
-            <TooltipContent>
-              <p>Remove RSVP</p>
-            </TooltipContent>
-          </TooltipTrigger>
-        </Tooltip>
+        <span
+          className="inline-flex scale-95 cursor-pointer flex-row items-center gap-1 rounded-full bg-kernel px-2 py-1 text-slate-300 transition-all duration-150 hover:scale-100"
+          onClick={() => handleClick(data, false, true)}
+        >
+          <LuCalendarCheck2 className="h-5 w-5" />
+          <span>View RSVP</span>
+        </span>
       </div>
     );
   }
@@ -122,8 +109,6 @@ const Wrapper = ({
   isRsvpd,
   children,
   isInPresent,
-  handleClick,
-  data,
   isSeatAvailable,
 }: {
   isRsvpd: boolean | undefined;
@@ -183,11 +168,13 @@ const Session = ({
         isSeatAvailable={isSeatAvailable}
       />
       <EventDateTime date={date} time={time} />
-      <Seats
-        availableSeats={availableSeats}
-        totalSeats={totalSeats}
-        noLimit={noLimit}
-      />
+      {!isRsvpd && (
+        <Seats
+          availableSeats={availableSeats}
+          totalSeats={totalSeats}
+          noLimit={noLimit}
+        />
+      )}
     </Wrapper>
   );
 };
