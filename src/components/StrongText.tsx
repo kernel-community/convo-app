@@ -11,7 +11,8 @@ const FieldLabel = ({
     <div
       className={`
       font-secondary
-      text-base
+      text-sm
+      font-semibold
       uppercase
       text-gray-800
       ${styles}
