@@ -140,6 +140,7 @@ const EventWrapper = ({
     isDeleted,
     isImported,
     collections,
+    createdAt,
   } = event;
   const { rsvpIntention } = useRsvpIntention();
   const { rsvps } = useUserRsvpForConvo({ hash: event.hash });
@@ -161,7 +162,12 @@ const EventWrapper = ({
   return (
     <>
       <div className="flex flex-row items-center justify-between">
-        <Hero title={title} isImported={isImported} isDeleted={isDeleted} />
+        <Hero
+          title={title}
+          isImported={isImported}
+          isDeleted={isDeleted}
+          createdAt={createdAt}
+        />
         {isEditable && !event.isDeleted && (
           <Button onClick={navigateToEditPage}>Edit Event</Button>
         )}
