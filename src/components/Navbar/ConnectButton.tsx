@@ -47,7 +47,7 @@ export const ConnectButton = () => {
         uppercase
       "
     >
-      <UserCircle2 strokeWidth={1.5} />
+      Login
     </button>
   );
 };
