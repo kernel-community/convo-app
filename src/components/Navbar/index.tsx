@@ -1,36 +1,6 @@
 import { Branding } from "./Branding";
-import { DynamicUserProfile, useDynamicContext } from "@dynamic-labs/sdk-react";
-import { useUser } from "src/context/UserContext";
-
-const ConnectButton = () => {
-  const { fetchedUser: user } = useUser();
-  const { setShowAuthFlow, setShowDynamicUserProfile } = useDynamicContext();
-  if (user.isSignedIn) {
-    // display user profile
-    return (
-      <div>
-        <button onClick={() => setShowDynamicUserProfile(true)}>
-          Signing as {user.nickname}
-        </button>
-        <DynamicUserProfile />
-      </div>
-    );
-  }
-  return (
-    <button
-      onClick={() => {
-        setShowAuthFlow(true);
-      }}
-      className="
-        flex cursor-pointer flex-row items-center gap-1
-        py-5
-        uppercase
-      "
-    >
-      Login
-    </button>
-  );
-};
+import { ConnectButton } from "./ConnectButton";
+import { Items } from "./Items";
 
 export const Navbar = () => {
   return (
@@ -46,6 +16,7 @@ export const Navbar = () => {
         `}
       >
         <Branding />
+        <Items />
         <ConnectButton />
       </div>
     </>
