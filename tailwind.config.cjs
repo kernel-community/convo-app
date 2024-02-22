@@ -82,7 +82,7 @@ module.exports = {
         noto: ["Noto Sans"],
         alegreya: ["Alegreya Sans SC", "sans-serif"],
         heading: ["Nanum Myeongjo", "serif"],
-        secondary: ["Futura", "sans-serif"],
+        secondary: ["Montserrat", "sans-serif"],
         primary: ["Libre Franklin", "sans-serif"],
         fancy: ["Licorice", "sans-serif"],
         /** another handwritten alternative: "Cedarville_Cursive" **/
