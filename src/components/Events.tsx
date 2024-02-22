@@ -95,7 +95,7 @@ export const Events = ({
     }
   }, [inView]);
   return (
-    <div>
+    <div className="px-6">
       <Title text={title} highlight={highlight} className="mb-3" />
       {user.isSignedIn && showFilterPanel && (
         <div className="my-8 flex flex-row gap-12">
@@ -127,9 +127,8 @@ export const Events = ({
           />
         </div>
       )}
-
       {data && (
-        <div className="sm:flex sm:flex-row sm:flex-wrap sm:gap-4">
+        <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
           {data.pages.map((page) =>
             page.data.map((u: ClientEvent, k: Key) => {
               return (

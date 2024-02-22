@@ -8,7 +8,6 @@ export const CardTemplate = ({ children }: { children: ReactNode }) => {
     <div
       className={`
     lg:h-62
-    m-4
     flex
     cursor-pointer
     flex-col rounded-xl
@@ -93,7 +92,7 @@ export const Card = ({
           <div
             className="
             font-heading
-            text-base
+            text-lg
             text-white
             sm:text-xl
           "

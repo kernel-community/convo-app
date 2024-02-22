@@ -10,14 +10,13 @@ const Home: NextPage = () => {
       <Main>
         <div
           className="
-          pl-12
-          md:pl-12
+          pl-6
+          md:pl-6
           lg:pl-64
         "
         >
           <div
             className="
-              my-2
               font-heading text-5xl
               font-bold
               lg:text-7xl
@@ -34,31 +33,15 @@ const Home: NextPage = () => {
                 text-kernel
               "
           >
-            Why are we alive, if not to{" "}
+            Why are we alive, if not to
             <Link href="/propose">
-              <span className="cursor-pointer">make connections?</span>
+              <FancyHighlight>
+                <span className="cursor-pointer">make connections?</span>
+              </FancyHighlight>
             </Link>
           </div>
-          <div
-            className="
-            pt-3
-            font-secondary
-            text-lg
-            text-kernel
-          "
-          >
-            <span className="cursor-pointer">
-              <FancyHighlight>
-                <span className="underline decoration-dashed">
-                  <Link href={"/propose"}>Propose a convo</Link>
-                </span>
-                <span className="">.</span>
-              </FancyHighlight>
-            </span>
-            . Share stories, remember memories, explore ideas, learn together.
-          </div>
         </div>
-        <div className="mt-12 flex flex-col gap-6 px-12 lg:px-32 xl:px-40 2xl:px-52">
+        <div className="mt-12 flex flex-col gap-6 lg:px-32 xl:px-40 2xl:px-52">
           <div className="mt-12">
             <Events type="month" highlight="next 28 days" take={6} />
           </div>
@@ -73,7 +56,7 @@ const Home: NextPage = () => {
 
 export const FancyHighlight = ({ children }: { children: ReactNode }) => {
   return (
-    <span className="relative ml-2 inline-block cursor-pointer before:absolute before:-inset-1 before:block before:-skew-y-3 before:bg-highlight">
+    <span className="relative ml-2 mt-2 inline-block cursor-pointer before:absolute before:-inset-1 before:block before:-skew-y-3 before:bg-highlight">
       <span className="relative text-primary">{children}</span>
     </span>
   );

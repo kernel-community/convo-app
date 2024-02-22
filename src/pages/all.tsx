@@ -8,7 +8,7 @@ const All: NextPage = () => {
       <Main>
         <div
           className="
-          pl-6
+          px-6
           md:px-12
           lg:px-32
         "
@@ -16,17 +16,18 @@ const All: NextPage = () => {
           <div
             className="
               font-heading
-              text-5xl
+              text-4xl
               font-bold
               lowercase
               text-primary
+              sm:text-5xl
               lg:py-5
             "
           >
             all upcoming
           </div>
-          <Events type={"upcoming"} take={50} infinite={true} showFilterPanel />
         </div>
+        <Events type={"upcoming"} take={50} infinite={true} showFilterPanel />
       </Main>
     </>
   );

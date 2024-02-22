@@ -87,6 +87,7 @@ module.exports = {
         fancy: ["Licorice", "sans-serif"],
         /** another handwritten alternative: "Cedarville_Cursive" **/
         handwritten: ["Holland_Land", "sans-serif"],
+        bitter: ["Bitter", "serif"]
       },
       fontSize: {
         xxs: "0.69rem",
