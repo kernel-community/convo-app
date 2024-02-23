@@ -16,6 +16,16 @@ enum EventType {
   TEST
 }
 
+model Community {
+  id          String   @id @default(uuid())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  displayName String
+  description String
+  subdomain   String   @unique
+  events      Event[]
+}
+
 model Event {
   id              String   @id @default(uuid())
   createdAt       DateTime @default(now())
@@ -42,6 +52,7 @@ model Event {
   proposer           User         @relation(fields: [proposerId], references: [id], onDelete: Cascade)
   rsvps              Rsvp[]
   collections        Collection[]
+  communities        Community[]
   // if the event was imported from convo.kernel.community
   // if it was, we do not have their RSVPs, since this version uses
   // user's addresses to make them unique and the previous version used

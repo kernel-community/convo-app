@@ -13,6 +13,8 @@ export default async function getEvents(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
+  const hostname = req.headers.host;
+  const subdomain = hostname?.split(".")[0];
   const {
     now,
     take = 6,
@@ -52,14 +54,26 @@ export default async function getEvents(
         },
       },
       collections: true,
+      communities: true,
     },
     distinct: [Prisma.EventScalarFieldEnum.hash],
   };
+  // check if subdomain is "registered" in our databse
+  // if it is, create communities object accordingly
+  // if not, return all events
+  const community = await prisma.community.findUnique({ where: { subdomain } });
   const defaultWheres = {
     isDeleted: false,
     type: {
       not: "INTERVIEW" as EventType,
     },
+    communities: community
+      ? {
+          some: { subdomain },
+        }
+      : {
+          none: { subdomain: undefined },
+        },
   };
   let events: Array<ClientEvent> = [];
   let serverEvents: Array<ServerEvent> = [];
@@ -238,10 +252,8 @@ export default async function getEvents(
     }
   }
   events = formatEvents(serverEvents, filter);
-
   const lastEvent = events[events.length - 1];
   const nextId = events.length === take && lastEvent ? lastEvent.id : undefined;
-
   res.status(200).json({
     data: events,
     nextId,

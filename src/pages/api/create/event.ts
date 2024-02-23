@@ -73,14 +73,16 @@ export default async function event(req: NextApiRequest, res: NextApiResponse) {
         type: isProd(host) ? type : "TEST",
       };
     });
-
-  // prisma.create events
-  // const created = await prisma.event.createMany({
-  //   data: eventPayload,
-  // });
+  const subdomain = host?.split(".")[0];
+  const community = await prisma.community.findUnique({
+    where: { subdomain: subdomain },
+  });
+  const connectCommmunity = community
+    ? { connect: { id: community?.id } }
+    : undefined;
   const createEventsPromises = eventPayload.map((event) =>
     prisma.event.create({
-      data: event,
+      data: { ...event, communities: connectCommmunity },
       include: {
         proposer: true,
       },
