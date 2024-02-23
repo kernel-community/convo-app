@@ -17,11 +17,15 @@ import {
 } from "../ui/credenza";
 import useEventsFromId from "src/hooks/useEventsFromId";
 import { ScrollArea } from "src/components/ui/scroll-area";
+import { AddToCalendarButton } from "add-to-calendar-button-react";
+import { DateTime } from "luxon";
 
 export const SessionsWrapper = ({
   sessions,
+  hostname,
 }: {
   sessions: ClientSession[];
+  hostname: string;
 }) => {
   const { rsvpIntention, setRsvpIntention } = useRsvpIntention();
   const {
@@ -95,6 +99,7 @@ export const SessionsWrapper = ({
     eventId: cancelRsvpEventId,
     toRsvp: false,
   });
+
   return (
     <>
       {data && data.sessions && data.sessions[0] && (
@@ -127,11 +132,60 @@ export const SessionsWrapper = ({
                 {/* todo @anggxyz */}
                 <div>
                   All RSVPs automatically receive an email with a calendar
-                  invite, but if the email couldnt find you, click here to{" "}
-                  <span className="cursor-pointer rounded-full bg-zinc-600 px-2 py-1 text-white hover:shadow-outline hover:shadow-slate-300">
+                  invite, but if the email couldnt find you, pick the calendar
+                  event file you can download from the following{" "}
+                  <AddToCalendarButton
+                    name={data.title}
+                    options={[
+                      "Apple",
+                      "Google",
+                      "iCal",
+                      "Yahoo",
+                      "Outlook.com",
+                      "Microsoft365",
+                    ]}
+                    location={data.location}
+                    description={
+                      data.descriptionHtml
+                        ? `This event was copied over into your Calendar. Go to ${
+                            hostname.includes("localhost")
+                              ? "http://"
+                              : "https://"
+                          }${hostname}/rsvp/${
+                            data.hash
+                          } for the most recent version\n\n` +
+                          data.descriptionHtml
+                        : ""
+                    }
+                    startDate={DateTime.fromISO(
+                      new Date(data.sessions[0].startDateTime).toISOString()
+                    ).toFormat("yyyy-MM-dd")}
+                    endDate={DateTime.fromISO(
+                      new Date(data.sessions[0].endDateTime).toISOString()
+                    ).toFormat("yyyy-MM-dd")}
+                    startTime={DateTime.fromISO(
+                      new Date(data.sessions[0].startDateTime).toISOString()
+                    ).toFormat("HH:mm")}
+                    endTime={DateTime.fromISO(
+                      new Date(data.sessions[0].endDateTime).toISOString()
+                    ).toFormat("HH:mm")}
+                    // fetch zonename from the datetime, if not found, fallback on client's zone
+                    timeZone={
+                      DateTime.fromISO(
+                        new Date(data.sessions[0].endDateTime).toISOString()
+                      ).zoneName ??
+                      Intl.DateTimeFormat().resolvedOptions().timeZone
+                    }
+                    buttonStyle="round"
+                    trigger="click"
+                    size="1"
+                    hideCheckmark
+                    listStyle="overlay"
+                    buttonsList
+                  />
+                  {/* <span className="cursor-pointer rounded-full bg-zinc-600 px-2 py-1 text-white hover:shadow-outline hover:shadow-slate-300">
                     add to calendar
-                  </span>{" "}
-                  manually.
+                  </span>{" "} */}
                 </div>
                 <div>
                   If instead you changed your mind and would like to remove your

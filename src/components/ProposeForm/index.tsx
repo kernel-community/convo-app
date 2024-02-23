@@ -27,7 +27,7 @@ const SessionSchema = z.object({
 export type Session = z.infer<typeof SessionSchema>;
 
 export const validationSchema = z.object({
-  title: z.string().min(1, "Title is required").default("ee"),
+  title: z.string().min(1, "Title is required"),
   description: z.string().optional(),
   sessions: z.array(SessionSchema),
   limit: z
@@ -38,7 +38,7 @@ export const validationSchema = z.object({
     .refine((val) => Number(parseInt(val, 10)) >= 0, {
       message: "Please enter a positive integer",
     }),
-  location: z.string(),
+  location: z.string().min(1, "Location is required"),
   nickname: z.string().optional(),
   gCalEvent: z.boolean(),
   hash: z.string().optional(),

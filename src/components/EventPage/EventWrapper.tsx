@@ -126,9 +126,11 @@ export type RsvpInput = z.infer<typeof rsvpInputSchema>;
 const EventWrapper = ({
   event,
   isEditable,
+  hostname,
 }: {
   event: ClientEvent;
   isEditable: boolean;
+  hostname: string;
 }) => {
   const {
     totalUniqueRsvps,
@@ -184,7 +186,9 @@ const EventWrapper = ({
         <EventDetails html={descriptionHtml} proposer={proposer} />
         <div className="min-w-100 flex flex-col gap-2">
           {isEditable && <SessionsDetailsNonSubmittable sessions={sessions} />}
-          {!isEditable && <SessionsWrapper sessions={sessions} />}
+          {!isEditable && (
+            <SessionsWrapper sessions={sessions} hostname={hostname} />
+          )}
           {!isEditable && (
             <SubmitRsvpSection
               text={

@@ -5,7 +5,7 @@ import { RsvpIntentionProvider } from "src/context/RsvpIntentionContext";
 import useEvent from "src/hooks/useEvent";
 import { useUser } from "src/context/UserContext";
 
-const Post = () => {
+const Post = ({ hostname }: { hostname: string }) => {
   const { query } = useRouter();
   const { eventHash } = query;
   const { isLoading, isError, data } = useEvent({ hash: eventHash });
@@ -16,11 +16,24 @@ const Post = () => {
     <Main className="px-6 lg:px-52">
       <RsvpIntentionProvider>
         {!isLoading && !isError && data && (
-          <EventWrapper event={data} isEditable={isEditable} />
+          <EventWrapper
+            event={data}
+            isEditable={isEditable}
+            hostname={hostname}
+          />
         )}
       </RsvpIntentionProvider>
     </Main>
   );
 };
+
+export async function getServerSideProps(context: any) {
+  return {
+    props: {
+      // Access the host from the headers (consider the "x-forwarded-host" if behind a proxy)
+      hostname: context.req.headers.host,
+    },
+  };
+}
 
 export default Post;

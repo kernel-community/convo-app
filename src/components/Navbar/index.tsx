@@ -19,9 +19,14 @@ export const Navbar = () => {
         <div className="inline-flex flex-row items-center">
           <Branding />
           <span className="ml-2 hidden sm:block">
-            <div className="font-base inline-flex flex-row items-center font-bitter italic text-slate-500">
-              Share stories <Dot /> remember memories <Dot /> explore ideas{" "}
-              <Dot /> learn together
+            <div className="font-base inline-flex cursor-pointer flex-row items-center font-bitter italic text-slate-700">
+              <span className="hover:text-slate-500">share stories</span>
+              <Dot />
+              <span className="hover:text-slate-500">remember memories</span>
+              <Dot />
+              <span className="hover:text-slate-500">explore ideas</span>{" "}
+              <Dot />
+              <span className="hover:text-slate-500">learn together</span>
             </div>
           </span>
         </div>
