@@ -7,6 +7,7 @@ import { formatEvents } from "src/server/utils/formatEvent";
 import type { EventType } from "@prisma/client";
 import { Prisma } from "@prisma/client";
 import type { EventsRequest } from "src/types";
+import isProd from "src/utils/isProd";
 
 // now = from where to start fetching; reference
 export default async function getEvents(
@@ -71,7 +72,7 @@ export default async function getEvents(
     // @note
     // fallback on kernel community if subdomain not found
     community = await prisma.community.findUnique({
-      where: { subdomain: "kernel" },
+      where: { subdomain: isProd(hostname) ? "kernel" : "staging" },
     });
   }
   if (!community || isNil(community)) {

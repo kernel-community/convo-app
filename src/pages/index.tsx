@@ -1,13 +1,18 @@
-import type { NextPage } from "next";
 import Main from "src/layouts/Main";
 import Link from "next/link";
 import { Events } from "src/components/Events";
 import type { ReactNode } from "react";
 import { Button } from "src/components/ui/button";
-const Home: NextPage = () => {
+import useCurrentCommunity from "src/hooks/useCurrentCommunity";
+import { isNil, isUndefined } from "lodash";
+const Home = () => {
+  const { data: community } = useCurrentCommunity();
   return (
     <>
-      <Main>
+      <Main
+        linesOverride={true}
+        showLines={isUndefined(community) || isNil(community)}
+      >
         <div
           className="
           pl-6
@@ -23,6 +28,11 @@ const Home: NextPage = () => {
             "
           >
             Convo
+            {community && (
+              <span className="font-bitter text-base font-medium italic text-slate-400/80 hover:text-slate-400/100">
+                for {community.displayName}
+              </span>
+            )}
           </div>
           <div
             className="
@@ -61,4 +71,5 @@ export const FancyHighlight = ({ children }: { children: ReactNode }) => {
     </span>
   );
 };
+
 export default Home;
