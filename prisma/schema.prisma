@@ -104,7 +104,7 @@ model Google {
   id                      String     @id @default(uuid())
   createdAt               DateTime   @default(now())
   // credentials
-  clientId                String     @unique
+  clientId                String     
   projectId               String
   authUri                 String
   tokenUri                String
