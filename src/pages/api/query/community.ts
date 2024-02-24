@@ -18,6 +18,5 @@ export default async function getCurrentCommunity(
   const community = await prisma.community.findUnique({
     where: { subdomain },
   });
-  console.log(community);
   return res.status(200).json({ data: community });
 }

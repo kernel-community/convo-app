@@ -18,7 +18,7 @@ export const Navbar = () => {
       >
         <div className="inline-flex flex-row items-center">
           <Branding />
-          <span className="ml-2 hidden sm:block">
+          {/* <span className="ml-2 hidden sm:block">
             <div className="font-base inline-flex cursor-pointer flex-row items-center font-bitter italic text-slate-700">
               <span className="hover:text-slate-500">share stories</span>
               <Dot />
@@ -28,7 +28,7 @@ export const Navbar = () => {
               <Dot />
               <span className="hover:text-slate-500">learn together</span>
             </div>
-          </span>
+          </span> */}
         </div>
         <div className="inline-flex flex-row items-center gap-4">
           <Items />
