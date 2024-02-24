@@ -7,6 +7,7 @@ const redirectUris = [
   "https://kernel.convo.cafe/admin/google/callback",
   "https://convo.cafe/admin/google/callback",
   "https://staging.convo.cafe/admin/google/callback",
+  "https://foo.staging.convo.cafe/admin/google/callback",
 ];
 const javascriptOrigins = [
   "http://localhost:3000",
@@ -17,6 +18,7 @@ const javascriptOrigins = [
   "https://kernel.convo.cafe",
   "https://convo.cafe",
   "https://staging.convo.cafe",
+  "https://foo.staging.convo.cafe",
 ];
 
 const credentials = {
