@@ -34,12 +34,12 @@ const Home = () => {
               </span>
             )}
           </div>
-          <div
+          {/* <div
             className="
                 ml-2
                 pt-3
                 font-secondary
-                text-lg
+                text-sm
                 text-kernel
               "
           >
@@ -49,7 +49,7 @@ const Home = () => {
                 <span className="cursor-pointer">make connections?</span>
               </FancyHighlight>
             </Link>
-          </div>
+          </div> */}
         </div>
         <div className="mt-12 flex flex-col gap-6 px-6 lg:px-32 xl:px-40 2xl:px-52">
           <div className="mt-12">
