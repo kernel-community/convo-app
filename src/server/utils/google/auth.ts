@@ -2,6 +2,8 @@ import type { Auth } from "googleapis";
 import { google } from "googleapis";
 import { prisma } from "src/server/db";
 export const getAuth = async () => {
+  // @todo fetch auth for the current community
+
   const credentials = await prisma.google.findFirst();
   if (!credentials) {
     throw new Error("add credentials to db");

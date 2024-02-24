@@ -74,7 +74,7 @@ export default async function event(req: NextApiRequest, res: NextApiResponse) {
     // @note
     // fallback on kernel community if subdomain not found
     community = await prisma.community.findUnique({
-      where: { subdomain: "kernel" },
+      where: { subdomain: isProd(host) ? "kernel" : "staging" },
     });
   }
 

@@ -21,7 +21,7 @@ export default async function getGoogleAccessToken(
     throw new Error("why is origin not defined???");
   }
 
-  const { clientId, clientSecret, redirectUris } = getCredentials(origin);
+  const { clientId, clientSecret, redirectUris } = await getCredentials(origin);
   const oAuth2Client = new google.auth.OAuth2(
     clientId,
     clientSecret,

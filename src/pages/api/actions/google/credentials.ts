@@ -1,26 +1,4 @@
-const redirectUris = [
-  "http://localhost:3000/admin/google/callback",
-  "https://convo-app-gray.vercel.app/admin/google/callback",
-  "https://convo.kernel.community/admin/google/callback",
-  "https://www.convo.cafe/admin/google/callback",
-  "https://www.viaconvo.xyz/admin/google/callback",
-  "https://kernel.convo.cafe/admin/google/callback",
-  "https://convo.cafe/admin/google/callback",
-  "https://staging.convo.cafe/admin/google/callback",
-  "https://foo.staging.convo.cafe/admin/google/callback",
-];
-const javascriptOrigins = [
-  "http://localhost:3000",
-  "https://convo-app-gray.vercel.app",
-  "https://convo.kernel.community",
-  "https://www.convo.cafe",
-  "https://www.viaconvo.xyz",
-  "https://kernel.convo.cafe",
-  "https://convo.cafe",
-  "https://staging.convo.cafe",
-  "https://foo.staging.convo.cafe",
-];
-
+import { prisma } from "src/server/db";
 const credentials = {
   clientId: process.env.CLIENT_ID,
   projectId: "kernel-convo",
@@ -28,14 +6,30 @@ const credentials = {
   tokenUri: "https://oauth2.googleapis.com/token",
   authProviderX509CertUrl: "https://www.googleapis.com/oauth2/v1/certs",
   clientSecret: process.env.CLIENT_SECRET,
-  javascriptOrigins,
 };
 
-export const getCredentials = (origin: string) => {
-  const uri = redirectUris.find((uri) => uri.includes(origin));
-  const removedSelectedUri = redirectUris.filter((_uri) => _uri !== uri);
+export const getCredentials = async (origin: string) => {
+  // @todo fetch credentials based on the current community
+  const a = await prisma.google.findFirst({
+    select: {
+      redirectUris: true,
+    },
+  });
+  const b = await prisma.google.findFirst({
+    select: {
+      javascriptOrigins: true,
+    },
+  });
+  if (!a || !b) {
+    throw new Error(
+      "redirect uris or javascript origins not present in the database"
+    );
+  }
+  const uri = a.redirectUris.find((uri) => uri.includes(origin));
+  const removedSelectedUri = a.redirectUris.filter((_uri) => _uri !== uri);
   return {
     ...credentials,
+    javascriptOrigins: b.javascriptOrigins,
     redirectUris: [uri, ...removedSelectedUri],
   };
 };
