@@ -8,7 +8,7 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { Fragment } from "react";
 
-const iconStyle = "w-5 h-5";
+const iconStyle = "w-4 h-4";
 
 const items = [
   {
@@ -42,15 +42,15 @@ export const Items = () => {
         <Fragment key={index}>
           <Link href={item.href}>
             <span
-              className={`inline-flex cursor-pointer flex-row items-center gap-2 text-sm font-light lowercase text-slate-400
-                    ${
-                      isActive(item.href)
-                        ? "rounded-full bg-zinc-600/50 px-[0.7rem] py-[0.3rem] !text-slate-200"
-                        : "bg-transparent"
-                    }
-                    `}
+              className={`group inline-flex cursor-pointer flex-row items-center gap-2 rounded-full bg-zinc-600/50 px-[0.7rem]
+              py-[0.3rem] text-sm font-light lowercase text-slate-400
+                  ${isActive(item.href) && "bg-zinc-600/80 !text-slate-200"}
+                `}
             >
               {item.icon}
+              {!isActive(item.href) && (
+                <span className="hidden group-hover:block">{item.text}</span>
+              )}
               {isActive(item.href) && item.text}
             </span>
           </Link>

@@ -26,8 +26,8 @@ const All: NextPage = () => {
           >
             all upcoming
           </div>
+          <Events type={"upcoming"} take={50} infinite={true} showFilterPanel />
         </div>
-        <Events type={"upcoming"} take={50} infinite={true} showFilterPanel />
       </Main>
     </>
   );

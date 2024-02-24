@@ -95,7 +95,7 @@ export const Events = ({
     }
   }, [inView]);
   return (
-    <div className="px-6">
+    <div>
       <Title text={title} highlight={highlight} className="mb-3" />
       {user.isSignedIn && showFilterPanel && (
         <div className="my-8 flex flex-row gap-12">
