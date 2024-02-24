@@ -8,7 +8,7 @@ import { prisma } from "src/server/db";
 
 const main = async () => {
   const kernelCommunity = await prisma.community.findUnique({
-    where: { subdomain: "kernel" },
+    where: { subdomain: "staging" },
   });
   await prisma.event.updateMany({
     data: {

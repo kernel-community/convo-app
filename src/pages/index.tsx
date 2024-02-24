@@ -43,7 +43,7 @@ const Home: NextPage = () => {
         </div>
         <div className="mt-12 flex flex-col gap-6 lg:px-32 xl:px-40 2xl:px-52">
           <div className="mt-12">
-            <Events type="month" highlight="next 28 days" take={6} />
+            <Events type="month" highlight="this month" take={6} />
           </div>
           <Link href={"/all"} className="self-center">
             <Button>See all Convos</Button>
