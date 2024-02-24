@@ -9,11 +9,12 @@ import { sendInvite } from "src/server/utils/google/sendInvite";
 
 const main = async () => {
   const allRsvps = await prisma.rsvp.findMany({
-    where: {
-      isAddedToGoogleCalendar: false,
-    },
     include: {
-      event: true,
+      event: {
+        include: {
+          community: true,
+        },
+      },
       attendee: true,
     },
   });
@@ -21,32 +22,13 @@ const main = async () => {
     const eventId = allRsvps[i]?.eventId;
     const attendeeEmail = allRsvps[i]?.attendee.email;
     const attendeeId = allRsvps[i]?.attendeeId;
-    const gCalCalendarId = allRsvps[i]?.event.gCalId;
-    const gCalEventId = allRsvps[i]?.event.gCalEventId;
-    if (
-      !eventId ||
-      !attendeeEmail ||
-      !attendeeId ||
-      !gCalEventId ||
-      !gCalCalendarId
-    ) {
+    if (!eventId || !attendeeEmail || !attendeeId) {
       continue;
     }
     try {
       await sendInvite({
         events: [eventId],
         attendeeEmail,
-      });
-      await prisma.rsvp.update({
-        where: {
-          eventId_attendeeId: {
-            eventId,
-            attendeeId,
-          },
-        },
-        data: {
-          isAddedToGoogleCalendar: true,
-        },
       });
     } catch (err) {
       console.error(`Error sending invite to ${attendeeEmail} for ${eventId}`);

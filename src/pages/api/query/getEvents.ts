@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import _ from "lodash";
+import _, { isNil } from "lodash";
 import { DateTime } from "luxon";
 import { prisma } from "src/server/db";
 import type { ClientEvent, ServerEvent } from "src/types";
@@ -54,26 +54,37 @@ export default async function getEvents(
         },
       },
       collections: true,
-      communities: true,
+      community: {
+        include: {
+          slack: true,
+          google: true,
+        },
+      },
     },
     distinct: [Prisma.EventScalarFieldEnum.hash],
   };
   // check if subdomain is "registered" in our databse
   // if it is, create communities object accordingly
   // if not, return all events
-  const community = await prisma.community.findUnique({ where: { subdomain } });
+  let community = await prisma.community.findUnique({ where: { subdomain } });
+  if (!community) {
+    // @note
+    // fallback on kernel community if subdomain not found
+    community = await prisma.community.findUnique({
+      where: { subdomain: "kernel" },
+    });
+  }
+  if (!community || isNil(community)) {
+    throw new Error(
+      "Community is undefined. Every event should belong to a community"
+    );
+  }
   const defaultWheres = {
     isDeleted: false,
     type: {
       not: "INTERVIEW" as EventType,
     },
-    communities: community
-      ? {
-          some: { subdomain },
-        }
-      : {
-          none: { subdomain: undefined },
-        },
+    community: { id: community?.id },
   };
   let events: Array<ClientEvent> = [];
   let serverEvents: Array<ServerEvent> = [];

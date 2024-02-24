@@ -24,12 +24,14 @@ model Community {
   description String
   subdomain   String   @unique
   events      Event[]
+  slack       Slack?
+  google      Google?
 }
 
 model Event {
-  id              String   @id @default(uuid())
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  id              String       @id @default(uuid())
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
   title           String
   descriptionHtml String?
   startDateTime   DateTime
@@ -38,21 +40,20 @@ model Event {
   hash            String
   series          Boolean
   limit           Int
-
   // for deleted events
   // can be purged periodically
-  isDeleted Boolean @default(false)
-
+  isDeleted       Boolean      @default(false)
   // google
-  gCalEventRequested Boolean      @default(false)
-  gCalEventId        String?
-  gCalId             String?
-  type               EventType    @default(JUNTO)
-  proposerId         String
-  proposer           User         @relation(fields: [proposerId], references: [id], onDelete: Cascade)
-  rsvps              Rsvp[]
-  collections        Collection[]
-  communities        Community[]
+  // gCalEventRequested Boolean      @default(false) // remove, deprecated
+  gCalEventId     String? // KEEP, DONT REMOVE
+  // gCalId             String? // remove, deprecated
+  type            EventType    @default(JUNTO)
+  proposerId      String
+  proposer        User         @relation(fields: [proposerId], references: [id], onDelete: Cascade)
+  rsvps           Rsvp[]
+  collections     Collection[]
+  communityId     String?
+  community       Community?   @relation(fields: [communityId], references: [id])
   // if the event was imported from convo.kernel.community
   // if it was, we do not have their RSVPs, since this version uses
   // user's addresses to make them unique and the previous version used
@@ -63,7 +64,7 @@ model Event {
   // if you'd like to query any data related to RSVPs for this particular event"
   // the emails[], gcaleventREquested, gcalEventId will be accurate for these events
   // the proposer data will be inaccurate
-  isImported         Boolean      @default(false)
+  isImported      Boolean      @default(false)
 }
 
 model User {
@@ -86,25 +87,24 @@ model Collection {
 }
 
 model Rsvp {
-  id                      String   @id @default(uuid())
-  createdAt               DateTime @default(now())
-  eventId                 String
-  event                   Event    @relation(fields: [eventId], references: [id])
-  attendeeId              String
-  attendee                User     @relation(fields: [attendeeId], references: [id])
-  isAddedToGoogleCalendar Boolean  @default(false)
+  id         String   @id @default(uuid())
+  createdAt  DateTime @default(now())
+  eventId    String
+  event      Event    @relation(fields: [eventId], references: [id])
+  attendeeId String
+  attendee   User     @relation(fields: [attendeeId], references: [id])
 
   @@unique([eventId, attendeeId])
 }
 
-//  @help is there a better way to manage auth tokens?
-// plisss teach me
+//////////////////
+///  SERVICES  ///
+//////////////////
 model Google {
-  id        String   @id @default(uuid())
-  createdAt DateTime @default(now())
-
+  id                      String     @id @default(uuid())
+  createdAt               DateTime   @default(now())
   // credentials
-  clientId                String   @unique
+  clientId                String     @unique
   projectId               String
   authUri                 String
   tokenUri                String
@@ -112,20 +112,25 @@ model Google {
   clientSecret            String
   redirectUris            String[]
   javascriptOrigins       String[]
-
   // token
-  accessToken  String
-  refreshToken String
-  scope        String
-  tokenType    String
-  expiryDate   String
+  accessToken             String
+  refreshToken            String
+  scope                   String
+  tokenType               String
+  expiryDate              String
+  // the calendar to send events to
+  calendarId              String?
+  communityId             String?    @unique // one google service is associated with 1 community
+  community               Community? @relation(references: [id], fields: [communityId])
 }
 
 model Slack {
-  id        String   @id @default(uuid())
-  createdAt DateTime @default(now())
-  botToken  String
-  channel   String
+  id          String     @id @default(uuid())
+  createdAt   DateTime   @default(now())
+  botToken    String
+  channel     String
+  communityId String?    @unique // one slack instance is associated with 1 community
+  community   Community? @relation(references: [id], fields: [communityId])
 
   @@unique([botToken, channel])
 }

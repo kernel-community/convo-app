@@ -1,12 +1,8 @@
-import type { Event, User } from "@prisma/client";
 import { pick } from "lodash";
 import type { NextApiRequest, NextApiResponse } from "next";
 import { updateEvents } from "src/server/utils/google/updateEvents";
 import { DEFAULT_HOST } from "src/utils/constants";
-
-export type FullEvent = Event & {
-  proposer: User;
-};
+import type { FullEvent } from "./createEvent";
 
 export default async function createEventHandler(
   req: NextApiRequest,

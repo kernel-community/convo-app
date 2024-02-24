@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import _, { pick } from "lodash";
+import _, { isNil, pick } from "lodash";
 import { prisma } from "src/server/db";
 import type { EventType, Prisma } from "@prisma/client";
 import { nanoid } from "nanoid";
@@ -36,15 +36,7 @@ export default async function event(req: NextApiRequest, res: NextApiResponse) {
   const { host }: { host?: string | undefined | string[] } = pick(headersList, [
     "host",
   ]);
-  const {
-    title,
-    sessions,
-    limit,
-    location,
-    description,
-    gCalEvent: gCalEventRequested,
-    type,
-  } = event;
+  const { title, sessions, limit, location, description, type } = event;
 
   const user = await prisma.user.findUniqueOrThrow({
     where: {
@@ -69,22 +61,40 @@ export default async function event(req: NextApiRequest, res: NextApiResponse) {
         limit: Number(limit),
         proposerId: user.id,
         series: sessions.length > 1,
-        gCalEventRequested,
         type: isProd(host) ? type : "TEST",
       };
     });
   const subdomain = host?.split(".")[0];
-  const community = await prisma.community.findUnique({
+
+  let community = await prisma.community.findUnique({
     where: { subdomain: subdomain },
   });
-  const connectCommmunity = community
-    ? { connect: { id: community?.id } }
-    : undefined;
+
+  if (!community) {
+    // @note
+    // fallback on kernel community if subdomain not found
+    community = await prisma.community.findUnique({
+      where: { subdomain: "kernel" },
+    });
+  }
+
+  if (!community || isNil(community)) {
+    throw new Error(
+      "Community is undefined. Every event should belong to a community"
+    );
+  }
+
   const createEventsPromises = eventPayload.map((event) =>
     prisma.event.create({
-      data: { ...event, communities: connectCommmunity },
+      data: { ...event, communityId: community?.id },
       include: {
         proposer: true,
+        community: {
+          include: {
+            slack: true,
+            google: true,
+          },
+        },
       },
     })
   );
@@ -92,5 +102,30 @@ export default async function event(req: NextApiRequest, res: NextApiResponse) {
   console.log(
     `Created event for ${JSON.stringify(event)} for user: ${user.id}`
   );
+
+  // create events in google calendar
+  await fetch(
+    `${
+      host?.includes("localhost") ? "http" : "https"
+    }://${host}/api/actions/google/createEvent`,
+    {
+      body: JSON.stringify({ events: created, proposerEmail: user.email }),
+      method: "POST",
+      headers: { "Content-type": "application/json" },
+    }
+  );
+
+  // send notification on a slack channel
+  await fetch(
+    `${
+      host?.includes("localhost") ? "http" : "https"
+    }://${host}/api/actions/slack/notify`,
+    {
+      body: JSON.stringify({ eventId: created[0]?.id, type: "new" }),
+      method: "POST",
+      headers: { "Content-type": "application/json" },
+    }
+  );
+
   return res.status(200).json({ data: created });
 }

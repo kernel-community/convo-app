@@ -5,21 +5,16 @@ import { pick } from "lodash";
 import { prepareSlackMessage } from "src/server/utils/slack/prepareSlackMessage";
 import { DEFAULT_HOST } from "src/utils/constants";
 
-export default async function notifyAll(
+export default async function notify(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  console.log("[api] actions/slack/notifyAll");
+  console.log("[api] actions/slack/notify");
   const headersList = req.headers;
-
-  // fetch all bots from database
-  // trigger message
-
   const { eventId, type } = pick(req.body, ["eventId", "type"]);
   const { host }: { host?: string | undefined | string[] } = pick(headersList, [
     "host",
   ]);
-
   const event = await prisma.event.findUnique({
     where: {
       id: eventId,
@@ -32,6 +27,12 @@ export default async function notifyAll(
         },
       },
       collections: true,
+      community: {
+        include: {
+          google: true,
+          slack: true,
+        },
+      },
     },
   });
 
@@ -44,41 +45,20 @@ export default async function notifyAll(
     reqHost: host || DEFAULT_HOST,
     type, // "new" | "reminder" | "updated"
   });
-
-  let bots,
-    skip = 0,
-    pageNumber = 1;
-  const take = 4;
-  do {
-    bots = await prisma.slack.findMany({
-      take,
-      skip,
-    });
-    // send message to via all these bots
-    const clientsAndChannels = bots.map((bot) => {
-      return {
-        client: new WebClient(bot.botToken),
-        channel: bot.channel,
-      };
-    });
-    try {
-      const sendMessagesPromises = clientsAndChannels.map((obj) => {
-        return obj.client.chat.postMessage({
-          channel: obj.channel,
-          text,
-          username,
-          icon_emoji: icon,
-          blocks,
-        });
-      });
-      await Promise.all(sendMessagesPromises);
-    } catch (err) {
-      // do nothing, just log error and move on :)
-      console.log("there was an error", err);
-    }
-    skip = pageNumber * bots.length;
-    pageNumber++;
-  } while (bots.length > 0);
-
+  const bot = event.community?.slack?.botToken;
+  const channel = event.community?.slack?.channel;
+  if (!bot || !channel) {
+    throw new Error(
+      "bot or channel undefined. check config for the community in database"
+    );
+  }
+  const client = new WebClient(bot);
+  await client.chat.postMessage({
+    channel,
+    text,
+    username,
+    icon_emoji: icon,
+    blocks,
+  });
   return res.status(200).json({});
 }

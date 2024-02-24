@@ -1,4 +1,12 @@
-import type { Collection, Event, Rsvp, User } from "@prisma/client";
+import type {
+  Collection,
+  Community,
+  Event,
+  Google,
+  Rsvp,
+  Slack,
+  User,
+} from "@prisma/client";
 
 export type ServerEvent = Event & {
   proposer: User;
@@ -8,6 +16,12 @@ export type ServerEvent = Event & {
     }
   >;
   collections: Array<Collection>;
+  community:
+    | (Community & {
+        google: Google | null;
+        slack: Slack | null;
+      })
+    | null;
 };
 export type Session = Pick<ServerEvent, "id" | "limit" | "rsvps"> & {
   rsvpCount: number;

@@ -40,7 +40,7 @@ export const validationSchema = z.object({
     }),
   location: z.string().min(1, "Location is required"),
   nickname: z.string().optional(),
-  gCalEvent: z.boolean(),
+  gCalEvent: z.boolean().default(true),
   hash: z.string().optional(),
   email: z.string().optional(),
 });

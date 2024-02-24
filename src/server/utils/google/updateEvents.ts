@@ -21,14 +21,14 @@ export const parseEvents = (
 ): ParsedEvents => {
   const protocol = reqHost.includes("localhost") ? "http" : "https";
   const parsed = events.map((event) => {
-    if (!event.gCalEventId || !event.gCalId) {
+    if (!event.gCalEventId || !event.community.google.calendarId) {
       throw new Error(`gCalEventId or gCalId not found for: ${event}`);
     }
     const title = event.isDeleted ? `CANCELLED: ${event.title}` : event.title;
     return {
       databaseId: event.id,
       isDeleted: event.isDeleted,
-      gCalId: event.gCalId,
+      gCalId: event.community.google.calendarId,
       gCalEventId: event.gCalEventId,
       summary: title,
       start: {

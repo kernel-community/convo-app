@@ -21,6 +21,12 @@ export default async function getEventByHash(
         },
       },
       collections: true,
+      community: {
+        include: {
+          slack: true,
+          google: true,
+        },
+      },
     },
   });
   const formattedEvent = formatEvent(event);

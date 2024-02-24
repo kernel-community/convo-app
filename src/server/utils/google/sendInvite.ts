@@ -3,7 +3,11 @@ import { prisma } from "src/server/db";
 import { getEvent } from "./getEvent";
 
 export type EventIdentification = {
-  gCalId: string | null;
+  community: {
+    google: {
+      calendarId: string | null;
+    } | null;
+  } | null;
   gCalEventId: string | null;
 };
 
@@ -20,7 +24,15 @@ const prepareEventIds = async (
       },
       select: {
         gCalEventId: true,
-        gCalId: true,
+        community: {
+          select: {
+            google: {
+              select: {
+                calendarId: true,
+              },
+            },
+          },
+        },
       },
     })
   );
@@ -37,7 +49,7 @@ export const sendInvite = async ({
   const calendar = await getCalendar();
   const parsedEvents = await prepareEventIds(events);
   for (let i = 0; i < parsedEvents.length; i++) {
-    const calendarId = parsedEvents[i]?.gCalId;
+    const calendarId = parsedEvents[i]?.community?.google?.calendarId;
     const eventId = parsedEvents[i]?.gCalEventId;
     if (!calendarId || !eventId) {
       throw new Error(`Error: ${JSON.stringify({ calendarId, eventId })}`);

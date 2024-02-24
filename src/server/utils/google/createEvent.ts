@@ -1,7 +1,5 @@
 import { getCalendar } from "./getCalendar";
 import type { FullEvent } from "src/pages/api/actions/google/createEvent";
-import type { EventType } from "@prisma/client";
-import { CALENDAR_IDS } from "src/utils/constants";
 import type { calendar_v3 } from "googleapis";
 
 export const parseEvents = (
@@ -10,8 +8,11 @@ export const parseEvents = (
 ): Array<calendar_v3.Schema$Event & { calendarId: string }> => {
   const protocol = reqHost.includes("localhost") ? "http" : "https";
   const parsed = events.map((event) => {
+    if (!event.community.google.calendarId) {
+      throw new Error("set google calendar id in database");
+    }
     return {
-      calendarId: getCalendarId(event.type),
+      calendarId: event.community.google.calendarId,
       summary: `${event.title}`,
       attendees: [],
       start: {
@@ -33,18 +34,7 @@ export const parseEvents = (
   });
   return parsed;
 };
-const getCalendarId = (eventType: EventType | undefined | null) => {
-  switch (eventType) {
-    case "INTERVIEW":
-      return CALENDAR_IDS.interviews;
-    case "JUNTO":
-      return CALENDAR_IDS.convoProd;
-    case "TEST":
-      return CALENDAR_IDS.test;
-    default:
-      return CALENDAR_IDS.convoProd;
-  }
-};
+
 export const createEvents = async ({
   events,
   reqHost,

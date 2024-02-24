@@ -6,16 +6,8 @@ import type { ClientEventInput } from "src/components/ProposeForm";
 import type { ClientEvent } from "src/types";
 
 const parse = (event: ClientEvent): ClientEventInput => {
-  const {
-    title,
-    descriptionHtml,
-    sessions,
-    limit,
-    location,
-    nickname,
-    gCalEventRequested,
-    hash,
-  } = event;
+  const { title, descriptionHtml, sessions, limit, location, nickname, hash } =
+    event;
   const parsedSessions: ClientEventInput["sessions"] = sessions.map(
     (session, key) => {
       const start = new Date(session.startDateTime);
@@ -35,8 +27,8 @@ const parse = (event: ClientEvent): ClientEventInput => {
     limit: limit.toString(),
     location,
     nickname,
-    gCalEvent: gCalEventRequested,
     hash,
+    gCalEvent: true,
   };
 };
 

@@ -5,17 +5,20 @@
  * can also be called externally
  * either via an action button or as a database trigger (for rows with gCalEventRequested == true)
  */
-
-import type { Event, User } from "@prisma/client";
 import { pick } from "lodash";
 import type { NextApiRequest, NextApiResponse } from "next";
 import { createEvents } from "src/server/utils/google/createEvent";
 import { prisma } from "src/server/db";
 import { sendInvite } from "src/server/utils/google/sendInvite";
 import { DEFAULT_HOST } from "src/utils/constants";
+import type { Community, Event, Google, Slack, User } from "@prisma/client";
 
 export type FullEvent = Event & {
   proposer: User;
+  community: Community & {
+    google: Google;
+    slack: Slack;
+  };
 };
 
 export default async function createEventHandler(
@@ -49,7 +52,6 @@ export default async function createEventHandler(
       where: { id: id.databaseEventId },
       data: {
         gCalEventId: id.calendarEventId,
-        gCalId: id.calendarId,
       },
     });
   });
