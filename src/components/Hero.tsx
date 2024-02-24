@@ -28,7 +28,7 @@ const Hero = ({
         {title}
       </div>
       {createdAt && (
-        <div className="font-primary text-sm">
+        <div className="font-alegreya text-sm text-slate-200 hover:text-slate-300">
           scheduled on{" "}
           <span className="font-medium">
             {getDateTimeString(createdAt.toString(), "date")}
