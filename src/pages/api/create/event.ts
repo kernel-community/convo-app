@@ -104,28 +104,38 @@ export default async function event(req: NextApiRequest, res: NextApiResponse) {
   );
 
   // create events in google calendar
-  await fetch(
-    `${
-      host?.includes("localhost") ? "http" : "https"
-    }://${host}/api/actions/google/createEvent`,
-    {
-      body: JSON.stringify({ events: created, proposerEmail: user.email }),
-      method: "POST",
-      headers: { "Content-type": "application/json" },
-    }
-  );
+  try {
+    await fetch(
+      `${
+        host?.includes("localhost") ? "http" : "https"
+      }://${host}/api/actions/google/createEvent`,
+      {
+        body: JSON.stringify({ events: created, proposerEmail: user.email }),
+        method: "POST",
+        headers: { "Content-type": "application/json" },
+      }
+    );
+  } catch (err) {
+    console.log(`Error in creating google calendar event`);
+    console.error(err);
+  }
 
   // send notification on a slack channel
-  await fetch(
-    `${
-      host?.includes("localhost") ? "http" : "https"
-    }://${host}/api/actions/slack/notify`,
-    {
-      body: JSON.stringify({ eventId: created[0]?.id, type: "new" }),
-      method: "POST",
-      headers: { "Content-type": "application/json" },
-    }
-  );
+  try {
+    await fetch(
+      `${
+        host?.includes("localhost") ? "http" : "https"
+      }://${host}/api/actions/slack/notify`,
+      {
+        body: JSON.stringify({ eventId: created[0]?.id, type: "new" }),
+        method: "POST",
+        headers: { "Content-type": "application/json" },
+      }
+    );
+  } catch (err) {
+    console.log(`Error in sending slack notification`);
+    console.error(err);
+  }
 
   return res.status(200).json({ data: created });
 }
