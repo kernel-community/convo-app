@@ -162,7 +162,7 @@ export const Events = ({
         </div>
       )}
       {(!data || isLoading || isFetching) && (
-        <div className="py-3 sm:flex sm:flex-row sm:flex-wrap sm:gap-4">
+        <div className="flex flex-col gap-4 py-3 sm:flex-row sm:flex-wrap">
           <EventLoadingState />
           <EventLoadingState />
           <EventLoadingState />
