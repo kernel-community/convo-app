@@ -17,9 +17,7 @@ const Main = ({
   showLines?: boolean;
 }) => {
   const { pathname } = useRouter();
-  const displayLines: boolean = linesOverride
-    ? showLines
-    : pathname.includes("/");
+  const displayLines: boolean = linesOverride ? showLines : pathname === "/";
 
   return (
     <div className="relative flex min-h-screen flex-col overflow-hidden selection:bg-highlight selection:text-primary">
