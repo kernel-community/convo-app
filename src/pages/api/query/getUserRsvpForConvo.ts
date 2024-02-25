@@ -6,7 +6,6 @@ const getUserRsvpForConvo = async (
   req: NextApiRequest,
   res: NextApiResponse
 ) => {
-  console.log("getUserRsvpForConvo");
   const { userId, hash } = _.pick(req.body, ["userId", "hash"]);
   if (!userId || !hash) {
     throw new Error(`invalid request body: ${JSON.stringify(req.body)}`);
