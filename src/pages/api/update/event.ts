@@ -2,7 +2,7 @@
  * deletes all sessions if sessions array is empty
  */
 import type { NextApiRequest, NextApiResponse } from "next";
-import _ from "lodash";
+import _, { pick } from "lodash";
 import { prisma } from "src/server/db";
 import { getEventStartAndEnd } from "src/utils/dateTime";
 import type { ClientEvent, Session } from "../create/event";
@@ -19,6 +19,10 @@ export default async function event(req: NextApiRequest, res: NextApiResponse) {
   }: {
     event: ClientEditableEvent;
   } = _.pick(req.body, ["event"]);
+  const headersList = req.headers;
+  const { host }: { host?: string | undefined | string[] } = pick(headersList, [
+    "host",
+  ]);
 
   const { title, sessions, limit, location, description, hash } = event;
 
@@ -100,6 +104,24 @@ export default async function event(req: NextApiRequest, res: NextApiResponse) {
     Events updated: ${JSON.stringify(updated)}\n
     Events deleted: ${JSON.stringify(deleted)}
   `);
+
+  console.log(`updating events in gcal`);
+  // update events in google calendar
+  try {
+    await fetch(
+      `${
+        host?.includes("localhost") ? "http" : "https"
+      }://${host}/api/actions/google/updateEvent`,
+      {
+        body: JSON.stringify({ events: { updated, deleted } }),
+        method: "POST",
+        headers: { "Content-type": "application/json" },
+      }
+    );
+  } catch (err) {
+    console.log(`Error in updating/deleting google calendar event`);
+    console.error(err);
+  }
 
   res.status(200).json({
     data: {

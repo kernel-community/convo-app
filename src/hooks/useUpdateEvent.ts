@@ -31,28 +31,6 @@ const updateEventInDb = async ({
   return res;
 };
 
-const updateEventInGCal = async ({
-  events,
-}: {
-  events: { updated?: Array<FullEvent>; deleted?: Array<FullEvent> };
-}) => {
-  let res;
-  try {
-    res = (
-      await (
-        await fetch("/api/actions/google/updateEvent", {
-          body: JSON.stringify({ events }),
-          method: "POST",
-          headers: { "Content-type": "application/json" },
-        })
-      ).json()
-    ).data;
-  } catch (err) {
-    throw err;
-  }
-  return res;
-};
-
 const useUpdateEvent = () => {
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [isError, setIsError] = useState<boolean>(false);
@@ -89,15 +67,6 @@ const useUpdateEvent = () => {
     } catch (err) {
       setIsError(true);
       setIsSubmitting(false);
-    }
-
-    // @todo @angelagilhotra update event in google calendar
-    try {
-      if (updated && event.gCalEvent) {
-        await updateEventInGCal({ events: { updated, deleted } });
-      }
-    } catch (err) {
-      console.log(`Error in updating events in google calendar`);
     }
 
     setIsSubmitting(false);
