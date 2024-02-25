@@ -4,7 +4,7 @@ import { updateEvents } from "src/server/utils/google/updateEvents";
 import { DEFAULT_HOST } from "src/utils/constants";
 import type { FullEvent } from "./createEvent";
 
-export default async function createEventHandler(
+export default async function updateEventHandler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {

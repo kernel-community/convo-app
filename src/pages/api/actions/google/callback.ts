@@ -2,9 +2,9 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { prisma } from "src/server/db";
 import { google } from "googleapis";
-import { isNil, pick } from "lodash";
+import { pick } from "lodash";
 import { getCredentials } from "./credentials";
-import isProd from "src/utils/isProd";
+import getCommunity from "src/server/utils/getCommunity";
 
 export default async function callback(
   req: NextApiRequest,
@@ -18,12 +18,13 @@ export default async function callback(
     origin?: string | undefined | string[];
     host?: string | undefined | string[];
   } = pick(headers, ["origin", "host"]);
-  const subdomain = host?.split(".")[0];
-  if (!origin) {
-    throw new Error("why is origin not defined???");
+  if (!origin || !host) {
+    throw new Error("why is origin or host not defined???");
   }
+  const community = await getCommunity(host);
   // code that was received in the callback
   const { code }: { code: string } = pick(req.body, ["code"]);
+
   const {
     clientId,
     clientSecret,
@@ -33,7 +34,7 @@ export default async function callback(
     tokenUri,
     authProviderX509CertUrl,
     javascriptOrigins,
-  } = await getCredentials(origin);
+  } = await getCredentials({ origin, communityId: community.id });
 
   if (
     !clientId ||
@@ -80,19 +81,6 @@ export default async function callback(
   ) {
     throw new Error(
       "Error: one of access_token || refresh_token || scope || token_type || expiry_date undefined"
-    );
-  }
-  let community = await prisma.community.findUnique({ where: { subdomain } });
-  if (!community) {
-    // @note
-    // fallback on kernel community if subdomain not found
-    community = await prisma.community.findUnique({
-      where: { subdomain: isProd(host) ? "kernel" : "staging" },
-    });
-  }
-  if (!community || isNil(community)) {
-    throw new Error(
-      "Community is undefined. Every event should belong to a community"
     );
   }
   const tokenUpdated = await prisma.google.upsert({

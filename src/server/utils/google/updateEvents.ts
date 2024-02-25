@@ -12,6 +12,7 @@ type ParsedEvents = Array<
     gCalId?: string | null;
     isDeleted?: boolean;
     databaseId?: string;
+    communityId: string;
   }
 >;
 
@@ -25,6 +26,9 @@ export const parseEvents = (
       throw new Error(`gCalEventId or gCalId not found for: ${event}`);
     }
     const title = event.isDeleted ? `CANCELLED: ${event.title}` : event.title;
+    if (!event.communityId) {
+      throw new Error("community id must be defined for all events");
+    }
     return {
       databaseId: event.id,
       isDeleted: event.isDeleted,
@@ -40,6 +44,7 @@ export const parseEvents = (
       guestsCanSeeOtherGuests: false,
       guestsCanInviteOthers: false, // @note default = true; if required, can make this a param
       location: event.location,
+      communityId: event.communityId,
       description:
         `${event.descriptionHtml}${
           event.proposer.nickname
@@ -76,8 +81,6 @@ export const updateEvents = async ({
   const allEvents = [...events.updated, ...deletedEvents];
   const parsedEvents = parseEvents(allEvents, reqHost);
 
-  const calendar = await getCalendar();
-
   const eventsToUpdate: ParsedEvents = [];
   // fetch and prefill attendees so the API doesn't wipe them
   // idk why google apis do that 🤷🏽‍♀️
@@ -96,7 +99,11 @@ export const updateEvents = async ({
       continue;
     }
     const calendarId = parsedEvent.gCalId;
-    const event = await getEvent(calendarId, parsedEvent.gCalEventId);
+    const event = await getEvent({
+      eventId: parsedEvent.gCalEventId,
+      calendarId,
+      communityId: parsedEvent.communityId,
+    });
     const attendees = event.attendees || [];
     eventsToUpdate.push({
       ...parsedEvent,
@@ -104,8 +111,13 @@ export const updateEvents = async ({
     });
   }
 
+  const updated = [];
+
   // update event on google calendar
-  const updateGcalPromises = eventsToUpdate.map((e) => {
+  for (let i = 0; i < eventsToUpdate.length; i++) {
+    const e = eventsToUpdate[i];
+    if (!e) continue;
+    const calendar = await getCalendar({ communityId: e.communityId });
     const requestBody = pick(e, [
       "summary",
       "attendees",
@@ -119,13 +131,13 @@ export const updateEvents = async ({
     if (!e.gCalId) {
       throw "e.gCalId undefined";
     }
-    return calendar.events.patch({
+    const updatedEvent = await calendar.events.patch({
       eventId: e.gCalEventId,
       calendarId: e.gCalId,
       requestBody: requestBody,
     });
-  });
-  const updated = await Promise.all(updateGcalPromises);
+    updated.push(updatedEvent);
+  }
 
   const ids = updated.map((i, key) => {
     return {

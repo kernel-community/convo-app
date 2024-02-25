@@ -1,6 +1,7 @@
 import { getCalendar } from "./getCalendar";
 import type { FullEvent } from "src/pages/api/actions/google/createEvent";
 import type { calendar_v3 } from "googleapis";
+import { isNil } from "lodash";
 
 export const parseEvents = (
   events: Array<FullEvent>,
@@ -49,7 +50,13 @@ export const createEvents = async ({
   }>
 > => {
   const parsedEvents = parseEvents(events, reqHost);
-  const calendar = await getCalendar();
+  const communityId = events[0]?.communityId;
+  if (!communityId || isNil(communityId)) {
+    throw new Error(
+      "Community is undefined. Every event should belong to a community"
+    );
+  }
+  const calendar = await getCalendar({ communityId });
   const createPromises = parsedEvents.map((e) => {
     return calendar.events.insert({
       calendarId: e.calendarId,

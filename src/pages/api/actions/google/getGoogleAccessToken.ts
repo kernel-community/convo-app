@@ -3,6 +3,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { google } from "googleapis";
 import { getCredentials } from "./credentials";
 import { pick } from "lodash";
+import getCommunity from "src/server/utils/getCommunity";
 
 export const scopes = [
   "https://www.googleapis.com/auth/calendar",
@@ -14,14 +15,24 @@ export default async function getGoogleAccessToken(
   res: NextApiResponse
 ) {
   const headers = req.headers;
-  const { origin }: { origin?: string | undefined | string[] } = pick(headers, [
-    "origin",
-  ]);
-  if (!origin) {
-    throw new Error("why is origin not defined???");
+  const {
+    origin,
+    host,
+  }: {
+    origin?: string | undefined | string[];
+    host?: string | undefined | string[];
+  } = pick(headers, ["origin", "host"]);
+  if (!origin || !host) {
+    throw new Error("why is origin or host not defined???");
   }
 
-  const { clientId, clientSecret, redirectUris } = await getCredentials(origin);
+  const community = await getCommunity(host);
+
+  const { clientId, clientSecret, redirectUris } = await getCredentials({
+    origin,
+    communityId: community.id,
+  });
+
   const oAuth2Client = new google.auth.OAuth2(
     clientId,
     clientSecret,

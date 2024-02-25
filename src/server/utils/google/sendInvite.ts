@@ -9,6 +9,7 @@ export type EventIdentification = {
     } | null;
   } | null;
   gCalEventId: string | null;
+  communityId: string | null;
 };
 
 const prepareEventIds = async (
@@ -33,6 +34,7 @@ const prepareEventIds = async (
             },
           },
         },
+        communityId: true,
       },
     })
   );
@@ -46,15 +48,21 @@ export const sendInvite = async ({
   events: Array<string>;
   attendeeEmail: string;
 }): Promise<void> => {
-  const calendar = await getCalendar();
   const parsedEvents = await prepareEventIds(events);
   for (let i = 0; i < parsedEvents.length; i++) {
+    const communityId = parsedEvents[i]?.communityId;
+    if (!communityId) {
+      throw new Error(
+        `parsing events error: each event must have a community defined. Event: ${parsedEvents[i]}`
+      );
+    }
+    const calendar = await getCalendar({ communityId });
     const calendarId = parsedEvents[i]?.community?.google?.calendarId;
     const eventId = parsedEvents[i]?.gCalEventId;
     if (!calendarId || !eventId) {
       throw new Error(`Error: ${JSON.stringify({ calendarId, eventId })}`);
     }
-    const event = await getEvent(calendarId, eventId);
+    const event = await getEvent({ calendarId, eventId, communityId });
     const attendees = event.attendees ? event.attendees : [];
     const alreadyRsvpd = !!attendees.find(
       (attendee) => attendee.email === attendeeEmail

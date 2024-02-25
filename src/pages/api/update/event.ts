@@ -59,6 +59,11 @@ export default async function event(req: NextApiRequest, res: NextApiResponse) {
       },
       include: {
         proposer: true,
+        community: {
+          include: {
+            google: true,
+          },
+        },
       },
     });
   });

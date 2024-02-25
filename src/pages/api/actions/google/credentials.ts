@@ -8,19 +8,23 @@ const credentials = {
   clientSecret: process.env.CLIENT_SECRET,
 };
 
-export const getCredentials = async (origin: string) => {
-  // @todo fetch credentials based on the current community
-  const a = await prisma.google.findFirst({
+export const getCredentials = async ({
+  origin,
+  communityId,
+}: {
+  origin: string;
+  communityId: string;
+}) => {
+  const a = await prisma.google.findUniqueOrThrow({
     select: {
       redirectUris: true,
-    },
-  });
-  const b = await prisma.google.findFirst({
-    select: {
       javascriptOrigins: true,
     },
+    where: {
+      communityId,
+    },
   });
-  if (!a || !b) {
+  if (!a.javascriptOrigins || !a.redirectUris || !a) {
     throw new Error(
       "redirect uris or javascript origins not present in the database"
     );
@@ -29,7 +33,7 @@ export const getCredentials = async (origin: string) => {
   const removedSelectedUri = a.redirectUris.filter((_uri) => _uri !== uri);
   return {
     ...credentials,
-    javascriptOrigins: b.javascriptOrigins,
+    javascriptOrigins: a.javascriptOrigins,
     redirectUris: [uri, ...removedSelectedUri],
   };
 };

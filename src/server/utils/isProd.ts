@@ -6,5 +6,5 @@ import { STAGING } from "src/utils/constants";
 
 export default function isProd(host?: string) {
   if (!host) return false;
-  return !(host === STAGING || host === "localhost");
+  return !(host.includes(STAGING) || host.includes("localhost"));
 }
