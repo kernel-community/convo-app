@@ -150,6 +150,7 @@ export const Events = ({
           )}
           {isLoading || (isFetching && <EventLoadingState />)}
           {!isLoading &&
+            !isFetching &&
             data &&
             data.pages[0].data &&
             data.pages[0].data.length === 0 && (
