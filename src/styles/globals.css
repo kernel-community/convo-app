@@ -25,6 +25,62 @@
   font-display: swap;
 }
 
+@font-face {
+  font-family: "Montserrat";
+  src: url("/fonts/Montserrat/Montserrat-VariableFont_wght.ttf");
+  font-style: "normal";
+  font-weight: "normal";
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Bitter";
+  src: url("/fonts/Bitter/Bitter-VariableFont_wght.ttf");
+  font-style: "normal";
+  font-weight: "normal";
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Libre_Franklin";
+  src: url("/fonts/Libre_Franklin/LibreFranklin-VariableFont_wght.ttf");
+  font-style: "normal";
+  font-weight: "normal";
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Licorice";
+  src: url("/fonts/Licorice/Licorice-Regular.ttf");
+  font-style: "normal";
+  font-weight: "normal";
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Nanum_Myeongjo";
+  src: url("/fonts/Nanum_Myeongjo/NanumMyeongjo-Regular.ttf");
+  font-style: "normal";
+  font-weight: "normal";
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Alegreya_Sans";
+  src: url("/fonts/Alegreya_Sans/AlegreyaSans-Regular.ttf");
+  font-style: "normal";
+  font-weight: "normal";
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Inter";
+  src: url("/fonts/Inter/Inter-VariableFont_slnt,wght.ttf");
+  font-style: "normal";
+  font-weight: "normal";
+  font-display: swap;
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;
