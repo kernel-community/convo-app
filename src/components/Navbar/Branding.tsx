@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Fragment } from "react";
 import useCurrentCommunity from "src/hooks/useCurrentCommunity";
 export const Branding = () => {
   const { data: community } = useCurrentCommunity();
@@ -12,16 +13,19 @@ export const Branding = () => {
     >
       <Link href="/">convo</Link>
 
-      <span>|</span>
       {community && (
-        <a
-          // href="https://www.shefi.org/"
-          target="_blank"
-          rel="noreferrer"
-          className="font-bitter text-xxs font-medium normal-case italic text-slate-400/80 hover:text-slate-400/100"
-        >
-          for {community.displayName}
-        </a>
+        <Fragment>
+          <span>|</span>
+
+          <a
+            // href="https://www.shefi.org/"
+            target="_blank"
+            rel="noreferrer"
+            className="font-bitter text-xxs font-medium normal-case italic text-slate-400/80 hover:text-slate-400/100"
+          >
+            for {community.displayName}
+          </a>
+        </Fragment>
       )}
     </div>
   );
