@@ -2,7 +2,6 @@ import { QueryClient, QueryClientProvider } from "react-query";
 import "../styles/globals.css";
 import type { AppProps } from "next/app";
 import { Analytics } from "@vercel/analytics/react";
-import { NextSeo } from "next-seo";
 import { UserProvider } from "src/context/UserContext";
 import { DynamicContextProvider } from "@dynamic-labs/sdk-react";
 import { DynamicWagmiConnector } from "@dynamic-labs/wagmi-connector";
@@ -13,6 +12,7 @@ import SharedSpace from "src/components/SharedSpace";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { TooltipProvider } from "src/components/ui/tooltip";
+import Head from "next/head";
 
 const queryClient = new QueryClient();
 
@@ -26,96 +26,40 @@ const MyApp = ({ Component, pageProps: { ...pageProps } }: AppProps) => {
   const [room, setRoom] = useState<string>("convo-room");
   useEffect(() => {
     const route = router.asPath.replace(/[^a-zA-Z ]/g, "");
-    console.log(route);
     setRoom(`convo-room-${route}-${process.env.NODE_ENV}`);
   }, [router.asPath]);
 
   return (
     <>
-      <NextSeo
-        titleTemplate="Convo | %s"
-        defaultTitle="Convo Cafe"
-        description="A home for conversations taking place in the Kernel network"
-        openGraph={{
-          url: "https://convo.kernel.community",
-          title: "Convo Cafe, by Kernel",
-          description:
-            "A home for conversations taking place in the Kernel network",
-          images: [
-            {
-              url: "https://confab-frontend.vercel.app/images/banner.jpg",
-              alt: "Kernel squares and circles",
-              type: "image/jpeg",
-            },
-          ],
-          site_name: "Convo Cafe",
-        }}
-        twitter={{
-          handle: "@kernel0x",
-          site: "https://kernel.community",
-          cardType: "summary_large_image",
-        }}
-        additionalLinkTags={[
-          {
-            rel: "stylesheet",
-            href: "https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap",
-          },
-          {
-            rel: "stylesheet",
-            href: "https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@200;300;400;500;600;700;800;900&display=swap",
-          },
-          {
-            rel: "stylesheet",
-            href: "https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,300;0,400;0,500;0,700;0,900;1,300;1,400;1,500;1,700;1,900&display=swap",
-          },
-          {
-            rel: "stylesheet",
-            href: "https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,700;1,400;1,700&display=swap",
-          },
-          {
-            rel: "stylesheet",
-            href: "https://fonts.googleapis.com/css2?family=Alegreya+Sans+SC:ital,wght@0,300;0,400;0,500;0,700;0,800;1,300;1,400;1,500;1,700;1,800&display=swap",
-          },
-          {
-            rel: "stylesheet",
-            href: "https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&display=swap",
-          },
-          {
-            rel: "stylesheet",
-            href: "https://fonts.googleapis.com/css2?family=Licorice&display=swap",
-          },
-          {
-            rel: "stylesheet",
-            href: "https://fonts.googleapis.com/css2?family=Libre+Franklin:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&display=swap",
-          },
-          {
-            rel: "stylesheet",
-            href: "https://fonts.googleapis.com/css2?family=Bitter:ital,wght@0,100..900;1,100..900&display=swap",
-          },
-          {
-            rel: "stylesheet",
-            href: "https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap",
-          },
-          {
-            rel: "preload",
-            href: "/fonts/Futura/futura-medium.ttf",
-            as: "font",
-            crossOrigin: "anonymous",
-          },
-          {
-            rel: "preload",
-            href: "/fonts/Cedarville_Cursive/CedarvilleCursive-Regular.ttf",
-            as: "font",
-            crossOrigin: "anonymous",
-          },
-          {
-            rel: "preload",
-            href: "/fonts/Holland_Land/Holland-Land.ttf",
-            as: "font",
-            crossOrigin: "anonymous",
-          },
-        ]}
-      />
+      <Head>
+        <title>Convo Cafe</title>
+        <meta
+          name="description"
+          content="i got 99 problems but a startup ain't one"
+        />
+
+        {/* OpenGraph */}
+        <meta property="og:title" content={`Convo Cafe`} key="title" />
+        <meta property="og:url" content={`https://convo.cafe`} />
+        <meta
+          property="og:image"
+          content="https://confab-frontend.vercel.app/images/banner.jpg"
+        />
+
+        {/* Twitter */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={`Convo Cafe`} />
+        <meta
+          name="twitter:image"
+          content="https://confab-frontend.vercel.app/images/banner.jpg"
+        />
+
+        <meta name="robots" content="index, follow, nocache" />
+        <meta
+          name="googlebot"
+          content="index, follow, noimageindex, max-video-preview:-1, max-image-preview:large, max-snippet:-1"
+        />
+      </Head>
       <DynamicContextProvider
         settings={{
           environmentId:
