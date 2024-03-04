@@ -2,8 +2,12 @@ import { Dot } from "lucide-react";
 import { Branding } from "./Branding";
 import { ConnectButton } from "./ConnectButton";
 import { Items } from "./Items";
+import { useMediaQuery } from "src/hooks/useMediaQuery";
+const desktop = "(min-width: 768px)";
 
 export const Navbar = () => {
+  const isDesktop = useMediaQuery(desktop);
+
   return (
     <>
       <div
@@ -32,7 +36,7 @@ export const Navbar = () => {
         </div>
         <div className="inline-flex flex-row items-center gap-4">
           <Items />
-          <ConnectButton />
+          {isDesktop && <ConnectButton />}
         </div>
       </div>
     </>

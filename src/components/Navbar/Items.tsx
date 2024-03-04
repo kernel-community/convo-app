@@ -3,22 +3,14 @@ import {
   CalendarDays,
   CalendarPlus,
   HomeIcon,
-  MoreHorizontal,
+  Menu,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { Fragment } from "react";
 import { useMediaQuery } from "src/hooks/useMediaQuery";
-import {
-  Drawer,
-  DrawerClose,
-  DrawerContent,
-  DrawerDescription,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerTrigger,
-} from "src/components/ui/drawer";
+import { Drawer, DrawerContent, DrawerTrigger } from "src/components/ui/drawer";
+import { ConnectButton } from "./ConnectButton";
 
 const iconStyle = "w-4 h-4";
 
@@ -77,9 +69,9 @@ export const Items = () => {
   return (
     <Drawer direction="right">
       <DrawerTrigger>
-        <MoreHorizontal />
+        <Menu />
       </DrawerTrigger>
-      <DrawerContent className="left-24 h-full">
+      <DrawerContent className="rounded-none left-24 h-full rounded-l-lg">
         <div className="flex flex-col gap-3 p-3">
           {items.map((item, index) => (
             <Fragment key={index}>
@@ -95,6 +87,7 @@ export const Items = () => {
               </Link>
             </Fragment>
           ))}
+          <ConnectButton />
         </div>
       </DrawerContent>
     </Drawer>
