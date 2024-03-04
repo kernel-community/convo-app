@@ -44,12 +44,12 @@ export const Items = () => {
   const isDesktop = useMediaQuery(desktop);
   if (isDesktop) {
     return (
-      <div className="flex flex-row gap-6 pt-3">
+      <div className="flex flex-row gap-1 pt-3">
         {items.map((item, index) => (
           <Fragment key={index}>
             <Link href={item.href}>
               <span
-                className={`group inline-flex cursor-pointer flex-col items-center text-sm lowercase text-slate-200`}
+                className={`group inline-flex w-20 cursor-pointer flex-col items-center text-sm lowercase text-slate-200`}
               >
                 <span className="group-hover:block">{item.text}</span>
                 <div
