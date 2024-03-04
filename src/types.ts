@@ -47,6 +47,7 @@ export type EventsRequest = {
     | "today"
     | "week"
     | "month"
+    | "nextTwentyEightDays"
     | "collection";
   now: Date | string;
   take?: number;

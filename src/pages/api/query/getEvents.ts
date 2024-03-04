@@ -38,6 +38,9 @@ export default async function getEvents(
   const sevenDaysFromNow = DateTime.fromJSDate(Now)
     .plus({ days: 7 })
     .toJSDate();
+  const twentyEightDaysFromNow = DateTime.fromJSDate(Now)
+    .plus({ days: 28 })
+    .toJSDate();
   const startOfNextMonth = DateTime.fromJSDate(Now)
     .plus({ months: 1 })
     .startOf("month")
@@ -175,6 +178,25 @@ export default async function getEvents(
             },
             endDateTime: {
               lt: sevenDaysFromNow,
+            },
+            ...defaultWheres,
+          },
+          orderBy: {
+            startDateTime: "asc",
+          },
+        });
+      }
+      break;
+    case "nextTwentyEightDays":
+      {
+        serverEvents = await prisma.event.findMany({
+          ...defaultIncludes,
+          where: {
+            startDateTime: {
+              gte: Now,
+            },
+            endDateTime: {
+              lt: twentyEightDaysFromNow,
             },
             ...defaultWheres,
           },
