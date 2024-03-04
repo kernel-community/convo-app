@@ -7,16 +7,15 @@ export const Branding = () => {
   return (
     <div
       className={`
-        flex cursor-pointer flex-row items-center gap-3
-        py-5 uppercase
+        flex cursor-pointer flex-row items-center gap-2
+        py-5 font-heading capitalize
         `}
     >
-      <Link href="/">convo</Link>
+      <Link href="/">convo.</Link>
 
       {community && (
         <Fragment>
           <span>|</span>
-
           <a
             // href="https://www.shefi.org/"
             target="_blank"
