@@ -1,6 +1,7 @@
-import { pick } from "lodash";
+import { isNil, pick } from "lodash";
 import type { NextApiRequest, NextApiResponse } from "next";
 import { prisma } from "src/server/db";
+import isProd from "src/server/utils/isProd";
 
 export default async function getCurrentCommunity(
   req: NextApiRequest,
@@ -15,8 +16,20 @@ export default async function getCurrentCommunity(
   if (!subdomain) {
     throw new Error("subdomain undefined");
   }
-  const community = await prisma.community.findUnique({
+  let community = await prisma.community.findUnique({
     where: { subdomain },
   });
+  if (!community) {
+    // @note
+    // fallback on kernel community if subdomain not found
+    community = await prisma.community.findUnique({
+      where: { subdomain: isProd(host) ? "kernel" : "staging" },
+    });
+  }
+  if (!community || isNil(community)) {
+    throw new Error(
+      "Community is undefined. Every event should belong to a community"
+    );
+  }
   return res.status(200).json({ data: community });
 }
