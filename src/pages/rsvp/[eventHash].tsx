@@ -7,13 +7,13 @@ import type { ClientEvent } from "src/types";
 
 const Post = ({ hostname, data }: { hostname: string; data: ClientEvent }) => {
   const { fetchedUser: user } = useUser();
-  const isEditable = user.id === data?.proposer.id;
+  const isEditable = user ? user.id === data.proposer.id : false;
+  if (!data) return <></>;
   return (
     <Main className="px-6 lg:px-52">
       <Head>
-        <title>Convo | {data?.title}</title>
+        <title>{`Convo | ${data.title}`}</title>
         <meta name="description" content="The kernel of a conversation" />
-
         {/* OpenGraph */}
         <meta
           property="og:title"
