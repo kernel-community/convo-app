@@ -88,7 +88,8 @@ export const SessionsDetailsNonSubmittable = ({
   const { sessions: sortedSessions } = sortSessions(sessions);
   return (
     <div>
-      <div className="mx-auto mt-8 grid max-w-xl divide-y divide-neutral-200">
+      <div className="mx-auto mt-8 grid max-w-xl gap-4 divide-y divide-neutral-200">
+        <div>Expand to See RSVPs/Signups</div>
         {sortedSessions.map((session, key) => {
           return (
             <div className="py-5" key={key}>
