@@ -10,12 +10,12 @@ const Footer = () => {
     >
       <div className="flex flex-row items-center justify-center">
         <span className="lowercase">
-          Built at&nbsp;
+          Built at{" "}
           <a
             href="https://kernel.community/"
             target="_blank"
             rel="noopener noreferrer"
-            className="uppercase text-secondary"
+            className="normal-case text-secondary"
           >
             Kernel
           </a>
