@@ -15,7 +15,7 @@ export const Branding = () => {
       <span>|</span>
       {community && (
         <a
-          href="https://www.shefi.org/"
+          // href="https://www.shefi.org/"
           target="_blank"
           rel="noreferrer"
           className="font-bitter text-xxs font-medium normal-case italic text-slate-400/80 hover:text-slate-400/100"
