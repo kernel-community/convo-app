@@ -11,16 +11,13 @@ const Post = ({ hostname, data }: { hostname: string; data: ClientEvent }) => {
   return (
     <Main className="px-6 lg:px-52">
       <Head>
-        <title>Convo | {data.title}</title>
-        <meta
-          name="description"
-          content="i got 99 problems but a startup ain't one"
-        />
+        <title>Convo | {data?.title}</title>
+        <meta name="description" content="The kernel of a conversation" />
 
         {/* OpenGraph */}
         <meta
           property="og:title"
-          content={`Convo | ${data.title}`}
+          content={`Convo | ${data?.title}`}
           key="title"
         />
         <meta
@@ -38,7 +35,7 @@ const Post = ({ hostname, data }: { hostname: string; data: ClientEvent }) => {
 
         {/* Twitter */}
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content={`Convo | ${data.title}`} />
+        <meta name="twitter:title" content={`Convo | ${data?.title}`} />
         <meta
           name="twitter:image"
           content="https://confab-frontend.vercel.app/images/banner.jpg"
