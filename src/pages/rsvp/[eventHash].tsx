@@ -4,10 +4,23 @@ import { RsvpIntentionProvider } from "src/context/RsvpIntentionContext";
 import { useUser } from "src/context/UserContext";
 import Head from "next/head";
 import type { ClientEvent } from "src/types";
+import useEvent from "src/hooks/useEvent";
+import { useRouter } from "next/router";
 
 const Post = ({ hostname, data }: { hostname: string; data: ClientEvent }) => {
   const { fetchedUser: user } = useUser();
-  const isEditable = user && data ? user.id === data.proposerId : false;
+
+  const { query } = useRouter();
+  const { eventHash } = query;
+  const {
+    isLoading,
+    isError,
+    data: fetchedEventData,
+  } = useEvent({ hash: eventHash });
+
+  const isEditable =
+    user && data ? user.id === fetchedEventData.proposerId : false;
+
   return (
     <Main className="px-6 lg:px-52">
       <Head>
@@ -47,9 +60,9 @@ const Post = ({ hostname, data }: { hostname: string; data: ClientEvent }) => {
         />
       </Head>
       <RsvpIntentionProvider>
-        {data && (
+        {!isLoading && !isError && fetchedEventData && (
           <EventWrapper
-            event={data}
+            event={fetchedEventData}
             isEditable={isEditable}
             hostname={hostname}
           />
