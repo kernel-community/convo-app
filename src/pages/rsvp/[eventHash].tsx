@@ -1,13 +1,13 @@
 import Main from "src/layouts/Main";
 import EventWrapper from "src/components/EventPage/EventWrapper";
 import { RsvpIntentionProvider } from "src/context/RsvpIntentionContext";
-// import { useUser } from "src/context/UserContext";
+import { useUser } from "src/context/UserContext";
 import Head from "next/head";
 import type { ClientEvent } from "src/types";
 
 const Post = ({ hostname, data }: { hostname: string; data: ClientEvent }) => {
-  // const { fetchedUser: user } = useUser();
-  // const isEditable = user && data ? user.id === data.proposerId : false;
+  const { fetchedUser: user } = useUser();
+  const isEditable = user && data ? user.id === data.proposerId : false;
   return (
     <Main className="px-6 lg:px-52">
       <Head>
@@ -48,7 +48,11 @@ const Post = ({ hostname, data }: { hostname: string; data: ClientEvent }) => {
       </Head>
       <RsvpIntentionProvider>
         {data && (
-          <EventWrapper event={data} isEditable={false} hostname={hostname} />
+          <EventWrapper
+            event={data}
+            isEditable={isEditable}
+            hostname={hostname}
+          />
         )}
       </RsvpIntentionProvider>
     </Main>
