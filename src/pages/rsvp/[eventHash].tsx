@@ -7,8 +7,7 @@ import type { ClientEvent } from "src/types";
 
 const Post = ({ hostname, data }: { hostname: string; data: ClientEvent }) => {
   const { fetchedUser: user } = useUser();
-  const isEditable = user ? user.id === data.proposer.id : false;
-  if (!data) return <></>;
+  const isEditable = user && data ? user.id === data.proposerId : false;
   return (
     <Main className="px-6 lg:px-52">
       <Head>
