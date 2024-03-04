@@ -52,9 +52,11 @@ export const Items = () => {
                 className={`group inline-flex cursor-pointer flex-col items-center text-sm lowercase text-slate-200`}
               >
                 <span className="group-hover:block">{item.text}</span>
-                {isActive(item.href) && (
-                  <div className="mt-3 h-1 w-full self-end rounded-t-sm bg-white" />
-                )}
+                <div
+                  className={`mt-3 h-1 w-full self-end rounded-t-sm ${
+                    isActive(item.href) ? "bg-white" : "bg-transparent"
+                  }`}
+                />
               </span>
             </Link>
           </Fragment>
