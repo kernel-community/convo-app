@@ -19,7 +19,7 @@ const Post = ({ hostname, data }: { hostname: string; data: ClientEvent }) => {
   } = useEvent({ hash: eventHash });
 
   const isEditable =
-    user && data ? user.id === fetchedEventData.proposerId : false;
+    user && fetchedEventData ? user.id === fetchedEventData.proposerId : false;
 
   return (
     <Main className="px-6 lg:px-52">
