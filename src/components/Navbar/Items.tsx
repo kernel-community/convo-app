@@ -44,21 +44,17 @@ export const Items = () => {
   const isDesktop = useMediaQuery(desktop);
   if (isDesktop) {
     return (
-      <div className="flex flex-row items-center gap-3">
+      <div className="flex flex-row gap-6 pt-3">
         {items.map((item, index) => (
           <Fragment key={index}>
             <Link href={item.href}>
               <span
-                className={`group inline-flex cursor-pointer flex-row items-center gap-2 rounded-full bg-zinc-600/50 px-[0.7rem]
-                py-[0.3rem] text-sm font-light lowercase text-slate-400
-                    ${isActive(item.href) && "bg-zinc-600/80 !text-slate-200"}
-                  `}
+                className={`group inline-flex cursor-pointer flex-col items-center text-sm lowercase text-slate-200`}
               >
-                {item.icon}
-                {!isActive(item.href) && (
-                  <span className="hidden group-hover:block">{item.text}</span>
+                <span className="group-hover:block">{item.text}</span>
+                {isActive(item.href) && (
+                  <div className="mt-3 h-1 w-full self-end rounded-t-sm bg-white" />
                 )}
-                {isActive(item.href) && item.text}
               </span>
             </Link>
           </Fragment>
@@ -69,19 +65,18 @@ export const Items = () => {
   return (
     <Drawer direction="right">
       <DrawerTrigger>
-        <Menu />
+        <Menu className="my-2" />
       </DrawerTrigger>
-      <DrawerContent className="rounded-none left-24 h-full rounded-l-lg">
+      <DrawerContent className="rounded-none left-24 h-full rounded-l-lg border-none bg-kernel">
         <div className="flex flex-col gap-3 p-3">
           {items.map((item, index) => (
             <Fragment key={index}>
               <Link href={item.href}>
                 <span
-                  className={`group inline-flex cursor-pointer flex-row items-center gap-2 text-sm font-light lowercase text-black
-                ${isActive(item.href) ? `border-b-2 border-black` : ``}
+                  className={`group inline-flex cursor-pointer flex-row items-center gap-2 text-sm font-light lowercase text-white
+                ${isActive(item.href) ? `border-b-2 border-white` : ``}
                 `}
                 >
-                  {item.icon}
                   <span className="">{item.text}</span>
                 </span>
               </Link>

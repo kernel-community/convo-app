@@ -1,16 +1,12 @@
 import { DynamicUserProfile, useDynamicContext } from "@dynamic-labs/sdk-react";
-import { SquareUserRound, UserCircle2 } from "lucide-react";
 import { useUser } from "src/context/UserContext";
-import { useMediaQuery } from "src/hooks/useMediaQuery";
-const desktop = "(min-width: 768px)";
 export const ConnectButton = () => {
-  const isDesktop = useMediaQuery(desktop);
   const { fetchedUser: user } = useUser();
   const { setShowAuthFlow, setShowDynamicUserProfile } = useDynamicContext();
-  if (user.isSignedIn && isDesktop) {
+  if (user.isSignedIn) {
     // display user profile
     return (
-      <div>
+      <div className="mb-1">
         <button onClick={() => setShowDynamicUserProfile(true)}>
           <span className="text-slate-400">Signing as</span>{" "}
           <span className="text-slate-200">{user.nickname}</span>
@@ -19,35 +15,15 @@ export const ConnectButton = () => {
       </div>
     );
   }
-  if (user.isSignedIn && !isDesktop) {
-    return (
-      <div>
-        <button
-          onClick={() => setShowDynamicUserProfile(true)}
-          className="
-        flex cursor-pointer flex-row items-center gap-1
-        py-5
-        uppercase
-      "
-        >
-          <UserCircle2 strokeWidth={1.5} />
-        </button>
-        <DynamicUserProfile />
-      </div>
-    );
-  }
   return (
-    <button
+    <div
       onClick={() => {
         setShowAuthFlow(true);
       }}
-      className="
-        flex cursor-pointer flex-row items-center gap-1
-        py-5
-        uppercase
-      "
+      className="mb-1
+        cursor-pointer font-semibold lowercase text-highlight"
     >
-      Login
-    </button>
+      Log in
+    </div>
   );
 };
