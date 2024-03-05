@@ -79,7 +79,6 @@ export const sendInvite = async ({
         ...event,
         attendees,
       },
-      sendUpdates: "all",
     });
   }
   return;
