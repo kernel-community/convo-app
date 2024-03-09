@@ -165,12 +165,7 @@ const EventWrapper = ({
   return (
     <>
       <div className="flex flex-row items-center justify-between">
-        <Hero
-          title={title}
-          isImported={isImported}
-          isDeleted={isDeleted}
-          createdAt={createdAt}
-        />
+        <Hero title={title} isImported={isImported} isDeleted={isDeleted} />
         {isEditable && !event.isDeleted && (
           <Button onClick={navigateToEditPage}>Edit Event</Button>
         )}
