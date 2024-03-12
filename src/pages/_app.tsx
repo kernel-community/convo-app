@@ -33,10 +33,7 @@ const MyApp = ({ Component, pageProps: { ...pageProps } }: AppProps) => {
     <>
       <Head>
         <title>Convo Cafe</title>
-        <meta
-          name="description"
-          content="i got 99 problems but a startup ain't one"
-        />
+        <meta name="description" content="The kernel of a conversation" />
 
         {/* OpenGraph */}
         <meta property="og:title" content={`Convo Cafe`} key="title" />
