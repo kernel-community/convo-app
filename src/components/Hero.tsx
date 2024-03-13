@@ -1,16 +1,13 @@
-import { getDateTimeString } from "src/utils/dateTime";
 import { InfoBox } from "./InfoBox";
 
 const Hero = ({
   title,
   isImported,
   isDeleted,
-  createdAt,
 }: {
   title?: string;
   isImported?: boolean;
   isDeleted?: boolean;
-  createdAt?: Date;
 }) => {
   return (
     <div className="flex flex-col justify-items-start">
@@ -27,14 +24,6 @@ const Hero = ({
       >
         {title}
       </div>
-      {createdAt && (
-        <div className="font-alegreya text-sm text-slate-200 hover:text-slate-300">
-          scheduled on{" "}
-          <span className="font-medium">
-            {getDateTimeString(createdAt.toString(), "date")}
-          </span>
-        </div>
-      )}
       {isImported && (
         <InfoBox type="warning">
           This event was imported. The number of RSVPs might not be correct.
