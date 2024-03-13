@@ -28,9 +28,30 @@ const DateTime = ({
   session?: Session;
 }) => {
   const now = new Date();
+  const minDate = new Date(now.getTime() + 30 * 60000);
+
+  const thirtyMinutesFromNow = new Date(now.getTime() + 30 * 60000);
   const [startDate, setStartDate] = useState<Date | undefined>(
-    session?.dateTime
+    thirtyMinutesFromNow
   );
+  const startOfDay = new Date(now);
+  startOfDay.setHours(0, 0, 0, 0);
+  const excludedTimes = [];
+  if (startDate?.getDate() === now.getDate()) {
+    for (
+      let i = startOfDay.getHours();
+      i < thirtyMinutesFromNow.getHours();
+      i++
+    ) {
+      excludedTimes.push(
+        new Date(now.getFullYear(), now.getMonth(), now.getDate(), i)
+      );
+      excludedTimes.push(
+        new Date(now.getFullYear(), now.getMonth(), now.getDate(), i, 30)
+      );
+    }
+  }
+
   return (
     <div
       className={`
@@ -52,7 +73,8 @@ const DateTime = ({
             rounded-lg font-primary focus:border-primary
             focus:ring-primary
           `}
-          minDate={now}
+          excludeTimes={excludedTimes}
+          minDate={minDate}
         />
       </div>
       <div>
