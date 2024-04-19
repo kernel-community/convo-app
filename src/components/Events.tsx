@@ -132,18 +132,16 @@ export const Events = ({
           {data.pages.map((page) =>
             page.data.map((u: ClientEvent, k: Key) => {
               return (
-                <Link href={`/rsvp/${u.hash}`} key={k}>
-                  <div>
-                    <Card
-                      title={u.title}
-                      description={u.descriptionHtml ?? ""}
-                      startDateTime={u.startDateTime}
-                      RSVP={u.totalUniqueRsvps}
-                      limit={u.limit}
-                      by={u.nickname || "anonymous"}
-                      isSeries={u.series}
-                    />
-                  </div>
+                <Link href={`/rsvp/${u.hash}`} key={k} passHref>
+                  <Card
+                    title={u.title}
+                    description={u.descriptionHtml ?? ""}
+                    startDateTime={u.startDateTime}
+                    RSVP={u.totalUniqueRsvps}
+                    limit={u.limit}
+                    by={u.nickname || "anonymous"}
+                    isSeries={u.series}
+                  />
                 </Link>
               );
             })
