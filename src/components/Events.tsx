@@ -132,7 +132,7 @@ export const Events = ({
           {data.pages.map((page) =>
             page.data.map((u: ClientEvent, k: Key) => {
               return (
-                <Link href={`/rsvp/${u.hash}`} key={k} passHref>
+                <Link href={`/rsvp/${u.hash}`} key={k} prefetch={false}>
                   <Card
                     title={u.title}
                     description={u.descriptionHtml ?? ""}
