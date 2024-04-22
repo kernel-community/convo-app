@@ -12,6 +12,8 @@ import SharedSpace from "src/components/SharedSpace";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { TooltipProvider } from "src/components/ui/tooltip";
+import { SpeedInsights } from "@vercel/speed-insights/next";
+
 import Head from "next/head";
 
 const queryClient = new QueryClient();
@@ -104,6 +106,7 @@ const MyApp = ({ Component, pageProps: { ...pageProps } }: AppProps) => {
         </DynamicWagmiConnector>
       </DynamicContextProvider>
       <Analytics />
+      <SpeedInsights />
     </>
   );
 };
