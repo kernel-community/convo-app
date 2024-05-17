@@ -17,7 +17,8 @@
     "format:fix": "prettier --write --ignore-path .gitignore .",
     "prepare": "husky install",
     "trigger-build": "git commit --allow-empty -m 'Trigger Build' && git push",
-    "prod": "git checkout main && git merge staging && git push && git checkout staging"
+    "prod": "git checkout main && git merge staging && git push && git checkout staging",
+    "db:studio": "BROWSER=none prisma studio"
   },
   "lint-staged": {
     "*.{jsx,js,tsx,ts}": "prettier --write"
