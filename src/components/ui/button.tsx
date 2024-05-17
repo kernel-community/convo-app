@@ -13,7 +13,7 @@ const buttonVariants = cva(
         default:
           "rounded-xl py-2 px-16 font-kernel-light text-lg uppercase drop-shadow-xl transition-shadow duration-900 ease-in-out hover:shadow-md bg-kernel text-gray-200 hover:shadow-outline",
         destructive:
-          "bg-destructive text-destructive-foreground hover:bg-destructive/90",
+          "bg-destructive rounded-xl text-destructive-foreground hover:bg-destructive/90 py-2 px-16 font-kernel-light text-lg drop-shadow-xl",
         outline:
           "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
         secondary:
