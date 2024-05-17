@@ -1,3 +1,5 @@
+"use client";
+
 import Main from "src/layouts/Main";
 import Link from "next/link";
 import { Events } from "src/components/Events";

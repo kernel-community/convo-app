@@ -1,14 +1,20 @@
+"use client";
+
 import Main from "src/layouts/Main";
 import EventWrapper from "src/components/EventPage/EventWrapper";
 import { RsvpIntentionProvider } from "src/context/RsvpIntentionContext";
 import { useUser } from "src/context/UserContext";
 import useEvent from "src/hooks/useEvent";
-import { useRouter } from "next/router";
 
-const Post = ({ hostname }: { hostname: string }) => {
+const Post = ({
+  hostname,
+  params,
+}: {
+  hostname: string;
+  params: { eventHash: string };
+}) => {
   const { fetchedUser: user } = useUser();
-  const { query } = useRouter();
-  const { eventHash } = query;
+  const { eventHash } = params;
   const {
     isLoading,
     isError,
@@ -26,6 +32,7 @@ const Post = ({ hostname }: { hostname: string }) => {
             event={fetchedEventData}
             isEditable={isEditable}
             hostname={hostname}
+            eventHash={eventHash}
           />
         )}
       </RsvpIntentionProvider>

@@ -1,4 +1,3 @@
-import type { NextApiRequest, NextApiResponse } from "next";
 import _, { isNil } from "lodash";
 import { DateTime } from "luxon";
 import { prisma } from "src/server/db";
@@ -7,15 +6,19 @@ import { formatEvents } from "src/server/utils/formatEvent";
 import type { EventType } from "@prisma/client";
 import { Prisma } from "@prisma/client";
 import type { EventsRequest } from "src/types";
+import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
+import { headers } from "next/headers";
 import isProd from "src/utils/isProd";
 
 // now = from where to start fetching; reference
-export default async function getEvents(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
-  const hostname = req.headers.host;
+export async function POST(request: NextRequest) {
+  const headersList = headers();
+  const hostname = headersList.get("host") ?? "kernel";
   const subdomain = hostname?.split(".")[0];
+  const req = await request.json();
+
+  if (!req) throw new Error("body not found");
   const {
     now,
     take = 6,
@@ -23,13 +26,7 @@ export default async function getEvents(
     type,
     skip,
     filter,
-  }: EventsRequest = _.pick(req.body, [
-    "now",
-    "take",
-    "fromId",
-    "type",
-    "filter",
-  ]);
+  }: EventsRequest = _.pick(req, ["now", "take", "fromId", "type", "filter"]);
   const Now = DateTime.fromISO(now as string).toJSDate();
   const tomorrow12Am = DateTime.fromJSDate(Now)
     .plus({ days: 1 })
@@ -288,7 +285,8 @@ export default async function getEvents(
   events = formatEvents(serverEvents, filter);
   const lastEvent = events[events.length - 1];
   const nextId = events.length === take && lastEvent ? lastEvent.id : undefined;
-  res.status(200).json({
+
+  return NextResponse.json({
     data: events,
     nextId,
   });

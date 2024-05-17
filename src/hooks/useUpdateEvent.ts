@@ -1,6 +1,6 @@
 import { useState } from "react";
 import type { ClientEventInput } from "src/components/ProposeForm";
-import type { FullEvent } from "src/pages/api/actions/google/createEvent";
+import type { FullEvent } from "src/app/api/actions/google/createEvent";
 import useCreateEvent from "./useCreateEvent";
 
 // if the event is being edited, expect a hash in the object

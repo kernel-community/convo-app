@@ -1,5 +1,4 @@
 import { Navbar } from "src/components/Navbar";
-// import { useRouter } from "next/router";
 import Footer from "src/components/Footer";
 // import Image from "next/image";
 // import linesVector from "public/images/lines.png";

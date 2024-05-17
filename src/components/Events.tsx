@@ -3,14 +3,12 @@ import { Card } from "./Card";
 import type { Key } from "react";
 import { useEffect } from "react";
 import type { ClientEvent } from "src/types";
-import Link from "next/link";
 import { useInfiniteQuery } from "react-query";
 import { useInView } from "react-intersection-observer";
 import { DateTime } from "luxon";
 import { useUser } from "src/context/UserContext";
 import { useState } from "react";
 import type { EventsRequest } from "src/types";
-import { useRouter } from "next/router";
 import EventLoadingState from "./LoadingState/SingleEvent";
 
 const FilterButton = ({
@@ -54,7 +52,6 @@ export const Events = ({
   const [filterObject, setFilterObject] =
     useState<EventsRequest["filter"]>(preFilterObject);
   const { ref, inView } = useInView();
-  const { basePath } = useRouter();
   const {
     isLoading,
     isError,
@@ -74,7 +71,7 @@ export const Events = ({
         filter: filterObject,
       };
       const r = await (
-        await fetch(`${basePath}/api/query/getEvents`, {
+        await fetch(`/api/query/getEvents`, {
           body: JSON.stringify(requestObject),
           method: "POST",
           headers: { "Content-type": "application/json" },

@@ -1,16 +1,13 @@
-import { isNil, pick } from "lodash";
-import type { NextApiRequest, NextApiResponse } from "next";
+import { isNil } from "lodash";
+import { headers } from "next/headers";
+import { NextResponse, type NextRequest } from "next/server";
 import { prisma } from "src/server/db";
 import isProd from "src/server/utils/isProd";
 
-export default async function getCurrentCommunity(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
-  const headersList = req.headers;
-  const { host }: { host?: string | undefined | string[] } = pick(headersList, [
-    "host",
-  ]);
+export async function POST(request: NextRequest) {
+  const headersList = headers();
+  const host = headersList.get("host");
+
   const subdomain = host?.split(".")[0];
 
   if (!subdomain) {
@@ -31,5 +28,5 @@ export default async function getCurrentCommunity(
       "Community is undefined. Every event should belong to a community"
     );
   }
-  return res.status(200).json({ data: community });
+  return NextResponse.json({ data: community });
 }

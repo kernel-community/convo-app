@@ -1,12 +1,10 @@
-import { useRouter } from "next/router";
 import Main from "src/layouts/Main";
 import useCollection from "src/hooks/useCollection";
 import { Events } from "src/components/Events";
 import TitleLoadingState from "src/components/LoadingState/Title";
 
-const Post = () => {
-  const { query } = useRouter();
-  const { collectionId } = query;
+const Post = ({ params }: { params: { collectionId: string } }) => {
+  const collectionId = params.collectionId;
   const {
     isLoading: isCollectionLoading,
     isError,

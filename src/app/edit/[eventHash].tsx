@@ -1,4 +1,5 @@
-import type { NextPage } from "next";
+"use client";
+
 import type { ClientEventInput } from "src/components/ProposeForm";
 import ProposeForm from "src/components/ProposeForm";
 import useEvent from "src/hooks/useEvent";
@@ -12,11 +13,11 @@ import NotAllowedPage from "src/components/NotAllowedPage";
 import { useEffect, useState } from "react";
 import { Skeleton } from "src/components/ui/skeleton";
 import ConfirmDeleteCredenza from "../../components/EventPage/ConfirmDelete";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 
-const Edit: NextPage = () => {
-  const { query, push } = useRouter();
-  const { eventHash } = query;
+const Edit = ({ params }: { params: { eventHash: string } }) => {
+  const { push } = useRouter();
+  const { eventHash } = params;
   const { data } = useEvent({ hash: eventHash });
   const { update, isSubmitting: isLoading } = useUpdateEvent();
   const { fetchedUser: user } = useUser();

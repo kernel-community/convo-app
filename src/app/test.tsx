@@ -1,3 +1,5 @@
+"use client";
+
 import type { NextPage } from "next";
 import { useUser } from "src/context/UserContext";
 import Main from "src/layouts/Main";
