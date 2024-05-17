@@ -1,6 +1,6 @@
 import type { FieldErrorsImpl, UseFormRegister } from "react-hook-form";
 import FieldLabel from "src/components/StrongText";
-import type { BotInput } from "../../pages/admin/slack/index";
+import type { BotInput } from "src/app/admin/slack";
 
 const TextField = ({
   name,

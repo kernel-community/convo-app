@@ -3,7 +3,6 @@
 import Main from "src/layouts/Main";
 import Link from "next/link";
 import { Events } from "src/components/Events";
-import type { ReactNode } from "react";
 import { Button } from "src/components/ui/button";
 import useCurrentCommunity from "src/hooks/useCurrentCommunity";
 import { isNil, isUndefined } from "lodash";
@@ -77,12 +76,12 @@ const Home = () => {
   );
 };
 
-export const FancyHighlight = ({ children }: { children: ReactNode }) => {
-  return (
-    <span className="relative ml-2 mt-2 inline-block cursor-pointer before:absolute before:-inset-1 before:block before:-skew-y-3 before:bg-highlight">
-      <span className="relative text-primary">{children}</span>
-    </span>
-  );
-};
+// const FancyHighlight = ({ children }: { children: ReactNode }) => {
+//   return (
+//     <span className="relative ml-2 mt-2 inline-block cursor-pointer before:absolute before:-inset-1 before:block before:-skew-y-3 before:bg-highlight">
+//       <span className="relative text-primary">{children}</span>
+//     </span>
+//   );
+// };
 
 export default Home;
