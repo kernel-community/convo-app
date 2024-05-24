@@ -130,12 +130,12 @@ export type RsvpInput = z.infer<typeof rsvpInputSchema>;
 const EventWrapper = ({
   event,
   isEditable,
-  hostname,
+  // hostname,
   eventHash,
 }: {
   event: ClientEvent;
   isEditable: boolean;
-  hostname: string;
+  // hostname: string;
   eventHash: string;
 }) => {
   const {
@@ -192,7 +192,10 @@ const EventWrapper = ({
             />
           )}
           {!isEditable && (
-            <SessionsWrapper sessions={sessions} hostname={hostname} />
+            <SessionsWrapper
+              sessions={sessions}
+              // hostname={hostname}
+            />
           )}
           {!isEditable && (
             <SubmitRsvpSection

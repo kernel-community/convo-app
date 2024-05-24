@@ -1,8 +1,10 @@
+"use client";
+
 import type { NextPage } from "next";
 import Main from "src/layouts/Main";
 import { Events } from "src/components/Events";
 
-const Archive: NextPage = () => {
+const All: NextPage = () => {
   return (
     <>
       <Main>
@@ -24,12 +26,12 @@ const Archive: NextPage = () => {
               lg:py-5
             "
           >
-            Archive
+            all upcoming
           </div>
-          <Events type="past" take={50} infinite={true} showFilterPanel />
+          <Events type={"upcoming"} take={50} infinite={true} showFilterPanel />
         </div>
       </Main>
     </>
   );
 };
-export default Archive;
+export default All;

@@ -5,12 +5,13 @@ import EventWrapper from "src/components/EventPage/EventWrapper";
 import { RsvpIntentionProvider } from "src/context/RsvpIntentionContext";
 import { useUser } from "src/context/UserContext";
 import useEvent from "src/hooks/useEvent";
+import { useEffect, useState } from "react";
 
 const Post = ({
-  hostname,
+  // hostname,
   params,
 }: {
-  hostname: string;
+  // hostname: string;
   params: { eventHash: string };
 }) => {
   const { fetchedUser: user } = useUser();
@@ -20,6 +21,12 @@ const Post = ({
     isError,
     data: fetchedEventData,
   } = useEvent({ hash: eventHash });
+
+  // set hostname
+  const [hostname, setHostname] = useState<string>();
+  useEffect(() => {
+    setHostname(window.location.hostname);
+  }, []);
 
   const isEditable =
     user && fetchedEventData ? user.id === fetchedEventData.proposerId : false;
@@ -31,7 +38,7 @@ const Post = ({
           <EventWrapper
             event={fetchedEventData}
             isEditable={isEditable}
-            hostname={hostname}
+            // hostname={hostname}
             eventHash={eventHash}
           />
         )}
@@ -40,12 +47,4 @@ const Post = ({
   );
 };
 
-export async function getServerSideProps(context: any) {
-  return {
-    props: {
-      // Access the host from the headers (consider the "x-forwarded-host" if behind a proxy)
-      hostname: context.req.headers.host,
-    },
-  };
-}
 export default Post;

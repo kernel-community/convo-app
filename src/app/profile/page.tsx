@@ -1,3 +1,5 @@
+"use client";
+
 import type { NextPage } from "next";
 import Main from "src/layouts/Main";
 

@@ -1,13 +1,12 @@
 import _ from "lodash";
-import type { NextApiRequest, NextApiResponse } from "next";
+import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 import { prisma } from "src/server/db";
 import formatEvent from "src/server/utils/formatEvent";
 
-export default async function getEventByHash(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
-  const { hash } = _.pick(req.body, ["hash"]);
+export async function POST(req: NextRequest) {
+  const body = await req.json();
+  const { hash } = _.pick(body, ["hash"]);
   if (!hash) {
     throw new Error("Hash undefined in req.body");
   }
@@ -30,5 +29,5 @@ export default async function getEventByHash(
     },
   });
   const formattedEvent = formatEvent(event);
-  res.status(200).json({ data: formattedEvent });
+  return NextResponse.json({ data: formattedEvent });
 }

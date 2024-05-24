@@ -1,10 +1,10 @@
 import { isNil } from "lodash";
 import { headers } from "next/headers";
-import { NextResponse, type NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 import { prisma } from "src/server/db";
 import isProd from "src/server/utils/isProd";
 
-export async function POST(request: NextRequest) {
+export async function POST() {
   const headersList = headers();
   const host = headersList.get("host");
 

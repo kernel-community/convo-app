@@ -1,13 +1,11 @@
 import _ from "lodash";
-import type { NextApiRequest, NextApiResponse } from "next";
+import { NextResponse, type NextRequest } from "next/server";
 import { prisma } from "src/server/db";
 import formatEvent from "src/server/utils/formatEvent";
 
-export default async function getEventByIds(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
-  const { ids } = _.pick(req.body, ["ids"]);
+export async function POST(req: NextRequest) {
+  const body = await req.json();
+  const { ids } = _.pick(body, ["ids"]);
   if (!ids || ids.length === 0) {
     throw new Error("id undefined in req.body");
   }
@@ -30,7 +28,13 @@ export default async function getEventByIds(
   const events = await Promise.all(eventsPromises);
   if (events.length > 0) {
     const formattedEvents = formatEvent(events);
-    return res.status(200).json({ data: formattedEvents });
+    // return res.status(200).json({ data: formattedEvents });
+    return NextResponse.json({
+      data: formattedEvents,
+    });
   }
-  return res.status(200).json({ data: [] });
+  // return res.status(200).json({ data: [] });
+  return NextResponse.json({
+    data: [],
+  });
 }

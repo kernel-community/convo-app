@@ -1,3 +1,5 @@
+"use client";
+
 import type { NextPage } from "next";
 import ProposeForm from "src/components/ProposeForm";
 import Main from "src/layouts/Main";

@@ -5,7 +5,6 @@ import ProposeForm from "src/components/ProposeForm";
 import useEvent from "src/hooks/useEvent";
 import Main from "src/layouts/Main";
 import parse from "src/utils/clientEventToClientEventInput";
-import NotFoundPage from "../404";
 import { Button } from "src/components/ui/button";
 import useUpdateEvent from "src/hooks/useUpdateEvent";
 import { useUser } from "src/context/UserContext";
@@ -37,7 +36,7 @@ const Edit = ({ params }: { params: { eventHash: string } }) => {
   }, [user, data]);
 
   if (!clientEventInput) {
-    return <NotFoundPage />;
+    return <div>not found</div>;
   }
 
   if (isInvalidRequest) {
