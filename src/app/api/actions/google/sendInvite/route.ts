@@ -1,13 +1,11 @@
 import { pick } from "lodash";
-import type { NextApiRequest, NextApiResponse } from "next";
+import { NextResponse, type NextRequest } from "next/server";
 import { sendInvite } from "src/server/utils/google/sendInvite";
 
-export default async function sendInviteHandler(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
+export async function POST(req: NextRequest) {
+  const body = await req.json();
   const { events, email }: { events: Array<string>; email: string } = pick(
-    req.body,
+    body,
     ["events", "email"]
   );
 
@@ -20,7 +18,7 @@ export default async function sendInviteHandler(
     attendeeEmail: email,
   });
 
-  return res.status(200).json({
+  return NextResponse.json({
     data: true,
   });
 }

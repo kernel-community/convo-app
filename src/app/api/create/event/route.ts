@@ -1,10 +1,12 @@
-import type { NextApiRequest, NextApiResponse } from "next";
-import _, { isNil, pick } from "lodash";
+import _, { isNil } from "lodash";
 import { prisma } from "src/server/db";
 import type { EventType, Prisma } from "@prisma/client";
 import { nanoid } from "nanoid";
 import { getEventStartAndEnd } from "src/utils/dateTime";
 import isProd from "src/utils/isProd";
+import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
+import { headers } from "next/headers";
 
 export type Session = {
   dateTime: Date;
@@ -24,18 +26,17 @@ export type ClientEvent = {
   hash?: string;
 };
 
-export default async function event(req: NextApiRequest, res: NextApiResponse) {
+export async function POST(req: NextRequest) {
+  const body = await req.json();
   const {
     event,
     userId,
   }: {
     event: ClientEvent;
     userId: string;
-  } = _.pick(req.body, ["event", "userId", "hash"]);
-  const headersList = req.headers;
-  const { host }: { host?: string | undefined | string[] } = pick(headersList, [
-    "host",
-  ]);
+  } = _.pick(body, ["event", "userId", "hash"]);
+  const headersList = headers();
+  const host = headersList.get("host") ?? "kernel";
   const { title, sessions, limit, location, description, type } = event;
 
   const user = await prisma.user.findUniqueOrThrow({
@@ -137,5 +138,6 @@ export default async function event(req: NextApiRequest, res: NextApiResponse) {
     console.error(err);
   }
 
-  return res.status(200).json({ data: created });
+  // return res.status(200).json({ data: created });
+  return NextResponse.json({ data: created });
 }

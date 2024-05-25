@@ -1,27 +1,19 @@
 // getGoogleAccessToken
-import type { NextApiRequest, NextApiResponse } from "next";
 import { google } from "googleapis";
-import { getCredentials } from "./credentials";
-import { pick } from "lodash";
 import getCommunity from "src/server/utils/getCommunity";
+import { NextResponse } from "next/server";
+import { headers } from "next/headers";
+import { getCredentials } from "src/server/utils/google/getCredentials";
 
-export const scopes = [
+const scopes = [
   "https://www.googleapis.com/auth/calendar",
   "https://www.googleapis.com/auth/gmail.modify",
 ];
 
-export default async function getGoogleAccessToken(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
-  const headers = req.headers;
-  const {
-    origin,
-    host,
-  }: {
-    origin?: string | undefined | string[];
-    host?: string | undefined | string[];
-  } = pick(headers, ["origin", "host"]);
+export async function POST() {
+  const headersList = headers();
+  const host = headersList.get("host");
+  const origin = headersList.get("origin");
   if (!origin || !host) {
     throw new Error("why is origin or host not defined???");
   }
@@ -46,7 +38,7 @@ export default async function getGoogleAccessToken(
     prompt: "consent",
   });
 
-  return res.status(200).json({
+  return NextResponse.json({
     data: authUrl,
   });
 }

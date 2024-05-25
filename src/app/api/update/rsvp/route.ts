@@ -2,7 +2,8 @@
 // used to cancel an rsvp
 
 import { pick } from "lodash";
-import type { NextApiRequest, NextApiResponse } from "next";
+import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 import { prisma } from "src/server/db";
 
 type RsvpUpdateRequest = {
@@ -11,8 +12,9 @@ type RsvpUpdateRequest = {
   toRsvp: boolean; // false to remove rsvp, true to add rsvp
 };
 
-export default async function rsvp(req: NextApiRequest, res: NextApiResponse) {
-  const { rsvp }: { rsvp: RsvpUpdateRequest } = pick(req.body, ["rsvp"]);
+export async function POST(req: NextRequest) {
+  const body = await req.json();
+  const { rsvp }: { rsvp: RsvpUpdateRequest } = pick(body, ["rsvp"]);
   if (!rsvp || !rsvp.userId || !rsvp.eventId) {
     throw new Error(`invalid request body: ${JSON.stringify(rsvp)}`);
   }
@@ -58,7 +60,7 @@ export default async function rsvp(req: NextApiRequest, res: NextApiResponse) {
 
   console.log(`RSVP updated: ${JSON.stringify(rsvp)}`);
 
-  res.status(200).json({
+  return NextResponse.json({
     data: result,
   });
 }

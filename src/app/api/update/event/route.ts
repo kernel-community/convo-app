@@ -1,11 +1,13 @@
 /**
  * deletes all sessions if sessions array is empty
  */
-import type { NextApiRequest, NextApiResponse } from "next";
 import _, { pick } from "lodash";
 import { prisma } from "src/server/db";
 import { getEventStartAndEnd } from "src/utils/dateTime";
-import type { ClientEvent, Session } from "../create/event";
+import type { ClientEvent, Session } from "../../create/event/route";
+import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
+import { headers } from "next/headers";
 
 export type ClientEditableEvent = Omit<ClientEvent, "sessions"> & {
   sessions: Array<Session & { id: string }>;
@@ -13,16 +15,15 @@ export type ClientEditableEvent = Omit<ClientEvent, "sessions"> & {
   hash: string;
 };
 
-export default async function event(req: NextApiRequest, res: NextApiResponse) {
+export async function POST(req: NextRequest) {
+  const body = await req.json();
   const {
     event,
   }: {
     event: ClientEditableEvent;
-  } = _.pick(req.body, ["event"]);
-  const headersList = req.headers;
-  const { host }: { host?: string | undefined | string[] } = pick(headersList, [
-    "host",
-  ]);
+  } = _.pick(body, ["event"]);
+  const headersList = headers();
+  const host = headersList.get("host") ?? "kernel";
 
   const { title, sessions, limit, location, description, hash } = event;
 
@@ -123,7 +124,7 @@ export default async function event(req: NextApiRequest, res: NextApiResponse) {
     console.error(err);
   }
 
-  res.status(200).json({
+  return NextResponse.json({
     data: {
       updated,
       deleted,

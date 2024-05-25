@@ -1,22 +1,19 @@
 import { pick } from "lodash";
-import type { NextApiRequest, NextApiResponse } from "next";
 import { updateEvents } from "src/server/utils/google/updateEvents";
 import { DEFAULT_HOST } from "src/utils/constants";
-import type { FullEvent } from "./createEvent";
+import type { FullEvent } from "../createEvent/route";
+import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
+import { headers } from "next/headers";
 
-export default async function updateEventHandler(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
-  const headersList = req.headers;
-  const { host }: { host?: string | undefined | string[] } = pick(headersList, [
-    "host",
-  ]);
-
+export async function POST(req: NextRequest) {
+  const headersList = headers();
+  const host = headersList.get("host") ?? "kernel";
+  const body = await req.json();
   const {
     events,
   }: { events: { updated: Array<FullEvent>; deleted: Array<FullEvent> } } =
-    pick(req.body, ["events"]);
+    pick(body, ["events"]);
 
   if (!events) {
     throw new Error("`event` not found in req.body");
@@ -27,7 +24,7 @@ export default async function updateEventHandler(
     reqHost: host || DEFAULT_HOST,
   });
 
-  res.status(200).json({
+  return NextResponse.json({
     data: ids,
   });
 }

@@ -1,5 +1,5 @@
 import { getCalendar } from "./getCalendar";
-import type { FullEvent } from "src/app/api/actions/google/createEvent";
+import type { FullEvent } from "src/app/api/actions/google/createEvent/route";
 import type { calendar_v3 } from "googleapis";
 import { isNil } from "lodash";
 

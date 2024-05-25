@@ -1,20 +1,17 @@
-import type { NextApiRequest, NextApiResponse } from "next";
 import { WebClient } from "@slack/web-api";
 import { prisma } from "src/server/db";
 import { pick } from "lodash";
 import { prepareSlackMessage } from "src/server/utils/slack/prepareSlackMessage";
 import { DEFAULT_HOST } from "src/utils/constants";
+import { NextResponse, type NextRequest } from "next/server";
+import { headers } from "next/headers";
 
-export default async function notify(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
+export async function POST(req: NextRequest) {
   console.log("[api] actions/slack/notify");
-  const headersList = req.headers;
-  const { eventId, type } = pick(req.body, ["eventId", "type"]);
-  const { host }: { host?: string | undefined | string[] } = pick(headersList, [
-    "host",
-  ]);
+  const headersList = headers();
+  const body = await req.json();
+  const { eventId, type } = pick(body, ["eventId", "type"]);
+  const host = headersList.get("host") ?? "kernel";
   const event = await prisma.event.findUnique({
     where: {
       id: eventId,
@@ -60,5 +57,5 @@ export default async function notify(
     icon_emoji: icon,
     blocks,
   });
-  return res.status(200).json({});
+  return NextResponse.json({});
 }

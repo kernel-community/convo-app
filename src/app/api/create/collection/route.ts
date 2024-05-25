@@ -1,11 +1,10 @@
-import type { NextApiRequest, NextApiResponse } from "next";
 import _ from "lodash";
 import { prisma } from "src/server/db";
+import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 
-export default async function collection(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
+export async function POST(req: NextRequest) {
+  const body = await req.json();
   const {
     eventIds,
     userId,
@@ -14,7 +13,7 @@ export default async function collection(
     eventIds: Array<string>;
     userId: string;
     name: string;
-  } = _.pick(req.body, ["eventIds", "userId", "name"]);
+  } = _.pick(body, ["eventIds", "userId", "name"]);
 
   const user = await prisma.user.findUniqueOrThrow({
     where: {
@@ -40,5 +39,5 @@ export default async function collection(
     `Created collection for ${JSON.stringify(collection)} for user: ${user.id}`
   );
 
-  return res.status(200).json({ data: collection });
+  return NextResponse.json({ data: collection });
 }

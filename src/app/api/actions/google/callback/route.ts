@@ -1,29 +1,23 @@
 // storeGoogleToken
-import type { NextApiRequest, NextApiResponse } from "next";
 import { prisma } from "src/server/db";
 import { google } from "googleapis";
 import { pick } from "lodash";
-import { getCredentials } from "./credentials";
 import getCommunity from "src/server/utils/getCommunity";
+import { getCredentials } from "src/server/utils/google/getCredentials";
+import { NextResponse, type NextRequest } from "next/server";
+import { headers } from "next/headers";
 
-export default async function callback(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
-  const headers = req.headers;
-  const {
-    origin,
-    host,
-  }: {
-    origin?: string | undefined | string[];
-    host?: string | undefined | string[];
-  } = pick(headers, ["origin", "host"]);
+export async function POST(req: NextRequest) {
+  const headersList = headers();
+  const host = headersList.get("host");
+  const origin = headersList.get("origin");
   if (!origin || !host) {
     throw new Error("why is origin or host not defined???");
   }
   const community = await getCommunity(host);
   // code that was received in the callback
-  const { code }: { code: string } = pick(req.body, ["code"]);
+  const body = await req.json();
+  const { code }: { code: string } = pick(body, ["code"]);
 
   const {
     clientId,
@@ -118,7 +112,7 @@ export default async function callback(
     },
   });
 
-  return res.status(200).json({
+  return NextResponse.json({
     data: tokenUpdated,
   });
 }

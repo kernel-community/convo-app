@@ -6,12 +6,14 @@
  * either via an action button or as a database trigger (for rows with gCalEventRequested == true)
  */
 import { pick } from "lodash";
-import type { NextApiRequest, NextApiResponse } from "next";
 import { createEvents } from "src/server/utils/google/createEvent";
 import { prisma } from "src/server/db";
 import { sendInvite } from "src/server/utils/google/sendInvite";
 import { DEFAULT_HOST } from "src/utils/constants";
 import type { Community, Event, Google, Slack, User } from "@prisma/client";
+import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
+import { headers } from "next/headers";
 
 export type FullEvent = Event & {
   proposer: User;
@@ -21,19 +23,14 @@ export type FullEvent = Event & {
   };
 };
 
-export default async function createEventHandler(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
-  const headersList = req.headers;
-  const { host }: { host?: string | undefined | string[] } = pick(headersList, [
-    "host",
-  ]);
-
+export async function POST(req: NextRequest) {
+  const headersList = headers();
+  const host = headersList.get("host") ?? "kernel";
+  const body = await req.json();
   const {
     events,
     proposerEmail,
-  }: { events: Array<FullEvent>; proposerEmail: string } = pick(req.body, [
+  }: { events: Array<FullEvent>; proposerEmail: string } = pick(body, [
     "events",
     "proposerEmail",
   ]);
@@ -74,7 +71,7 @@ export default async function createEventHandler(
     Created google calendar events for ${JSON.stringify(updated)}
   `);
 
-  res.status(200).json({
+  return NextResponse.json({
     data: updated,
   });
 }
