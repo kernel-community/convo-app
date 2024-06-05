@@ -24,10 +24,10 @@ import CopyButton from "../CopyButton";
 
 export const SessionsWrapper = ({
   sessions,
-  hostname,
-}: {
+}: // hostname,
+{
   sessions: ClientSession[];
-  hostname: string;
+  // hostname: string;
 }) => {
   const { rsvpIntention, setRsvpIntention } = useRsvpIntention();
   const {
@@ -153,16 +153,17 @@ export const SessionsWrapper = ({
                     ]}
                     location={data.location}
                     description={
-                      data.descriptionHtml
-                        ? `This event was copied over into your Calendar. Go to ${
-                            hostname.includes("localhost")
-                              ? "http://"
-                              : "https://"
-                          }${hostname}/rsvp/${
-                            data.hash
-                          } for the most recent version\n\n` +
-                          data.descriptionHtml
-                        : ""
+                      // data.descriptionHtml
+                      //   ? `This event was copied over into your Calendar. Go to ${
+                      //       hostname.includes("localhost")
+                      //         ? "http://"
+                      //         : "https://"
+                      //     }${hostname}/rsvp/${
+                      //       data.hash
+                      //     } for the most recent version\n\n` +
+                      //     data.descriptionHtml
+                      //   : ""
+                      ""
                     }
                     startDate={DateTime.fromISO(
                       new Date(data.sessions[0].startDateTime).toISOString()

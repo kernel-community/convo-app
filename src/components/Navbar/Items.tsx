@@ -6,7 +6,7 @@ import {
   Menu,
 } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/router";
+import { usePathname, useRouter } from "next/navigation";
 import { Fragment } from "react";
 import { useMediaQuery } from "src/hooks/useMediaQuery";
 import { Drawer, DrawerContent, DrawerTrigger } from "src/components/ui/drawer";
@@ -39,7 +39,7 @@ const items = [
 const desktop = "(min-width: 768px)";
 
 export const Items = () => {
-  const { pathname } = useRouter();
+  const pathname = usePathname();
   const isActive = (path: string) => pathname === path;
   const isDesktop = useMediaQuery(desktop);
   if (isDesktop) {

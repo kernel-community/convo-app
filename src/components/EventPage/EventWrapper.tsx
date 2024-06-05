@@ -6,7 +6,6 @@ import EventDetails from "./EventDetails";
 import { useRsvpIntention } from "src/context/RsvpIntentionContext";
 import { z } from "zod";
 import { Button } from "../ui/button";
-import { useRouter } from "next/router";
 import { getDateTimeString, sortSessions } from "src/utils/dateTime";
 import type { Session as ClientSession } from "src/types";
 import { EventDateTime, Seats } from "./Session";
@@ -15,6 +14,7 @@ import isNicknameSet from "src/utils/isNicknameSet";
 import Link from "next/link";
 import useUserRsvpForConvo from "src/hooks/useUserRsvpForConvo";
 import useEvent from "src/hooks/useEvent";
+import { useRouter } from "next/navigation";
 
 const TransitioningArrow = () => {
   return (
@@ -39,12 +39,12 @@ const TransitioningArrow = () => {
 export const RsvpCount = ({
   sessionId,
   summaryData,
+  eventHash,
 }: {
   sessionId: string;
   summaryData: JSX.Element;
+  eventHash: string;
 }) => {
-  const { query } = useRouter();
-  const { eventHash } = query;
   const { data } = useEvent({ hash: eventHash });
   const { sessions } = data;
   const { sessions: sortedSessions } = sortSessions(sessions);
@@ -82,8 +82,10 @@ export const RsvpCount = ({
 // accordian component
 export const SessionsDetailsNonSubmittable = ({
   sessions,
+  eventHash,
 }: {
   sessions: Array<ClientSession>;
+  eventHash: string;
 }) => {
   const { sessions: sortedSessions } = sortSessions(sessions);
   return (
@@ -94,6 +96,7 @@ export const SessionsDetailsNonSubmittable = ({
           return (
             <div className="py-5" key={key}>
               <RsvpCount
+                eventHash={eventHash}
                 sessionId={session.id}
                 summaryData={
                   <span className="flex items-center justify-between">
@@ -127,11 +130,13 @@ export type RsvpInput = z.infer<typeof rsvpInputSchema>;
 const EventWrapper = ({
   event,
   isEditable,
-  hostname,
+  // hostname,
+  eventHash,
 }: {
   event: ClientEvent;
   isEditable: boolean;
-  hostname: string;
+  // hostname: string;
+  eventHash: string;
 }) => {
   const {
     totalUniqueRsvps,
@@ -147,11 +152,10 @@ const EventWrapper = ({
   } = event;
   const { rsvpIntention } = useRsvpIntention();
   const { rsvps } = useUserRsvpForConvo({ hash: event.hash });
-
+  const { push } = useRouter();
   const { eventIds } = rsvpIntention;
   const isDisabled = eventIds.length === 0;
-  const router = useRouter();
-  const navigateToEditPage = () => router.push(`/edit/${event.hash}`);
+  const navigateToEditPage = () => push(`/edit/${event.hash}`);
   const isPartOfCollection = collections.length > 0;
   const collectionHrefs = collections.map((c, k) => (
     <Link key={k} href={`/collection/${c.id}`}>
@@ -181,9 +185,17 @@ const EventWrapper = ({
       <div className="mt-24 grid grid-cols-1 gap-12 lg:grid-cols-3">
         <EventDetails html={descriptionHtml} proposer={proposer} />
         <div className="min-w-100 flex flex-col gap-2">
-          {isEditable && <SessionsDetailsNonSubmittable sessions={sessions} />}
+          {isEditable && (
+            <SessionsDetailsNonSubmittable
+              sessions={sessions}
+              eventHash={eventHash}
+            />
+          )}
           {!isEditable && (
-            <SessionsWrapper sessions={sessions} hostname={hostname} />
+            <SessionsWrapper
+              sessions={sessions}
+              // hostname={hostname}
+            />
           )}
           {!isEditable && (
             <SubmitRsvpSection

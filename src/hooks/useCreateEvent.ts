@@ -2,7 +2,7 @@
 // creates an event for the logged in user
 import { useState } from "react";
 import type { ClientEventInput } from "src/components/ProposeForm";
-import type { FullEvent } from "src/pages/api/actions/google/createEvent";
+import type { FullEvent } from "src/app/api/actions/google/createEvent/route";
 
 const createEventInDb = async ({
   event,
