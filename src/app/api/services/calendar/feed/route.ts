@@ -1,8 +1,17 @@
 import type { ICalEventData } from "ical-generator";
 import ical, { ICalCalendarMethod } from "ical-generator";
+import type { NextRequest } from "next/server";
 import { datetime, RRule } from "rrule";
 
-export async function GET() {
+export async function GET(req: NextRequest) {
+  const searchParams = req.nextUrl.searchParams;
+  const community = searchParams.get("community");
+
+  // fetch events for `community`
+  // generate and return calendar feed
+
+  console.log({ community });
+
   const calendar = ical({
     name: "bugazi cal",
     method: ICalCalendarMethod.REQUEST,
