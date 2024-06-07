@@ -7,8 +7,9 @@ export async function GET() {
     method: ICalCalendarMethod.REQUEST,
   });
   // Example event, you can pull data from your database here
-  const startTime = "2024-03-26T00:13:06.000Z";
-  const endTime = "2024-03-26T01:13:06.000Z";
+  const startTime = new Date();
+  const endTime = new Date();
+  endTime.setHours(startTime.getHours() + 1);
   const events = [
     {
       start: startTime,
@@ -29,11 +30,10 @@ export async function GET() {
       location: event.location,
     });
   });
-  return NextResponse.json(calendar.toString(), {
+  return new Response(calendar.toString(), {
     status: 200,
     headers: {
       "Content-Type": "text/calendar",
-      "Content-Disposition": `attachment; filename="calendar.ics"`,
     },
   });
 }
