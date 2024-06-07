@@ -1,16 +1,21 @@
 import { NextResponse } from "next/server";
-import ical, { ICalEvent } from "ical-generator";
+import ical, { ICalCalendarMethod } from "ical-generator";
 
-export async function POST() {
+export async function GET() {
   const calendar = ical({ name: "My Calendar ehhehe" });
+  calendar.method(ICalCalendarMethod.REQUEST);
   // Example event, you can pull data from your database here
+  const startTime = new Date();
+  const endTime = new Date();
+  endTime.setHours(startTime.getHours() + 1);
   const events = [
     {
-      start: new Date(),
-      end: new Date(new Date().getTime() + 60 * 60 * 1000),
+      start: startTime,
+      end: endTime,
       summary: "Example Event",
       description: "This is an example event",
       location: "800 Howard St., San Francisco, CA 94103",
+      url: "http://sebbo.net/",
     },
     // Add more events as needed
   ];
@@ -27,6 +32,7 @@ export async function POST() {
     status: 200,
     headers: {
       "Content-Type": "text/calendar",
+      "Content-Disposition": `attachment; filename="calendar.ics"`,
     },
   });
 }
