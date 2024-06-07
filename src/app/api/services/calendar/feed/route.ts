@@ -1,9 +1,6 @@
 import type { ICalEventData } from "ical-generator";
-import ical, {
-  ICalCalendarMethod,
-  ICalEventRepeatingFreq,
-  ICalWeekday,
-} from "ical-generator";
+import ical, { ICalCalendarMethod } from "ical-generator";
+import { datetime, RRule } from "rrule";
 
 export async function GET() {
   const calendar = ical({
@@ -14,6 +11,13 @@ export async function GET() {
   const startTime = new Date();
   const endTime = new Date();
   endTime.setHours(startTime.getHours() + 1);
+  const rule = new RRule({
+    freq: RRule.WEEKLY,
+    interval: 5,
+    byweekday: [RRule.MO, RRule.FR],
+    dtstart: datetime(2012, 2, 1, 10, 30),
+    until: datetime(2012, 12, 31),
+  });
   const event1: ICalEventData = {
     start: startTime,
     end: endTime,
@@ -21,11 +25,9 @@ export async function GET() {
     description: "This is an example event",
     location: "800 Howard St., San Francisco, CA 94103",
     url: "http://sebbo.net/",
-    repeating: {
-      freq: ICalEventRepeatingFreq.DAILY,
-      byDay: ICalWeekday.MO,
-    },
+    repeating: rule.toString(),
   };
+  console.log(rule.toText());
   const events: Array<ICalEventData> = [event1];
   events.forEach((event) => calendar.createEvent({ ...event }));
   return new Response(calendar.toString(), {
