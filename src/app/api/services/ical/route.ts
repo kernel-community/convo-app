@@ -2,8 +2,10 @@ import { NextResponse } from "next/server";
 import ical, { ICalCalendarMethod } from "ical-generator";
 
 export async function GET() {
-  const calendar = ical({ name: "My Calendar ehhehe" });
-  calendar.method(ICalCalendarMethod.REQUEST);
+  const calendar = ical({
+    name: "My Calendar ehhehe",
+    method: ICalCalendarMethod.PUBLISH,
+  });
   // Example event, you can pull data from your database here
   const startTime = new Date();
   const endTime = new Date();
