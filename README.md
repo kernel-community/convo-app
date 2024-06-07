@@ -1,3 +1,4 @@
+The best place to stay updated on all things Convo that currently in the pipeline or I'm musing on is the [Discussions](/discussions) tab
 ## Dev
 
 1. `docker-compose up -d`: creates a postgres container in docker
