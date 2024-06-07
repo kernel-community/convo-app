@@ -87,7 +87,7 @@ export const ConfirmConvoCredenza = ({
           {convoToCreateData && !isLoading && (
             <Button onClick={() => action()} className="w-full">
               {" "}
-              Confirm{" "}
+              Submit{" "}
             </Button>
           )}
           {isLoading && (
