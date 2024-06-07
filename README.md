@@ -9,4 +9,4 @@ The best place to stay updated on all things Convo that are currently in the pip
 5. `npm run data-reset`: resets the db (useful for later too)
 6. `npm run dev`
 
-Please reach out if you're looking to set up the app locally and need guidance (https://t.me/probablyangg)
+Please reach out if you're looking to set up the app locally and need guidance ([t.me/probablyangg](https://t.me/probablyangg))
