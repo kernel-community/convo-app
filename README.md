@@ -1,5 +1,5 @@
 ### Read more
-The best place to stay updated on all things Convo that are currently in the pipeline or I'm musing on is the [Discussions](https://github.com/kernel-community/convo-app/discussions) tab
+The best place to stay updated on all things Convo that are [currently in the pipeline](https://github.com/kernel-community/convo-app/discussions/categories/dev-notes) or [I'm musing on](https://github.com/kernel-community/convo-app/discussions/categories/vibe) is the [Discussions](https://github.com/kernel-community/convo-app/discussions) tab
 
 ### Connect
 
