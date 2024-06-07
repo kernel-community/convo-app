@@ -4,12 +4,11 @@ import ical, { ICalCalendarMethod } from "ical-generator";
 export async function GET() {
   const calendar = ical({
     name: "My Calendar ehhehe",
-    method: ICalCalendarMethod.PUBLISH,
+    method: ICalCalendarMethod.REQUEST,
   });
   // Example event, you can pull data from your database here
-  const startTime = new Date();
-  const endTime = new Date();
-  endTime.setHours(startTime.getHours() + 1);
+  const startTime = "2024-03-26T00:13:06.000Z";
+  const endTime = "2024-03-26T01:13:06.000Z";
   const events = [
     {
       start: startTime,
