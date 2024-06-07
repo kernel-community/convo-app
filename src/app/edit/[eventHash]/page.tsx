@@ -11,7 +11,7 @@ import { useUser } from "src/context/UserContext";
 import NotAllowedPage from "src/components/NotAllowedPage";
 import { useEffect, useState } from "react";
 import { Skeleton } from "src/components/ui/skeleton";
-import ConfirmDeleteCredenza from "../../components/EventPage/ConfirmDelete";
+import ConfirmDeleteCredenza from "src/components/EventPage/ConfirmDelete";
 import { useRouter } from "next/navigation";
 
 const Edit = ({ params }: { params: { eventHash: string } }) => {

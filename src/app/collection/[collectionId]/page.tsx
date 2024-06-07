@@ -1,3 +1,5 @@
+"use client";
+
 import Main from "src/layouts/Main";
 import useCollection from "src/hooks/useCollection";
 import { Events } from "src/components/Events";
