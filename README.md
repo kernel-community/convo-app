@@ -12,3 +12,8 @@
 - blog/notes: https://thinkingabout.convo.cafe
 - updates: https://t.me/startaconvo
 - chat: https://t.me/buildingconvochat
+
+
+
+
+Built at [Kernel](https://kernel.community/)
