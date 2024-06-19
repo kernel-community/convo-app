@@ -1,3 +1,6 @@
+/**
+ * Serves a calendar feed for a given community
+ */
 import type { ICalEventData } from "ical-generator";
 import ical, { ICalCalendarMethod } from "ical-generator";
 import type { NextRequest } from "next/server";
