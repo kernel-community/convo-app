@@ -253,7 +253,9 @@ const ProposeForm = ({ event }: { event?: ClientEventInput }) => {
         {!user.isSignedIn ? (
           <LoginButton />
         ) : (
-          <Button type="submit">Submit</Button>
+          <Button type="submit" isLoading={loading}>
+            Submit
+          </Button>
         )}
       </form>
     </>
