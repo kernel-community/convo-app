@@ -1,3 +1,4 @@
+"use client";
 import { useUser } from "src/context/UserContext";
 import LoginButton from "../LoginButton";
 import FieldLabel from "../StrongText";

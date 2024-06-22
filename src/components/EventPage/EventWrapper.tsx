@@ -1,3 +1,4 @@
+"use client";
 import Hero from "../Hero";
 import { SessionsWrapper } from "./RsvpSection";
 import type { ClientEvent } from "src/types";
@@ -6,120 +7,12 @@ import EventDetails from "./EventDetails";
 import { useRsvpIntention } from "src/context/RsvpIntentionContext";
 import { z } from "zod";
 import { Button } from "../ui/button";
-import { getDateTimeString, sortSessions } from "src/utils/dateTime";
-import type { Session as ClientSession } from "src/types";
-import { EventDateTime, Seats } from "./Session";
-import formatUserIdentity from "src/utils/formatUserIdentity";
-import isNicknameSet from "src/utils/isNicknameSet";
 import Link from "next/link";
 import useUserRsvpForConvo from "src/hooks/useUserRsvpForConvo";
 import useEvent from "src/hooks/useEvent";
 import { useRouter } from "next/navigation";
-
-const TransitioningArrow = () => {
-  return (
-    <span className="transition group-open:rotate-180">
-      <svg
-        fill="none"
-        height="24"
-        shape-rendering="geometricPrecision"
-        stroke="currentColor"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        stroke-width="1.5"
-        viewBox="0 0 24 24"
-        width="24"
-      >
-        <path d="M6 9l6 6 6-6"></path>
-      </svg>
-    </span>
-  );
-};
-
-export const RsvpCount = ({
-  sessionId,
-  summaryData,
-  eventHash,
-}: {
-  sessionId: string;
-  summaryData: JSX.Element;
-  eventHash: string;
-}) => {
-  const { data } = useEvent({ hash: eventHash });
-  const { sessions } = data;
-  const { sessions: sortedSessions } = sortSessions(sessions);
-  const session = sortedSessions.find((session) => session.id === sessionId);
-  return (
-    <details className="group">
-      <summary className="cursor-pointer list-none font-medium">
-        {summaryData}
-      </summary>
-      {session && session?.rsvpCount > 0 ? (
-        <div className="group-open:animate-fadeIn mt-3 h-auto max-h-32 overflow-y-auto text-neutral-600">
-          {session.rsvps.map((rsvp, key) => {
-            if (isNicknameSet(rsvp.attendee.nickname)) {
-              return (
-                <div key={key}>
-                  {formatUserIdentity(rsvp.attendee.nickname)}
-                </div>
-              );
-            }
-          })}
-        </div>
-      ) : (
-        <div className="group-open:animate-fadeIn mt-3 h-10 text-neutral-600">
-          No RSVPs yet
-        </div>
-      )}
-    </details>
-  );
-};
-
-// sessions wrapper component that doesnt
-// allow RSVPing
-// displayed when currently logged in user
-// is the owner of the event
-// accordian component
-export const SessionsDetailsNonSubmittable = ({
-  sessions,
-  eventHash,
-}: {
-  sessions: Array<ClientSession>;
-  eventHash: string;
-}) => {
-  const { sessions: sortedSessions } = sortSessions(sessions);
-  return (
-    <div>
-      <div className="mx-auto mt-8 grid max-w-xl gap-4 divide-y divide-neutral-200">
-        <div>Expand to See RSVPs/Signups</div>
-        {sortedSessions.map((session, key) => {
-          return (
-            <div className="py-5" key={key}>
-              <RsvpCount
-                eventHash={eventHash}
-                sessionId={session.id}
-                summaryData={
-                  <span className="flex items-center justify-between">
-                    <EventDateTime
-                      date={getDateTimeString(session.startDateTime, "date")}
-                      time={getDateTimeString(session.startDateTime, "time")}
-                    />
-                    <Seats
-                      availableSeats={session.availableSeats}
-                      totalSeats={session.limit}
-                      noLimit={session.noLimit}
-                    />
-                    <TransitioningArrow />
-                  </span>
-                }
-              />
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  );
-};
+import { useUser } from "src/context/UserContext";
+import { SessionsDetailsNonSubmittable } from "./SessionsDetailsNonSubmittable";
 
 export const rsvpInputSchema = z.object({
   email: z.string().optional(),
@@ -214,4 +107,29 @@ const EventWrapper = ({
   );
 };
 
-export default EventWrapper;
+const EventWrapperWrapper = ({ eventHash }: { eventHash: string }) => {
+  const { fetchedUser: user } = useUser();
+  const {
+    isLoading,
+    isError,
+    data: fetchedEventData,
+  } = useEvent({ hash: eventHash });
+
+  const isEditable =
+    user && fetchedEventData ? user.id === fetchedEventData.proposerId : false;
+
+  return (
+    <>
+      {!isLoading && !isError && fetchedEventData && (
+        <EventWrapper
+          event={fetchedEventData}
+          isEditable={isEditable}
+          // hostname={hostname}
+          eventHash={eventHash}
+        />
+      )}
+    </>
+  );
+};
+
+export default EventWrapperWrapper;

@@ -1,3 +1,5 @@
+"use client";
+
 import { useDynamicContext } from "@dynamic-labs/sdk-react";
 import type { User } from "@prisma/client";
 import { createContext, useContext, useEffect, useMemo, useState } from "react";

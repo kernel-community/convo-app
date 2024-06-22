@@ -1,3 +1,4 @@
+"use client";
 import { isPast } from "src/utils/dateTime";
 import Image from "next/image";
 import cross from "public/vectors/cross.png";

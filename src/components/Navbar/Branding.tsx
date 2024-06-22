@@ -1,3 +1,4 @@
+"use client";
 import Link from "next/link";
 import { Fragment } from "react";
 import useCurrentCommunity from "src/hooks/useCurrentCommunity";

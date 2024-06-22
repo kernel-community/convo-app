@@ -1,3 +1,4 @@
+"use client";
 import { DynamicUserProfile, useDynamicContext } from "@dynamic-labs/sdk-react";
 import { useUser } from "src/context/UserContext";
 export const ConnectButton = () => {

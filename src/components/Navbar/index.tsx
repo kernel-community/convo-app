@@ -1,4 +1,4 @@
-import { Dot } from "lucide-react";
+"use client";
 import { Branding } from "./Branding";
 import { ConnectButton } from "./ConnectButton";
 import { Items } from "./Items";

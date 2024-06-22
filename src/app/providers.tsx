@@ -9,6 +9,7 @@ import { DEFAULT_USER_NICKNAME } from "src/utils/constants";
 import CursorsContextProvider from "src/context/CursorsContext";
 import SharedSpace from "src/components/SharedSpace";
 import { TooltipProvider } from "src/components/ui/tooltip";
+import { RsvpIntentionProvider } from "src/context/RsvpIntentionContext";
 
 const queryClient = new QueryClient();
 
@@ -55,11 +56,13 @@ export default function Providers({
               suppressHydrationWarning
               className="bg-background"
             >
-              <CursorsContextProvider room={room} host={host}>
-                <SharedSpace>
-                  <TooltipProvider>{children}</TooltipProvider>
-                </SharedSpace>
-              </CursorsContextProvider>
+              <RsvpIntentionProvider>
+                <CursorsContextProvider room={room} host={host}>
+                  <SharedSpace>
+                    <TooltipProvider>{children}</TooltipProvider>
+                  </SharedSpace>
+                </CursorsContextProvider>
+              </RsvpIntentionProvider>
             </div>
           </UserProvider>
         </QueryClientProvider>

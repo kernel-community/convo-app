@@ -1,3 +1,4 @@
+"use client";
 import { useEffect, useState } from "react";
 import type { Session as ClientSession } from "src/types";
 import { isPast, getDateTimeString, sortSessions } from "src/utils/dateTime";
