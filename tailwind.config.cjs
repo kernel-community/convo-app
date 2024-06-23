@@ -38,7 +38,7 @@ module.exports = {
         },
         card: {
           one: "#212144",
-          two: "#3838B4"
+          two: "#3838B4",
         },
         warn: "#EF6262",
         border: "hsl(var(--border))",
@@ -82,12 +82,12 @@ module.exports = {
         noto: ["Noto Sans"],
         alegreya: ["Alegreya Sans SC", "sans-serif"],
         heading: ["Nanum Myeongjo", "serif"],
-        secondary: ["Futura","Montserrat", "sans-serif"],
+        secondary: ["Futura", "Montserrat", "sans-serif"],
         primary: ["Libre Franklin", "sans-serif"],
         fancy: ["Licorice", "sans-serif"],
         /** another handwritten alternative: "Cedarville_Cursive" **/
         handwritten: ["Holland_Land", "sans-serif"],
-        bitter: ["Bitter", "serif"]
+        bitter: ["Bitter", "serif"],
       },
       fontSize: {
         xxs: "0.69rem",
@@ -100,7 +100,7 @@ module.exports = {
       keyframes: {
         shimmer: {
           "100%": {
-            "transform": "translateX(100%)",
+            transform: "translateX(100%)",
           },
         },
         animation: {
@@ -137,6 +137,6 @@ module.exports = {
   plugins: [
     require("@tailwindcss/forms"),
     require("@tailwindcss/typography"),
-    require("tailwindcss-animate")
+    require("tailwindcss-animate"),
   ],
 };

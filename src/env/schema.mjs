@@ -9,7 +9,7 @@ export const serverSchema = z.object({
   DATABASE_URL: z.string().url(),
   NODE_ENV: z.enum(["development", "test", "production"]),
   CLIENT_SECRET: z.string().min(1),
-  CLIENT_ID: z.string().min(1)
+  CLIENT_ID: z.string().min(1),
 });
 
 /**
@@ -21,7 +21,7 @@ export const serverEnv = {
   DATABASE_URL: process.env.DATABASE_URL,
   NODE_ENV: process.env.NODE_ENV,
   CLIENT_SECRET: process.env.CLIENT_SECRET,
-  CLIENT_ID: process.env.CLIENT_ID
+  CLIENT_ID: process.env.CLIENT_ID,
 };
 
 /**
@@ -31,7 +31,7 @@ export const serverEnv = {
  */
 export const clientSchema = z.object({
   NEXT_PUBLIC_DYNAMIC_ENVIRONMENT_ID: z.string(),
-  NEXT_PUBLIC_PARTYKIT_SERVER_HOST: z.string()
+  NEXT_PUBLIC_PARTYKIT_SERVER_HOST: z.string(),
 });
 
 /**
@@ -41,6 +41,8 @@ export const clientSchema = z.object({
  * @type {{ [k in keyof z.infer<typeof clientSchema>]: z.infer<typeof clientSchema>[k] | undefined }}
  */
 export const clientEnv = {
-  NEXT_PUBLIC_DYNAMIC_ENVIRONMENT_ID: process.env.NEXT_PUBLIC_DYNAMIC_ENVIRONMENT_ID,
-  NEXT_PUBLIC_PARTYKIT_SERVER_HOST: process.env.NEXT_PUBLIC_PARTYKIT_SERVER_HOST
+  NEXT_PUBLIC_DYNAMIC_ENVIRONMENT_ID:
+    process.env.NEXT_PUBLIC_DYNAMIC_ENVIRONMENT_ID,
+  NEXT_PUBLIC_PARTYKIT_SERVER_HOST:
+    process.env.NEXT_PUBLIC_PARTYKIT_SERVER_HOST,
 };
