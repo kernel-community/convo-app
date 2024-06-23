@@ -8,3 +8,6 @@ export const CALENDAR_IDS = {
 
 export const STAGING = "staging.convo.cafe";
 export const DEFAULT_HOST = "convo.cafe";
+
+export const DEFAULT_PROFILE_IMAGE =
+  "https://maroon-unsightly-clam-495.mypinata.cloud/ipfs/QmV8owGUxkytNkTuFTc8CawFvgxXhPKgrpvVwR4rmMPsnb";
