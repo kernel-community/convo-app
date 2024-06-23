@@ -1,18 +1,17 @@
 "use client";
-import { DynamicUserProfile, useDynamicContext } from "@dynamic-labs/sdk-react";
+import { useDynamicContext } from "@dynamic-labs/sdk-react";
 import { useUser } from "src/context/UserContext";
 export const ConnectButton = () => {
   const { fetchedUser: user } = useUser();
-  const { setShowAuthFlow, setShowDynamicUserProfile } = useDynamicContext();
+  const { setShowAuthFlow } = useDynamicContext();
   if (user.isSignedIn) {
     // display user profile
     return (
       <div className="mb-1">
-        <button onClick={() => setShowDynamicUserProfile(true)}>
+        <a href="/profile">
           <span className="text-slate-400">Signing as</span>{" "}
           <span className="text-slate-200">{user.nickname}</span>
-        </button>
-        <DynamicUserProfile />
+        </a>
       </div>
     );
   }
