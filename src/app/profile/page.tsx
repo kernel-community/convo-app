@@ -8,6 +8,9 @@ import useProfile from "src/hooks/useProfile";
 import { useEffect, useState } from "react";
 import { Button } from "src/components/ui/button";
 import type { Profile as ProfileType, User } from "@prisma/client";
+import useUpdateProfile from "src/hooks/useUpdateProfile";
+import useUpdateUser from "src/hooks/useUpdateUser";
+import { pick } from "lodash";
 
 const Profile: NextPage = () => {
   const { fetchedUser } = useUser();
@@ -16,21 +19,25 @@ const Profile: NextPage = () => {
   const [profileAttributes, setProfileAttributes] =
     useState<Partial<ProfileType>>(profile);
   const [userAttributes, setUserAttributes] =
-    useState<Partial<User>>(fetchedUser);
+    // only nickname can be updated for 'User' model
+    useState<Partial<User>>(pick(fetchedUser, "nickname", "id"));
+
+  const { fetch: updateProfile } = useUpdateProfile(profileAttributes);
+  const { fetch: updateUser } = useUpdateUser(userAttributes);
 
   useEffect(() => {
     if (profile) {
       setProfileAttributes(profile);
     }
     if (fetchedUser) {
-      setUserAttributes(fetchedUser);
+      // only nickname can be updated for 'User' model
+      setUserAttributes(pick(fetchedUser, ["nickname", "id"]));
     }
   }, [profile]);
 
-  const onSubmit = () => {
-    // todo
-    console.log(profileAttributes);
-    console.log(userAttributes);
+  const onSubmit = async () => {
+    await updateUser();
+    await updateProfile();
     setIsEditing(false);
   };
   return (
