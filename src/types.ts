@@ -3,6 +3,7 @@ import type {
   Community,
   Event,
   Google,
+  Profile,
   Rsvp,
   Slack,
   User,
@@ -12,7 +13,9 @@ export type ServerEvent = Event & {
   proposer: User;
   rsvps: Array<
     Rsvp & {
-      attendee: User;
+      attendee: User & {
+        profile: Profile | null;
+      };
     }
   >;
   collections: Array<Collection>;
@@ -37,6 +40,7 @@ export type ClientEvent = Omit<ServerEvent, "startDateTime" | "endDateTime"> & {
   startDateTime: string;
   endDateTime: string;
   nickname: string;
+  uniqueRsvps: ServerEvent["rsvps"];
 };
 
 export type EventsRequest = {

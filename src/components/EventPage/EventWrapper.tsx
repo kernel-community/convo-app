@@ -13,6 +13,7 @@ import useEvent from "src/hooks/useEvent";
 import { useRouter } from "next/navigation";
 import { useUser } from "src/context/UserContext";
 import { SessionsDetailsNonSubmittable } from "./SessionsDetailsNonSubmittable";
+import { DEFAULT_PROFILE_IMAGE } from "src/utils/constants";
 
 export const rsvpInputSchema = z.object({
   email: z.string().optional(),
@@ -90,13 +91,39 @@ const EventWrapper = ({
               // hostname={hostname}
             />
           )}
+          <div>
+            <div className="flex -space-x-4 rtl:space-x-reverse">
+              {/* <img className="w-10 h-10 border-2 border-white rounded-full dark:border-gray-800" src="https://maroon-unsightly-clam-495.mypinata.cloud/ipfs/QmV8owGUxkytNkTuFTc8CawFvgxXhPKgrpvVwR4rmMPsnb" alt="" /> */}
+              {event.uniqueRsvps.slice(0, 3).map((rsvp, key) => {
+                const photo =
+                  rsvp.attendee?.profile?.photo || DEFAULT_PROFILE_IMAGE;
+                return (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    className="h-10 w-10 rounded-full border-2 border-white dark:border-gray-800"
+                    src={photo}
+                    alt=""
+                    key={key}
+                  />
+                );
+              })}
+              {event.uniqueRsvps.length - 3 > 0 && (
+                <a
+                  className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-white bg-gray-700 text-xs font-medium text-white hover:bg-gray-600 dark:border-gray-800"
+                  href="#"
+                >
+                  +{event.uniqueRsvps.length - 3}
+                </a>
+              )}
+            </div>
+          </div>
           {!isEditable && (
             <SubmitRsvpSection
-              text={
-                totalUniqueRsvps > 5
-                  ? `Join ${totalUniqueRsvps} others in attending the event`
-                  : `Be amongst the first few to RSVP!`
-              }
+              // text={
+              //   totalUniqueRsvps > 5
+              //     ? `Join ${totalUniqueRsvps} others in attending the event`
+              //     : `Be amongst the first few to RSVP!`
+              // }
               disabled={isDisabled}
               buttonText={rsvps && rsvps.length > 0 ? "Update RSVP" : "RSVP"}
             />
@@ -114,6 +141,8 @@ const EventWrapperWrapper = ({ eventHash }: { eventHash: string }) => {
     isError,
     data: fetchedEventData,
   } = useEvent({ hash: eventHash });
+
+  console.log({ fetchedEventData });
 
   const isEditable =
     user && fetchedEventData ? user.id === fetchedEventData.proposerId : false;
