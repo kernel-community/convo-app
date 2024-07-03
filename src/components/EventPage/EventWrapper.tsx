@@ -142,8 +142,6 @@ const EventWrapperWrapper = ({ eventHash }: { eventHash: string }) => {
     data: fetchedEventData,
   } = useEvent({ hash: eventHash });
 
-  console.log({ fetchedEventData });
-
   const isEditable =
     user && fetchedEventData ? user.id === fetchedEventData.proposerId : false;
 
