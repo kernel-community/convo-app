@@ -234,7 +234,7 @@ export const SessionsWrapper = ({
         })}
         {inactiveSessions && inactiveSessions.length > 0 && (
           <>
-            <div className="font-primary">Other sessions:</div>
+            <div className="font-primary">Past sessions:</div>
             <ScrollArea className="h-[150px] w-[100%] rounded-md border p-4">
               {inactiveSessions.map((session, key) => {
                 return (
