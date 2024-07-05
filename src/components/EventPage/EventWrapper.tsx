@@ -13,6 +13,7 @@ import useEvent from "src/hooks/useEvent";
 import { useRouter } from "next/navigation";
 import { useUser } from "src/context/UserContext";
 import { SessionsDetailsNonSubmittable } from "./SessionsDetailsNonSubmittable";
+import ViewOtherRSVPs from "./ViewOtherRSVPs";
 
 export const rsvpInputSchema = z.object({
   email: z.string().optional(),
@@ -47,6 +48,9 @@ const EventWrapper = ({
   const { rsvps } = useUserRsvpForConvo({ hash: event.hash });
   const { push } = useRouter();
   const { eventIds } = rsvpIntention;
+  const {
+    fetchedUser: { isSignedIn },
+  } = useUser();
   const isDisabled = eventIds.length === 0;
   const navigateToEditPage = () => push(`/edit/${event.hash}`);
   const isPartOfCollection = collections.length > 0;
@@ -85,10 +89,13 @@ const EventWrapper = ({
             />
           )}
           {!isEditable && (
-            <SessionsWrapper
-              sessions={sessions}
-              // hostname={hostname}
-            />
+            <>
+              <SessionsWrapper
+                sessions={sessions}
+                // hostname={hostname}
+              />
+              {isSignedIn && <ViewOtherRSVPs event={event} />}
+            </>
           )}
           {!isEditable && (
             <SubmitRsvpSection

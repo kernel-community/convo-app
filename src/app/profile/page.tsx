@@ -11,9 +11,13 @@ import type { Profile as ProfileType, User } from "@prisma/client";
 import useUpdateProfile from "src/hooks/useUpdateProfile";
 import useUpdateUser from "src/hooks/useUpdateUser";
 import { pick } from "lodash";
+import { useDynamicContext } from "@dynamic-labs/sdk-react";
+import { useRouter } from "next/navigation";
 
 const Profile: NextPage = () => {
   const { fetchedUser } = useUser();
+  const { handleLogOut } = useDynamicContext();
+  const router = useRouter();
   const { data: profile } = useProfile({ userId: fetchedUser.id });
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [profileAttributes, setProfileAttributes] =
@@ -39,6 +43,10 @@ const Profile: NextPage = () => {
     await updateUser();
     await updateProfile();
     setIsEditing(false);
+  };
+  const onSignOut = async () => {
+    await handleLogOut();
+    router.push("/");
   };
   return (
     <>
@@ -130,6 +138,9 @@ const Profile: NextPage = () => {
             </div>
             <Button onClick={() => onSubmit()} disabled={!isEditing}>
               Update Profile
+            </Button>
+            <Button onClick={() => onSignOut()} variant="outline">
+              Sign out
             </Button>
           </div>
         </div>

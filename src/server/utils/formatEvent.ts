@@ -1,5 +1,5 @@
 import type { ClientEvent, EventsRequest, ServerEvent } from "src/types";
-import totalUniqueRSVPs from "src/utils/totalUniqueRsvps";
+import totalUniqueRSVPs, { uniqueRSVPs } from "src/utils/totalUniqueRsvps";
 
 // all events in the input array have the same hash
 const formatEvent = (event: Array<ServerEvent>): ClientEvent => {
@@ -18,6 +18,7 @@ const formatEvent = (event: Array<ServerEvent>): ClientEvent => {
     startDateTime: startDateTime.toISOString(),
     endDateTime: endDateTime.toISOString(),
     totalUniqueRsvps: totalUniqueRSVPs(event),
+    uniqueRsvps: uniqueRSVPs(event),
     nickname: proposer.nickname,
     sessions: event.map((e) => {
       const { id, startDateTime, endDateTime, limit, rsvps } = e;

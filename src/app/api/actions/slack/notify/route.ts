@@ -20,7 +20,11 @@ export async function POST(req: NextRequest) {
       proposer: true,
       rsvps: {
         include: {
-          attendee: true,
+          attendee: {
+            include: {
+              profile: true,
+            },
+          },
         },
       },
       collections: true,
