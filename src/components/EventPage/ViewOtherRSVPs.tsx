@@ -9,10 +9,11 @@ import {
 } from "../ui/credenza";
 import { useState } from "react";
 import { Button } from "../ui/button";
+import { useUser } from "src/context/UserContext";
 
 export default function ViewOtherRSVPs({ event }: { event: ClientEvent }) {
   const [open, setOpen] = useState<boolean>(false);
-
+  const { fetchedUser } = useUser();
   return (
     <>
       <Credenza open={open} onOpenChange={setOpen}>
@@ -31,7 +32,11 @@ export default function ViewOtherRSVPs({ event }: { event: ClientEvent }) {
                     alt=""
                     key={key}
                   />
-                  <span>{rsvp.attendee.nickname}</span>
+                  {fetchedUser.id === rsvp.attendee.id ? (
+                    <span className="font-bold">You</span>
+                  ) : (
+                    <span>{rsvp.attendee.nickname}</span>
+                  )}
                 </div>
               );
             })}

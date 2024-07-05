@@ -48,6 +48,9 @@ const EventWrapper = ({
   const { rsvps } = useUserRsvpForConvo({ hash: event.hash });
   const { push } = useRouter();
   const { eventIds } = rsvpIntention;
+  const {
+    fetchedUser: { isSignedIn },
+  } = useUser();
   const isDisabled = eventIds.length === 0;
   const navigateToEditPage = () => push(`/edit/${event.hash}`);
   const isPartOfCollection = collections.length > 0;
@@ -86,12 +89,14 @@ const EventWrapper = ({
             />
           )}
           {!isEditable && (
-            <SessionsWrapper
-              sessions={sessions}
-              // hostname={hostname}
-            />
+            <>
+              <SessionsWrapper
+                sessions={sessions}
+                // hostname={hostname}
+              />
+              {isSignedIn && <ViewOtherRSVPs event={event} />}
+            </>
           )}
-          <ViewOtherRSVPs event={event} />
           {!isEditable && (
             <SubmitRsvpSection
               text={
