@@ -1,6 +1,6 @@
 import { pick } from "lodash";
 import { NextResponse, type NextRequest } from "next/server";
-import { sendInvite } from "src/server/utils/google/sendInvite";
+import { sendInvite } from "src/utils/google/sendInvite";
 
 export async function POST(req: NextRequest) {
   const body = await req.json();

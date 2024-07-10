@@ -4,7 +4,7 @@
 import { pick } from "lodash";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
-import { prisma } from "src/server/db";
+import { prisma } from "src/utils/db";
 
 type RsvpUpdateRequest = {
   userId: string;

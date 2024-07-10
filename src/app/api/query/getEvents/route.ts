@@ -1,8 +1,8 @@
 import _, { isNil } from "lodash";
 import { DateTime } from "luxon";
-import { prisma } from "src/server/db";
+import { prisma } from "src/utils/db";
 import type { ClientEvent, ServerEvent } from "src/types";
-import { formatEvents } from "src/server/utils/formatEvent";
+import { formatEvents } from "src/utils/formatEvent";
 import type { EventType } from "@prisma/client";
 import { Prisma } from "@prisma/client";
 import type { EventsRequest } from "src/types";

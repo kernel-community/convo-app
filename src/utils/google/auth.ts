@@ -1,6 +1,6 @@
 import type { Auth } from "googleapis";
 import { google } from "googleapis";
-import { prisma } from "src/server/db";
+import { prisma } from "src/utils/db";
 export const getAuth = async ({ communityId }: { communityId: string }) => {
   // @todo fetch auth for the current community
   const credentials = await prisma.google.findUniqueOrThrow({

@@ -1,4 +1,4 @@
-import { prisma } from "../db";
+import { prisma } from "./db";
 
 export const createUserFromAddress = async (address: string) => {
   const alreadyExists = await prisma.user.findUnique({

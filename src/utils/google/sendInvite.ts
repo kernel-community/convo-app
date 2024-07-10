@@ -1,5 +1,5 @@
 import { getCalendar } from "./getCalendar";
-import { prisma } from "src/server/db";
+import { prisma } from "src/utils/db";
 import { getEvent } from "./getEvent";
 
 export type EventIdentification = {

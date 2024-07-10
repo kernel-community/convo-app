@@ -1,6 +1,6 @@
 import { pick } from "lodash";
 import type { NextApiRequest, NextApiResponse } from "next";
-import { prisma } from "src/server/db";
+import { prisma } from "src/utils/db";
 
 // export default async function addBot(
 //   req: NextApiRequest,

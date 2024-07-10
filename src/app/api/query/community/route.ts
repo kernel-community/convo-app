@@ -1,8 +1,8 @@
 import { isNil } from "lodash";
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
-import { prisma } from "src/server/db";
-import isProd from "src/server/utils/isProd";
+import { prisma } from "src/utils/db";
+import isProd from "src/utils/isProd";
 
 export async function POST() {
   const headersList = headers();

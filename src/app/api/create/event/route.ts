@@ -1,5 +1,5 @@
 import _, { isNil } from "lodash";
-import { prisma } from "src/server/db";
+import { prisma } from "src/utils/db";
 import type { EventType, Prisma } from "@prisma/client";
 import { nanoid } from "nanoid";
 import { getEventStartAndEnd } from "src/utils/dateTime";

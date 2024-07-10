@@ -4,7 +4,7 @@
  * attempt sending google calendar invite
  */
 
-import { prisma } from "src/server/db";
+import { prisma } from "src/utils/db";
 
 const main = async () => {
   const kernelCommunity = await prisma.community.findUnique({

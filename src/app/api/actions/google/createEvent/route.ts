@@ -6,9 +6,9 @@
  * either via an action button or as a database trigger (for rows with gCalEventRequested == true)
  */
 import { pick } from "lodash";
-import { createEvents } from "src/server/utils/google/createEvent";
-import { prisma } from "src/server/db";
-import { sendInvite } from "src/server/utils/google/sendInvite";
+import { createEvents } from "src/utils/google/createEvent";
+import { prisma } from "src/utils/db";
+import { sendInvite } from "src/utils/google/sendInvite";
 import { DEFAULT_HOST } from "src/utils/constants";
 import type { Community, Event, Google, Slack, User } from "@prisma/client";
 import type { NextRequest } from "next/server";

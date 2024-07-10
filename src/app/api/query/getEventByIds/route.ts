@@ -1,7 +1,7 @@
 import _ from "lodash";
 import { NextResponse, type NextRequest } from "next/server";
-import { prisma } from "src/server/db";
-import formatEvent from "src/server/utils/formatEvent";
+import { prisma } from "src/utils/db";
+import formatEvent from "src/utils/formatEvent";
 
 export async function POST(req: NextRequest) {
   const body = await req.json();

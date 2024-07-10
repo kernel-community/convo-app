@@ -1,7 +1,7 @@
 import { WebClient } from "@slack/web-api";
-import { prisma } from "src/server/db";
+import { prisma } from "src/utils/db";
 import { pick } from "lodash";
-import { prepareSlackMessage } from "src/server/utils/slack/prepareSlackMessage";
+import { prepareSlackMessage } from "src/utils/slack/prepareSlackMessage";
 import { DEFAULT_HOST } from "src/utils/constants";
 import { NextResponse, type NextRequest } from "next/server";
 import { headers } from "next/headers";

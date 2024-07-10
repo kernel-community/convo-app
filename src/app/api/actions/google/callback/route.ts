@@ -1,9 +1,9 @@
 // storeGoogleToken
-import { prisma } from "src/server/db";
+import { prisma } from "src/utils/db";
 import { google } from "googleapis";
 import { pick } from "lodash";
-import getCommunity from "src/server/utils/getCommunity";
-import { getCredentials } from "src/server/utils/google/getCredentials";
+import getCommunity from "src/utils/getCommunity";
+import { getCredentials } from "src/utils/google/getCredentials";
 import { NextResponse, type NextRequest } from "next/server";
 import { headers } from "next/headers";
 

@@ -1,5 +1,5 @@
 import { pick } from "lodash";
-import { updateEvents } from "src/server/utils/google/updateEvents";
+import { updateEvents } from "src/utils/google/updateEvents";
 import { DEFAULT_HOST } from "src/utils/constants";
 import type { FullEvent } from "../createEvent/route";
 import type { NextRequest } from "next/server";

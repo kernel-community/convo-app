@@ -1,5 +1,5 @@
 import _ from "lodash";
-import { prisma } from "src/server/db";
+import { prisma } from "src/utils/db";
 import { NextResponse, type NextRequest } from "next/server";
 
 export async function POST(req: NextRequest) {

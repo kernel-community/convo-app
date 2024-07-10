@@ -1,5 +1,5 @@
 import _ from "lodash";
-import { prisma } from "src/server/db";
+import { prisma } from "src/utils/db";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 

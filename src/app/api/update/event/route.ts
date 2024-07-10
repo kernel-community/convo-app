@@ -1,8 +1,8 @@
 /**
  * deletes all sessions if sessions array is empty
  */
-import _, { pick } from "lodash";
-import { prisma } from "src/server/db";
+import _ from "lodash";
+import { prisma } from "src/utils/db";
 import { getEventStartAndEnd } from "src/utils/dateTime";
 import type { ClientEvent, Session } from "../../create/event/route";
 import type { NextRequest } from "next/server";

@@ -1,4 +1,4 @@
-import { prisma } from "src/server/db";
+import { prisma } from "src/utils/db";
 const credentials = {
   clientId: process.env.CLIENT_ID,
   projectId: "kernel-convo",

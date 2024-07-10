@@ -1,9 +1,9 @@
 // getGoogleAccessToken
 import { google } from "googleapis";
-import getCommunity from "src/server/utils/getCommunity";
+import getCommunity from "src/utils/getCommunity";
 import { NextResponse } from "next/server";
 import { headers } from "next/headers";
-import { getCredentials } from "src/server/utils/google/getCredentials";
+import { getCredentials } from "src/utils/google/getCredentials";
 
 const scopes = [
   "https://www.googleapis.com/auth/calendar",
