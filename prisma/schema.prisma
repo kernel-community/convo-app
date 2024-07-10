@@ -16,6 +16,7 @@ enum EventType {
   TEST
 }
 
+// deprecated -- donot use Communities anywhere
 model Community {
   id          String   @id @default(uuid())
   createdAt   DateTime @default(now())
@@ -37,9 +38,11 @@ model Event {
   startDateTime   DateTime
   endDateTime     DateTime
   location        String
-  hash            String
+  hash            String // deprecating soon
   series          Boolean
   limit           Int
+  rrule           String?
+  sequence        Int          @default(0)
   // for deleted events
   // can be purged periodically
   isDeleted       Boolean      @default(false)
@@ -52,7 +55,9 @@ model Event {
   proposer        User         @relation(fields: [proposerId], references: [id], onDelete: Cascade)
   rsvps           Rsvp[]
   collections     Collection[]
+  // deprecated
   communityId     String?
+  // deprecated
   community       Community?   @relation(fields: [communityId], references: [id])
   // if the event was imported from convo.kernel.community
   // if it was, we do not have their RSVPs, since this version uses
