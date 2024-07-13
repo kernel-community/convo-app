@@ -11,3 +11,7 @@ export const DEFAULT_HOST = "convo.cafe";
 
 export const DEFAULT_PROFILE_IMAGE =
   "https://maroon-unsightly-clam-495.mypinata.cloud/ipfs/QmV8owGUxkytNkTuFTc8CawFvgxXhPKgrpvVwR4rmMPsnb";
+
+// SENDING EVENT CALENDAR INVITE EMAILS
+export const EVENT_ORGANIZER_NAME = "🦉 Hedwig from Kernel";
+export const EVENT_ORGANIZER_EMAIL = "convo@kernel.community";

@@ -109,9 +109,13 @@ export async function POST(req: NextRequest) {
     await fetch(
       `${
         host?.includes("localhost") ? "http" : "https"
-      }://${host}/api/actions/google/createEvent`,
+      }://${host}/api/services/calendar/email/send`,
       {
-        body: JSON.stringify({ events: created, proposerEmail: user.email }),
+        body: JSON.stringify({
+          eventId: created[0]?.id,
+          recipientEmail: user.email,
+          recipientName: user.nickname,
+        }),
         method: "POST",
         headers: { "Content-type": "application/json" },
       }
@@ -126,7 +130,7 @@ export async function POST(req: NextRequest) {
     await fetch(
       `${
         host?.includes("localhost") ? "http" : "https"
-      }://${host}/api/actions/slack/notify`,
+      }://${host}/api/services/slack/notify`,
       {
         body: JSON.stringify({ eventId: created[0]?.id, type: "new" }),
         method: "POST",

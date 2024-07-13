@@ -1,3 +1,5 @@
+import { z } from "zod";
+
 import type {
   Collection,
   Community,
@@ -68,3 +70,9 @@ export type EventsRequest = {
 };
 
 export type FullCollection = Collection & { user: User; events: Event[] };
+
+export const botInputSchema = z.object({
+  botToken: z.string().min(1),
+  channelId: z.string().min(1),
+});
+export type BotInput = z.infer<typeof botInputSchema>;

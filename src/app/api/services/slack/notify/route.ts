@@ -7,7 +7,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { headers } from "next/headers";
 
 export async function POST(req: NextRequest) {
-  console.log("[api] actions/slack/notify");
+  console.log("[api] services/slack/notify");
   const headersList = headers();
   const body = await req.json();
   const { eventId, type } = pick(body, ["eventId", "type"]);

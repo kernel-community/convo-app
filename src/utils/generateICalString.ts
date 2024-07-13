@@ -3,6 +3,7 @@ import type { DateTime } from "luxon";
 export const getDateTime = (dt: DateTime) =>
   `${dt.toUTC().toFormat("yyyyLLdd")}T${dt.toUTC().toFormat("HHmmss")}Z`;
 
+// works for google/gmail
 export const generateICalRequest = ({
   start,
   end,
@@ -15,8 +16,8 @@ export const generateICalRequest = ({
   recipient,
   rrule,
 }: {
-  start: DateTime;
-  end: DateTime;
+  start: string;
+  end: string;
   organizer: {
     name: string;
     email: string;
@@ -29,22 +30,21 @@ export const generateICalRequest = ({
   description: string;
   location: string;
   sequence: number;
-  rrule: string;
+  rrule?: string | null;
 }) => {
-  const iCal = `BEGIN:VCALENDAR
+  const iCal =
+    `BEGIN:VCALENDAR
 VERSION:2.0
 CALSCALE:GREGORIAN
 METHOD:REQUEST
 BEGIN:VEVENT
-DTSTART:${getDateTime(start)}
-DTEND:${getDateTime(end)}
-DTSTAMP:${getDateTime(start)}
-${rrule}
-ORGANIZER;CN="${organizer.name}":mailto:${organizer.email}
+DTSTART:${start}
+DTEND:${end}
+DTSTAMP:${start}` +
+    `${rrule ? `\n${rrule}\n` : `\n`}` +
+    `ORGANIZER;CN="${organizer.name}":mailto:${organizer.email}
 UID:${uid}@evts.convo.cafe
-ATTENDEE;CUTYPE=INDIVIDUAL;ROLE=REQ-PARTICIPANT;PARTSTAT=ACCEPTED;CN=${
-    recipient.email
-  };X-NUM-GUESTS=0:mailto:${recipient.email}
+ATTENDEE;CUTYPE=INDIVIDUAL;ROLE=REQ-PARTICIPANT;PARTSTAT=ACCEPTED;CN=${recipient.email};X-NUM-GUESTS=0:mailto:${recipient.email}
 SUMMARY:${title}
 DESCRIPTION:${description}
 LOCATION:${location}
