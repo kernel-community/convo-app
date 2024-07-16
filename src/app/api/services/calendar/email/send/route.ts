@@ -1,6 +1,7 @@
 import { EmailTemplate } from "src/components/Email/Test";
 import { Resend } from "resend";
 import { DateTime } from "luxon";
+import type { ICalRequestParams } from "src/utils/generateICalString";
 import { generateICalRequest } from "src/utils/generateICalString";
 import { pick } from "lodash";
 import type { NextRequest } from "next/server";
@@ -15,44 +16,49 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 export async function POST(req: NextRequest) {
   const body = await req.json();
   const {
-    eventId,
+    eventIds,
     recipientName,
     recipientEmail,
   }: {
-    eventId: string;
+    eventIds: Array<string>;
     recipientName: string;
     recipientEmail: string;
-  } = pick(body, ["eventId", "recipientName", "recipientEmail"]);
-
-  const event = await prisma.event.findUniqueOrThrow({
-    where: { id: eventId },
-  });
-
-  const sdt = DateTime.fromISO(event.startDateTime.toISOString(), {
-    zone: "utc",
-  });
-  const edt = DateTime.fromISO(event.endDateTime.toISOString(), {
-    zone: "utc",
-  });
-
-  const startTime = `${sdt.toFormat("yyyyLLdd")}T${sdt.toFormat("HHmmss")}Z`;
-  const endTime = `${edt.toFormat("yyyyLLdd")}T${edt.toFormat("HHmmss")}Z`;
-
-  const iCal = generateICalRequest({
-    start: startTime,
-    end: endTime,
-    organizer: {
-      name: EVENT_ORGANIZER_NAME,
-      email: EVENT_ORGANIZER_EMAIL,
+  } = pick(body, ["eventIds", "recipientName", "recipientEmail"]);
+  const events = await prisma.event.findMany({
+    where: {
+      id: {
+        in: eventIds,
+      },
     },
-    uid: eventId,
-    title: event.title,
-    description: event.descriptionHtml || "",
-    location: event.location,
-    sequence: event.sequence,
-    recipient: { email: recipientEmail },
-    rrule: event.rrule,
   });
+  if (events.length < 1) {
+    const error = `No events found for the given event ids`;
+    return Response.json({ error }, { status: 500 });
+  }
+  const iCalRequests: Array<ICalRequestParams> = events.map((event) => {
+    const sdt = DateTime.fromISO(event.startDateTime.toISOString(), {
+      zone: "utc",
+    });
+    const edt = DateTime.fromISO(event.endDateTime.toISOString(), {
+      zone: "utc",
+    });
+    return {
+      start: `${sdt.toFormat("yyyyLLdd")}T${sdt.toFormat("HHmmss")}Z`,
+      end: `${edt.toFormat("yyyyLLdd")}T${edt.toFormat("HHmmss")}Z`,
+      organizer: {
+        name: EVENT_ORGANIZER_NAME,
+        email: EVENT_ORGANIZER_EMAIL,
+      },
+      uid: event.id,
+      title: event.title,
+      description: event.descriptionHtml || "",
+      location: event.location,
+      sequence: event.sequence,
+      recipient: { email: recipientEmail },
+      rrule: event.rrule,
+    };
+  });
+  const iCal = generateICalRequest(iCalRequests);
   try {
     const { data, error } = await resend.emails.send({
       from: `${EVENT_ORGANIZER_NAME}<${EVENT_ORGANIZER_EMAIL}>`,

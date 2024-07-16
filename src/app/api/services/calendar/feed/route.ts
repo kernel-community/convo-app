@@ -1,47 +1,60 @@
 /**
  * Serves a calendar feed for a given community
  */
-import type { ICalEventData } from "ical-generator";
-import ical, { ICalCalendarMethod } from "ical-generator";
+import { DateTime } from "luxon";
 import type { NextRequest } from "next/server";
-import { datetime, RRule } from "rrule";
+import { EVENT_ORGANIZER_EMAIL } from "src/utils/constants";
+import { prisma } from "src/utils/db";
+import type { ICalRequestParams } from "src/utils/generateICalString";
+import { generateICalRequest } from "src/utils/generateICalString";
 
 export async function GET(req: NextRequest) {
   const searchParams = req.nextUrl.searchParams;
-  const community = searchParams.get("community");
-
-  // fetch events for `community`
-  // generate and return calendar feed
-
-  console.log({ community });
-
-  const calendar = ical({
-    name: "bugazi cal",
-    method: ICalCalendarMethod.REQUEST,
+  const subdomain = searchParams.get("communityDomain");
+  if (!subdomain) {
+    throw new Error("community not defined");
+  }
+  const community = await prisma.community.findUniqueOrThrow({
+    where: { subdomain },
+    include: {
+      events: {
+        include: { proposer: true },
+      },
+    },
   });
-  // Example event, you can pull data from your database here
-  const startTime = new Date();
-  const endTime = new Date();
-  endTime.setHours(startTime.getHours() + 1);
-  const rule = new RRule({
-    freq: RRule.WEEKLY,
-    interval: 5,
-    byweekday: [RRule.MO, RRule.FR],
-    dtstart: datetime(2012, 2, 1, 10, 30),
-    until: datetime(2012, 12, 31),
+  const events = community.events;
+  if (events.length < 1) {
+    const error = `No events found for the given community`;
+    return Response.json({ error }, { status: 500 });
+  }
+
+  const iCalRequests: Array<ICalRequestParams> = events.map((event) => {
+    const sdt = DateTime.fromISO(event.startDateTime.toISOString(), {
+      zone: "utc",
+    });
+    const edt = DateTime.fromISO(event.endDateTime.toISOString(), {
+      zone: "utc",
+    });
+    return {
+      start: `${sdt.toFormat("yyyyLLdd")}T${sdt.toFormat("HHmmss")}Z`,
+      end: `${edt.toFormat("yyyyLLdd")}T${edt.toFormat("HHmmss")}Z`,
+      organizer: {
+        name: event.proposer.nickname,
+        email: EVENT_ORGANIZER_EMAIL,
+      },
+      uid: event.id,
+      title: event.title,
+      description: event.descriptionHtml || "",
+      location: event.location,
+      sequence: event.sequence,
+      recipient: { email: "" },
+      rrule: event.rrule,
+    };
   });
-  const event1: ICalEventData = {
-    start: startTime,
-    end: endTime,
-    summary: "Example Event",
-    description: "This is an example event",
-    location: "800 Howard St., San Francisco, CA 94103",
-    url: "http://sebbo.net/",
-    repeating: rule.toString(),
-  };
-  console.log(rule.toText());
-  const events: Array<ICalEventData> = [event1];
-  events.forEach((event) => calendar.createEvent({ ...event }));
+  const iCal = generateICalRequest(iCalRequests);
+
+  const calendar = iCal.toString();
+
   return new Response(calendar.toString(), {
     status: 200,
     headers: { "Content-Type": "text/calendar" },

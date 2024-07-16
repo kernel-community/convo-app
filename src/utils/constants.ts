@@ -14,4 +14,5 @@ export const DEFAULT_PROFILE_IMAGE =
 
 // SENDING EVENT CALENDAR INVITE EMAILS
 export const EVENT_ORGANIZER_NAME = "🦉 Hedwig from Kernel";
-export const EVENT_ORGANIZER_EMAIL = "convo@kernel.community";
+// export const EVENT_ORGANIZER_EMAIL = "convo@kernel.community";
+export const EVENT_ORGANIZER_EMAIL = "hedwig@convo.cafe";

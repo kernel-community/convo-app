@@ -1,6 +1,6 @@
 import type { FieldErrorsImpl, UseFormRegister } from "react-hook-form";
 import FieldLabel from "src/components/StrongText";
-import { BotInput } from "src/types";
+import type { BotInput } from "src/types";
 
 const TextField = ({
   name,
