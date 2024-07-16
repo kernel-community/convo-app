@@ -13,6 +13,5 @@ export const DEFAULT_PROFILE_IMAGE =
   "https://maroon-unsightly-clam-495.mypinata.cloud/ipfs/QmV8owGUxkytNkTuFTc8CawFvgxXhPKgrpvVwR4rmMPsnb";
 
 // SENDING EVENT CALENDAR INVITE EMAILS
-export const EVENT_ORGANIZER_NAME = "🦉 Hedwig from Kernel";
-// export const EVENT_ORGANIZER_EMAIL = "convo@kernel.community";
-export const EVENT_ORGANIZER_EMAIL = "hedwig@convo.cafe";
+export const EVENT_ORGANIZER_NAME = "Convo Cafe";
+export const EVENT_ORGANIZER_EMAIL = "convo@kernel.community";

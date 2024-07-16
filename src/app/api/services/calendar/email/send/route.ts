@@ -30,6 +30,9 @@ export async function POST(req: NextRequest) {
         in: eventIds,
       },
     },
+    include: {
+      proposer: true,
+    },
   });
   if (events.length < 1) {
     const error = `No events found for the given event ids`;
@@ -46,7 +49,7 @@ export async function POST(req: NextRequest) {
       start: `${sdt.toFormat("yyyyLLdd")}T${sdt.toFormat("HHmmss")}Z`,
       end: `${edt.toFormat("yyyyLLdd")}T${edt.toFormat("HHmmss")}Z`,
       organizer: {
-        name: EVENT_ORGANIZER_NAME,
+        name: event.proposer.nickname,
         email: EVENT_ORGANIZER_EMAIL,
       },
       uid: event.id,
