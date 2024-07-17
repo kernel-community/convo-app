@@ -13,7 +13,6 @@
 - app: https://convo.cafe
 - blog/notes: https://thinkingabout.convo.cafe
 - updates: https://t.me/startaconvo
-- chat: https://t.me/buildingconvochat
 - ENS: `convo.cafe`
 
 Built at [Kernel](https://kernel.community/)
