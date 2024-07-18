@@ -76,3 +76,12 @@ export const botInputSchema = z.object({
   channelId: z.string().min(1),
 });
 export type BotInput = z.infer<typeof botInputSchema>;
+
+export const SessionSchema = z.object({
+  dateTime: z.date(),
+  duration: z.number().min(0.1, "Invalid duration"),
+  count: z.number(),
+  id: z.string().optional(),
+});
+
+export type SessionSchemaType = z.infer<typeof SessionSchema>;
