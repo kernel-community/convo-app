@@ -5,7 +5,6 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "../ui/button";
 import { RichTextArea } from "./FormFields/RichText";
-import SessionsInput from "./FormFields/SessionsInput";
 import useCreateEvent from "src/hooks/useCreateEvent";
 import useUpdateEvent from "src/hooks/useUpdateEvent";
 import LoginButton from "../LoginButton";
@@ -16,15 +15,9 @@ import FieldLabel from "../StrongText";
 import type { User } from "@prisma/client";
 import { useRouter } from "next/navigation";
 import { ConfirmConvoCredenza } from "./ConfirmConvo";
-
-const SessionSchema = z.object({
-  dateTime: z.date(),
-  duration: z.number().min(0.1, "Invalid duration"),
-  count: z.number(),
-  id: z.string().optional(),
-});
-
-export type Session = z.infer<typeof SessionSchema>;
+import { SessionSchema } from "src/types";
+import { RecurrenceRuleInput } from "../RecurrenceRuleInput";
+import { DateTimeStartAndEnd } from "../DateTimeStartAndEnd";
 
 export const validationSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -169,21 +162,10 @@ const ProposeForm = ({ event }: { event?: ClientEventInput }) => {
           )}
         />
 
-        {/* Sessions Input */}
-        <Controller
-          name="sessions"
-          control={control}
-          rules={{ required: true }}
-          render={({ field }) => (
-            <SessionsInput
-              handleChange={field.onChange}
-              preFillSessions={
-                defaultValues?.sessions as ClientEventInput["sessions"]
-              }
-            />
-          )}
-        />
-
+        {/* component for start datetime */}
+        <DateTimeStartAndEnd />
+        {/* component/dropdown for recurrence rule */}
+        <RecurrenceRuleInput />
         {/* Limit */}
         <TextField
           name="limit"
