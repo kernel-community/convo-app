@@ -18,9 +18,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
-        <Providers>{children}</Providers>
+        <Providers>
+          <div vaul-drawer-wrapper="" className="bg-background">
+            {children}
+          </div>
+        </Providers>
         <Analytics />
         <SpeedInsights />
       </body>

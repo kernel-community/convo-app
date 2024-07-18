@@ -51,19 +51,13 @@ export default function Providers({
       <DynamicWagmiConnector>
         <QueryClientProvider client={queryClient}>
           <UserProvider>
-            <div
-              vaul-drawer-wrapper=""
-              suppressHydrationWarning
-              className="bg-background"
-            >
-              <RsvpIntentionProvider>
-                <CursorsContextProvider room={room} host={host}>
-                  <SharedSpace>
-                    <TooltipProvider>{children}</TooltipProvider>
-                  </SharedSpace>
-                </CursorsContextProvider>
-              </RsvpIntentionProvider>
-            </div>
+            <RsvpIntentionProvider>
+              <CursorsContextProvider room={room} host={host}>
+                <SharedSpace>
+                  <TooltipProvider>{children}</TooltipProvider>
+                </SharedSpace>
+              </CursorsContextProvider>
+            </RsvpIntentionProvider>
           </UserProvider>
         </QueryClientProvider>
       </DynamicWagmiConnector>
