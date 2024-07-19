@@ -1,9 +1,64 @@
+import { useEffect, useState } from "react";
 import FieldLabel from "./StrongText";
-import { Button } from "./ui/button";
 import { DatePicker } from "./ui/date-picker";
-import { TimePicker12H } from "./ui/time-picker-12-hour";
+import type { DurationObjectUnits } from "luxon";
+import { DateTime } from "luxon";
+import { addMinutes, differenceInMilliseconds } from "date-fns";
+
+const durationObjectToHumanReadableString = (obj: DurationObjectUnits) => {
+  const { years, months, days, hours, minutes } = obj;
+  let str = ``;
+  if (years) {
+    str += Math.floor(years) + ` year${years > 1 ? "s" : ""} `;
+  }
+  if (months) {
+    str += Math.floor(months) + ` month${months > 1 ? "s" : ""} `;
+  }
+  if (days) {
+    str += Math.floor(days) + ` day${days > 1 ? "s" : ""} `;
+  }
+  if (hours) {
+    str += Math.floor(hours) + ` hour${hours > 1 ? "s" : ""} `;
+  }
+  if (minutes) {
+    str += Math.floor(minutes) + ` minute${minutes > 1 ? "s" : ""} `;
+  }
+
+  return str;
+};
 
 export const DateTimeStartAndEnd = () => {
+  const [startDate, setStartDate] = useState<Date | undefined>(
+    DateTime.now().toJSDate()
+  );
+  const [endDate, setEndDate] = useState<Date | undefined>(
+    DateTime.now().plus({ minutes: 30 }).toJSDate()
+  );
+  const duration =
+    endDate && startDate
+      ? durationObjectToHumanReadableString(
+          DateTime.fromJSDate(endDate)
+            .diff(DateTime.fromJSDate(startDate), [
+              "years",
+              "months",
+              "days",
+              "hours",
+              "minutes",
+            ])
+            .toObject()
+        )
+      : `0 minutes`;
+
+  useEffect(() => {
+    if (
+      endDate &&
+      startDate &&
+      differenceInMilliseconds(endDate, startDate) < 0
+    ) {
+      setEndDate(addMinutes(startDate, 30));
+    }
+  }, [startDate]);
+
   return (
     <div>
       <FieldLabel>
@@ -14,30 +69,29 @@ export const DateTimeStartAndEnd = () => {
           }
         </div>
       </FieldLabel>
-      <div className="grid grid-cols-1 items-center gap-6 rounded-xl bg-primary-light p-4 sm:gap-10 sm:p-6">
+      <div className="grid grid-cols-1 items-center gap-6 rounded-xl bg-primary-light p-4 sm:gap-6 sm:p-6">
         <div className="flex flex-col justify-between sm:flex-row sm:items-center">
           <FieldLabel>Start Date and Time</FieldLabel>
           <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
-            <DatePicker />
-            <TimePicker12H
-              date={new Date()}
-              setDate={() => {
-                console.log(`hello`);
-              }}
+            <DatePicker
+              date={startDate || new Date()}
+              setDate={setStartDate}
+              fromDate={new Date()}
             />
           </div>
         </div>
         <div className="flex flex-col justify-between sm:flex-row sm:items-center">
           <FieldLabel>End Date and Time</FieldLabel>
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
-            <DatePicker />
-            <TimePicker12H
-              date={new Date()}
-              setDate={() => {
-                console.log(`hello`);
-              }}
+          <div className="flex flex-row gap-3 sm:flex-col sm:items-end">
+            <DatePicker
+              date={endDate || new Date()}
+              setDate={setEndDate}
+              fromDate={startDate}
             />
           </div>
+        </div>
+        <div className="text-right font-inter text-xs text-gray-500">
+          Duration: {duration}
         </div>
       </div>
     </div>

@@ -19,6 +19,7 @@ export const RecurrenceRuleInput = () => {
   });
   const [rrule, setRrule] = useState<string>(mockRrule.toText());
   const [isRepeating, setIsRepeating] = useState<boolean>(false);
+  const [endsOnDate, setEndsOnDate] = useState<Date | undefined>();
 
   const [formattedRrule, setFormattedRrule] = useState<string>(
     `Repeats every day at 5pm`
@@ -72,7 +73,11 @@ export const RecurrenceRuleInput = () => {
                   <div className="flex flex-row items-center space-x-2">
                     <RadioGroupItem value="on" id="r2" />
                     <Label htmlFor="r2">On</Label>
-                    <DatePicker />
+                    <DatePicker
+                      setDate={setEndsOnDate}
+                      date={endsOnDate}
+                      fromDate={new Date()}
+                    />
                   </div>
                   <div className="flex flex-row items-center space-x-2">
                     <RadioGroupItem
