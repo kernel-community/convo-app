@@ -2,8 +2,7 @@
 
 import * as React from "react";
 import { CalendarIcon } from "@radix-ui/react-icons";
-import { addDays, format } from "date-fns";
-
+import { format } from "date-fns";
 import { cn } from "src/lib/utils";
 import { Button } from "src/components/ui/button";
 import { Calendar } from "src/components/ui/calendar";
@@ -12,18 +11,9 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "src/components/ui/popover";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "src/components/ui/select";
-import { TimePicker12H } from "./time-picker-12-hour";
 
-export function DatePickerWithPresets() {
+export function DatePicker() {
   const [date, setDate] = React.useState<Date>();
-  console.log({ date });
   return (
     <Popover>
       <PopoverTrigger asChild>
@@ -42,25 +32,7 @@ export function DatePickerWithPresets() {
         align="start"
         className="flex w-auto flex-col space-y-2 p-2"
       >
-        {/* <Select
-          onValueChange={(value) =>
-            {
-              setDate(addDays(new Date(), parseInt(value)));
-            }
-          }
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="Select" />
-          </SelectTrigger>
-          <SelectContent position="popper">
-            <SelectItem value="0">Today</SelectItem>
-            <SelectItem value="1">Tomorrow</SelectItem>
-            <SelectItem value="3">In 3 days</SelectItem>
-            <SelectItem value="7">In a week</SelectItem>
-          </SelectContent>
-        </Select> */}
         <Calendar mode="single" selected={date} onSelect={setDate} />
-        <TimePicker12H date={date} setDate={setDate} />
       </PopoverContent>
     </Popover>
   );

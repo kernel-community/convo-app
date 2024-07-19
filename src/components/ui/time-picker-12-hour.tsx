@@ -22,9 +22,9 @@ export function TimePicker12H({ date, setDate }: TimePickerDemoProps) {
   return (
     <div className="flex items-end gap-2">
       <div className="grid gap-1 text-center">
-        <Label htmlFor="hours" className="text-xs">
+        {/* <Label htmlFor="hours" className="text-xs">
           Hours
-        </Label>
+        </Label> */}
         <TimePickerInput
           picker="12hours"
           period={period}
@@ -35,9 +35,9 @@ export function TimePicker12H({ date, setDate }: TimePickerDemoProps) {
         />
       </div>
       <div className="grid gap-1 text-center">
-        <Label htmlFor="minutes" className="text-xs">
+        {/* <Label htmlFor="minutes" className="text-xs">
           Minutes
-        </Label>
+        </Label> */}
         <TimePickerInput
           picker="minutes"
           id="minutes12"
@@ -45,34 +45,20 @@ export function TimePicker12H({ date, setDate }: TimePickerDemoProps) {
           setDate={setDate}
           ref={minuteRef}
           onLeftFocus={() => hourRef.current?.focus()}
-          onRightFocus={() => secondRef.current?.focus()}
-        />
-      </div>
-      <div className="grid gap-1 text-center">
-        <Label htmlFor="seconds" className="text-xs">
-          Seconds
-        </Label>
-        <TimePickerInput
-          picker="seconds"
-          id="seconds12"
-          date={date}
-          setDate={setDate}
-          ref={secondRef}
-          onLeftFocus={() => minuteRef.current?.focus()}
           onRightFocus={() => periodRef.current?.focus()}
         />
       </div>
       <div className="grid gap-1 text-center">
-        <Label htmlFor="period" className="text-xs">
+        {/* <Label htmlFor="period" className="text-xs">
           Period
-        </Label>
+        </Label> */}
         <TimePeriodSelect
           period={period}
           setPeriod={setPeriod}
           date={date}
           setDate={setDate}
           ref={periodRef}
-          onLeftFocus={() => secondRef.current?.focus()}
+          onLeftFocus={() => hourRef.current?.focus()}
         />
       </div>
     </div>

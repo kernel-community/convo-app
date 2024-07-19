@@ -6,7 +6,8 @@ import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
 import { datetime, RRule, RRuleSet, rrulestr } from "rrule";
 import { Checkbox } from "./ui/checkbox";
-import { DatePickerWithPresets } from "./ui/date-picker-presets";
+import { DatePicker } from "./ui/date-picker";
+import FieldLabel from "./StrongText";
 
 export const RecurrenceRuleInput = () => {
   const mockRrule = new RRule({
@@ -20,26 +21,28 @@ export const RecurrenceRuleInput = () => {
   const [isRepeating, setIsRepeating] = useState<boolean>(false);
 
   const [formattedRrule, setFormattedRrule] = useState<string>(
-    `Make this Convo recurring?`
+    `Repeats every day at 5pm`
   );
 
   return (
     <>
       <Popover>
         <PopoverTrigger asChild>
-          <Button variant="outline">{formattedRrule}</Button>
+          <Button variant="outline" className="border border-primary bg-accent">
+            {formattedRrule}
+          </Button>
         </PopoverTrigger>
         <PopoverContent className="w-min">
           <div className="grid gap-4">
-            <div className="space-y-2">
-              <h4 className="font-medium leading-none">Create your Schedule</h4>
-              {/* <p className="text-sm text-muted-foreground">
-              Set a recurring schedule for this Convo
-            </p> */}
+            <div>
+              <FieldLabel>Create your Schedule</FieldLabel>
             </div>
             <div className="flex flex-col gap-6">
-              <RadioGroup defaultValue="daily" className="flex flex-row gap-3">
-                <div className="flex flex-col items-center space-x-2">
+              <RadioGroup
+                defaultValue="daily"
+                className="flex flex-row justify-between gap-3 [&>*]:space-x-2 [&>*]:space-y-2"
+              >
+                <div className="flex flex-col items-center">
                   <RadioGroupItem value="daily" id="t1" />
                   <Label htmlFor="t1">Daily</Label>
                 </div>
@@ -56,8 +59,8 @@ export const RecurrenceRuleInput = () => {
                   <Label htmlFor="t4">Yearly</Label>
                 </div>
               </RadioGroup>
-              <div>
-                <p>Ends</p>
+              <div className="flex flex-col gap-2">
+                <p className="font-medium">Ends</p>
                 <RadioGroup
                   defaultValue="daily"
                   className="flex flex-col gap-3"
@@ -69,7 +72,7 @@ export const RecurrenceRuleInput = () => {
                   <div className="flex flex-row items-center space-x-2">
                     <RadioGroupItem value="on" id="r2" />
                     <Label htmlFor="r2">On</Label>
-                    <DatePickerWithPresets />
+                    <DatePicker />
                   </div>
                   <div className="flex flex-row items-center space-x-2">
                     <RadioGroupItem
