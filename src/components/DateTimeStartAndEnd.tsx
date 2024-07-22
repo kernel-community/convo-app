@@ -77,6 +77,7 @@ export const DateTimeStartAndEnd = () => {
               date={startDate || new Date()}
               setDate={setStartDate}
               fromDate={new Date()}
+              withTime
             />
           </div>
         </div>
@@ -87,6 +88,7 @@ export const DateTimeStartAndEnd = () => {
               date={endDate || new Date()}
               setDate={setEndDate}
               fromDate={startDate}
+              withTime
             />
           </div>
         </div>

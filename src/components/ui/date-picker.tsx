@@ -24,10 +24,14 @@ export function DatePicker({
   date,
   setDate,
   fromDate,
+  withTime = false,
+  disabled,
 }: {
   date: Date | undefined;
   fromDate?: Date;
   setDate: (date: Date | undefined) => void;
+  withTime?: boolean;
+  disabled?: boolean;
 }) {
   return (
     <Popover>
@@ -38,9 +42,14 @@ export function DatePicker({
             "w-[240px] justify-start text-left font-normal",
             !date && "text-muted-foreground"
           )}
+          disabled={disabled}
         >
           <CalendarIcon className="mr-2 h-4 w-4" />
-          {date ? format(date, "PPPp") : <span>Pick a date</span>}
+          {date && !disabled ? (
+            format(date, `${withTime ? "PPPp" : "PPP"}`)
+          ) : (
+            <span>Pick a date</span>
+          )}
         </Button>
       </PopoverTrigger>
       <PopoverContent
@@ -67,8 +76,9 @@ export function DatePicker({
           selected={date}
           onSelect={setDate}
           fromDate={fromDate}
+          disabled={disabled}
         />
-        <TimePicker12H date={date} setDate={setDate} />
+        {withTime && <TimePicker12H date={date} setDate={setDate} />}
       </PopoverContent>
     </Popover>
   );
