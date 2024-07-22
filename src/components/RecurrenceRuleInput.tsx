@@ -18,12 +18,20 @@ export const RecurrenceRuleInput = () => {
   type RecurrenceType = "never" | "on" | "after";
   type RecurrencePeriod = "daily" | "weekly" | "monthly" | "yearly";
 
-  const [recurrenceConfig, setRecurrenceConfig] =
-    useState<RecurrenceType>("never");
+  const [recurrenceConfig, setRecurrenceConfig] = useState<
+    RecurrenceType | undefined
+  >(undefined);
   const [occurrences, setOccurrences] = useState<number>(0);
-  const [period, setPeriod] = useState<RecurrencePeriod>("daily");
+  const [period, setPeriod] = useState<RecurrencePeriod | undefined>(undefined);
 
   useEffect(() => {
+    if (period && !recurrenceConfig) {
+      setRecurrenceConfig("never");
+    }
+  }, [period, recurrenceConfig]);
+
+  useEffect(() => {
+    if (!period) return;
     let freq;
     switch (period) {
       case "daily": {
@@ -49,7 +57,7 @@ export const RecurrenceRuleInput = () => {
       until: endsOnDate
         ? datetime(
             endsOnDate.getFullYear(),
-            endsOnDate.getMonth(),
+            endsOnDate.getMonth() + 1,
             endsOnDate.getDate()
           )
         : undefined,
