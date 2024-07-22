@@ -7,13 +7,12 @@ import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
 import { datetime, RRule } from "rrule";
 import { DatePicker } from "./ui/date-picker";
 import FieldLabel from "./StrongText";
+import { Checkbox } from "./ui/checkbox";
 
 export const RecurrenceRuleInput = () => {
   const [endsOnDate, setEndsOnDate] = useState<Date | undefined>();
 
-  const [formattedRrule, setFormattedRrule] = useState<string>(
-    `convert to recurring convo?`
-  );
+  const [formattedRrule, setFormattedRrule] = useState<string | undefined>();
 
   type RecurrenceType = "never" | "on" | "after";
   type RecurrencePeriod = "daily" | "weekly" | "monthly" | "yearly";
@@ -23,15 +22,36 @@ export const RecurrenceRuleInput = () => {
   >(undefined);
   const [occurrences, setOccurrences] = useState<number>(0);
   const [period, setPeriod] = useState<RecurrencePeriod | undefined>(undefined);
+  const [noRepeat, setNoRepeat] = useState<boolean>(true);
+
+  useEffect(() => {
+    if (period || occurrences || endsOnDate || recurrenceConfig) {
+      setNoRepeat(false);
+    }
+  }, [recurrenceConfig, occurrences, period, endsOnDate]);
+
+  useEffect(() => {
+    if (noRepeat) {
+      setPeriod(undefined);
+      setOccurrences(0);
+      setRecurrenceConfig(undefined);
+    }
+  }, [noRepeat]);
 
   useEffect(() => {
     if (period && !recurrenceConfig) {
       setRecurrenceConfig("never");
     }
-  }, [period, recurrenceConfig]);
+    if (!period && recurrenceConfig) {
+      setPeriod("daily");
+    }
+  }, [period, recurrenceConfig, noRepeat]);
 
   useEffect(() => {
-    if (!period) return;
+    if (!period) {
+      setFormattedRrule(undefined);
+      return;
+    }
     let freq;
     switch (period) {
       case "daily": {
@@ -64,7 +84,7 @@ export const RecurrenceRuleInput = () => {
       count: occurrences,
     });
     setFormattedRrule(rrule.toText());
-  }, [recurrenceConfig, occurrences, period, endsOnDate]);
+  }, [recurrenceConfig, occurrences, period, endsOnDate, noRepeat]);
 
   useEffect(() => {
     switch (recurrenceConfig) {
@@ -82,14 +102,14 @@ export const RecurrenceRuleInput = () => {
         break;
       }
     }
-  }, [recurrenceConfig]);
+  }, [recurrenceConfig, noRepeat]);
 
   return (
     <>
       <Popover>
         <PopoverTrigger asChild>
           <Button variant="outline" className="bg-accent font-primary">
-            {formattedRrule}
+            {formattedRrule || `convert to recurring convo?`}
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-min">
@@ -193,6 +213,14 @@ export const RecurrenceRuleInput = () => {
                   </div>
                 </RadioGroup>
               </div>
+            </div>
+            <hr />
+            <div
+              className="flex cursor-pointer items-center space-x-2"
+              onClick={() => setNoRepeat((c) => !c)}
+            >
+              <Checkbox id="norepeat" checked={noRepeat} />
+              <FieldLabel>Doesn&apos;t repeat</FieldLabel>
             </div>
           </div>
         </PopoverContent>
