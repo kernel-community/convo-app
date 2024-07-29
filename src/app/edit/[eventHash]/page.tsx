@@ -12,7 +12,7 @@ import { useEffect, useState } from "react";
 import { Skeleton } from "src/components/ui/skeleton";
 import ConfirmDeleteCredenza from "src/components/EventPage/ConfirmDelete";
 import { useRouter } from "next/navigation";
-import { ClientEventInput } from "src/types";
+import type { ClientEventInput } from "src/types";
 
 const Edit = ({ params }: { params: { eventHash: string } }) => {
   const { push } = useRouter();
