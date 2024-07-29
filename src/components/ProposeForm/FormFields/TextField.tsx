@@ -1,6 +1,6 @@
 import type { FieldErrorsImpl, UseFormRegister } from "react-hook-form";
-import type { ClientEventInput } from "..";
 import FieldLabel from "../../StrongText";
+import { ClientEventInput } from "src/types";
 
 const TextField = ({
   name,

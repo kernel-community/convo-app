@@ -1,6 +1,5 @@
 "use client";
 
-import type { ClientEventInput } from "src/components/ProposeForm";
 import ProposeForm from "src/components/ProposeForm";
 import useEvent from "src/hooks/useEvent";
 import Main from "src/layouts/Main";
@@ -13,6 +12,7 @@ import { useEffect, useState } from "react";
 import { Skeleton } from "src/components/ui/skeleton";
 import ConfirmDeleteCredenza from "src/components/EventPage/ConfirmDelete";
 import { useRouter } from "next/navigation";
+import { ClientEventInput } from "src/types";
 
 const Edit = ({ params }: { params: { eventHash: string } }) => {
   const { push } = useRouter();

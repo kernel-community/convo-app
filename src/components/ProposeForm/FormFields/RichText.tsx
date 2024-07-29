@@ -14,7 +14,6 @@ import Placeholder from "@tiptap/extension-placeholder";
 import type { ReactNode } from "react";
 import { Fragment, useCallback } from "react";
 import type { FieldErrorsImpl } from "react-hook-form";
-import type { ClientEventInput } from "..";
 import FieldLabel from "../../StrongText";
 import type { Editor } from "@tiptap/core";
 import Collaboration from "@tiptap/extension-collaboration";
@@ -38,6 +37,7 @@ import {
   RedoIcon,
   UndoIcon,
 } from "lucide-react";
+import { ClientEventInput } from "src/types";
 
 type handleChangeType = (e: any) => void;
 

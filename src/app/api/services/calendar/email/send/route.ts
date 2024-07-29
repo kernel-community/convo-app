@@ -34,6 +34,7 @@ export async function POST(req: NextRequest) {
       proposer: true,
     },
   });
+  console.log(`sending email for ${JSON.stringify(events)}`);
   if (events.length < 1) {
     const error = `No events found for the given event ids`;
     return Response.json({ error }, { status: 500 });
@@ -62,6 +63,7 @@ export async function POST(req: NextRequest) {
     };
   });
   const iCal = generateICalRequest(iCalRequests);
+  console.log(iCal);
   try {
     const { data, error } = await resend.emails.send({
       from: `${EVENT_ORGANIZER_NAME}<${EVENT_ORGANIZER_EMAIL}>`,

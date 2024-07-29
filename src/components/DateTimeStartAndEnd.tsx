@@ -27,13 +27,25 @@ const durationObjectToHumanReadableString = (obj: DurationObjectUnits) => {
   return str;
 };
 
-export const DateTimeStartAndEnd = () => {
+export const DateTimeStartAndEnd = ({
+  handleChange,
+}: {
+  handleChange: (e: any) => void;
+}) => {
   const [startDate, setStartDate] = useState<Date | undefined>(
     DateTime.now().toJSDate()
   );
   const [endDate, setEndDate] = useState<Date | undefined>(
     DateTime.now().plus({ minutes: 30 }).toJSDate()
   );
+
+  useEffect(() => {
+    handleChange({
+      start: startDate,
+      end: endDate,
+    });
+  }, [startDate, endDate]);
+
   const duration =
     endDate && startDate
       ? durationObjectToHumanReadableString(

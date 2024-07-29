@@ -1,6 +1,6 @@
 import type { UseFormRegister } from "react-hook-form";
-import type { ClientEventInput } from "..";
 import FieldLabel from "src/components/StrongText";
+import type { ClientEventInput } from "src/types";
 
 const Checkbox = ({
   name,

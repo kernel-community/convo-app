@@ -3,11 +3,11 @@
  */
 import _ from "lodash";
 import { prisma } from "src/utils/db";
-import { getEventStartAndEnd } from "src/utils/dateTime";
 import type { ClientEvent, Session } from "../../create/event/route";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { headers } from "next/headers";
+import { getEventStartAndEnd } from "src/utils/dateTime";
 
 export type ClientEditableEvent = Omit<ClientEvent, "sessions"> & {
   sessions: Array<Session & { id: string }>;

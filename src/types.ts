@@ -10,6 +10,7 @@ import type {
   Slack,
   User,
 } from "@prisma/client";
+import { DateTime } from "luxon";
 
 export type ServerEvent = Event & {
   proposer: User;
@@ -85,3 +86,29 @@ export const SessionSchema = z.object({
 });
 
 export type SessionSchemaType = z.infer<typeof SessionSchema>;
+
+export const clientEventInputValidationScheme = z.object({
+  title: z.string().min(1, "Title is required"),
+  description: z.string().optional(),
+  dateTimeStartAndEnd: z.object({
+    start: z.date().default(DateTime.now().toJSDate()),
+    end: z.date().default(DateTime.now().plus({ minutes: 30 }).toJSDate()),
+  }),
+  recurrenceRule: z.string().optional(),
+  sessions: z.array(SessionSchema),
+  limit: z
+    .string()
+    .refine((val) => !Number.isNaN(parseInt(val, 10)), {
+      message: "Please enter a number",
+    })
+    .refine((val) => Number(parseInt(val, 10)) >= 0, {
+      message: "Please enter a positive integer",
+    }),
+  location: z.string().min(1, "Location is required"),
+  nickname: z.string().optional(),
+  gCalEvent: z.boolean().default(true),
+  hash: z.string().optional(),
+  email: z.string().optional(),
+});
+
+export type ClientEventInput = z.infer<typeof clientEventInputValidationScheme>;

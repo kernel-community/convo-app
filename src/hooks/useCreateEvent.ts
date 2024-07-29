@@ -1,8 +1,8 @@
 // submit an event from the propose form
 // creates an event for the logged in user
 import { useState } from "react";
-import type { ClientEventInput } from "src/components/ProposeForm";
 import type { FullEvent } from "src/app/api/actions/google/createEvent/route";
+import type { ClientEventInput } from "src/types";
 
 const createEventInDb = async ({
   event,
@@ -42,7 +42,7 @@ const useCreateEvent = () => {
     if (!userId) return;
     setIsSubmitting(true);
 
-    let createdInDb: Array<FullEvent> | undefined = undefined;
+    let createdInDb: FullEvent | undefined = undefined;
     try {
       createdInDb = await createEventInDb({ event, userId });
     } catch (err) {

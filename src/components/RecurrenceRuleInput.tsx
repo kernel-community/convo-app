@@ -9,7 +9,13 @@ import { DatePicker } from "./ui/date-picker";
 import FieldLabel from "./StrongText";
 import { Checkbox } from "./ui/checkbox";
 
-export const RecurrenceRuleInput = () => {
+export const RecurrenceRuleInput = ({
+  handleChange,
+}: {
+  handleChange: (e: any) => void;
+}) => {
+  const [rrule, setRrule] = useState<string | undefined>();
+
   const [endsOnDate, setEndsOnDate] = useState<Date | undefined>();
 
   const [formattedRrule, setFormattedRrule] = useState<string | undefined>();
@@ -23,6 +29,10 @@ export const RecurrenceRuleInput = () => {
   const [occurrences, setOccurrences] = useState<number>(0);
   const [period, setPeriod] = useState<RecurrencePeriod | undefined>(undefined);
   const [noRepeat, setNoRepeat] = useState<boolean>(true);
+
+  useEffect(() => {
+    handleChange(rrule);
+  }, [rrule]);
 
   useEffect(() => {
     if (period || occurrences || endsOnDate || recurrenceConfig) {
@@ -84,6 +94,7 @@ export const RecurrenceRuleInput = () => {
       count: occurrences,
     });
     setFormattedRrule(rrule.toText());
+    setRrule(rrule.toString());
   }, [recurrenceConfig, occurrences, period, endsOnDate, noRepeat]);
 
   useEffect(() => {

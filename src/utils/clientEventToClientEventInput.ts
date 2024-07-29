@@ -2,8 +2,7 @@
  * converts an object of type ClientEvent to ClientEventInput
  */
 
-import type { ClientEventInput } from "src/components/ProposeForm";
-import type { ClientEvent } from "src/types";
+import type { ClientEvent, ClientEventInput } from "src/types";
 
 const parse = (event: ClientEvent): ClientEventInput => {
   const { title, descriptionHtml, sessions, limit, location, nickname, hash } =
@@ -29,6 +28,11 @@ const parse = (event: ClientEvent): ClientEventInput => {
     nickname,
     hash,
     gCalEvent: true,
+    // temp, fix this
+    dateTimeStartAndEnd: {
+      start: new Date(),
+      end: new Date(),
+    },
   };
 };
 

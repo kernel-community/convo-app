@@ -1,5 +1,4 @@
 import type { Dispatch, SetStateAction } from "react";
-import type { ClientEventInput } from ".";
 import { getDateTimeString } from "src/utils/dateTime";
 import {
   Credenza,
@@ -17,6 +16,7 @@ import { Article } from "src/components/Article";
 import type { User } from "@prisma/client";
 import type { UserStatus } from "src/context/UserContext";
 import { Skeleton } from "src/components/ui/skeleton";
+import { ClientEventInput } from "src/types";
 
 export const ConfirmConvoCredenza = ({
   openModalFlag,

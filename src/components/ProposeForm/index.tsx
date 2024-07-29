@@ -15,30 +15,11 @@ import FieldLabel from "../StrongText";
 import type { User } from "@prisma/client";
 import { useRouter } from "next/navigation";
 import { ConfirmConvoCredenza } from "./ConfirmConvo";
-import { SessionSchema } from "src/types";
+import type { ClientEventInput } from "src/types";
+import { clientEventInputValidationScheme } from "src/types";
 import { RecurrenceRuleInput } from "../RecurrenceRuleInput";
 import { DateTimeStartAndEnd } from "../DateTimeStartAndEnd";
-
-export const validationSchema = z.object({
-  title: z.string().min(1, "Title is required"),
-  description: z.string().optional(),
-  sessions: z.array(SessionSchema),
-  limit: z
-    .string()
-    .refine((val) => !Number.isNaN(parseInt(val, 10)), {
-      message: "Please enter a number",
-    })
-    .refine((val) => Number(parseInt(val, 10)) >= 0, {
-      message: "Please enter a positive integer",
-    }),
-  location: z.string().min(1, "Location is required"),
-  nickname: z.string().optional(),
-  gCalEvent: z.boolean().default(true),
-  hash: z.string().optional(),
-  email: z.string().optional(),
-});
-
-export type ClientEventInput = z.infer<typeof validationSchema>;
+import { DateTime } from "luxon";
 
 const ProposeForm = ({ event }: { event?: ClientEventInput }) => {
   const { fetchedUser: user } = useUser();
@@ -51,7 +32,7 @@ const ProposeForm = ({ event }: { event?: ClientEventInput }) => {
     formState: { errors, defaultValues },
     control,
   } = useForm<ClientEventInput>({
-    resolver: zodResolver(validationSchema),
+    resolver: zodResolver(clientEventInputValidationScheme),
     defaultValues: useMemo(() => {
       const DEFAULT_EVENT: Partial<ClientEventInput> = event || {
         sessions: [
@@ -64,6 +45,10 @@ const ProposeForm = ({ event }: { event?: ClientEventInput }) => {
         nickname: user.nickname,
         gCalEvent: true,
         email: user.email ?? "",
+        dateTimeStartAndEnd: {
+          start: DateTime.now().toJSDate(),
+          end: DateTime.now().plus({ minutes: 30 }).toJSDate(),
+        },
       };
       return DEFAULT_EVENT;
     }, [event, user]),
@@ -108,8 +93,8 @@ const ProposeForm = ({ event }: { event?: ClientEventInput }) => {
           userId: user.id,
         });
         if (!created) throw "undefined response returned";
-        if (!created[0]) throw "empty array returned";
-        push(`/rsvp/${created[0]?.hash}`);
+        if (!created) throw "empty array returned";
+        push(`/rsvp/${created.hash}`);
       }
       // display success modal
     } catch (err) {
@@ -163,9 +148,25 @@ const ProposeForm = ({ event }: { event?: ClientEventInput }) => {
         />
 
         {/* component for start datetime */}
-        <DateTimeStartAndEnd />
+        <Controller
+          name="dateTimeStartAndEnd"
+          control={control}
+          rules={{ required: true }}
+          render={({ field }) => (
+            <DateTimeStartAndEnd handleChange={field.onChange} />
+          )}
+        />
+
         {/* component/dropdown for recurrence rule */}
-        <RecurrenceRuleInput />
+        <Controller
+          name="recurrenceRule"
+          control={control}
+          rules={{ required: false }}
+          render={({ field }) => (
+            <RecurrenceRuleInput handleChange={field.onChange} />
+          )}
+        />
+
         {/* Limit */}
         <TextField
           name="limit"
@@ -199,12 +200,6 @@ const ProposeForm = ({ event }: { event?: ClientEventInput }) => {
                 updated.
               </div>
             )}
-            {/*
-             * @note
-             * No option to create a google calendar event if one doesn't exist already
-             * because there might be a mismatch in RSVPs - anyone RSVP'd before won't be
-             * added by default (cuz we don't have their email)
-             */}
           </>
         )}
 

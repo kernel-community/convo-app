@@ -39,7 +39,7 @@ model Event {
   endDateTime     DateTime
   location        String
   hash            String // deprecating soon
-  series          Boolean
+  series          Boolean // deprecating soon
   limit           Int
   rrule           String?
   sequence        Int          @default(0)

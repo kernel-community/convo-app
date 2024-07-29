@@ -1,12 +1,12 @@
 import _, { isNil } from "lodash";
 import { prisma } from "src/utils/db";
-import type { EventType, Prisma } from "@prisma/client";
+import type { EventType } from "@prisma/client";
 import { nanoid } from "nanoid";
-import { getEventStartAndEnd } from "src/utils/dateTime";
 import isProd from "src/utils/isProd";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { headers } from "next/headers";
+import type { ClientEventInput } from "src/types";
 
 export type Session = {
   dateTime: Date;
@@ -32,12 +32,11 @@ export async function POST(req: NextRequest) {
     event,
     userId,
   }: {
-    event: ClientEvent;
+    event: ClientEventInput;
     userId: string;
   } = _.pick(body, ["event", "userId", "hash"]);
   const headersList = headers();
   const host = headersList.get("host") ?? "kernel";
-  const { title, sessions, limit, location, description, type } = event;
 
   const user = await prisma.user.findUniqueOrThrow({
     where: {
@@ -46,25 +45,7 @@ export async function POST(req: NextRequest) {
   });
 
   const hash = event.hash || nanoid(10);
-  const eventPayload: Prisma.Enumerable<Prisma.EventCreateManyInput> =
-    sessions.map((session) => {
-      const { startDateTime, endDateTime } = getEventStartAndEnd(
-        session.dateTime,
-        session.duration
-      );
-      return {
-        title,
-        descriptionHtml: description,
-        startDateTime,
-        endDateTime,
-        location,
-        hash,
-        limit: Number(limit),
-        proposerId: user.id,
-        series: sessions.length > 1,
-        type: isProd(host) ? type : "TEST",
-      };
-    });
+
   const subdomain = host?.split(".")[0];
 
   let community = await prisma.community.findUnique({
@@ -85,26 +66,34 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const createEventsPromises = eventPayload.map((event) =>
-    prisma.event.create({
-      data: { ...event, communityId: community?.id },
-      include: {
-        proposer: true,
-        community: {
-          include: {
-            slack: true,
-            google: true,
-          },
+  const created = await prisma.event.create({
+    data: {
+      title: event.title,
+      descriptionHtml: event.description,
+      startDateTime: new Date(event.dateTimeStartAndEnd.start),
+      endDateTime: new Date(event.dateTimeStartAndEnd.end),
+      location: event.location,
+      hash, // to be deprecated
+      series: !!event.recurrenceRule,
+      rrule: event.recurrenceRule,
+      proposerId: user.id,
+      limit: Number(event.limit),
+      communityId: community?.id,
+    },
+    include: {
+      proposer: true,
+      community: {
+        include: {
+          slack: true,
+          google: true,
         },
       },
-    })
-  );
-  const created = await Promise.all(createEventsPromises);
+    },
+  });
   console.log(
     `Created event for ${JSON.stringify(event)} for user: ${user.id}`
   );
 
-  // create events in google calendar
   try {
     await fetch(
       `${
@@ -112,7 +101,7 @@ export async function POST(req: NextRequest) {
       }://${host}/api/services/calendar/email/send`,
       {
         body: JSON.stringify({
-          eventId: created[0]?.id,
+          eventIds: [created.id],
           recipientEmail: user.email,
           recipientName: user.nickname,
         }),
@@ -132,7 +121,7 @@ export async function POST(req: NextRequest) {
         host?.includes("localhost") ? "http" : "https"
       }://${host}/api/services/slack/notify`,
       {
-        body: JSON.stringify({ eventId: created[0]?.id, type: "new" }),
+        body: JSON.stringify({ eventId: created.id, type: "new" }),
         method: "POST",
         headers: { "Content-type": "application/json" },
       }
