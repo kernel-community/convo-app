@@ -16,7 +16,7 @@ import { Article } from "src/components/Article";
 import type { User } from "@prisma/client";
 import type { UserStatus } from "src/context/UserContext";
 import { Skeleton } from "src/components/ui/skeleton";
-import { ClientEventInput } from "src/types";
+import type { ClientEventInput } from "src/types";
 
 export const ConfirmConvoCredenza = ({
   openModalFlag,

@@ -80,6 +80,7 @@ const ProposeForm = ({ event }: { event?: ClientEventInput }) => {
       return;
     }
     try {
+      setLoading(true);
       if (isEditing) {
         const updated = await update({
           event: convoToCreateData,
@@ -96,12 +97,10 @@ const ProposeForm = ({ event }: { event?: ClientEventInput }) => {
         if (!created) throw "empty array returned";
         push(`/rsvp/${created.hash}`);
       }
-      // display success modal
     } catch (err) {
       console.log(err);
       setLoading(false);
     }
-    setLoading(false);
   };
   const onSubmit: SubmitHandler<ClientEventInput> = async (data) => {
     setConvoToCreateData(() => data); // ensures immediate update to state
