@@ -36,7 +36,7 @@ const Home = () => {
                 <a
                   // href="https://www.shefi.org/"
                   target="_blank"
-                  rel="noreferrer"
+                  rel="noreferrer"asdsad
                 >
                   for {community.displayName}
                 </a>
