@@ -29,7 +29,9 @@ const Home = () => {
             "
           >
             Convo.
-            {/* {community && (
+            {/*
+            test
+            {community && (
               <span className="font-bitter text-base font-medium italic text-slate-400/80 hover:text-slate-400/100">
                 <a
                   // href="https://www.shefi.org/"
