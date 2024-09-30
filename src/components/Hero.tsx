@@ -17,7 +17,7 @@ const Hero = ({
           font-heading
           text-3xl
           font-bold
-          text-primary
+          text-primary dark:text-primary-dark
           lg:text-4xl
           xl:text-5xl
         "

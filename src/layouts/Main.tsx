@@ -19,7 +19,7 @@ const Main = ({
   // const displayLines: boolean = linesOverride ? showLines : pathname === "/";
 
   return (
-    <div className="relative flex min-h-screen flex-col overflow-hidden selection:bg-highlight selection:text-primary">
+    <div className="relative flex min-h-screen flex-col overflow-hidden selection:bg-highlight selection:text-primary dark:text-primary-dark">
       <Navbar />
       <div
         className={`

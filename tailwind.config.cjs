@@ -25,7 +25,7 @@ module.exports = {
           muted: "#cbd5e1",
           light: "#f1f5f9",
           lighter: "#D4E4E6",
-          // TOConfirm: changed from #0f172a
+          // TOCONFIRM: changed from #0f172a
           dark: "#DCDCDC",
         },
         secondary: {

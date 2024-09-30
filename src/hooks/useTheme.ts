@@ -24,21 +24,22 @@ export const useThemeStore = create(
             document.documentElement.classList.add("dark");
             newTheme = "dark";
           }
+          document.body.setAttribute("data-dynamic-theme", newTheme);
           return { theme: newTheme };
         }),
       initialTheme: () => {
         if (typeof window === "undefined") return;
+        let theme = get().theme;
         if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
           document.documentElement.classList.add("dark");
+          theme = "dark";
           set({ theme: "dark" });
-          return;
-        }
-        if (get().theme === "dark") {
+        } else if (theme === "dark") {
           document.documentElement.classList.add("dark");
-          return;
+        } else {
+          document.documentElement.classList.remove("dark");
         }
-        document.documentElement.classList.remove("dark");
-        set({ theme: "light" });
+        document.body.setAttribute("data-dynamic-theme", theme);
       },
     }),
     {
