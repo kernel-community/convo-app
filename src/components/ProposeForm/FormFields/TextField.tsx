@@ -41,7 +41,7 @@ const TextField = ({
           border-primary
           bg-background
           dark:border-primary-dark
-          ${` ` + className ?? "" + ` `}
+          ${` ` + className + ` `}
           ${
             isError
               ? `

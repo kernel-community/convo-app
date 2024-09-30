@@ -49,7 +49,7 @@ const TextField = ({
           className={`
             rounded-lg
             bg-background
-            ${` ` + className ?? "" + ` `}
+            ${` ` + className + ` `}
             ${
               isError
                 ? `

@@ -26,7 +26,7 @@ const Main = ({
           my-12
           flex-1
           sm:my-24
-          ${className ?? ""}
+          ${className}
       `}
       >
         {children}
