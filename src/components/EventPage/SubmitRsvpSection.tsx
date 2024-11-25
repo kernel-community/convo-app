@@ -67,15 +67,15 @@ const SubmitRsvpSection = ({
     data: eventsToSubmitRsvpTo,
     refetch: refetchEventsToSubmit,
   } = useEventsFromId({
-    ids: rsvp.eventIds,
+    ids: [rsvp.eventId],
   });
 
   useEffect(() => {
-    if (rsvp.eventIds.length > 0) {
+    if ([rsvp.eventId].length > 0) {
       refetchEventsToSubmit();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [rsvp.eventIds, eventsToSubmitRsvpTo]);
+  }, [rsvp.eventId, eventsToSubmitRsvpTo]);
 
   const onSubmit: SubmitHandler<RsvpInput> = async () => setOpenModalFlag(true);
 
@@ -97,10 +97,10 @@ const SubmitRsvpSection = ({
               you have previously signed up for):
               <div></div>
               <div className="pt-2">
-                {rsvp.eventIds.length > 0 &&
+                {[rsvp.eventId].length > 0 &&
                   eventsToSubmitRsvpTo &&
-                  eventsToSubmitRsvpTo.sessions.length > 0 &&
-                  eventsToSubmitRsvpTo.sessions.map((e, ek) => {
+                  eventsToSubmitRsvpTo.sessions?.length > 0 &&
+                  eventsToSubmitRsvpTo.sessions?.map((e, ek) => {
                     return (
                       <div key={ek}>
                         {getDateTimeString(
