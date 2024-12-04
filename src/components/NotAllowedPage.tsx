@@ -11,7 +11,7 @@ export const NotAllowedPage = ({ message }: { message?: string }) => {
           font-heading
           text-5xl
           font-extrabold
-          text-primary
+          text-primary dark:text-primary-dark
           sm:text-5xl
         "
           >

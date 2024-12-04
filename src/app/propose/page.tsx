@@ -15,13 +15,13 @@ const Home: NextPage = () => {
             font-heading
             text-5xl
             font-extrabold
-            text-primary
+            text-primary dark:text-primary-dark
             sm:text-5xl
           "
           >
             Propose a Conversation
           </div>
-          <div className="my-12 w-full border border-primary lg:w-9/12"></div>
+          <div className="my-12 w-full border border-primary dark:border-primary-dark lg:w-9/12"></div>
         </div>
         <div className="px-8 lg:px-96">
           <ProposeForm />

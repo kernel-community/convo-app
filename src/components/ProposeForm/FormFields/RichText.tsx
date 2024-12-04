@@ -86,7 +86,7 @@ export const RichTextArea = ({
     ],
     editorProps: {
       attributes: {
-        class: `prose focus:outline-none prose-stone`,
+        class: `text-primary dark:text-primary-dark dark:prose-invert prose focus:outline-none prose-stone`,
       },
     },
     onUpdate: ({ editor }) => handleChange(editor.getHTML()),
@@ -102,7 +102,7 @@ export const RichTextArea = ({
           </div>
         </FieldLabel>
       )}
-      <div className="rounded-lg border-2 border-primary-muted p-3">
+      <div className="rounded-lg border-2 border-primary p-3 dark:border-primary-dark">
         {editor && <MenuBar editor={editor} />}
         <EditorContent editor={editor} />
       </div>
@@ -241,8 +241,8 @@ const MenuItem = ({
     className={
       `${
         isActive && isActive()
-          ? "bg-primary text-primary-muted"
-          : "bg-white text-primary"
+          ? "bg-primary text-primary-muted dark:text-primary-muted"
+          : "bg-white text-primary dark:text-primary-dark"
       }` +
       ` inline-flex cursor-pointer flex-row items-center gap-2 rounded-lg border-2 border-gray-800 px-2 font-secondary text-xs uppercase`
     }

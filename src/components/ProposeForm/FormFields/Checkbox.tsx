@@ -23,7 +23,7 @@ const Checkbox = ({
       </FieldLabel>
       <input
         className="h-5 w-5 cursor-pointer rounded-md border-gray-300
-        ring-gray-300 focus:border-primary focus:ring-primary"
+        ring-gray-300 focus:border-primary focus:ring-primary dark:border-primary-dark"
         type="checkbox"
         id="gCalEvent"
         {...register(name)}

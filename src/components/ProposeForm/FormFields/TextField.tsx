@@ -37,6 +37,10 @@ const TextField = ({
           type="text"
           className={`
           rounded-lg
+          border-2
+          border-primary
+          bg-background
+          dark:border-primary-dark
           ${` ` + className + ` `}
           ${
             isError
@@ -45,7 +49,7 @@ const TextField = ({
             focus:border-red-500 focus:ring-red-500`
               : `
             border-gray-300 ring-gray-300
-            focus:border-primary focus:ring-primary`
+            focus:border-primary focus:ring-primary dark:border-primary-dark`
           }
           `}
           placeholder={placeholder}

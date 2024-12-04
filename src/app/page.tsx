@@ -79,7 +79,7 @@ const Home = () => {
 // const FancyHighlight = ({ children }: { children: ReactNode }) => {
 //   return (
 //     <span className="relative ml-2 mt-2 inline-block cursor-pointer before:absolute before:-inset-1 before:block before:-skew-y-3 before:bg-highlight">
-//       <span className="relative text-primary">{children}</span>
+//       <span className="relative text-primary dark:text-primary-dark">{children}</span>
 //     </span>
 //   );
 // };

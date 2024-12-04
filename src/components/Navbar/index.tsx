@@ -2,6 +2,7 @@
 import { Branding } from "./Branding";
 import { ConnectButton } from "./ConnectButton";
 import { Items } from "./Items";
+import ThemeSwitcher from "./ThemeSwitcher";
 import { useMediaQuery } from "src/hooks/useMediaQuery";
 const desktop = "(min-width: 768px)";
 
@@ -37,6 +38,7 @@ export const Navbar = () => {
         <div className="inline-flex flex-row items-center gap-4">
           <Items />
           {isDesktop && <ConnectButton />}
+          <ThemeSwitcher />
         </div>
       </div>
     </>

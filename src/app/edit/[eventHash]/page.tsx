@@ -74,7 +74,7 @@ const Edit = ({ params }: { params: { eventHash: string } }) => {
               font-heading
               text-4xl
               font-extrabold
-              text-primary
+              text-primary dark:text-primary-dark
               sm:text-5xl
             "
             >
@@ -90,7 +90,7 @@ const Edit = ({ params }: { params: { eventHash: string } }) => {
               </Button>
             )}
           </div>
-          <div className="my-12 w-full border border-primary"></div>
+          <div className="my-12 w-full border border-primary dark:border-primary-dark"></div>
         </div>
         <div className="px-8 lg:px-96">
           <ProposeForm event={clientEventInput} />
