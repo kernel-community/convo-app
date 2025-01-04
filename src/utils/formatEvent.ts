@@ -15,6 +15,7 @@ const formatEvent = (event: Array<ServerEvent>): ClientEvent => {
   return {
     ...firstInSeries,
     community: null, // @todo fix this
+    recurrenceRule: firstInSeries.rrule || "",
     startDateTime: startDateTime.toISOString(),
     endDateTime: endDateTime.toISOString(),
     totalUniqueRsvps: totalUniqueRSVPs(event),

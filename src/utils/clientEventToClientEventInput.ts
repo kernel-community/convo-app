@@ -30,9 +30,10 @@ const parse = (event: ClientEvent): ClientEventInput => {
     gCalEvent: true,
     // temp, fix this
     dateTimeStartAndEnd: {
-      start: new Date(),
-      end: new Date(),
+      start: new Date(event.startDateTime),
+      end: new Date(event.endDateTime),
     },
+    recurrenceRule: event.rrule || "",
   };
 };
 

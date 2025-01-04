@@ -44,6 +44,7 @@ export type ClientEvent = Omit<ServerEvent, "startDateTime" | "endDateTime"> & {
   endDateTime: string;
   nickname: string;
   uniqueRsvps: ServerEvent["rsvps"];
+  recurrenceRule: string;
 };
 
 export type EventsRequest = {

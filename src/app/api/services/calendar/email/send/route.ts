@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
     eventIds: Array<string>;
     recipientName: string;
     recipientEmail: string;
-    type: "create" | "invite";
+    type: "create" | "invite" | "update";
   } = pick(body, ["eventIds", "recipientName", "recipientEmail", "type"]);
   const events = await prisma.event.findMany({
     where: {

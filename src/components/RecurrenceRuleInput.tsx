@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
@@ -8,55 +8,132 @@ import { datetime, RRule } from "rrule";
 import { DatePicker } from "./ui/date-picker";
 import FieldLabel from "./StrongText";
 import { Checkbox } from "./ui/checkbox";
-
+type RecurrenceType = "never" | "on" | "after";
+type RecurrencePeriod = "daily" | "weekly" | "monthly" | "yearly";
+type RecurrenceRuleInputProps = {
+  handleChange: (value: string | undefined) => void;
+  value?: string;
+};
 export const RecurrenceRuleInput = ({
   handleChange,
-}: {
-  handleChange: (e: any) => void;
-}) => {
-  const [rrule, setRrule] = useState<string | undefined>();
+  value,
+}: RecurrenceRuleInputProps) => {
+  // Helper function to convert RRule frequency to period
+  const getPeriodFromFreq = (freq?: number): RecurrencePeriod | undefined => {
+    if (!freq) return undefined;
+    switch (freq) {
+      case RRule.DAILY:
+        return "daily";
+      case RRule.WEEKLY:
+        return "weekly";
+      case RRule.MONTHLY:
+        return "monthly";
+      case RRule.YEARLY:
+        return "yearly";
+      default:
+        return undefined;
+    }
+  };
 
-  const [endsOnDate, setEndsOnDate] = useState<Date | undefined>();
+  // Initialize RRule parsing only if value exists
+  const initialRRule = value ? RRule.fromString(value) : undefined;
 
-  const [formattedRrule, setFormattedRrule] = useState<string | undefined>();
+  const [rrule, setRrule] = useState<string | undefined>(value);
+  const [formattedRrule, setFormattedRrule] = useState<string | undefined>(
+    initialRRule?.toText()
+  );
+  const [endsOnDate, setEndsOnDate] = useState<Date | undefined>(
+    initialRRule?.options.until || undefined
+  );
 
-  type RecurrenceType = "never" | "on" | "after";
-  type RecurrencePeriod = "daily" | "weekly" | "monthly" | "yearly";
-
+  // Set initial recurrence values based on the parsed RRule
   const [recurrenceConfig, setRecurrenceConfig] = useState<
     RecurrenceType | undefined
-  >(undefined);
-  const [occurrences, setOccurrences] = useState<number>(0);
-  const [period, setPeriod] = useState<RecurrencePeriod | undefined>(undefined);
-  const [noRepeat, setNoRepeat] = useState<boolean>(true);
-
-  useEffect(() => {
-    handleChange(rrule);
-  }, [rrule]);
-
-  useEffect(() => {
-    if (period || occurrences || endsOnDate || recurrenceConfig) {
-      setNoRepeat(false);
-    }
-  }, [recurrenceConfig, occurrences, period, endsOnDate]);
-
-  useEffect(() => {
-    if (noRepeat) {
+  >(
+    initialRRule
+      ? initialRRule.options.until
+        ? "on"
+        : initialRRule.options.count
+        ? "after"
+        : "never"
+      : undefined
+  );
+  const [occurrences, setOccurrences] = useState<number>(
+    initialRRule?.options.count || 0
+  );
+  const [period, setPeriod] = useState<RecurrencePeriod | undefined>(
+    initialRRule ? getPeriodFromFreq(initialRRule.options.freq) : undefined
+  );
+  const [noRepeat, setNoRepeat] = useState<boolean>(!!!value);
+  const resetState = useCallback((newValue?: string) => {
+    if (newValue) {
+      try {
+        const parsed = RRule.fromString(newValue);
+        setRrule(newValue);
+        setEndsOnDate(parsed.options.until || undefined);
+        setFormattedRrule(parsed.toText());
+        setPeriod(getPeriodFromFreq(parsed.options.freq));
+        setOccurrences(parsed.options.count || 0);
+        setRecurrenceConfig(
+          parsed.options.until ? "on" : parsed.options.count ? "after" : "never"
+        );
+        setNoRepeat(false);
+      } catch (error) {
+        console.error("Error parsing RRule:", error);
+        resetState(); // Reset to default state if parsing fails
+      }
+    } else {
+      setRrule(undefined);
+      setEndsOnDate(undefined);
+      setFormattedRrule(undefined);
       setPeriod(undefined);
       setOccurrences(0);
       setRecurrenceConfig(undefined);
+      setNoRepeat(true);
     }
-  }, [noRepeat]);
+  }, []);
 
+  // Update value effect now uses resetState
   useEffect(() => {
-    if (period && !recurrenceConfig) {
+    resetState(value);
+  }, [value, resetState]);
+
+  // update the parent state
+  useEffect(() => {
+    handleChange(rrule);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [rrule]);
+
+  // Effect 1: Handle noRepeat toggle
+  useEffect(() => {
+    if (noRepeat) {
+      // Clear all values when switching to no-repeat
+      setRrule(undefined);
+      setEndsOnDate(undefined);
+      setFormattedRrule(undefined);
+      setPeriod(undefined);
+      setOccurrences(0);
+      setRecurrenceConfig(undefined);
+    } else if (!period) {
+      // Set defaults when switching to repeat
+      setPeriod("daily");
       setRecurrenceConfig("never");
     }
-    if (!period && recurrenceConfig) {
-      setPeriod("daily");
+  }, [noRepeat, period]);
+
+  // Effect 2: Ensure period and recurrenceConfig stay in sync
+  useEffect(() => {
+    if (!noRepeat) {
+      if (period && !recurrenceConfig) {
+        setRecurrenceConfig("never");
+      }
+      if (!period && recurrenceConfig) {
+        setPeriod("daily");
+      }
     }
   }, [period, recurrenceConfig, noRepeat]);
 
+  // update the formatted rrule state
   useEffect(() => {
     if (!period) {
       setFormattedRrule(undefined);
@@ -88,7 +165,10 @@ export const RecurrenceRuleInput = ({
         ? datetime(
             endsOnDate.getFullYear(),
             endsOnDate.getMonth() + 1,
-            endsOnDate.getDate()
+            endsOnDate.getDate(),
+            0,
+            0,
+            0
           )
         : undefined,
       count: occurrences,
@@ -97,6 +177,7 @@ export const RecurrenceRuleInput = ({
     setRrule(rrule.toString());
   }, [recurrenceConfig, occurrences, period, endsOnDate, noRepeat]);
 
+  // update the occurrences and ends on date state
   useEffect(() => {
     switch (recurrenceConfig) {
       case "never": {
@@ -130,7 +211,7 @@ export const RecurrenceRuleInput = ({
             </div>
             <div className="flex flex-col gap-6">
               <RadioGroup
-                defaultValue="daily"
+                value={period || "daily"}
                 className="flex flex-row justify-between gap-3 [&>*]:space-x-2 [&>*]:space-y-2"
               >
                 <div className="flex flex-col items-center">
@@ -214,10 +295,11 @@ export const RecurrenceRuleInput = ({
                     <Label htmlFor="r3">After</Label>
                     <Input
                       type="number"
-                      value={occurrences}
-                      onChange={(evt) =>
-                        setOccurrences(evt.target.value as unknown as number)
-                      }
+                      value={occurrences || ""}
+                      onChange={(evt) => {
+                        const val = parseInt(evt.target.value);
+                        setOccurrences(isNaN(val) ? 0 : val);
+                      }}
                       disabled={!(recurrenceConfig === "after")}
                     />
                     <div>occurrences</div>
@@ -232,6 +314,15 @@ export const RecurrenceRuleInput = ({
             >
               <Checkbox id="norepeat" checked={noRepeat} />
               <FieldLabel>Doesn&apos;t repeat</FieldLabel>
+            </div>
+            <div className="flex justify-end">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => resetState(value)}
+              >
+                Reset
+              </Button>
             </div>
           </div>
         </PopoverContent>

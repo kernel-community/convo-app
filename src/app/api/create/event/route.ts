@@ -24,6 +24,7 @@ export type ClientEvent = {
   email?: string;
   type?: EventType;
   hash?: string;
+  recurrenceRule?: string;
 };
 
 export async function POST(req: NextRequest) {
