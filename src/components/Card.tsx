@@ -94,6 +94,7 @@ export const Card = ({
             font-heading
             text-lg
             text-white
+            dark:text-primary-dark
             sm:text-xl
           "
           >

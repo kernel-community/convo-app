@@ -49,12 +49,14 @@ export const Items = () => {
           <Fragment key={index}>
             <Link href={item.href}>
               <span
-                className={`group inline-flex w-20 cursor-pointer flex-col items-center text-sm lowercase text-slate-200`}
+                className={`group inline-flex w-20 cursor-pointer flex-col items-center text-sm lowercase text-slate-200 dark:text-primary-dark`}
               >
                 <span className="group-hover:block">{item.text}</span>
                 <div
                   className={`mt-3 h-1 w-full self-end rounded-t-sm ${
-                    isActive(item.href) ? "bg-white" : "bg-transparent"
+                    isActive(item.href)
+                      ? "bg-white dark:bg-primary-dark"
+                      : "bg-transparent"
                   }`}
                 />
               </span>
