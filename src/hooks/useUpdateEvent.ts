@@ -1,7 +1,7 @@
 import { useState } from "react";
 import type { FullEvent } from "src/app/api/actions/google/createEvent/route";
 import useCreateEvent from "./useCreateEvent";
-import { ClientEventInput } from "src/types";
+import type { ClientEventInput } from "src/types";
 
 // if the event is being edited, expect a hash in the object
 // expect an id with each session object

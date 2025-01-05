@@ -24,6 +24,7 @@ export type ClientEvent = {
   email?: string;
   type?: EventType;
   hash?: string;
+  recurrenceRule?: string;
 };
 
 export async function POST(req: NextRequest) {
@@ -94,6 +95,7 @@ export async function POST(req: NextRequest) {
     `Created event for ${JSON.stringify(event)} for user: ${user.id}`
   );
 
+  // send email
   try {
     await fetch(
       `${
@@ -104,6 +106,7 @@ export async function POST(req: NextRequest) {
           eventIds: [created.id],
           recipientEmail: user.email,
           recipientName: user.nickname,
+          type: "create",
         }),
         method: "POST",
         headers: { "Content-type": "application/json" },

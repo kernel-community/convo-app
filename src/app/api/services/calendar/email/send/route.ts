@@ -1,4 +1,4 @@
-import { EmailTemplate } from "src/components/Email/Test";
+import { getEmailTemplateFromType } from "src/components/Email/Test";
 import { Resend } from "resend";
 import { DateTime } from "luxon";
 import type { ICalRequestParams } from "src/utils/generateICalString";
@@ -19,11 +19,13 @@ export async function POST(req: NextRequest) {
     eventIds,
     recipientName,
     recipientEmail,
+    type,
   }: {
     eventIds: Array<string>;
     recipientName: string;
     recipientEmail: string;
-  } = pick(body, ["eventIds", "recipientName", "recipientEmail"]);
+    type: "create" | "invite" | "update";
+  } = pick(body, ["eventIds", "recipientName", "recipientEmail", "type"]);
   const events = await prisma.event.findMany({
     where: {
       id: {
@@ -64,13 +66,18 @@ export async function POST(req: NextRequest) {
   });
   const iCal = generateICalRequest(iCalRequests);
   console.log(iCal);
+
+  const { template, subject } = getEmailTemplateFromType(type, {
+    firstName: recipientName,
+  });
+
   try {
     const { data, error } = await resend.emails.send({
       from: `${EVENT_ORGANIZER_NAME}<${EVENT_ORGANIZER_EMAIL}>`,
       to: [recipientEmail],
-      subject: "You're invited 🦄",
-      react: EmailTemplate({ firstName: recipientName }),
-      text: "You're invited",
+      subject,
+      react: template,
+      text: "Email from Convo Cafe",
       attachments: [
         {
           filename: "convo.ics",

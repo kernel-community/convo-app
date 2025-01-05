@@ -12,37 +12,8 @@ const addRsvpToDb = async (rsvp: RsvpIntention, userId: string | undefined) => {
           body: JSON.stringify({
             rsvp: {
               userId,
-              events: rsvp.eventIds,
+              eventId: rsvp.eventId,
             },
-          }),
-          method: "POST",
-          headers: { "Content-type": "application/json" },
-        })
-      ).json()
-    ).data;
-  } catch (err) {
-    throw err;
-  }
-  return res;
-};
-
-const sendGCalInvite = async (
-  rsvp: RsvpIntention,
-  email: string,
-  id: string
-) => {
-  if (!rsvp.eventIds) {
-    throw new Error("incorrect params");
-  }
-  let res;
-  try {
-    res = (
-      await (
-        await fetch("/api/actions/google/sendInvite", {
-          body: JSON.stringify({
-            events: rsvp.eventIds,
-            email,
-            userId: id,
           }),
           method: "POST",
           headers: { "Content-type": "application/json" },
@@ -63,7 +34,7 @@ const useSubmitRsvp = () => {
 
   // create rsvp in the database
   const submit = async () => {
-    if (rsvp.eventIds.length === 0) {
+    if ([rsvp.eventId].length === 0) {
       return;
     }
     setIsSubmitting(true);
@@ -74,14 +45,6 @@ const useSubmitRsvp = () => {
       setIsError(true);
       throw err;
     }
-    try {
-      if (user.email && user.id) {
-        await sendGCalInvite(rsvp, user.email, user.id);
-      }
-    } catch (err) {
-      /** */
-      console.error(err);
-    } // do nothing for google calendar error, cuz we can't really do anything
   };
   return {
     submit,

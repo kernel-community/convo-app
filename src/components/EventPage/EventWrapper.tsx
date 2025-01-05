@@ -35,7 +35,7 @@ const EventWrapper = ({
   const {
     totalUniqueRsvps,
     descriptionHtml,
-    sessions,
+    sessions, // array of 1 session since rrule introduction
     title,
     proposer,
     // @todo handle deleted event display
@@ -47,11 +47,11 @@ const EventWrapper = ({
   const { rsvpIntention } = useRsvpIntention();
   const { rsvps } = useUserRsvpForConvo({ hash: event.hash });
   const { push } = useRouter();
-  const { eventIds } = rsvpIntention;
+  const { eventId } = rsvpIntention;
   const {
     fetchedUser: { isSignedIn },
   } = useUser();
-  const isDisabled = eventIds.length === 0;
+  const isDisabled = [eventId].length === 0;
   const navigateToEditPage = () => push(`/edit/${event.hash}`);
   const isPartOfCollection = collections.length > 0;
   const collectionHrefs = collections.map((c, k) => (

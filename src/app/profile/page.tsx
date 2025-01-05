@@ -134,12 +134,17 @@ const Profile: NextPage = () => {
                 <div>{profileAttributes?.bio}</div>
               )}
             </div>
-            <Button onClick={() => onSubmit()} disabled={!isEditing}>
-              Update Profile
-            </Button>
-            <Button onClick={() => onSignOut()} variant="outline">
-              Sign out
-            </Button>
+            <div>Email: {fetchedUser.email}</div>
+            <div className="flex flex-row gap-4">
+              {isEditing && (
+                <Button onClick={() => onSubmit()} disabled={!isEditing}>
+                  Update Profile
+                </Button>
+              )}
+              <Button onClick={() => onSignOut()} variant="outline">
+                Sign out
+              </Button>
+            </div>
           </div>
         </div>
       </Main>

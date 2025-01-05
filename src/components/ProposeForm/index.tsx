@@ -49,6 +49,7 @@ const ProposeForm = ({ event }: { event?: ClientEventInput }) => {
           start: DateTime.now().toJSDate(),
           end: DateTime.now().plus({ minutes: 30 }).toJSDate(),
         },
+        recurrenceRule: "",
       };
       return DEFAULT_EVENT;
     }, [event, user]),
@@ -152,7 +153,10 @@ const ProposeForm = ({ event }: { event?: ClientEventInput }) => {
           control={control}
           rules={{ required: true }}
           render={({ field }) => (
-            <DateTimeStartAndEnd handleChange={field.onChange} />
+            <DateTimeStartAndEnd
+              handleChange={field.onChange}
+              value={defaultValues?.dateTimeStartAndEnd}
+            />
           )}
         />
 
@@ -162,7 +166,10 @@ const ProposeForm = ({ event }: { event?: ClientEventInput }) => {
           control={control}
           rules={{ required: false }}
           render={({ field }) => (
-            <RecurrenceRuleInput handleChange={field.onChange} />
+            <RecurrenceRuleInput
+              handleChange={field.onChange}
+              value={defaultValues?.recurrenceRule}
+            />
           )}
         />
 

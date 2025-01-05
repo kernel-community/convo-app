@@ -4,17 +4,17 @@ import type { ReactNode } from "react";
 import { createContext, useContext, useMemo, useState } from "react";
 
 export type RsvpIntention = {
-  eventIds: Array<string>;
+  eventId: string;
 };
 
 export type AttendeeRsvp = {
   rsvpIntention: RsvpIntention;
-  setRsvpIntention: ({ eventIds }: RsvpIntention) => void;
+  setRsvpIntention: ({ eventId }: RsvpIntention) => void;
 };
 
 const defaultAttendeeRsvp: AttendeeRsvp = {
   rsvpIntention: {
-    eventIds: [],
+    eventId: "",
   },
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   setRsvpIntention: () => {},
@@ -37,7 +37,7 @@ const RsvpIntentionProvider = ({ children }: { children: ReactNode }) => {
   // on the app we are redirecting to sign in when this happens
   // see /signin
   const [rsvpIntention, setRsvpIntention] = useState<RsvpIntention>({
-    eventIds: [],
+    eventId: "",
   });
 
   const value = useMemo(
