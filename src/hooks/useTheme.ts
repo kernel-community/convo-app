@@ -4,7 +4,7 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
 export interface ThemeState {
-  theme: "dark" | "light";
+  theme: "dark" | "light" | null;
   toggleTheme: () => void;
   initialTheme: () => void;
 }
@@ -12,7 +12,7 @@ export interface ThemeState {
 export const useThemeStore = create(
   persist<ThemeState>(
     (set, get) => ({
-      theme: "light",
+      theme: null,
       toggleTheme: () =>
         set((state) => {
           let newTheme = state.theme;
@@ -30,10 +30,13 @@ export const useThemeStore = create(
       initialTheme: () => {
         if (typeof window === "undefined") return;
         let theme = get().theme;
-        if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
-          document.documentElement.classList.add("dark");
-          theme = "dark";
-          set({ theme: "dark" });
+        const preferedTheme = window.matchMedia("(prefers-color-scheme: dark)")
+          .matches
+          ? "dark"
+          : ("light" as "dark" | "light");
+        if (!theme) {
+          theme = preferedTheme;
+          set({ theme: preferedTheme });
         } else if (theme === "dark") {
           document.documentElement.classList.add("dark");
         } else {
