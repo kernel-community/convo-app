@@ -67,10 +67,12 @@ export async function POST(req: NextRequest) {
       sequence: event.sequence,
       recipient: { email: recipientEmail },
       rrule: event.rrule,
-      allOtherrecipients: event.rsvps.map((rsvp) => ({
-        name: rsvp.attendee.nickname,
-        email: rsvp.attendee.email || "",
-      })),
+      allOtherrecipients: event.rsvps
+        .map((rsvp) => ({
+          name: rsvp.attendee.nickname,
+          email: rsvp.attendee.email || "",
+        }))
+        .filter((recipient) => recipient.email !== recipientEmail),
     };
   });
   const iCal = generateICalRequest(iCalRequests);
