@@ -34,6 +34,11 @@ export async function POST(req: NextRequest) {
     },
     include: {
       proposer: true,
+      rsvps: {
+        include: {
+          attendee: true,
+        },
+      },
     },
   });
   console.log(`sending email for ${JSON.stringify(events)}`);
@@ -62,6 +67,10 @@ export async function POST(req: NextRequest) {
       sequence: event.sequence,
       recipient: { email: recipientEmail },
       rrule: event.rrule,
+      allOtherrecipients: event.rsvps.map((rsvp) => ({
+        name: rsvp.attendee.nickname,
+        email: rsvp.attendee.email || "",
+      })),
     };
   });
   const iCal = generateICalRequest(iCalRequests);

@@ -14,6 +14,7 @@ export const generateEventString = ({
   description,
   location,
   sequence,
+  allOtherrecipients,
 }: ICalRequestParams) => {
   const event =
     `BEGIN:VEVENT
@@ -26,8 +27,12 @@ UID:${uid}@evts.convo.cafe
 ATTENDEE;CUTYPE=INDIVIDUAL;ROLE=REQ-PARTICIPANT;PARTSTAT=ACCEPTED;CN=${
       recipient.email
     };X-NUM-GUESTS=0:mailto:${recipient.email}
-ATTENDEE;CUTYPE=INDIVIDUAL;ROLE=REQ-PARTICIPANT;PARTSTAT=ACCEPTED;CN=${`hello@kernel.community`};X-NUM-GUESTS=0:mailto:${`hello@kernel.community`}
-ATTENDEE;CUTYPE=INDIVIDUAL;ROLE=REQ-PARTICIPANT;PARTSTAT=ACCEPTED;CN=${`angela@kernel.community`};X-NUM-GUESTS=0:mailto:${`angela@kernel.community`}
+    ${allOtherrecipients
+      .map(
+        (recipient: { name: string; email: string }) =>
+          `ATTENDEE;CUTYPE=INDIVIDUAL;ROLE=REQ-PARTICIPANT;PARTSTAT=NEEDS-ACTION;CN=${recipient.name};X-NUM-GUESTS=0:mailto:${recipient.email}`
+      )
+      .join("\n")}
 SUMMARY:${title}
 DESCRIPTION:${description}
 LOCATION:${location}
@@ -53,6 +58,7 @@ export type ICalRequestParams = {
   location: string;
   sequence: number;
   rrule?: string | null;
+  allOtherrecipients: Array<{ name: string; email: string }>;
 };
 // works for google/gmail
 export const generateICalRequest = (events: Array<ICalRequestParams>) => {

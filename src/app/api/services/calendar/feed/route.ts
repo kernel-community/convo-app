@@ -18,7 +18,14 @@ export async function GET(req: NextRequest) {
     where: { subdomain },
     include: {
       events: {
-        include: { proposer: true },
+        include: {
+          proposer: true,
+          rsvps: {
+            include: {
+              attendee: true,
+            },
+          },
+        },
       },
     },
   });
@@ -49,6 +56,10 @@ export async function GET(req: NextRequest) {
       sequence: event.sequence,
       recipient: { email: "" },
       rrule: event.rrule,
+      allOtherrecipients: event.rsvps.map((rsvp) => ({
+        name: rsvp.attendee.nickname,
+        email: rsvp.attendee.email || "",
+      })),
     };
   });
   const iCal = generateICalRequest(iCalRequests);
