@@ -34,7 +34,7 @@ module.exports = {
         },
         highlight: "#CBF0C1",
         fill:{
-          dark:"#374151"
+          dark:"#303a47"
         },
         skin: {
           muted: "#FAFCFC",
