@@ -33,6 +33,9 @@ module.exports = {
           light: "#87E4DB",
         },
         highlight: "#CBF0C1",
+        fill:{
+          dark:"#374151"
+        },
         skin: {
           muted: "#FAFCFC",
           DEFAULT: "#E5EEEF",
