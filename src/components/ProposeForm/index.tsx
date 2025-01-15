@@ -46,8 +46,12 @@ const ProposeForm = ({ event }: { event?: ClientEventInput }) => {
         gCalEvent: true,
         email: user.email ?? "",
         dateTimeStartAndEnd: {
-          start: DateTime.now().toJSDate(),
-          end: DateTime.now().plus({ minutes: 30 }).toJSDate(),
+          start: DateTime.now().plus({ hours: 2 }).startOf("hour").toJSDate(),
+          end: DateTime.now()
+            .plus({ hours: 2 })
+            .startOf("hour")
+            .plus({ hours: 1 })
+            .toJSDate(),
         },
         recurrenceRule: "",
       };
