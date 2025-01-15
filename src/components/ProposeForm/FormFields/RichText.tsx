@@ -86,7 +86,7 @@ export const RichTextArea = ({
     ],
     editorProps: {
       attributes: {
-        class: `prose focus:outline-none prose-stone`,
+        class: `focus:outline-none prose-stone w-full max-w-none`,
       },
     },
     onUpdate: ({ editor }) => handleChange(editor.getHTML()),
