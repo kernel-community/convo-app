@@ -14,8 +14,8 @@ export const generateEventString = ({
   description,
   location,
   sequence,
-  allOtherrecipients,
-}: ICalRequestParams) => {
+}: // allOtherrecipients,
+ICalRequestParams) => {
   const event =
     `BEGIN:VEVENT
 DTSTART:${start}
@@ -24,15 +24,7 @@ DTSTAMP:${start}` +
     `${rrule ? `\n${rrule}\n` : `\n`}` +
     `ORGANIZER;CN="${organizer.name}":mailto:${organizer.email}
 UID:${uid}@evts.convo.cafe
-ATTENDEE;CUTYPE=INDIVIDUAL;ROLE=REQ-PARTICIPANT;PARTSTAT=ACCEPTED;CN=${
-      recipient.email
-    };X-NUM-GUESTS=0:mailto:${recipient.email}
-    ${allOtherrecipients
-      .map(
-        (recipient: { name: string; email: string }) =>
-          `ATTENDEE;CUTYPE=INDIVIDUAL;ROLE=REQ-PARTICIPANT;PARTSTAT=NEEDS-ACTION;CN=${recipient.name};X-NUM-GUESTS=0:mailto:${recipient.email}`
-      )
-      .join("\n")}
+ATTENDEE;CUTYPE=INDIVIDUAL;ROLE=REQ-PARTICIPANT;PARTSTAT=ACCEPTED;CN=${recipient.email};X-NUM-GUESTS=0:mailto:${recipient.email}
 SUMMARY:${title}
 DESCRIPTION:${description}
 LOCATION:${location}
