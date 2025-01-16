@@ -66,7 +66,6 @@ export async function POST(req: NextRequest) {
 
   // send email to the attendee
   const data = await sendEventInviteEmail({
-    sender: event.proposer,
     receiver: user,
     type: "invite",
     event: event,
@@ -81,7 +80,6 @@ export async function POST(req: NextRequest) {
   );
 
   await sendEventInviteEmail({
-    sender: event.proposer,
     receiver: user,
     type: "reminder24hr",
     event: event,

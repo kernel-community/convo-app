@@ -103,7 +103,6 @@ export async function POST(req: NextRequest) {
 
   // send email to the proposer
   await sendEventInviteEmail({
-    sender: created.proposer,
     receiver: created.proposer,
     type: "create",
     event: created,
@@ -112,7 +111,6 @@ export async function POST(req: NextRequest) {
 
   // set reminder for an hour before the event starts
   await sendEventInviteEmail({
-    sender: created.proposer,
     receiver: created.proposer,
     type: "reminder1hrProposer",
     event: created,

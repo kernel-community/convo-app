@@ -9,24 +9,21 @@ import type { EventWithProposerAndRsvps } from "../ical/generateiCalRequestFromE
 import { generateiCalRequestFromEvent } from "../ical/generateiCalRequestFromEventId";
 import { prisma } from "src/utils/db";
 import { emailTypeToReminderEnum } from "../emailTypeConversions";
+import { EVENT_ORGANIZER_EMAIL } from "../constants";
+import { EVENT_ORGANIZER_NAME } from "../constants";
 export const sendEventInviteEmail = async ({
-  sender,
   receiver,
   event,
   type,
   text,
   scheduledAt,
 }: {
-  sender: User;
   receiver: User;
   type: EmailType;
   text?: string;
   event: EventWithProposerAndRsvps;
   scheduledAt?: Date;
 }) => {
-  if (!sender.email) {
-    throw new Error(`sender ${sender.id} has no email`);
-  }
   if (!receiver.email) {
     throw new Error(`receiver ${receiver.id} has no email`);
   }
@@ -43,7 +40,7 @@ export const sendEventInviteEmail = async ({
   });
 
   const opts: CreateEmailOptions = {
-    from: `${sender.nickname} <${sender.email}>`,
+    from: `${EVENT_ORGANIZER_NAME} <${EVENT_ORGANIZER_EMAIL}>`,
     to: [receiver.email],
     subject,
     react: template,
