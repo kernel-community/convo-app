@@ -30,9 +30,9 @@ model Community {
 }
 
 model Event {
-  id              String       @id @default(uuid())
-  createdAt       DateTime     @default(now())
-  updatedAt       DateTime     @updatedAt
+  id              String          @id @default(uuid())
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
   title           String
   descriptionHtml String?
   startDateTime   DateTime
@@ -42,23 +42,24 @@ model Event {
   series          Boolean // deprecating soon
   limit           Int
   rrule           String?
-  sequence        Int          @default(0)
+  sequence        Int             @default(0)
   // for deleted events
   // can be purged periodically
-  isDeleted       Boolean      @default(false)
+  isDeleted       Boolean         @default(false)
   // google
   // gCalEventRequested Boolean      @default(false) // remove, deprecated
   gCalEventId     String? // KEEP, DONT REMOVE
   // gCalId             String? // remove, deprecated
-  type            EventType    @default(JUNTO)
+  type            EventType       @default(JUNTO)
   proposerId      String
-  proposer        User         @relation(fields: [proposerId], references: [id], onDelete: Cascade)
+  proposer        User            @relation(fields: [proposerId], references: [id], onDelete: Cascade)
   rsvps           Rsvp[]
   collections     Collection[]
+  reminders       ReminderEmail[]
   // deprecated
   communityId     String?
   // deprecated
-  community       Community?   @relation(fields: [communityId], references: [id])
+  community       Community?      @relation(fields: [communityId], references: [id])
   // if the event was imported from convo.kernel.community
   // if it was, we do not have their RSVPs, since this version uses
   // user's addresses to make them unique and the previous version used
@@ -69,18 +70,19 @@ model Event {
   // if you'd like to query any data related to RSVPs for this particular event"
   // the emails[], gcaleventREquested, gcalEventId will be accurate for these events
   // the proposer data will be inaccurate
-  isImported      Boolean      @default(false)
+  isImported      Boolean         @default(false)
 }
 
 model User {
-  id          String       @id @default(uuid())
-  email       String?      @unique
-  address     String?      @unique // deprecated
-  nickname    String       @default("Anonymous")
+  id          String          @id @default(uuid())
+  email       String?         @unique
+  address     String?         @unique // deprecated
+  nickname    String          @default("Anonymous")
   profile     Profile?
   events      Event[]
   rsvps       Rsvp[]
   collections Collection[]
+  reminders   ReminderEmail[]
 }
 
 model Profile {
@@ -116,6 +118,30 @@ model Rsvp {
 //////////////////
 ///  SERVICES  ///
 //////////////////
+
+model ReminderEmail {
+  id         String       @id @default(uuid())
+  createdAt  DateTime     @default(now())
+  userId     String
+  user       User         @relation(fields: [userId], references: [id])
+  eventId    String
+  event      Event        @relation(fields: [eventId], references: [id])
+  reminderId String       @unique
+  type       ReminderType
+  sent       Boolean      @default(false)
+  delivered  Boolean      @default(false)
+  bounced    Boolean      @default(false)
+  cancelled  Boolean      @default(false)
+}
+
+enum ReminderType {
+  REMINDER24HR
+  REMINDER1HR
+  REMINDER1MIN
+  REMINDER1HRPROPOSER
+}
+
+// @deprecated
 model Google {
   id                      String     @id @default(uuid())
   createdAt               DateTime   @default(now())
