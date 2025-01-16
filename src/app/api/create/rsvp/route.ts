@@ -1,18 +1,19 @@
 import _ from "lodash";
 import { prisma } from "src/utils/db";
 import type { NextRequest } from "next/server";
-import { headers } from "next/headers";
 import { NextResponse } from "next/server";
+import { sendEventInviteEmail } from "src/utils/email/send";
 
 type RsvpRequest = {
   userId: string;
   eventId: string;
 };
 
+/**
+ * Create an RSVP in the database and send email and set scheduled emails
+ */
 export async function POST(req: NextRequest) {
   const body = await req.json();
-  const headersList = headers();
-  const host = headersList.get("host") ?? "kernel";
 
   const { rsvp }: { rsvp: RsvpRequest } = _.pick(body, ["rsvp"]);
   if (!rsvp || !rsvp.userId || !rsvp.eventId) {
@@ -20,12 +21,18 @@ export async function POST(req: NextRequest) {
   }
   const event = await prisma.event.findUniqueOrThrow({
     where: { id: rsvp.eventId },
-    include: { rsvps: true },
+    include: {
+      proposer: true,
+      rsvps: {
+        include: {
+          attendee: true,
+        },
+      },
+    },
   });
   const eventLimit = event.limit;
   const eventRsvpsLength = event.rsvps.length;
   if (eventLimit !== 0 && eventRsvpsLength >= eventLimit) {
-    // return res.status(410).json({ data: "RSVP not allowed!" });
     return NextResponse.json({ data: "RSVP not allowed!" });
   }
   const user = await prisma.user.findUniqueOrThrow({
@@ -53,27 +60,33 @@ export async function POST(req: NextRequest) {
     `added RSVP for ${JSON.stringify(upserted.eventId)} for user: ${user.id}`
   );
 
-  // send email
-  try {
-    await fetch(
-      `${
-        host?.includes("localhost") ? "http" : "https"
-      }://${host}/api/services/calendar/email/send`,
-      {
-        body: JSON.stringify({
-          eventIds: [rsvp.eventId],
-          recipientEmail: user.email,
-          recipientName: user.nickname,
-          type: "invite",
-        }),
-        method: "POST",
-        headers: { "Content-type": "application/json" },
-      }
-    );
-  } catch (err) {
-    console.log(`Error in creating google calendar event`);
-    console.error(err);
+  if (!user.email) {
+    throw new Error(`user ${user.id} has no email`);
   }
+
+  // send email to the attendee
+  const data = await sendEventInviteEmail({
+    sender: event.proposer,
+    receiver: user,
+    type: "invite",
+    event: event,
+  });
+
+  console.log(`sent email to ${user.email} for event ${rsvp.eventId}`);
+  console.log({ data });
+
+  // SET REMINDERS
+  console.log(
+    `setting 24hr reminder for ${user.email} for event ${rsvp.eventId}`
+  );
+
+  await sendEventInviteEmail({
+    sender: event.proposer,
+    receiver: user,
+    type: "reminder24hr",
+    event: event,
+    scheduledAt: new Date(event.startDateTime.getTime() - 24 * 60 * 60 * 1000),
+  });
 
   return NextResponse.json({ data: rsvp.eventId });
 }

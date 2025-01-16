@@ -53,7 +53,7 @@ export type ICalRequestParams = {
   allOtherrecipients: Array<{ name: string; email: string }>;
 };
 // works for google/gmail
-export const generateICalRequest = (events: Array<ICalRequestParams>) => {
+export const generateiCalString = (events: Array<ICalRequestParams>) => {
   const iCal = `BEGIN:VCALENDAR
 VERSION:2.0
 CALSCALE:GREGORIAN
