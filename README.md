@@ -3,8 +3,8 @@
 
 ### App
 
-Staging (deploying from `staging` branch, has the latest updates): https://staging.convo.cafe
-Prod (deploying from `main` branch): https://convo.cafe
+- Staging (deploying from `staging` branch, has the latest updates): https://staging.convo.cafe
+- Prod (deploying from `main` branch): https://convo.cafe
 
 ### Read more
 
