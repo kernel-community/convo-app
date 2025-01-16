@@ -5,8 +5,8 @@ import { DateTime } from "luxon";
 import type { NextRequest } from "next/server";
 import { EVENT_ORGANIZER_EMAIL } from "src/utils/constants";
 import { prisma } from "src/utils/db";
-import type { ICalRequestParams } from "src/utils/generateICalString";
-import { generateICalRequest } from "src/utils/generateICalString";
+import type { ICalRequestParams } from "src/utils/ical/generateiCalString";
+import { generateiCalString } from "src/utils/ical/generateiCalString";
 
 export async function GET(req: NextRequest) {
   const searchParams = req.nextUrl.searchParams;
@@ -62,7 +62,7 @@ export async function GET(req: NextRequest) {
       })),
     };
   });
-  const iCal = generateICalRequest(iCalRequests);
+  const iCal = generateiCalString(iCalRequests);
 
   const calendar = iCal.toString();
 
