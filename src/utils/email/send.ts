@@ -24,9 +24,15 @@ export const sendEventInviteEmail = async ({
     throw new Error(`receiver ${receiver.id} has no email`);
   }
 
+  const creator: Partial<EventWithProposerAndRsvps["proposer"]> = {
+    email: EVENT_ORGANIZER_EMAIL,
+    nickname: EVENT_ORGANIZER_NAME,
+  };
+
   const iCal = await generateiCalString([
     await generateiCalRequestFromEvent({
-      event,
+      event:
+        type === "create" ? { ...event, proposer: creator as User } : event,
       recipientEmail: receiver.email,
     }),
   ]);
