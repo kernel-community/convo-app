@@ -126,7 +126,7 @@ model Email {
   user       User      @relation(fields: [userId], references: [id])
   eventId    String
   event      Event     @relation(fields: [eventId], references: [id])
-  reminderId String    @unique
+  reminderId String    @unique // Resend scheduled email id
   type       EmailType
   sent       Boolean   @default(false)
   delivered  Boolean   @default(false)

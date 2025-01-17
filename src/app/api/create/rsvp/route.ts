@@ -10,7 +10,7 @@ type RsvpRequest = {
 };
 
 /**
- * Create an RSVP in the database and send email and set scheduled emails
+ * Create an RSVP in the database and send email
  */
 export async function POST(req: NextRequest) {
   const body = await req.json();
@@ -73,18 +73,6 @@ export async function POST(req: NextRequest) {
 
   console.log(`sent email to ${user.email} for event ${rsvp.eventId}`);
   console.log({ data });
-
-  // SET REMINDERS
-  console.log(
-    `setting 24hr reminder for ${user.email} for event ${rsvp.eventId}`
-  );
-
-  await sendEventInviteEmail({
-    receiver: user,
-    type: "reminder24hr",
-    event: event,
-    scheduledAt: new Date(event.startDateTime.getTime() - 24 * 60 * 60 * 1000),
-  });
 
   return NextResponse.json({ data: rsvp.eventId });
 }

@@ -7,8 +7,6 @@ import { resend } from "src/utils/email/resend";
 import { generateiCalString } from "../ical/generateiCalString";
 import type { EventWithProposerAndRsvps } from "../ical/generateiCalRequestFromEventId";
 import { generateiCalRequestFromEvent } from "../ical/generateiCalRequestFromEventId";
-import { prisma } from "src/utils/db";
-import { emailTypeToReminderEnum } from "../emailTypeConversions";
 import { EVENT_ORGANIZER_EMAIL } from "../constants";
 import { EVENT_ORGANIZER_NAME } from "../constants";
 export const sendEventInviteEmail = async ({
@@ -16,13 +14,11 @@ export const sendEventInviteEmail = async ({
   event,
   type,
   text,
-  scheduledAt,
 }: {
   receiver: User;
   type: EmailType;
   text?: string;
   event: EventWithProposerAndRsvps;
-  scheduledAt?: Date;
 }) => {
   if (!receiver.email) {
     throw new Error(`receiver ${receiver.id} has no email`);
@@ -52,13 +48,7 @@ export const sendEventInviteEmail = async ({
         content: iCal.toString(), // @todo remove .toString()
       },
     ],
-    scheduledAt: scheduledAt?.toISOString(),
   };
-  console.log(
-    `generated opts to send email to ${receiver.email} for event ${
-      event.id
-    } at ${scheduledAt?.toISOString()}`
-  );
   console.log({ opts });
   try {
     const { data, error } = await resend.emails.send(opts);
@@ -76,18 +66,6 @@ export const sendEventInviteEmail = async ({
 
     if (!data) {
       throw new Error("No data returned from resend");
-    }
-
-    if (scheduledAt) {
-      await prisma.email.create({
-        data: {
-          eventId: event.id,
-          userId: receiver.id,
-          type: emailTypeToReminderEnum(type),
-          sent: true,
-          reminderId: data.id,
-        },
-      });
     }
 
     return data;

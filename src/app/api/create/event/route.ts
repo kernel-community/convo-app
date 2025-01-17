@@ -109,14 +109,6 @@ export async function POST(req: NextRequest) {
     text: "Email from Convo Cafe",
   });
 
-  // set reminder for an hour before the event starts
-  await sendEventInviteEmail({
-    receiver: created.proposer,
-    type: "reminder1hrProposer",
-    event: created,
-    scheduledAt: new Date(created.startDateTime.getTime() - 1 * 60 * 60 * 1000),
-  });
-
   // send notification on a slack channel
   try {
     await fetch(
