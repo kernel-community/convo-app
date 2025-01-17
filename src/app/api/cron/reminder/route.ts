@@ -52,8 +52,11 @@ export async function GET() {
       console.log({ timeUntilEvent, ms });
       console.log({
         condition: timeUntilEvent <= ms && timeUntilEvent > ms - 60000,
+        timeUntilEvent,
+        windowStart: ms,
+        windowEnd: ms - 60000,
       });
-      if (timeUntilEvent <= ms && timeUntilEvent > ms - 60000) {
+      if (timeUntilEvent < ms && timeUntilEvent >= ms - 60000) {
         const reminderType =
           window === "24hr"
             ? EmailType.REMINDER24HR
