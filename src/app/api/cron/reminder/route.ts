@@ -3,7 +3,7 @@ import { sendEventInviteEmail } from "src/utils/email/send";
 import { EmailType } from "@prisma/client";
 import { reminderEnumToEmailType } from "src/utils/emailTypeConversions";
 
-export const runtime = "edge";
+export const runtime = "nodejs";
 
 const REMINDER_WINDOWS = {
   "24hr": 24 * 60 * 60 * 1000,
