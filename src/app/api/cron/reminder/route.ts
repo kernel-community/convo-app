@@ -40,6 +40,7 @@ export async function GET() {
 
   for (const event of upcomingEvents) {
     const timeUntilEvent = event.startDateTime.getTime() - now.getTime();
+    console.log({ timeUntilEvent });
 
     // Check each reminder window
     for (const [window, ms] of Object.entries(REMINDER_WINDOWS)) {
@@ -48,6 +49,10 @@ export async function GET() {
        * 1hr reminder: Sends when event is between 1:00:00 and 0:59:00 hours away
        * 1min reminder: Sends when event is between 1:00 and 0:00 minutes away
        */
+      console.log({ timeUntilEvent, ms });
+      console.log({
+        condition: timeUntilEvent <= ms && timeUntilEvent > ms - 60000,
+      });
       if (timeUntilEvent <= ms && timeUntilEvent > ms - 60000) {
         const reminderType =
           window === "24hr"
