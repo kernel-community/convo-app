@@ -69,7 +69,7 @@ export const DateTimeStartAndEnd = ({
       startDate &&
       differenceInMilliseconds(endDate, startDate) < 0
     ) {
-      setEndDate(addMinutes(startDate, 30));
+      setEndDate(addMinutes(startDate, 60));
     }
   }, [startDate]);
 
