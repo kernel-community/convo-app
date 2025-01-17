@@ -30,7 +30,8 @@ export const sendEventInviteEmail = async ({
       recipientEmail: receiver.email,
     }),
   ]);
-
+  console.log({ iCal });
+  console.log({ iCalString: iCal.toString() });
   const { template, subject } = getEmailTemplateFromType(type, {
     firstName: receiver.nickname,
   });
