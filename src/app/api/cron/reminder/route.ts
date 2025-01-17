@@ -34,6 +34,8 @@ export async function GET() {
     },
   });
 
+  console.log({ upcomingEvents });
+
   const remindersSent = [];
 
   for (const event of upcomingEvents) {
@@ -118,7 +120,10 @@ export async function GET() {
 
   return Response.json({
     success: true,
-    remindersSent: remindersSent.length,
+    upcomingEvents: upcomingEvents.map((event) => event.id),
+    remindersSent: remindersSent.map((reminder) => reminder.eventId),
+    upcomingEventsLength: upcomingEvents.length,
+    remindersSentLength: remindersSent.length,
     timestamp: now.toISOString(),
   });
 }
