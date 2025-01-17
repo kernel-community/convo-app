@@ -24,7 +24,7 @@ export const getEmailTemplateFromType = (
     case "create":
       return {
         template: CreateEmailTemplate(props),
-        subject: "Your Convo has been created",
+        subject: "Your Convo has been created!!!",
       };
     case "invite":
       return {

@@ -106,7 +106,6 @@ export async function POST(req: NextRequest) {
     receiver: created.proposer,
     type: "create",
     event: created,
-    text: "Email from Convo Cafe",
   });
 
   // send notification on a slack channel
