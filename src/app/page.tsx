@@ -52,10 +52,9 @@ const Home = () => {
                 text-kernel
               "
           >
-            Why are we alive, if not to
             <Link href="/propose">
               <FancyHighlight>
-                <span className="cursor-pointer">make connections?</span>
+                <span className="cursor-pointer">Start a Convo?</span>
               </FancyHighlight>
             </Link>
           </div>
