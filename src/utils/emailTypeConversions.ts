@@ -1,5 +1,5 @@
 import { EmailType as EmailTypeEnumDB } from "@prisma/client";
-import type { EmailType } from "src/components/Email/Test";
+import type { EmailType } from "src/components/Email";
 export const emailTypeToReminderEnum = (type: EmailType): EmailTypeEnumDB => {
   switch (type) {
     case "create":

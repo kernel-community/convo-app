@@ -1,8 +1,8 @@
 // send email
 import type { User } from "@prisma/client";
 import type { CreateEmailOptions } from "resend";
-import type { EmailType } from "src/components/Email/Test";
-import { getEmailTemplateFromType } from "src/components/Email/Test";
+import type { EmailType } from "src/components/Email";
+import { getEmailTemplateFromType } from "src/components/Email";
 import { resend } from "src/utils/email/resend";
 import { generateiCalString } from "../ical/generateiCalString";
 import type { EventWithProposerAndRsvps } from "../ical/generateiCalRequestFromEventId";
@@ -34,6 +34,7 @@ export const sendEventInviteEmail = async ({
       event:
         type === "create" ? { ...event, proposer: creator as User } : event,
       recipientEmail: receiver.email,
+      recipientName: receiver.nickname,
     }),
   ]);
   console.log({ iCal });
