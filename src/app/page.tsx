@@ -6,6 +6,8 @@ import { Events } from "src/components/Events";
 import { Button } from "src/components/ui/button";
 import useCurrentCommunity from "src/hooks/useCurrentCommunity";
 import { isNil, isUndefined } from "lodash";
+import { FancyHighlight } from "src/components/FancyHighlight";
+
 const Home = () => {
   const { data: community } = useCurrentCommunity();
   return (
@@ -41,7 +43,7 @@ const Home = () => {
               </span>
             )} */}
           </div>
-          {/* <div
+          <div
             className="
                 ml-2
                 pt-3
@@ -56,7 +58,7 @@ const Home = () => {
                 <span className="cursor-pointer">make connections?</span>
               </FancyHighlight>
             </Link>
-          </div> */}
+          </div>
         </div>
         <div className="mt-12 flex flex-col gap-6 px-6 lg:px-32 xl:px-40 2xl:px-52">
           <div className="mt-12">
@@ -75,13 +77,5 @@ const Home = () => {
     </>
   );
 };
-
-// const FancyHighlight = ({ children }: { children: ReactNode }) => {
-//   return (
-//     <span className="relative ml-2 mt-2 inline-block cursor-pointer before:absolute before:-inset-1 before:block before:-skew-y-3 before:bg-highlight">
-//       <span className="relative text-primary">{children}</span>
-//     </span>
-//   );
-// };
 
 export default Home;

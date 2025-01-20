@@ -108,8 +108,8 @@ const ProposeForm = ({ event }: { event?: ClientEventInput }) => {
     }
   };
   const onSubmit: SubmitHandler<ClientEventInput> = async (data) => {
-    setConvoToCreateData(() => data); // ensures immediate update to state
     setOpenModalFlag(true);
+    setConvoToCreateData(data);
   };
   return (
     <>
