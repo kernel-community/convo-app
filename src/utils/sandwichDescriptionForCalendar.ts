@@ -7,7 +7,7 @@ export const sandwichDescriptionForCalendar = (
   recipientEmail: string,
   recipientName: string
 ) => {
-  return `This is a Convo calendar invite for <b>${recipientName}</b> (${recipientEmail}). Any changes made to this invite will only be reflected on their calendar.<br /><br/><b>The latest details for this Convo are viewable and editable here: <a href="https://convo.cafe/${hash}">convo.cafe/${hash}</a></b><br />${description}${
+  return `This is a Convo calendar invite for <b>${recipientName}</b> (${recipientEmail}). Any changes made to this invite will only be reflected on their calendar.<br /><br/><b>The latest details for this Convo are viewable and editable here: <a href="https://convo.cafe/${hash}">convo.cafe/rsvp/${hash}</a></b><br />${description}${
     proposer === EVENT_ORGANIZER_NAME
       ? ""
       : `<br/>Signed by <b>${proposer}</b><br />`
