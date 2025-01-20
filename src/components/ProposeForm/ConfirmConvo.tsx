@@ -39,7 +39,7 @@ export const ConfirmConvoCredenza = ({
 }) => {
   return (
     <Credenza open={openModalFlag} onOpenChange={setOpenModalFlag}>
-      <CredenzaContent className="h-[34rem]">
+      <CredenzaContent className="flex h-[34rem] flex-col">
         <CredenzaHeader>
           {isEditing ? (
             <CredenzaTitle>Confirm Edits to Convo</CredenzaTitle>
@@ -58,7 +58,7 @@ export const ConfirmConvoCredenza = ({
             </CredenzaDescription>
           )}
         </CredenzaHeader>
-        <CredenzaBody className="flex h-full flex-col items-start overflow-auto">
+        <CredenzaBody className="flex-1 overflow-y-auto">
           <div className="grid w-full grid-cols-[40%_60%] gap-y-4">
             <FieldLabel>Title</FieldLabel>
             <div>{convoToCreateData?.title}</div>
