@@ -59,7 +59,7 @@ export const ConfirmConvoCredenza = ({
           )}
         </CredenzaHeader>
         <CredenzaBody className="flex h-full flex-col items-start overflow-auto">
-          <div className="grid grid-cols-[40%_60%] gap-y-4">
+          <div className="grid w-full grid-cols-[40%_60%] gap-y-4">
             <FieldLabel>Title</FieldLabel>
             <div>{convoToCreateData?.title}</div>
             <FieldLabel>Description</FieldLabel>
@@ -86,13 +86,13 @@ export const ConfirmConvoCredenza = ({
             {convoToCreateData?.recurrenceRule && (
               <>
                 <FieldLabel>Recurrence</FieldLabel>
-                <FancyHighlight>
-                  <div>
+                <div>
+                  <FancyHighlight>
                     {RRule.fromString(
                       convoToCreateData.recurrenceRule
                     ).toText()}
-                  </div>
-                </FancyHighlight>
+                  </FancyHighlight>
+                </div>
               </>
             )}
             <FieldLabel>Limit</FieldLabel>
