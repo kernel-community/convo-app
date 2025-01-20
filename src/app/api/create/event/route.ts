@@ -51,7 +51,7 @@ export async function POST(req: NextRequest) {
   const subdomain = host?.split(".")[0];
 
   let community = await prisma.community.findUnique({
-    where: { subdomain: subdomain },
+    where: { subdomain: subdomain || "kernel" },
   });
 
   if (!community) {
