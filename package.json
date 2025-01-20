@@ -71,6 +71,7 @@
     "ethers": "^5.5.1",
     "googleapis": "^118.0.0",
     "ical-generator": "^7.1.0",
+    "isomorphic-dompurify": "^2.20.0",
     "lodash": "^4.17.21",
     "lucide-react": "^0.314.0",
     "luxon": "^3.2.1",
