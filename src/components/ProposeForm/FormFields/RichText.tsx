@@ -86,7 +86,7 @@ export const RichTextArea = ({
     ],
     editorProps: {
       attributes: {
-        class: `focus:outline-none prose prose-stone w-full max-w-none prose-headings:font-bold prose-h1:text-2xl prose-h2:text-xl prose-h3:text-lg prose-ul:list-disc prose-ol:list-decimal prose-li:my-1`,
+        class: `focus:outline-none prose prose-stone w-full max-w-none prose-headings:font-bold prose-h1:text-2xl prose-h2:text-xl prose-h3:text-lg prose-ul:list-disc prose-ol:list-decimal prose-li:my-1 dark:text-primary-dark dark:prose-invert`,
       },
     },
     onUpdate: ({ editor }) => handleChange(editor.getHTML()),

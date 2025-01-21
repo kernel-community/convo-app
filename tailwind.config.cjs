@@ -11,6 +11,15 @@ module.exports = {
       },
     },
     extend: {
+      typography: {
+        invert: {
+          css: {
+            '--tw-prose-invert-links': '#c0c0c0',
+            '--tw-prose-invert-bold': '#c0c0c0',
+            '--tw-prose-invert-headings': '#c0c0c0',
+          },
+        },
+      },
       colors: {
         transparent: "transparent",
         black: "#000",
