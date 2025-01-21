@@ -17,9 +17,9 @@ export default function ViewOtherRSVPs({ event }: { event: ClientEvent }) {
   return (
     <>
       <Credenza open={open} onOpenChange={setOpen}>
-        <CredenzaContent>
+        <CredenzaContent className="flex h-[34rem] flex-col">
           <CredenzaHeader>All other RSVPs</CredenzaHeader>
-          <CredenzaBody>
+          <CredenzaBody className="flex-1 overflow-y-auto">
             {event.uniqueRsvps.map((rsvp, key) => {
               const photo =
                 rsvp.attendee?.profile?.photo || DEFAULT_PROFILE_IMAGE;
@@ -33,7 +33,10 @@ export default function ViewOtherRSVPs({ event }: { event: ClientEvent }) {
                     key={key}
                   />
                   {fetchedUser.id === rsvp.attendee.id ? (
-                    <span className="font-bold">You</span>
+                    <span>
+                      <span className="font-bold">You</span>
+                      <span> ({rsvp.attendee.nickname})</span>
+                    </span>
                   ) : (
                     <span>{rsvp.attendee.nickname}</span>
                   )}

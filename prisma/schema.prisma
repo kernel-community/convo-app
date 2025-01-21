@@ -38,8 +38,8 @@ model Event {
   startDateTime   DateTime
   endDateTime     DateTime
   location        String
-  hash            String // deprecating soon
-  series          Boolean // deprecating soon
+  hash            String // @note deprecated
+  series          Boolean // @note deprecated
   limit           Int
   rrule           String?
   sequence        Int          @default(0)
@@ -55,6 +55,7 @@ model Event {
   proposer        User         @relation(fields: [proposerId], references: [id], onDelete: Cascade)
   rsvps           Rsvp[]
   collections     Collection[]
+  reminders       Email[]
   // deprecated
   communityId     String?
   // deprecated
@@ -81,6 +82,7 @@ model User {
   events      Event[]
   rsvps       Rsvp[]
   collections Collection[]
+  reminders   Email[]
 }
 
 model Profile {
@@ -116,6 +118,33 @@ model Rsvp {
 //////////////////
 ///  SERVICES  ///
 //////////////////
+
+model Email {
+  id         String    @id @default(uuid())
+  createdAt  DateTime  @default(now())
+  userId     String
+  user       User      @relation(fields: [userId], references: [id])
+  eventId    String
+  event      Event     @relation(fields: [eventId], references: [id])
+  reminderId String    @unique // Resend scheduled email id
+  type       EmailType
+  sent       Boolean   @default(false)
+  delivered  Boolean   @default(false)
+  bounced    Boolean   @default(false)
+  cancelled  Boolean   @default(false)
+}
+
+enum EmailType {
+  CREATE
+  INVITE
+  UPDATE
+  REMINDER24HR
+  REMINDER1HR
+  REMINDER1MIN
+  REMINDER1HRPROPOSER
+}
+
+// @deprecated
 model Google {
   id                      String     @id @default(uuid())
   createdAt               DateTime   @default(now())

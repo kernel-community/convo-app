@@ -38,7 +38,7 @@ export const DateTimeStartAndEnd = ({
     value?.start || DateTime.now().toJSDate()
   );
   const [endDate, setEndDate] = useState<Date | undefined>(
-    value?.end || DateTime.now().plus({ minutes: 30 }).toJSDate()
+    value?.end || DateTime.now().plus({ hour: 1 }).toJSDate()
   );
 
   useEffect(() => {
@@ -69,7 +69,7 @@ export const DateTimeStartAndEnd = ({
       startDate &&
       differenceInMilliseconds(endDate, startDate) < 0
     ) {
-      setEndDate(addMinutes(startDate, 30));
+      setEndDate(addMinutes(startDate, 60));
     }
   }, [startDate]);
 

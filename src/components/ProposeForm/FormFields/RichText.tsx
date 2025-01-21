@@ -37,7 +37,7 @@ import {
   RedoIcon,
   UndoIcon,
 } from "lucide-react";
-import { ClientEventInput } from "src/types";
+import type { ClientEventInput } from "src/types";
 
 type handleChangeType = (e: any) => void;
 
@@ -86,7 +86,7 @@ export const RichTextArea = ({
     ],
     editorProps: {
       attributes: {
-        class: `text-primary dark:text-primary-dark dark:prose-invert prose focus:outline-none prose-stone`,
+        class: `focus:outline-none prose prose-stone w-full max-w-none prose-headings:font-bold prose-h1:text-2xl prose-h2:text-xl prose-h3:text-lg prose-ul:list-disc prose-ol:list-decimal prose-li:my-1`,
       },
     },
     onUpdate: ({ editor }) => handleChange(editor.getHTML()),

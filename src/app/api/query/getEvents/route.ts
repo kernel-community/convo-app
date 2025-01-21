@@ -71,7 +71,9 @@ export async function POST(request: NextRequest) {
   // check if subdomain is "registered" in our databse
   // if it is, create communities object accordingly
   // if not, return all events
-  let community = await prisma.community.findUnique({ where: { subdomain } });
+  let community = await prisma.community.findUnique({
+    where: { subdomain: subdomain || "kernel" },
+  });
   if (!community) {
     // @note
     // fallback on kernel community if subdomain not found

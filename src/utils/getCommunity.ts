@@ -4,7 +4,9 @@ import { isNil } from "lodash";
 
 export default async function getCommunity(host: string) {
   const subdomain = host?.split(".")[0];
-  let community = await prisma.community.findUnique({ where: { subdomain } });
+  let community = await prisma.community.findUnique({
+    where: { subdomain: subdomain || "kernel" },
+  });
   if (!community || isNil(community)) {
     // @note
     // fallback on kernel community if subdomain not found

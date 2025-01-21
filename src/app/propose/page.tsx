@@ -23,7 +23,7 @@ const Home: NextPage = () => {
           </div>
           <div className="my-12 w-full border border-primary dark:border-primary-dark lg:w-9/12"></div>
         </div>
-        <div className="px-8 lg:px-96">
+        <div className="px-8 lg:px-64">
           <ProposeForm />
         </div>
       </Main>

@@ -7,6 +7,7 @@ import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { headers } from "next/headers";
 import type { ClientEventInput } from "src/types";
+import { sendEventInviteEmail } from "src/utils/email/send";
 
 export type Session = {
   dateTime: Date;
@@ -50,7 +51,7 @@ export async function POST(req: NextRequest) {
   const subdomain = host?.split(".")[0];
 
   let community = await prisma.community.findUnique({
-    where: { subdomain: subdomain },
+    where: { subdomain: subdomain || "kernel" },
   });
 
   if (!community) {
@@ -89,33 +90,23 @@ export async function POST(req: NextRequest) {
           google: true,
         },
       },
+      rsvps: {
+        include: {
+          attendee: true,
+        },
+      },
     },
   });
   console.log(
     `Created event for ${JSON.stringify(event)} for user: ${user.id}`
   );
 
-  // send email
-  try {
-    await fetch(
-      `${
-        host?.includes("localhost") ? "http" : "https"
-      }://${host}/api/services/calendar/email/send`,
-      {
-        body: JSON.stringify({
-          eventIds: [created.id],
-          recipientEmail: user.email,
-          recipientName: user.nickname,
-          type: "create",
-        }),
-        method: "POST",
-        headers: { "Content-type": "application/json" },
-      }
-    );
-  } catch (err) {
-    console.log(`Error in creating google calendar event`);
-    console.error(err);
-  }
+  // send email to the proposer
+  await sendEventInviteEmail({
+    receiver: created.proposer,
+    type: "create",
+    event: created,
+  });
 
   // send notification on a slack channel
   try {

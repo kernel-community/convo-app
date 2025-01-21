@@ -8,6 +8,7 @@ import { datetime, RRule } from "rrule";
 import { DatePicker } from "./ui/date-picker";
 import FieldLabel from "./StrongText";
 import { Checkbox } from "./ui/checkbox";
+import { PopoverClose } from "@radix-ui/react-popover";
 type RecurrenceType = "never" | "on" | "after";
 type RecurrencePeriod = "daily" | "weekly" | "monthly" | "yearly";
 type RecurrenceRuleInputProps = {
@@ -64,7 +65,7 @@ export const RecurrenceRuleInput = ({
   const [period, setPeriod] = useState<RecurrencePeriod | undefined>(
     initialRRule ? getPeriodFromFreq(initialRRule.options.freq) : undefined
   );
-  const [noRepeat, setNoRepeat] = useState<boolean>(!!!value);
+  const [noRepeat, setNoRepeat] = useState<boolean>(false);
   const resetState = useCallback((newValue?: string) => {
     if (newValue) {
       try {
@@ -93,10 +94,10 @@ export const RecurrenceRuleInput = ({
     }
   }, []);
 
-  // Update value effect now uses resetState
-  useEffect(() => {
-    resetState(value);
-  }, [value, resetState]);
+  // // Update value effect now uses resetState
+  // useEffect(() => {
+  //   resetState(value);
+  // }, [value, resetState]);
 
   // update the parent state
   useEffect(() => {
@@ -116,8 +117,8 @@ export const RecurrenceRuleInput = ({
       setRecurrenceConfig(undefined);
     } else if (!period) {
       // Set defaults when switching to repeat
-      setPeriod("daily");
-      setRecurrenceConfig("never");
+      setPeriod(undefined);
+      setRecurrenceConfig(undefined);
     }
   }, [noRepeat, period]);
 
@@ -125,10 +126,10 @@ export const RecurrenceRuleInput = ({
   useEffect(() => {
     if (!noRepeat) {
       if (period && !recurrenceConfig) {
-        setRecurrenceConfig("never");
+        setRecurrenceConfig(undefined);
       }
       if (!period && recurrenceConfig) {
-        setPeriod("daily");
+        setPeriod(undefined);
       }
     }
   }, [period, recurrenceConfig, noRepeat]);
@@ -204,109 +205,119 @@ export const RecurrenceRuleInput = ({
             {formattedRrule || `convert to recurring convo?`}
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-min">
-          <div className="grid gap-4">
+        <PopoverContent
+          className={`w-[325px] transition-all duration-200 ease-in-out ${
+            noRepeat ? "h-[170px]" : "h-[400px]"
+          }`}
+        >
+          <div
+            className={`grid gap-4 transition-opacity duration-200 ${
+              noRepeat ? "opacity-100" : "opacity-100"
+            }`}
+          >
             <div>
               <FieldLabel>Create your Schedule</FieldLabel>
             </div>
-            <div className="flex flex-col gap-6">
-              <RadioGroup
-                value={period || "daily"}
-                className="flex flex-row justify-between gap-3 [&>*]:space-x-2 [&>*]:space-y-2"
-              >
-                <div className="flex flex-col items-center">
-                  <RadioGroupItem
-                    value="daily"
-                    id="t1"
-                    onClick={() => setPeriod("daily")}
-                    checked={period === "daily"}
-                  />
-                  <Label htmlFor="t1">Daily</Label>
-                </div>
-                <div className="flex flex-col items-center space-x-2">
-                  <RadioGroupItem
-                    value="weekly"
-                    id="t2"
-                    onClick={() => setPeriod("weekly")}
-                    checked={period === "weekly"}
-                  />
-                  <Label htmlFor="t2">Weekly</Label>
-                </div>
-                <div className="flex flex-col items-center space-x-2">
-                  <RadioGroupItem
-                    value="monthly"
-                    id="t3"
-                    onClick={() => setPeriod("monthly")}
-                    checked={period === "monthly"}
-                  />
-                  <Label htmlFor="t3">Monthly</Label>
-                </div>
-                <div className="flex flex-col items-center space-x-2">
-                  <RadioGroupItem
-                    value="yearly"
-                    id="t4"
-                    onClick={() => setPeriod("yearly")}
-                    checked={period === "yearly"}
-                  />
-                  <Label htmlFor="t4">Yearly</Label>
-                </div>
-              </RadioGroup>
-              <div className="flex flex-col gap-2">
-                <FieldLabel>Ends</FieldLabel>
-                <RadioGroup className="flex flex-col gap-3">
-                  <div className="flex flex-row items-center space-x-2">
+            {!noRepeat && (
+              <div className="flex flex-col gap-6">
+                <RadioGroup
+                  value={period || "daily"}
+                  className="flex flex-row justify-between gap-3 [&>*]:space-x-2 [&>*]:space-y-2"
+                >
+                  <div className="flex flex-col items-center">
                     <RadioGroupItem
-                      value="never"
-                      id="r1"
-                      onClick={() => {
-                        setRecurrenceConfig("never");
-                      }}
-                      checked={recurrenceConfig === "never"}
+                      value="daily"
+                      id="t1"
+                      onClick={() => setPeriod("daily")}
+                      checked={period === "daily"}
                     />
-                    <Label htmlFor="r1">Never</Label>
+                    <Label htmlFor="t1">Daily</Label>
                   </div>
-                  <div className="flex flex-row items-center space-x-2">
+                  <div className="flex flex-col items-center space-x-2">
                     <RadioGroupItem
-                      value="on"
-                      id="r2"
-                      onClick={() => {
-                        setRecurrenceConfig("on");
-                      }}
-                      checked={recurrenceConfig === "on"}
+                      value="weekly"
+                      id="t2"
+                      onClick={() => setPeriod("weekly")}
+                      checked={period === "weekly"}
                     />
-                    <Label htmlFor="r2">On</Label>
-                    <DatePicker
-                      setDate={setEndsOnDate}
-                      date={endsOnDate}
-                      fromDate={new Date()}
-                      disabled={!(recurrenceConfig === "on")}
-                    />
+                    <Label htmlFor="t2">Weekly</Label>
                   </div>
-                  <div className="flex flex-row items-center space-x-2">
+                  <div className="flex flex-col items-center space-x-2">
                     <RadioGroupItem
-                      value="after"
-                      id="r3"
-                      className="w-max flex-grow"
-                      onClick={() => {
-                        setRecurrenceConfig("after");
-                      }}
-                      checked={recurrenceConfig === "after"}
+                      value="monthly"
+                      id="t3"
+                      onClick={() => setPeriod("monthly")}
+                      checked={period === "monthly"}
                     />
-                    <Label htmlFor="r3">After</Label>
-                    <Input
-                      type="number"
-                      value={occurrences || ""}
-                      onChange={(evt) => {
-                        const val = parseInt(evt.target.value);
-                        setOccurrences(isNaN(val) ? 0 : val);
-                      }}
-                      disabled={!(recurrenceConfig === "after")}
+                    <Label htmlFor="t3">Monthly</Label>
+                  </div>
+                  <div className="flex flex-col items-center space-x-2">
+                    <RadioGroupItem
+                      value="yearly"
+                      id="t4"
+                      onClick={() => setPeriod("yearly")}
+                      checked={period === "yearly"}
                     />
-                    <div>occurrences</div>
+                    <Label htmlFor="t4">Yearly</Label>
                   </div>
                 </RadioGroup>
+                <div className="flex flex-col gap-2">
+                  <FieldLabel>Ends</FieldLabel>
+                  <RadioGroup className="flex flex-col gap-3">
+                    <div className="flex flex-row items-center space-x-2">
+                      <RadioGroupItem
+                        value="never"
+                        id="r1"
+                        onClick={() => {
+                          setRecurrenceConfig("never");
+                        }}
+                        checked={recurrenceConfig === "never"}
+                      />
+                      <Label htmlFor="r1">Never</Label>
+                    </div>
+                    <div className="flex flex-row items-center space-x-2">
+                      <RadioGroupItem
+                        value="on"
+                        id="r2"
+                        onClick={() => {
+                          setRecurrenceConfig("on");
+                        }}
+                        checked={recurrenceConfig === "on"}
+                      />
+                      <Label htmlFor="r2">On</Label>
+                      <DatePicker
+                        setDate={setEndsOnDate}
+                        date={endsOnDate}
+                        fromDate={new Date()}
+                        disabled={!(recurrenceConfig === "on")}
+                      />
+                    </div>
+                    <div className="flex flex-row items-center space-x-2">
+                      <RadioGroupItem
+                        value="after"
+                        id="r3"
+                        className="w-max flex-grow"
+                        onClick={() => {
+                          setRecurrenceConfig("after");
+                        }}
+                        checked={recurrenceConfig === "after"}
+                      />
+                      <Label htmlFor="r3">After</Label>
+                      <Input
+                        type="number"
+                        value={occurrences || ""}
+                        onChange={(evt) => {
+                          const val = parseInt(evt.target.value);
+                          setOccurrences(isNaN(val) ? 0 : val);
+                        }}
+                        disabled={!(recurrenceConfig === "after")}
+                      />
+                      <div>occurrences</div>
+                    </div>
+                  </RadioGroup>
+                </div>
               </div>
-            </div>
+            )}
             <hr />
             <div
               className="flex cursor-pointer items-center space-x-2"
@@ -315,14 +326,20 @@ export const RecurrenceRuleInput = ({
               <Checkbox id="norepeat" checked={noRepeat} />
               <FieldLabel>Doesn&apos;t repeat</FieldLabel>
             </div>
-            <div className="flex justify-end">
+            <div className="flex w-full flex-row gap-3">
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => resetState(value)}
+                className="w-full"
               >
                 Reset
               </Button>
+              <PopoverClose asChild>
+                <Button variant="primary" size="sm" className="w-full">
+                  Confirm
+                </Button>
+              </PopoverClose>
             </div>
           </div>
         </PopoverContent>

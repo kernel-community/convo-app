@@ -33,6 +33,21 @@ export function DatePicker({
   withTime?: boolean;
   disabled?: boolean;
 }) {
+  const handleDateSelect = (newDate: Date | undefined) => {
+    if (!newDate || !date) {
+      setDate(newDate);
+      return;
+    }
+
+    // Preserve the time from the existing date
+    const updatedDate = new Date(newDate);
+    updatedDate.setHours(date.getHours());
+    updatedDate.setMinutes(date.getMinutes());
+    updatedDate.setSeconds(date.getSeconds());
+    updatedDate.setMilliseconds(date.getMilliseconds());
+
+    setDate(updatedDate);
+  };
   return (
     <Popover>
       <PopoverTrigger asChild>
@@ -56,25 +71,10 @@ export function DatePicker({
         align="start"
         className="flex w-auto flex-col space-y-2 p-2"
       >
-        <Select
-          onValueChange={(value) =>
-            setDate(addDays(new Date(), parseInt(value)))
-          }
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="Select" />
-          </SelectTrigger>
-          <SelectContent position="popper">
-            <SelectItem value="0">Today</SelectItem>
-            <SelectItem value="1">Tomorrow</SelectItem>
-            <SelectItem value="3">In 3 days</SelectItem>
-            <SelectItem value="7">In a week</SelectItem>
-          </SelectContent>
-        </Select>
         <Calendar
           mode="single"
           selected={date}
-          onSelect={setDate}
+          onSelect={handleDateSelect}
           fromDate={fromDate}
           disabled={disabled}
         />

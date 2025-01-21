@@ -17,6 +17,8 @@ import type { User } from "@prisma/client";
 import type { UserStatus } from "src/context/UserContext";
 import { Skeleton } from "src/components/ui/skeleton";
 import type { ClientEventInput } from "src/types";
+import { RRule } from "rrule";
+import { FancyHighlight } from "src/components/FancyHighlight";
 
 export const ConfirmConvoCredenza = ({
   openModalFlag,
@@ -37,7 +39,7 @@ export const ConfirmConvoCredenza = ({
 }) => {
   return (
     <Credenza open={openModalFlag} onOpenChange={setOpenModalFlag}>
-      <CredenzaContent className="h-[32rem]">
+      <CredenzaContent className="flex h-[34rem] flex-col">
         <CredenzaHeader>
           {isEditing ? (
             <CredenzaTitle>Confirm Edits to Convo</CredenzaTitle>
@@ -56,8 +58,8 @@ export const ConfirmConvoCredenza = ({
             </CredenzaDescription>
           )}
         </CredenzaHeader>
-        <CredenzaBody className="flex h-full flex-col items-start overflow-auto">
-          <div className="grid grid-cols-[40%_60%] gap-y-4">
+        <CredenzaBody className="flex-1 overflow-y-auto">
+          <div className="grid w-full grid-cols-[40%_60%] gap-y-4">
             <FieldLabel>Title</FieldLabel>
             <div>{convoToCreateData?.title}</div>
             <FieldLabel>Description</FieldLabel>
@@ -66,15 +68,33 @@ export const ConfirmConvoCredenza = ({
             </div>
             <FieldLabel>Sessions</FieldLabel>
             <div className="flex flex-col gap-2">
-              {convoToCreateData?.sessions.map((session, key) => {
-                return (
-                  <div key={key}>
-                    {getDateTimeString(session.dateTime.toISOString(), "date")},{" "}
-                    {getDateTimeString(session.dateTime.toISOString(), "time")}
-                  </div>
-                );
-              })}
+              {convoToCreateData && (
+                <div>
+                  <FancyHighlight>
+                    {getDateTimeString(
+                      convoToCreateData.dateTimeStartAndEnd.start.toISOString(),
+                      "date"
+                    )}{" "}
+                    {getDateTimeString(
+                      convoToCreateData.dateTimeStartAndEnd.start.toISOString(),
+                      "time"
+                    )}
+                  </FancyHighlight>
+                </div>
+              )}
             </div>
+            {convoToCreateData?.recurrenceRule && (
+              <>
+                <FieldLabel>Recurrence</FieldLabel>
+                <div>
+                  <FancyHighlight>
+                    {RRule.fromString(
+                      convoToCreateData.recurrenceRule
+                    ).toText()}
+                  </FancyHighlight>
+                </div>
+              </>
+            )}
             <FieldLabel>Limit</FieldLabel>
             <div>{convoToCreateData?.limit}</div>
             <FieldLabel>Location</FieldLabel>
