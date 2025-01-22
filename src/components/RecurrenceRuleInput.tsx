@@ -59,8 +59,8 @@ export const RecurrenceRuleInput = ({
         : "never"
       : undefined
   );
-  const [occurrences, setOccurrences] = useState<number>(
-    initialRRule?.options.count || 0
+  const [occurrences, setOccurrences] = useState<number | null>(
+    initialRRule?.options.count || null
   );
   const [period, setPeriod] = useState<RecurrencePeriod | undefined>(
     initialRRule ? getPeriodFromFreq(initialRRule.options.freq) : undefined
@@ -74,7 +74,7 @@ export const RecurrenceRuleInput = ({
         setEndsOnDate(parsed.options.until || undefined);
         setFormattedRrule(parsed.toText());
         setPeriod(getPeriodFromFreq(parsed.options.freq));
-        setOccurrences(parsed.options.count || 0);
+        setOccurrences(parsed.options.count || null);
         setRecurrenceConfig(
           parsed.options.until ? "on" : parsed.options.count ? "after" : "never"
         );
@@ -88,7 +88,7 @@ export const RecurrenceRuleInput = ({
       setEndsOnDate(undefined);
       setFormattedRrule(undefined);
       setPeriod(undefined);
-      setOccurrences(0);
+      setOccurrences(null);
       setRecurrenceConfig(undefined);
       setNoRepeat(true);
     }
