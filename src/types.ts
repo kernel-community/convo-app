@@ -38,7 +38,7 @@ export type Session = Pick<ServerEvent, "id" | "limit" | "rsvps"> & {
 };
 
 export type ClientEvent = Omit<ServerEvent, "startDateTime" | "endDateTime"> & {
-  sessions: Array<Session>;
+  sessions: Array<Session>; // @note deprecated; array of 1 session since rrule introduction; don't use this; use startDateTime, endDateTime and recurrenceRule instead
   totalUniqueRsvps: number;
   startDateTime: string;
   endDateTime: string;
