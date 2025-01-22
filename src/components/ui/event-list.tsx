@@ -206,15 +206,25 @@ const ListView = ({
       </div>
       <div className="space-y-2">
         {currentMonthDates.map((date) => (
-          <div
-            key={date.toISOString()}
-            className="rounded-md p-2 hover:bg-muted"
-          >
-            {getDateTimeString(date.toISOString(), "date")}{" "}
-            {getDateTimeString(date.toISOString(), "time")}
-          </div>
+          <EventCard date={date} key={date.toISOString()} />
         ))}
       </div>
+    </div>
+  );
+};
+
+export const EventCard = ({ date }: { date: Date }) => {
+  return (
+    <div
+      className=" flex items-center space-x-4 rounded-md border p-4"
+      key={date.toISOString()}
+    >
+      <p className="text-md font-medium leading-none">
+        {getDateTimeString(date.toISOString(), "date")}
+      </p>
+      <p className="text-sm italic text-muted-foreground">
+        at {getDateTimeString(date.toISOString(), "time")}
+      </p>
     </div>
   );
 };

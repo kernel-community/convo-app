@@ -1,6 +1,5 @@
 "use client";
 import Hero from "../Hero";
-import { SessionsWrapper } from "./RsvpSection";
 import type { ClientEvent } from "src/types";
 import SubmitRsvpSection from "./SubmitRsvpSection";
 import EventDetails from "./EventDetails";
@@ -12,8 +11,7 @@ import useUserRsvpForConvo from "src/hooks/useUserRsvpForConvo";
 import useEvent from "src/hooks/useEvent";
 import { useRouter } from "next/navigation";
 import { useUser } from "src/context/UserContext";
-import { SessionsDetailsNonSubmittable } from "./SessionsDetailsNonSubmittable";
-import ViewOtherRSVPs from "./ViewOtherRSVPs";
+import { EventCard, EventsView } from "../ui/event-list";
 
 export const rsvpInputSchema = z.object({
   email: z.string().optional(),
@@ -35,15 +33,16 @@ const EventWrapper = ({
   const {
     totalUniqueRsvps,
     descriptionHtml,
-    sessions, // array of 1 session since rrule introduction
     title,
     proposer,
     // @todo handle deleted event display
     isDeleted,
     isImported,
     collections,
-    createdAt,
+    recurrenceRule,
+    startDateTime,
   } = event;
+
   const { rsvpIntention } = useRsvpIntention();
   const { rsvps } = useUserRsvpForConvo({ hash: event.hash });
   const { push } = useRouter();
@@ -82,7 +81,7 @@ const EventWrapper = ({
       <div className="mt-24 grid grid-cols-1 gap-12 lg:grid-cols-3">
         <EventDetails html={descriptionHtml} proposer={proposer} />
         <div className="min-w-100 flex flex-col gap-2">
-          {isEditable && (
+          {/* {isEditable && (
             <SessionsDetailsNonSubmittable
               sessions={sessions}
               eventHash={eventHash}
@@ -96,7 +95,16 @@ const EventWrapper = ({
               />
               {isSignedIn && <ViewOtherRSVPs event={event} />}
             </>
+          )} */}
+          {recurrenceRule ? (
+            <EventsView
+              rruleStr={recurrenceRule}
+              startDateTime={startDateTime}
+            />
+          ) : (
+            <EventCard date={new Date(startDateTime)} />
           )}
+
           {!isEditable && (
             <SubmitRsvpSection
               text={
