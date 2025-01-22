@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { cn } from "src/lib/utils";
 
-export const FancyHighlight = ({
+export const BasicHighlight = ({
   children,
   className,
 }: {
@@ -11,7 +11,7 @@ export const FancyHighlight = ({
   return (
     <span
       className={cn(
-        "relative inline-block cursor-pointer before:absolute before:-inset-1 before:block before:-skew-y-3 before:bg-highlight",
+        "relative my-1 inline-block cursor-pointer px-1 before:absolute before:-inset-1 before:block before:bg-highlight",
         className
       )}
     >
