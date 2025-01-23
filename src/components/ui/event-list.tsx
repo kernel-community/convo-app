@@ -121,7 +121,7 @@ const RecurringEventText = ({
   return (
     <>
       <div>
-        This is a <span className="font-semibold">recurring event</span>. It
+        This is a <span className="font-semibold">recurring convo</span>. It
         occurs:
       </div>
       <div className="font-semibold">
