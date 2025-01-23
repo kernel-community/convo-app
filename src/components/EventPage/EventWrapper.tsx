@@ -12,13 +12,13 @@ import useEvent from "src/hooks/useEvent";
 import { useRouter } from "next/navigation";
 import { useUser } from "src/context/UserContext";
 import { EventCard, EventsView } from "../ui/event-list";
+import { useEffect, useState } from "react";
 
 export const rsvpInputSchema = z.object({
   email: z.string().optional(),
   nickname: z.string().optional(),
 });
 export type RsvpInput = z.infer<typeof rsvpInputSchema>;
-
 const EventWrapper = ({
   event,
   isEditable,
@@ -45,14 +45,15 @@ const EventWrapper = ({
 
   const { rsvpIntention } = useRsvpIntention();
   const { rsvps } = useUserRsvpForConvo({ hash: event.hash });
-  const { push } = useRouter();
+  const router = useRouter();
   const { eventId } = rsvpIntention;
   const {
     fetchedUser: { isSignedIn },
   } = useUser();
   const isDisabled = [eventId].length === 0;
-  const navigateToEditPage = () => push(`/edit/${event.hash}`);
+  const navigateToEditPage = () => router.push(`/edit/${event.hash}`);
   const isPartOfCollection = collections.length > 0;
+  const [isNavigating, setIsNavigating] = useState(false);
   const collectionHrefs = collections.map((c, k) => (
     <Link key={k} href={`/collection/${c.id}`}>
       {" "}
@@ -62,14 +63,56 @@ const EventWrapper = ({
       {k + 1 !== collections.length ? "," : ""}
     </Link>
   ));
+
+  const handleInfoClick = async () => {
+    try {
+      setIsNavigating(true);
+      await router.push(`/rsvp/${eventHash}?info=true`);
+    } catch (error) {
+      console.error("Navigation failed:", error);
+    } finally {
+      setIsNavigating(false);
+    }
+  };
+
+  useEffect(() => {
+    // Prefetch the info page
+    router.prefetch(`/rsvp/${eventHash}?info=true`);
+  }, [eventHash, router]);
+
   return (
     <>
-      <div className="flex flex-row items-center justify-between">
+      <div className="flex flex-row items-center">
         <Hero title={title} isImported={isImported} isDeleted={isDeleted} />
-        {isEditable && !event.isDeleted && (
-          <Button onClick={navigateToEditPage}>Edit Event</Button>
-        )}
       </div>
+      <div className="flex flex-row items-center gap-3">
+        <div
+          className={`cursor-pointer underline decoration-dotted`}
+          onClick={handleInfoClick}
+        >
+          {isNavigating ? "Loading..." : "info"}
+        </div>
+        {isEditable && !event.isDeleted && (
+          <div
+            className={`cursor-pointer underline decoration-dotted ${
+              isNavigating ? "opacity-20" : ""
+            }`}
+            onClick={navigateToEditPage}
+          >
+            {isNavigating ? "Loading..." : "edit"}
+          </div>
+        )}
+        <div
+          className="cursor-pointer underline decoration-dotted"
+          onClick={() => {
+            console.log("share");
+            // open modal - credenza
+          }}
+        >
+          share
+        </div>
+      </div>
+
       {isPartOfCollection && (
         <div className="font-primary">
           {`This event is part of ${
@@ -81,21 +124,6 @@ const EventWrapper = ({
       <div className="mt-24 grid grid-cols-1 gap-12 lg:grid-cols-3">
         <EventDetails html={descriptionHtml} proposer={proposer} />
         <div className="min-w-100 flex flex-col gap-2">
-          {/* {isEditable && (
-            <SessionsDetailsNonSubmittable
-              sessions={sessions}
-              eventHash={eventHash}
-            />
-          )}
-          {!isEditable && (
-            <>
-              <SessionsWrapper
-                sessions={sessions}
-                // hostname={hostname}
-              />
-              {isSignedIn && <ViewOtherRSVPs event={event} />}
-            </>
-          )} */}
           {recurrenceRule ? (
             <EventsView
               rruleStr={recurrenceRule}
