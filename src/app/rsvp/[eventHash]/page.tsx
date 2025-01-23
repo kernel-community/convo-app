@@ -7,6 +7,68 @@ type Props = {
   params: { eventHash: string };
 };
 
+// Add revalidation for ISR
+export const revalidate = 3600; // revalidate every hour
+
+// Pre-generate important event pages
+export async function generateStaticParams() {
+  // Remove headers() call for static generation
+  const events = await fetch(
+    `${process.env.NEXT_PUBLIC_BASE_URL}/api/query/getActiveEvents`,
+    {
+      next: { revalidate: 3600 },
+    }
+  ).then((res) => res.json());
+
+  return events.map((event: { hash: string }) => ({
+    eventHash: event.hash,
+  }));
+}
+
+export async function generateMetadata(
+  { params }: Props,
+  parent: ResolvingMetadata
+): Promise<Metadata> {
+  const headersList = headers();
+  const host = headersList.get("host") || "";
+  const scheme =
+    host.includes("localhost") || host.includes("127.0.0.1") ? "http" : "https";
+
+  // Parallelize the requests
+  const [parentMetadata, eventResponse] = await Promise.all([
+    parent,
+    fetch(`${scheme}://${host}/api/query/getEventByHash`, {
+      body: JSON.stringify({ hash: params.eventHash }),
+      method: "POST",
+      headers: { "Content-type": "application/json" },
+      next: { revalidate: 3600 }, // Cache the API response
+    }).then((res) => res.json()),
+  ]);
+
+  const event = eventResponse.data;
+  const previousImages = parentMetadata.openGraph?.images || [];
+
+  // Enhanced metadata for better SEO
+  return {
+    title: event.title,
+    description: event.description,
+    openGraph: {
+      title: event.title,
+      description: event.description,
+      url: `${scheme}://${host}/rsvp/${params.eventHash}`,
+      siteName: "Convo Cafe",
+      images: ["", ...previousImages],
+      locale: "en_US",
+      type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: event.title,
+      description: event.description,
+    },
+  };
+}
+
 const Post = ({ params }: Props) => {
   const { eventHash } = params;
 
@@ -16,30 +78,5 @@ const Post = ({ params }: Props) => {
     </Main>
   );
 };
-
-export async function generateMetadata(
-  { params }: Props,
-  parent: ResolvingMetadata
-): Promise<Metadata> {
-  // fetching for headers will make this a dynamic page
-  const headersList = headers();
-  const host = headersList.get("host") || "";
-  const scheme =
-    host.includes("localhost") || host.includes("127.0.0.1") ? "http" : "https";
-  const data = (
-    await fetch(`${scheme}://${host}/api/query/getEventByHash`, {
-      body: JSON.stringify({ hash: params.eventHash }),
-      method: "POST",
-      headers: { "Content-type": "application/json" },
-    }).then((res) => res.json())
-  ).data;
-  const previousImages = (await parent).openGraph?.images || [];
-  return {
-    title: data.title,
-    openGraph: {
-      images: ["", ...previousImages],
-    },
-  };
-}
 
 export default Post;
