@@ -1,4 +1,6 @@
 import type { DateTime } from "luxon";
+import { rsvpTypeToPartStat } from "../rsvpTypeToPartStat";
+import type { RSVP_TYPE } from "@prisma/client";
 
 export const getDateTime = (dt: DateTime) =>
   `${dt.toUTC().toFormat("yyyyLLdd")}T${dt.toUTC().toFormat("HHmmss")}Z`;
@@ -24,7 +26,9 @@ DTSTAMP:${start}` +
     `${rrule ? `\n${rrule}\n` : `\n`}` +
     `ORGANIZER;CN="${organizer.name}":mailto:${organizer.email}
 UID:${uid}@evts.convo.cafe
-ATTENDEE;CUTYPE=INDIVIDUAL;ROLE=REQ-PARTICIPANT;PARTSTAT=ACCEPTED;CN=${recipient.email};X-NUM-GUESTS=0:mailto:${recipient.email}
+ATTENDEE;CUTYPE=INDIVIDUAL;ROLE=REQ-PARTICIPANT;PARTSTAT=${rsvpTypeToPartStat(
+      recipient.rsvpType as RSVP_TYPE
+    )};CN=${recipient.email};X-NUM-GUESTS=0:mailto:${recipient.email}
 SUMMARY:${title}
 DESCRIPTION:${description}
 LOCATION:${location}
@@ -43,6 +47,7 @@ export type ICalRequestParams = {
   };
   recipient: {
     email: string;
+    rsvpType: string;
   };
   uid: string;
   title: string;
@@ -58,6 +63,7 @@ export const generateiCalString = (events: Array<ICalRequestParams>) => {
 VERSION:2.0
 CALSCALE:GREGORIAN
 NAME:convo-cafe
+PRODID:-//convo.cafe//NONSGML convo.cafe//EN
 X-WR-CALNAME:convo-cafe
 METHOD:REQUEST
 ${events.map((evt) => generateEventString(evt)).join(`\n`)}
