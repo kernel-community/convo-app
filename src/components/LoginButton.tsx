@@ -2,8 +2,12 @@
 import { useDynamicContext } from "@dynamic-labs/sdk-react";
 import { Button } from "./ui/button";
 
-const LoginButton = () => {
+const LoginButton = ({ className }: { className?: string }) => {
   const { setShowAuthFlow } = useDynamicContext();
-  return <Button onClick={() => setShowAuthFlow(true)}>Sign in</Button>;
+  return (
+    <Button onClick={() => setShowAuthFlow(true)} className={className}>
+      Sign in
+    </Button>
+  );
 };
 export default LoginButton;

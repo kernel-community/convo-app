@@ -12,6 +12,8 @@ const EventDetails = ({
 }) => {
   return (
     <div className="col-span-2">
+      <div className="font-primary text-lg font-light">Convo Description</div>
+      <hr className="my-4" />
       <Article html={html} />
       {isNicknameSet(proposer.nickname) && <Signature user={proposer} />}
     </div>
