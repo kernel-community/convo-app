@@ -7,41 +7,8 @@ type Props = {
   params: { eventHash: string };
 };
 
-// Add revalidation for ISR
+// Remove generateStaticParams completely and rely only on ISR
 export const revalidate = 3600; // revalidate every hour
-
-// Pre-generate important event pages
-export async function generateStaticParams() {
-  try {
-    const baseUrl =
-      process.env.NEXT_PUBLIC_BASE_URL ||
-      process.env.VERCEL_URL ||
-      "http://localhost:3000";
-    console.log("baseUrl: ", baseUrl);
-    const url = new URL("/api/query/getActiveEvents", baseUrl).toString();
-
-    const response = await fetch(url, {
-      next: { revalidate: 3600 },
-    });
-
-    if (!response.ok) {
-      console.error(
-        "Failed to fetch events:",
-        response.status,
-        response.statusText
-      );
-      return [];
-    }
-
-    const events = await response.json();
-    return events.map((event: { hash: string }) => ({
-      eventHash: event.hash,
-    }));
-  } catch (error) {
-    console.error("Error generating static params:", error);
-    return []; // Return empty array instead of failing build
-  }
-}
 
 export async function generateMetadata(
   { params }: Props,
