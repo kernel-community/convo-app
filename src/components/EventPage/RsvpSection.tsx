@@ -73,7 +73,10 @@ export const SessionsWrapper = ({
       }
     }
   };
+  console.log("sessions", sessions);
+
   useEffect(() => {
+    console.log("sessions", sessions);
     setRsvpIntention({
       ...rsvpIntention,
       eventId: sessions[0] ? sessions[0].id : "",
@@ -103,7 +106,7 @@ export const SessionsWrapper = ({
   const { fetch: updateRsvp } = useUpdateRsvp({
     userId: user.id,
     eventId: cancelRsvpEventId,
-    toRsvp: false,
+    type: "NOT_GOING",
   });
 
   return (

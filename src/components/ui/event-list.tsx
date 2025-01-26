@@ -37,7 +37,7 @@ export const EventsView = ({
   startDateTime: string;
 }) => {
   const isDesktop = useMediaQuery(DESKTOP);
-  const NUMBER_OF_MONTHS_TO_SHOW = isDesktop ? 2 : 1;
+  const NUMBER_OF_MONTHS_TO_SHOW = isDesktop ? 1 : 1; // @todo
 
   // Lift all the state up to the parent component
   const [selectedDates, setSelectedDates] = useState<Date[]>([]);
@@ -85,7 +85,10 @@ export const EventsView = ({
   };
 
   return (
-    <Tabs defaultValue="calendar">
+    <Tabs
+      defaultValue="calendar"
+      className="flex h-full w-full flex-col justify-between"
+    >
       <div className="flex w-full flex-wrap items-center justify-between">
         <TabsList>
           <TabsTrigger value="calendar">Calendar</TabsTrigger>
@@ -94,12 +97,13 @@ export const EventsView = ({
         <ResetButtons resetToToday={resetToToday} reset={reset} />
       </div>
 
-      <TabsContent value="calendar">
+      <TabsContent value="calendar" className="flex-1 overflow-y-auto">
         <CalendarView {...sharedProps} />
       </TabsContent>
-      <TabsContent value="list">
+      <TabsContent value="list" className="flex-1 overflow-y-auto">
         <ListView {...sharedProps} />
       </TabsContent>
+
       <RecurringEventText
         recurrenceText={recurrenceText}
         startDateTime={startDateTime}
@@ -153,11 +157,13 @@ const ResetButtons = ({
 }) => {
   return (
     <div className="flex justify-start gap-2">
-      <Button onClick={resetToToday} variant={"ghost"}>
+      {/* <Button onClick={resetToToday} variant={"ghost"}>
         Today
-      </Button>
+      </Button> */}
       <Button onClick={reset} variant={"ghost"}>
-        Reset
+        <span className="text-sm underline decoration-dashed">
+          Go to start date
+        </span>
       </Button>
     </div>
   );

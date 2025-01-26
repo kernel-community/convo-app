@@ -54,7 +54,7 @@ export async function GET(req: NextRequest) {
       description: event.descriptionHtml || "",
       location: event.location,
       sequence: event.sequence,
-      recipient: { email: "" },
+      recipient: { email: "", rsvpType: "" },
       rrule: event.rrule,
       allOtherrecipients: event.rsvps.map((rsvp) => ({
         name: rsvp.attendee.nickname,

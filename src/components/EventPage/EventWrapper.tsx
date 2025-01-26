@@ -44,7 +44,7 @@ const EventWrapper = ({
   } = event;
 
   const { rsvpIntention } = useRsvpIntention();
-  const { rsvps } = useUserRsvpForConvo({ hash: event.hash });
+  const { rsvp } = useUserRsvpForConvo({ hash: event.hash });
   const router = useRouter();
   const { eventId } = rsvpIntention;
   const {
@@ -52,17 +52,7 @@ const EventWrapper = ({
   } = useUser();
   const isDisabled = [eventId].length === 0;
   const navigateToEditPage = () => router.push(`/edit/${event.hash}`);
-  const isPartOfCollection = collections.length > 0;
   const [isNavigating, setIsNavigating] = useState(false);
-  const collectionHrefs = collections.map((c, k) => (
-    <Link key={k} href={`/collection/${c.id}`}>
-      {" "}
-      <span className="text-kernel-light underline decoration-dotted">
-        {c.name}
-      </span>
-      {k + 1 !== collections.length ? "," : ""}
-    </Link>
-  ));
 
   const handleInfoClick = async () => {
     try {
@@ -82,68 +72,12 @@ const EventWrapper = ({
 
   return (
     <>
-      <div className="flex flex-row items-center">
-        <Hero title={title} isImported={isImported} isDeleted={isDeleted} />
-      </div>
-      <div className="flex flex-row items-center gap-3">
-        <div
-          className={`cursor-pointer underline decoration-dotted`}
-          onClick={handleInfoClick}
-        >
-          {isNavigating ? "Loading..." : "info"}
+      <div className="container">
+        <div className="flex flex-row items-center">
+          <Hero isImported={isImported} isDeleted={isDeleted} event={event} />
         </div>
-        {isEditable && !event.isDeleted && (
-          <div
-            className={`cursor-pointer underline decoration-dotted ${
-              isNavigating ? "opacity-20" : ""
-            }`}
-            onClick={navigateToEditPage}
-          >
-            {isNavigating ? "Loading..." : "edit"}
-          </div>
-        )}
-        <div
-          className="cursor-pointer underline decoration-dotted"
-          onClick={() => {
-            console.log("share");
-            // open modal - credenza
-          }}
-        >
-          share
-        </div>
-      </div>
-
-      {isPartOfCollection && (
-        <div className="font-primary">
-          {`This event is part of ${
-            collections.length > 1 ? "" : "the "
-          } collection${collections.length > 1 ? "s" : ""}:`}
-          {collectionHrefs}
-        </div>
-      )}
-      <div className="mt-24 grid grid-cols-1 gap-12 lg:grid-cols-3">
-        <EventDetails html={descriptionHtml} proposer={proposer} />
-        <div className="min-w-100 flex flex-col gap-2">
-          {recurrenceRule ? (
-            <EventsView
-              rruleStr={recurrenceRule}
-              startDateTime={startDateTime}
-            />
-          ) : (
-            <EventCard date={new Date(startDateTime)} />
-          )}
-
-          {!isEditable && (
-            <SubmitRsvpSection
-              text={
-                totalUniqueRsvps > 5
-                  ? `Join ${totalUniqueRsvps} others in attending the event`
-                  : `Be amongst the first few to RSVP!`
-              }
-              disabled={isDisabled}
-              buttonText={rsvps && rsvps.length > 0 ? "Update RSVP" : "RSVP"}
-            />
-          )}
+        <div className="mt-24 grid grid-cols-1 gap-12 lg:grid-cols-3">
+          <EventDetails html={descriptionHtml} proposer={proposer} />
         </div>
       </div>
     </>

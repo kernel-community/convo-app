@@ -47,7 +47,7 @@ const SubmitRsvpSection = ({
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
   const isLoading = loading || isSubmitting;
-  const [openModalFlag, setOpenModalFlag] = useState(false);
+  // const [openModalFlag, setOpenModalFlag] = useState(false);
 
   const submitRSVP = async () => {
     setIsSubmitting(true);
@@ -59,7 +59,7 @@ const SubmitRsvpSection = ({
       return;
     }
     setIsSubmitting(false);
-    setOpenModalFlag(false);
+    // setOpenModalFlag(false);
   };
   const { rsvpIntention: rsvp } = useRsvpIntention();
   const {
@@ -77,11 +77,11 @@ const SubmitRsvpSection = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [rsvp.eventId, eventsToSubmitRsvpTo]);
 
-  const onSubmit: SubmitHandler<RsvpInput> = async () => setOpenModalFlag(true);
+  const onSubmit: SubmitHandler<RsvpInput> = async () => submitRSVP();
 
   return (
     <>
-      <Credenza open={openModalFlag} onOpenChange={setOpenModalFlag}>
+      {/* <Credenza open={openModalFlag} onOpenChange={setOpenModalFlag}>
         <CredenzaContent>
           <CredenzaHeader>
             <CredenzaTitle>Confirm RSVP for Convo</CredenzaTitle>
@@ -132,7 +132,7 @@ const SubmitRsvpSection = ({
             </div>
           </CredenzaFooter>
         </CredenzaContent>
-      </Credenza>
+      </Credenza> */}
       <div>
         <div className="flex flex-col gap-2">
           <span className="font-primary text-sm font-light lowercase italic">
@@ -159,6 +159,9 @@ const SubmitRsvpSection = ({
                   type="submit"
                   disabled={disabled}
                   className="mt-3 w-full"
+                  isLoading={
+                    isLoading || isSubmitting || eventsToSubmitRsvpToLoading
+                  }
                 >
                   {buttonText || "RSVP"}
                 </Button>

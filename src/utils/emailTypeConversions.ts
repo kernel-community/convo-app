@@ -4,7 +4,11 @@ export const emailTypeToReminderEnum = (type: EmailType): EmailTypeEnumDB => {
   switch (type) {
     case "create":
       return EmailTypeEnumDB.CREATE;
-    case "invite":
+    case "invite-going":
+      return EmailTypeEnumDB.INVITE;
+    case "invite-maybe":
+      return EmailTypeEnumDB.INVITE;
+    case "invite-not-going":
       return EmailTypeEnumDB.INVITE;
     case "update":
       return EmailTypeEnumDB.UPDATE;
@@ -25,7 +29,7 @@ export const reminderEnumToEmailType = (type: EmailTypeEnumDB): EmailType => {
     case EmailTypeEnumDB.CREATE:
       return "create";
     case EmailTypeEnumDB.INVITE:
-      return "invite";
+      return "invite-going";
     case EmailTypeEnumDB.UPDATE:
       return "update";
     case EmailTypeEnumDB.REMINDER1HR:

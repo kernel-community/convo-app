@@ -1,5 +1,5 @@
 // send email
-import type { User } from "@prisma/client";
+import type { RSVP_TYPE, User } from "@prisma/client";
 import type { CreateEmailOptions } from "resend";
 import type { EmailType } from "src/components/Email";
 import { getEmailTemplateFromType } from "src/components/Email";
@@ -9,6 +9,7 @@ import type { EventWithProposerAndRsvps } from "../ical/generateiCalRequestFromE
 import { generateiCalRequestFromEvent } from "../ical/generateiCalRequestFromEventId";
 import { EVENT_ORGANIZER_EMAIL } from "../constants";
 import { EVENT_ORGANIZER_NAME } from "../constants";
+import { emailTypeToRsvpType } from "../emailTypeToRsvpType";
 export const sendEventInviteEmail = async ({
   receiver,
   event,
@@ -32,13 +33,17 @@ export const sendEventInviteEmail = async ({
   const iCal = await generateiCalString([
     await generateiCalRequestFromEvent({
       event:
-        type === "create" ? { ...event, proposer: creator as User } : event,
+        type === "create"
+          ? { ...event, proposer: creator as User }
+          : type === "invite-not-going" || type === "invite-maybe"
+          ? { ...event, sequence: event.sequence + 1 }
+          : event,
       recipientEmail: receiver.email,
       recipientName: receiver.nickname,
+      rsvpType: emailTypeToRsvpType(type),
     }),
   ]);
   console.log({ iCal });
-  console.log({ iCalString: iCal.toString() });
   const { template, subject } = getEmailTemplateFromType(type, {
     firstName: receiver.nickname,
   });

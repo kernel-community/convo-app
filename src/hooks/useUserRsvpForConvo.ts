@@ -28,7 +28,7 @@ const useUserRsvpForConvo = ({
             })
           ).json()
         ).data;
-        return r.rsvps as Array<Rsvp>;
+        return r.rsvp as Rsvp;
       } catch (err) {
         throw err;
       }
@@ -42,7 +42,7 @@ const useUserRsvpForConvo = ({
   return {
     isFetching,
     refetch,
-    rsvps: data,
+    rsvp: data,
   };
 };
 

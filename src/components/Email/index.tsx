@@ -8,9 +8,17 @@ import {
   SUBJECT as CreateEmailTemplateSubject,
 } from "./templates/Create";
 import {
-  InviteEmailTemplate,
-  SUBJECT as InviteEmailTemplateSubject,
-} from "./templates/Invite";
+  InviteGoingEmailTemplate,
+  SUBJECT as InviteGoingEmailTemplateSubject,
+} from "./templates/InviteGoing";
+import {
+  InviteMaybeEmailTemplate,
+  SUBJECT as InviteMaybeEmailTemplateSubject,
+} from "./templates/InviteMaybe";
+import {
+  InviteNotGoingEmailTemplate,
+  SUBJECT as InviteNotGoingEmailTemplateSubject,
+} from "./templates/InviteNotGoing";
 import {
   UpdateEmailTemplate,
   SUBJECT as UpdateEmailTemplateSubject,
@@ -34,12 +42,14 @@ export interface EmailTemplateProps {
 
 export type EmailType =
   | "create"
-  | "invite"
   | "update"
   | "reminder24hr"
   | "reminder1hr"
   | "reminder1min"
-  | "reminder1hrProposer";
+  | "reminder1hrProposer"
+  | "invite-going"
+  | "invite-maybe"
+  | "invite-not-going";
 
 export const getEmailTemplateFromType = (
   type: EmailType,
@@ -54,10 +64,20 @@ export const getEmailTemplateFromType = (
         template: CreateEmailTemplate(props),
         subject: CreateEmailTemplateSubject,
       };
-    case "invite":
+    case "invite-going":
       return {
-        template: InviteEmailTemplate(props),
-        subject: InviteEmailTemplateSubject,
+        template: InviteGoingEmailTemplate(props),
+        subject: InviteGoingEmailTemplateSubject,
+      };
+    case "invite-maybe":
+      return {
+        template: InviteMaybeEmailTemplate(props),
+        subject: InviteMaybeEmailTemplateSubject,
+      };
+    case "invite-not-going":
+      return {
+        template: InviteNotGoingEmailTemplate(props),
+        subject: InviteNotGoingEmailTemplateSubject,
       };
     case "update":
       return {
