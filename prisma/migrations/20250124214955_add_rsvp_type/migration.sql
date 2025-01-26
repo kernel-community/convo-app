@@ -1,0 +1,5 @@
+-- CreateEnum
+CREATE TYPE "RSVP_TYPE" AS ENUM ('GOING', 'MAYBE', 'NOT_GOING');
+
+-- AlterTable
+ALTER TABLE "Rsvp" ADD COLUMN     "rsvpType" "RSVP_TYPE" NOT NULL DEFAULT 'GOING';

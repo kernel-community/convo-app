@@ -29,6 +29,12 @@ model Community {
   google      Google?
 }
 
+enum LocationType {
+  ONLINE
+  MAP
+  CUSTOM
+}
+
 model Event {
   id              String       @id @default(uuid())
   createdAt       DateTime     @default(now())
@@ -38,6 +44,7 @@ model Event {
   startDateTime   DateTime
   endDateTime     DateTime
   location        String
+  locationType    LocationType @default(ONLINE)
   hash            String // @note deprecated
   series          Boolean // @note deprecated
   limit           Int
@@ -105,14 +112,21 @@ model Collection {
 }
 
 model Rsvp {
-  id         String   @id @default(uuid())
-  createdAt  DateTime @default(now())
+  id         String    @id @default(uuid())
+  createdAt  DateTime  @default(now())
   eventId    String
-  event      Event    @relation(fields: [eventId], references: [id])
+  event      Event     @relation(fields: [eventId], references: [id])
   attendeeId String
-  attendee   User     @relation(fields: [attendeeId], references: [id])
+  attendee   User      @relation(fields: [attendeeId], references: [id])
+  rsvpType   RSVP_TYPE @default(GOING)
 
   @@unique([eventId, attendeeId])
+}
+
+enum RSVP_TYPE {
+  GOING
+  MAYBE
+  NOT_GOING
 }
 
 //////////////////
