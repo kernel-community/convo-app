@@ -12,17 +12,35 @@ export const revalidate = 3600; // revalidate every hour
 
 // Pre-generate important event pages
 export async function generateStaticParams() {
-  // Remove headers() call for static generation
-  const events = await fetch(
-    `${process.env.NEXT_PUBLIC_BASE_URL}/api/query/getActiveEvents`,
-    {
-      next: { revalidate: 3600 },
-    }
-  ).then((res) => res.json());
+  try {
+    const baseUrl =
+      process.env.NEXT_PUBLIC_BASE_URL ||
+      process.env.VERCEL_URL ||
+      "http://localhost:3000";
+    console.log("baseUrl: ", baseUrl);
+    const url = new URL("/api/query/getActiveEvents", baseUrl).toString();
 
-  return events.map((event: { hash: string }) => ({
-    eventHash: event.hash,
-  }));
+    const response = await fetch(url, {
+      next: { revalidate: 3600 },
+    });
+
+    if (!response.ok) {
+      console.error(
+        "Failed to fetch events:",
+        response.status,
+        response.statusText
+      );
+      return [];
+    }
+
+    const events = await response.json();
+    return events.map((event: { hash: string }) => ({
+      eventHash: event.hash,
+    }));
+  } catch (error) {
+    console.error("Error generating static params:", error);
+    return []; // Return empty array instead of failing build
+  }
 }
 
 export async function generateMetadata(
