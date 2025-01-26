@@ -1,6 +1,6 @@
 import { DateTime } from "luxon";
 import type { ICalRequestParams } from "./generateiCalString";
-import type { Event, Rsvp, User } from "@prisma/client";
+import type { Event, Rsvp, RSVP_TYPE, User } from "@prisma/client";
 import { sandwichDescriptionForCalendar } from "../sandwichDescriptionForCalendar";
 
 export type EventWithProposerAndRsvps = Event & {
@@ -14,10 +14,12 @@ export const generateiCalRequestFromEvent = ({
   event,
   recipientEmail,
   recipientName,
+  rsvpType,
 }: {
   event: EventWithProposerAndRsvps;
   recipientEmail: string;
   recipientName: string;
+  rsvpType: RSVP_TYPE;
 }): ICalRequestParams => {
   const sdt = DateTime.fromISO(event.startDateTime.toISOString(), {
     zone: "utc",
@@ -48,7 +50,10 @@ export const generateiCalRequestFromEvent = ({
       : "",
     location: event.location,
     sequence: event.sequence,
-    recipient: { email: recipientEmail },
+    recipient: {
+      email: recipientEmail,
+      rsvpType,
+    },
     rrule: event.rrule,
     allOtherrecipients: event.rsvps
       .map((rsvp) => ({
