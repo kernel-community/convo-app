@@ -2,7 +2,7 @@ import _ from "lodash";
 import { prisma } from "src/utils/db";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
-import { sendEventInviteEmail } from "src/utils/email/send";
+import { sendEventEmail } from "src/utils/email/send";
 import type { RSVP_TYPE } from "@prisma/client";
 import { rsvpTypeToEmailType } from "src/utils/rsvpTypetoEmailType";
 
@@ -74,7 +74,7 @@ export async function POST(req: NextRequest) {
     throw new Error(`user ${user.id} has no email`);
   }
   // send email to the attendee
-  const data = await sendEventInviteEmail({
+  const data = await sendEventEmail({
     receiver: user,
     type: rsvp.type ? rsvpTypeToEmailType(rsvp.type) : "invite-going",
     event: event,

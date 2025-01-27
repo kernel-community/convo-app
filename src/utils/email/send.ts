@@ -1,5 +1,5 @@
 // send email
-import type { RSVP_TYPE, User } from "@prisma/client";
+import type { User } from "@prisma/client";
 import type { CreateEmailOptions } from "resend";
 import type { EmailType } from "src/components/Email";
 import { getEmailTemplateFromType } from "src/components/Email";
@@ -10,7 +10,7 @@ import { generateiCalRequestFromEvent } from "../ical/generateiCalRequestFromEve
 import { EVENT_ORGANIZER_EMAIL } from "../constants";
 import { EVENT_ORGANIZER_NAME } from "../constants";
 import { emailTypeToRsvpType } from "../emailTypeToRsvpType";
-export const sendEventInviteEmail = async ({
+export const sendEventEmail = async ({
   receiver,
   event,
   type,
@@ -25,7 +25,7 @@ export const sendEventInviteEmail = async ({
     throw new Error(`receiver ${receiver.id} has no email`);
   }
 
-  const creator: Partial<EventWithProposerAndRsvps["proposer"]> = {
+  const hedwig: Partial<EventWithProposerAndRsvps["proposer"]> = {
     email: EVENT_ORGANIZER_EMAIL,
     nickname: EVENT_ORGANIZER_NAME,
   };
@@ -33,8 +33,8 @@ export const sendEventInviteEmail = async ({
   const iCal = await generateiCalString([
     await generateiCalRequestFromEvent({
       event:
-        type === "create"
-          ? { ...event, proposer: creator as User }
+        type === "create" || type === "update"
+          ? { ...event, proposer: hedwig as User }
           : type === "invite-not-going" || type === "invite-maybe"
           ? { ...event, sequence: event.sequence + 1 }
           : event,

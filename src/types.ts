@@ -38,7 +38,7 @@ export type Session = Pick<ServerEvent, "id" | "limit" | "rsvps"> & {
 };
 
 export type ClientEvent = Omit<ServerEvent, "startDateTime" | "endDateTime"> & {
-  sessions: Array<Session>; // @note deprecated; array of 1 session since rrule introduction; don't use this; use startDateTime, endDateTime and recurrenceRule instead
+  sessions: Array<Session>; // @note deprecated; array of 1 session since rrule introduction; don't use this; use dateTimeStartAndEnd and recurrenceRule instead
   totalUniqueRsvps: number;
   startDateTime: string;
   endDateTime: string;
@@ -110,6 +110,7 @@ export const clientEventInputValidationScheme = z.object({
   gCalEvent: z.boolean().default(true),
   hash: z.string().optional(),
   email: z.string().optional(),
+  id: z.string().optional(),
 });
 
 export type ClientEventInput = z.infer<typeof clientEventInputValidationScheme>;

@@ -1,5 +1,5 @@
 import { prisma } from "src/utils/db";
-import { sendEventInviteEmail } from "src/utils/email/send";
+import { sendEventEmail } from "src/utils/email/send";
 import { EmailType } from "@prisma/client";
 import { reminderEnumToEmailType } from "src/utils/emailTypeConversions";
 
@@ -75,7 +75,7 @@ export async function GET() {
 
           if (!reminderExists) {
             try {
-              await sendEventInviteEmail({
+              await sendEventEmail({
                 receiver: rsvp.attendee,
                 type: reminderEnumToEmailType(reminderType),
                 event: event,
@@ -104,7 +104,7 @@ export async function GET() {
 
           if (!proposerReminderExists) {
             try {
-              await sendEventInviteEmail({
+              await sendEventEmail({
                 receiver: event.proposer,
                 type: reminderEnumToEmailType(EmailType.REMINDER1HRPROPOSER),
                 event: event,

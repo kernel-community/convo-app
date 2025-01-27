@@ -1,32 +1,12 @@
 import _, { isNil } from "lodash";
 import { prisma } from "src/utils/db";
-import type { EventType } from "@prisma/client";
 import { nanoid } from "nanoid";
 import isProd from "src/utils/isProd";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { headers } from "next/headers";
 import type { ClientEventInput } from "src/types";
-import { sendEventInviteEmail } from "src/utils/email/send";
-
-export type Session = {
-  dateTime: Date;
-  duration: number;
-  count: number;
-};
-export type ClientEvent = {
-  description?: string | undefined;
-  title: string;
-  sessions: Session[];
-  limit: string;
-  location: string;
-  nickname?: string;
-  gCalEvent: boolean;
-  email?: string;
-  type?: EventType;
-  hash?: string;
-  recurrenceRule?: string;
-};
+import { sendEventEmail } from "src/utils/email/send";
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
@@ -75,7 +55,7 @@ export async function POST(req: NextRequest) {
       startDateTime: new Date(event.dateTimeStartAndEnd.start),
       endDateTime: new Date(event.dateTimeStartAndEnd.end),
       location: event.location,
-      hash, // to be deprecated
+      hash,
       series: !!event.recurrenceRule,
       rrule: event.recurrenceRule,
       proposerId: user.id,
@@ -102,7 +82,7 @@ export async function POST(req: NextRequest) {
   );
 
   // send email to the proposer
-  await sendEventInviteEmail({
+  await sendEventEmail({
     receiver: created.proposer,
     type: "create",
     event: created,

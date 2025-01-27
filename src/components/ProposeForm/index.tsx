@@ -91,8 +91,8 @@ const ProposeForm = ({ event }: { event?: ClientEventInput }) => {
           event: convoToCreateData,
         });
         if (!updated) throw "undefined response returned from `updated`";
-        if (!updated[0]) throw "empty array returned from `updated`";
-        push(`/rsvp/${updated[0]?.hash}`);
+        if (!updated) throw "empty object returned from `updated`";
+        push(`/rsvp/${updated.hash}`);
       } else {
         const created = await create({
           event: convoToCreateData,
@@ -200,14 +200,14 @@ const ProposeForm = ({ event }: { event?: ClientEventInput }) => {
         {/**
          * google calendar event creation checkbox
          * if isEditing -> display an info message saying that the google calendar event will be updated
-         * @todo @angelagilhotra display an option to delete the google calendar event
+         * @todo @angelagilhotra dislay an option to delete the google calendar event
          */}
         {isEditing && (
           <>
             {event.gCalEvent && (
               <div>
-                Google calendar event associated with this event will be
-                updated.
+                You will receive an email with the updated google calendar event
+                invite.
               </div>
             )}
           </>

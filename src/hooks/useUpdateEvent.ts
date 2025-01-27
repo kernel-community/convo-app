@@ -11,8 +11,7 @@ const updateEventInDb = async ({
 }: {
   event: ClientEventInput;
 }): Promise<{
-  updated: Array<FullEvent>;
-  deleted: Array<FullEvent>;
+  updated: FullEvent;
 }> => {
   let res;
   try {
@@ -53,13 +52,12 @@ const useUpdateEvent = () => {
     };
 
     // fetch array of events of the hash from db
-    let updated: Array<FullEvent> | undefined = undefined;
-    let deleted: Array<FullEvent> | undefined = undefined;
+    let updated: FullEvent | undefined = undefined;
     try {
-      ({ updated, deleted } = await updateEventInDb({
+      ({ updated } = await updateEventInDb({
         event: toUpdate,
       }));
-      const userId = updated[0]?.proposer.id; // hacky. fix this
+      const userId = updated.proposer.id; // hacky. fix this
       if (toCreate.sessions.length > 0) {
         // takes care of adding to gcal too
         await create({ event: toCreate, userId });

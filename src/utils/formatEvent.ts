@@ -11,9 +11,9 @@ const formatEvent = (event: Array<ServerEvent>): ClientEvent => {
     throw new Error("firstInSeries undefined");
   }
   const { startDateTime, endDateTime, proposer } = firstInSeries;
-
   return {
     ...firstInSeries,
+    id: firstInSeries.id,
     community: null, // @todo fix this
     recurrenceRule: firstInSeries.rrule || "",
     startDateTime: startDateTime.toISOString(),

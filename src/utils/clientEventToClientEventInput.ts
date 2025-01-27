@@ -5,8 +5,16 @@
 import type { ClientEvent, ClientEventInput } from "src/types";
 
 const parse = (event: ClientEvent): ClientEventInput => {
-  const { title, descriptionHtml, sessions, limit, location, nickname, hash } =
-    event;
+  const {
+    title,
+    descriptionHtml,
+    sessions,
+    limit,
+    location,
+    nickname,
+    hash,
+    id,
+  } = event;
   const parsedSessions: ClientEventInput["sessions"] = sessions.map(
     (session, key) => {
       const start = new Date(session.startDateTime);
@@ -20,6 +28,7 @@ const parse = (event: ClientEvent): ClientEventInput => {
     }
   );
   return {
+    id,
     title,
     description: descriptionHtml || "",
     sessions: parsedSessions,
