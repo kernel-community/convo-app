@@ -33,8 +33,7 @@ model Convo {
   limit           Int
   isDeleted       Boolean      @default(false)
   type            ConvoType    @default(JUNTO)
-  proposerId      String
-  proposer        User         @relation(fields: [proposerId], references: [id], onDelete: Cascade)
+  proposers       User[]
   rsvps           Rsvp[]
   collections     Collection[]
   reminders       Email[]
