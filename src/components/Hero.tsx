@@ -439,7 +439,7 @@ const Hero = ({
           isUserGoing={isUserGoing}
           isOwnerOfConvo={isOwnerOfConvo}
         />
-        {(true || isOwnerOfConvo) && event.totalUniqueRsvps > 0 && (
+        {(isUserGoing || isOwnerOfConvo) && event.totalUniqueRsvps > 0 && (
           <WhoElseIsGoing event={event} />
         )}
         {!isOwnerOfConvo && (
