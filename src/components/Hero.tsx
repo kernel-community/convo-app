@@ -158,15 +158,24 @@ const WhoElseIsGoing = ({
   isUserGoing,
   isOwnerOfConvo,
   className,
+  totalAvailableSeats,
+  totalSeats,
 }: {
   event: ClientEvent;
   isUserGoing: boolean;
   isOwnerOfConvo: boolean;
   className?: string;
+  totalAvailableSeats: number;
+  totalSeats: number;
 }) => {
   const [open, setOpen] = useState<boolean>(false);
   const { fetchedUser } = useUser();
   if (!isUserGoing && !isOwnerOfConvo) return null;
+  if (!fetchedUser?.isSignedIn) return null;
+  const filteredRsvps = event.uniqueRsvps.filter(
+    (rsvp) => rsvp.rsvpType !== RSVP_TYPE.NOT_GOING
+  );
+  const hasRsvps = filteredRsvps.length > 0;
   return (
     <>
       <Credenza open={open} onOpenChange={setOpen}>
@@ -180,7 +189,7 @@ const WhoElseIsGoing = ({
                 className="mb-4"
               />
             )}
-            {event.uniqueRsvps.map((rsvp, key) => {
+            {filteredRsvps.map((rsvp, key) => {
               const photo =
                 rsvp.attendee?.profile?.photo || DEFAULT_PROFILE_IMAGE;
               return (
@@ -213,7 +222,7 @@ const WhoElseIsGoing = ({
         </CredenzaContent>
       </Credenza>
       <Card
-        onClick={() => setOpen(!open)}
+        onClick={() => (hasRsvps ? setOpen(!open) : null)}
         className={cn(
           "cursor-pointer transition-shadow  duration-300 hover:shadow-lg",
           className
@@ -221,9 +230,16 @@ const WhoElseIsGoing = ({
       >
         <CardHeader>
           <CardTitle className="text-base">who else is going</CardTitle>
+          <CardDescription>
+            {totalAvailableSeats} of {totalSeats} seats available
+          </CardDescription>
         </CardHeader>
         <CardContent>
-          <ViewOtherRSVPs event={event} />
+          {hasRsvps ? (
+            <ViewOtherRSVPs event={event} />
+          ) : (
+            <div className="text-sm text-gray-500">No RSVPs yet</div>
+          )}
         </CardContent>
       </Card>
     </>
@@ -259,11 +275,13 @@ const RSVP = ({
   className,
   totalAvailableSeats,
   totalSeats,
+  isOwnerOfConvo,
 }: {
   event: ClientEvent;
   className?: string;
   totalAvailableSeats: number;
   totalSeats: number;
+  isOwnerOfConvo: boolean;
 }) => {
   const { rsvp } = useUserRsvpForConvo({ hash: event.hash });
   const { fetchedUser: user } = useUser();
@@ -296,6 +314,9 @@ const RSVP = ({
       ? RSVP_TYPE_MESSAGES[rsvp.rsvpType]
       : "You have not RSVPed yet";
   };
+  if (isOwnerOfConvo) {
+    return null;
+  }
   if (!fetchedUser?.isSignedIn) {
     return (
       <Card
@@ -479,12 +500,15 @@ const Hero = ({
           event={event}
           isUserGoing={isUserGoing}
           isOwnerOfConvo={isOwnerOfConvo}
+          totalAvailableSeats={totalAvailableSeats}
+          totalSeats={totalSeats}
         />
         <RSVP
           event={event}
           className="col-span-1 sm:col-span-3 lg:col-span-3"
           totalAvailableSeats={totalAvailableSeats}
           totalSeats={totalSeats}
+          isOwnerOfConvo={isOwnerOfConvo}
         />
       </div>
       {isImported && (
