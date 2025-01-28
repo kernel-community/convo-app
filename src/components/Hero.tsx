@@ -38,6 +38,8 @@ import Signature from "./EventPage/Signature";
 import FieldLabel from "./EventPage/RsvpConfirmationForm/FieldLabel";
 import LoginButton from "./LoginButton";
 import { rsvpTypeToEmoji } from "src/utils/rsvpTypeToEmoji";
+import { cleanupRruleString } from "src/utils/cleanupRruleString";
+import { rrulestr } from "rrule";
 
 const When = ({
   event,
@@ -99,6 +101,16 @@ const When = ({
             {", "}
             {getDateTimeString(event.startDateTime, "time")}
           </div>
+          {event.recurrenceRule && (
+            <div>
+              <span className="text-sm font-semibold text-gray-500">
+                repeats:{" "}
+              </span>
+              <span className="text-sm font-semibold text-gray-500">
+                {rrulestr(cleanupRruleString(event.recurrenceRule)).toText()}
+              </span>
+            </div>
+          )}
         </CardContent>
       </Card>
     </>
