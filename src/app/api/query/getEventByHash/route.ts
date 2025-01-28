@@ -8,9 +8,10 @@ export async function POST(req: NextRequest) {
   const body = await req.json();
   const { hash } = _.pick(body, ["hash"]);
   if (!hash) {
-    throw new Error("Hash undefined in req.body");
+    return NextResponse.json({ error: "Hash is required" }, { status: 400 });
   }
-  const event = await prisma.event.findMany({
+
+  const event = await prisma.event.findFirst({
     where: { hash },
     include: {
       proposer: true,
@@ -32,6 +33,11 @@ export async function POST(req: NextRequest) {
       },
     },
   });
-  const formattedEvent = formatEvent(event);
+
+  if (!event) {
+    return NextResponse.json({ error: "Event not found" }, { status: 404 });
+  }
+
+  const formattedEvent = formatEvent([event]);
   return NextResponse.json({ data: formattedEvent });
 }
