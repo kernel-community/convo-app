@@ -5,7 +5,7 @@ import Image from "next/image";
 
 export default function NotFound() {
   return (
-    <Main className="justify-center px-6 lg:px-52">
+    <Main className="justify-center self-center px-6 lg:px-52">
       <div className="flex flex-col items-center text-center sm:flex-row">
         <div className="flex flex-col items-center">
           <Image src={IdkImage} alt="404" width={200} height={200} />
