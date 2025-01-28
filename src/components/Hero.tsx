@@ -19,7 +19,6 @@ import {
   CredenzaFooter,
   CredenzaHeader,
   CredenzaTitle,
-  CredenzaTrigger,
 } from "src/components/ui/credenza";
 import { cn } from "src/lib/utils";
 import { useEffect, useState } from "react";
@@ -27,14 +26,12 @@ import { Button } from "./ui/button";
 import { useUser } from "src/context/UserContext";
 import { DEFAULT_PROFILE_IMAGE } from "src/utils/constants";
 import { EventCard, EventsView } from "./ui/event-list";
-import SubmitRsvpSection from "./EventPage/SubmitRsvpSection";
 import CopyButton from "./CopyButton";
 import { parseConvoLocation } from "src/utils/parseConvoLocation";
-import { useRsvpIntention } from "src/context/RsvpIntentionContext";
-import { DateTime } from "luxon";
 import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
 import { Label } from "./ui/label";
-import { RSVP_TYPE, User } from "@prisma/client";
+import type { User } from "@prisma/client";
+import { RSVP_TYPE } from "@prisma/client";
 import useUpdateRsvp from "src/hooks/useUpdateRsvp";
 import useUserRsvpForConvo from "src/hooks/useUserRsvpForConvo";
 import Signature from "./EventPage/Signature";
@@ -158,16 +155,18 @@ const Where = ({
 
 const WhoElseIsGoing = ({
   event,
+  isUserGoing,
+  isOwnerOfConvo,
   className,
 }: {
   event: ClientEvent;
+  isUserGoing: boolean;
+  isOwnerOfConvo: boolean;
   className?: string;
 }) => {
   const [open, setOpen] = useState<boolean>(false);
   const { fetchedUser } = useUser();
-  const isOwnerOfConvo = fetchedUser
-    ? fetchedUser.id === event.proposerId
-    : false;
+  if (!isUserGoing && !isOwnerOfConvo) return null;
   return (
     <>
       <Credenza open={open} onOpenChange={setOpen}>
@@ -237,12 +236,34 @@ const RSVP_TYPE_MESSAGES = {
   [RSVP_TYPE.NOT_GOING]: "You are currently marked as Not Going",
 } as const;
 
+const ConvoSeats = ({
+  totalAvailableSeats,
+  totalSeats,
+  isSignedIn,
+}: {
+  totalAvailableSeats: number;
+  totalSeats: number;
+  isSignedIn: boolean;
+}) => {
+  if (totalSeats === 0) return null;
+  return (
+    <div className="my-2 rounded-md border border-gray-500 p-2">
+      {totalAvailableSeats} of {totalSeats} seats available.{" "}
+      {isSignedIn ? `When you RSVP as "Maybe" a seat is reserved` : ""}
+    </div>
+  );
+};
+
 const RSVP = ({
   event,
   className,
+  totalAvailableSeats,
+  totalSeats,
 }: {
   event: ClientEvent;
   className?: string;
+  totalAvailableSeats: number;
+  totalSeats: number;
 }) => {
   const { rsvp } = useUserRsvpForConvo({ hash: event.hash });
   const { fetchedUser: user } = useUser();
@@ -287,6 +308,11 @@ const RSVP = ({
           <CardTitle className="text-base">Login to RSVP</CardTitle>
         </CardHeader>
         <CardContent>
+          <ConvoSeats
+            totalAvailableSeats={totalAvailableSeats}
+            totalSeats={totalSeats}
+            isSignedIn={false}
+          />
           <LoginButton className="w-full" />
         </CardContent>
       </Card>
@@ -310,6 +336,11 @@ const RSVP = ({
         </CardDescription>
       </CardHeader>
       <CardContent>
+        <ConvoSeats
+          totalAvailableSeats={totalAvailableSeats}
+          totalSeats={totalSeats}
+          isSignedIn={true}
+        />
         <RadioGroup className="flex flex-row gap-6 text-gray-500">
           <div
             className={cn(
@@ -403,8 +434,13 @@ const Hero = ({
     ? fetchedUser.id === event.proposerId
     : false;
   const { rsvp: userRsvp } = useUserRsvpForConvo({ hash: event.hash });
-  const isUserGoing = userRsvp ? userRsvp.rsvpType === RSVP_TYPE.GOING : false;
-  console.log({ isUserGoing });
+  const isUserGoing =
+    userRsvp?.rsvpType === RSVP_TYPE.GOING ||
+    userRsvp?.rsvpType === RSVP_TYPE.MAYBE;
+  const totalAvailableSeats =
+    event.limit -
+    event.rsvps.filter((rsvp) => rsvp.rsvpType !== RSVP_TYPE.NOT_GOING).length;
+  const totalSeats = event.limit;
   return (
     <div className="flex flex-col justify-items-start">
       <div
@@ -439,15 +475,17 @@ const Hero = ({
           isUserGoing={isUserGoing}
           isOwnerOfConvo={isOwnerOfConvo}
         />
-        {(isUserGoing || isOwnerOfConvo) && event.totalUniqueRsvps > 0 && (
-          <WhoElseIsGoing event={event} />
-        )}
-        {!isOwnerOfConvo && (
-          <RSVP
-            event={event}
-            className="col-span-1 sm:col-span-3 lg:col-span-3"
-          />
-        )}
+        <WhoElseIsGoing
+          event={event}
+          isUserGoing={isUserGoing}
+          isOwnerOfConvo={isOwnerOfConvo}
+        />
+        <RSVP
+          event={event}
+          className="col-span-1 sm:col-span-3 lg:col-span-3"
+          totalAvailableSeats={totalAvailableSeats}
+          totalSeats={totalSeats}
+        />
       </div>
       {isImported && (
         <InfoBox type="warning">

@@ -35,7 +35,7 @@ const useUserRsvpForConvo = ({
     },
     {
       enabled: !dontFetch && !!user.id,
-      refetchInterval: 5000,
+      refetchInterval: 5000, // imma fetch SOOOOO FAAASTTTT (5 seconds)
     }
   );
 

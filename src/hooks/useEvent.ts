@@ -23,7 +23,7 @@ const useEvent = ({ hash }: { hash?: string | string[] }) => {
       }
     },
     {
-      refetchInterval: 60000,
+      refetchInterval: 3000,
       enabled: !!hash,
     }
   );
