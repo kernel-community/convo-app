@@ -76,7 +76,7 @@ const EventWrapper = ({
         <div className="flex flex-row items-center">
           <Hero isImported={isImported} isDeleted={isDeleted} event={event} />
         </div>
-        <div className="mt-24 grid grid-cols-1 gap-12 lg:grid-cols-3">
+        <div className="mt-6 grid grid-cols-1 gap-12 lg:grid-cols-3">
           <EventDetails html={descriptionHtml} proposer={proposer} />
         </div>
       </div>
