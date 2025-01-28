@@ -3,7 +3,7 @@ import { prisma } from "src/utils/db";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { sendEventEmail } from "src/utils/email/send";
-import type { RSVP_TYPE } from "@prisma/client";
+import { RSVP_TYPE } from "@prisma/client";
 import { rsvpTypeToEmailType } from "src/utils/rsvpTypetoEmailType";
 
 type RsvpRequest = {
@@ -36,9 +36,10 @@ export async function POST(req: NextRequest) {
       },
     },
   });
-  console.log({ event });
   const eventLimit = event.limit;
-  const eventRsvpsLength = event.rsvps.length;
+  const eventRsvpsLength = event.rsvps.filter(
+    (rsvp) => rsvp.rsvpType !== RSVP_TYPE.NOT_GOING
+  ).length;
   if (eventLimit !== 0 && eventRsvpsLength >= eventLimit) {
     return NextResponse.json({ data: "Limit reached. RSVP not allowed!" });
   }
