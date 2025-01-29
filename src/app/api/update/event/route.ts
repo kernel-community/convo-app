@@ -7,6 +7,7 @@ import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { sendEventEmail } from "src/utils/email/send";
 import type { ClientEventInput } from "src/types";
+import { RSVP_TYPE } from "@prisma/client";
 export async function POST(req: NextRequest) {
   const body = await req.json();
   const {
@@ -51,12 +52,41 @@ export async function POST(req: NextRequest) {
     },
   });
 
-  // send email for event update
+  console.log(`Sending email to proposer`);
+  // send email to the proposer
   await sendEventEmail({
     receiver: updated.proposer,
-    type: "update",
+    type: "update-proposer",
     event: updated,
   });
+
+  console.log(`Sending email to attendees marked as going`);
+  // send update emails to all attendees marked as "going"
+  await Promise.all(
+    updated.rsvps
+      .filter((rsvp) => rsvp.rsvpType === RSVP_TYPE.GOING)
+      .map((rsvp) =>
+        sendEventEmail({
+          receiver: rsvp.attendee,
+          type: "update-attendee-going",
+          event: updated,
+        })
+      )
+  );
+
+  console.log(`Sending email to attendees marked as maybe`);
+  // send update emails to all attendees marked as "maybe"
+  await Promise.all(
+    updated.rsvps
+      .filter((rsvp) => rsvp.rsvpType === RSVP_TYPE.MAYBE)
+      .map((rsvp) =>
+        sendEventEmail({
+          receiver: rsvp.attendee,
+          type: "update-attendee-maybe",
+          event: updated,
+        })
+      )
+  );
 
   return NextResponse.json({
     data: { updated },
