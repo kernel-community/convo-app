@@ -243,7 +243,9 @@ const WhoElseIsGoing = ({
         <CardHeader>
           <CardTitle className="text-base">who else is going</CardTitle>
           <CardDescription>
-            {totalAvailableSeats} of {totalSeats} seats available
+            {totalSeats > 0
+              ? `${totalAvailableSeats} of ${totalSeats} seats available`
+              : "No Seat Limit"}
           </CardDescription>
         </CardHeader>
         <CardContent>
