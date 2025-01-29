@@ -5,7 +5,6 @@ import { useEffect } from "react";
 import type { ClientEvent } from "src/types";
 import { useInfiniteQuery } from "react-query";
 import { useInView } from "react-intersection-observer";
-import { DateTime } from "luxon";
 import { useUser } from "src/context/UserContext";
 import { useState } from "react";
 import type { EventsRequest } from "src/types";
@@ -52,6 +51,12 @@ export const Events = ({
   const [filterObject, setFilterObject] =
     useState<EventsRequest["filter"]>(preFilterObject);
   const { ref, inView } = useInView();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const {
     isLoading,
     isError,
@@ -65,7 +70,7 @@ export const Events = ({
     async ({ pageParam = "" }) => {
       const requestObject: EventsRequest = {
         type,
-        now: DateTime.now().toJSDate(),
+        now: new Date(),
         take,
         fromId: pageParam,
         filter: filterObject,
@@ -83,80 +88,55 @@ export const Events = ({
       getNextPageParam: (lastPage) => {
         return lastPage.nextId ?? false;
       },
-      refetchInterval: 60000, // refetch every minute
+      refetchInterval: 60000,
+      enabled: mounted,
     }
   );
+
   useEffect(() => {
     if (inView && hasNextPage) {
       fetchNextPage();
     }
-  }, [inView]);
+  }, [inView, hasNextPage, fetchNextPage]);
+
+  if (!mounted) {
+    return (
+      <div>
+        <Title text={title} highlight={highlight} className="mb-3" />
+        <div className="flex flex-col gap-4 py-3 sm:flex-row sm:flex-wrap">
+          <EventLoadingState />
+          <EventLoadingState />
+          <EventLoadingState />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div>
       <Title text={title} highlight={highlight} className="mb-3" />
-      {user.isSignedIn && showFilterPanel && (
+      {user?.isSignedIn && showFilterPanel && (
         <div className="my-8 flex flex-row gap-12">
           <FilterButton
             text="all"
-            onClick={() => {
-              return setFilterObject(undefined);
-            }}
+            onClick={() => setFilterObject(undefined)}
             active={!filterObject}
           />
           <FilterButton
             text="by me"
-            onClick={() => {
-              return setFilterObject({
-                proposerId: user.id,
-              });
-            }}
+            onClick={() => setFilterObject({ proposerId: user.id })}
             active={!!filterObject?.proposerId}
           />
           <FilterButton
             text="my rsvps"
-            onClick={() => {
-              return setFilterObject({
-                proposerId: undefined,
-                rsvpUserId: user.id,
-              });
-            }}
+            onClick={() =>
+              setFilterObject({ proposerId: undefined, rsvpUserId: user.id })
+            }
             active={!!filterObject?.rsvpUserId}
           />
         </div>
       )}
-      {data && (
-        <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
-          {data.pages.map((page) =>
-            page.data.map((u: ClientEvent, k: Key) => {
-              return (
-                <a href={`/rsvp/${u.hash}`} key={k}>
-                  <Card
-                    title={u.title}
-                    description={u.descriptionHtml ?? ""}
-                    startDateTime={u.startDateTime}
-                    RSVP={u.totalUniqueRsvps}
-                    limit={u.limit}
-                    by={u.nickname || "anonymous"}
-                    isSeries={u.series}
-                  />
-                </a>
-              );
-            })
-          )}
-          {isLoading || (isFetching && <EventLoadingState />)}
-          {!isLoading &&
-            !isFetching &&
-            data &&
-            data.pages[0].data &&
-            data.pages[0].data.length === 0 && (
-              <div className="font-primary lowercase">
-                no events to display here
-              </div>
-            )}
-          {isError && <div>There was an error in fetching</div>}
-          {isFetchingNextPage && <div></div>}
-        </div>
-      )}
+
       {(!data || isLoading || isFetching) && (
         <div className="flex flex-col gap-4 py-3 sm:flex-row sm:flex-wrap">
           <EventLoadingState />
@@ -165,7 +145,36 @@ export const Events = ({
         </div>
       )}
 
-      {infinite && infinite === true && (
+      {data && !isLoading && !isFetching && (
+        <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+          {data.pages.map((page) =>
+            page.data.map((u: ClientEvent, k: Key) => (
+              <a href={`/rsvp/${u.hash}`} key={k}>
+                <Card
+                  title={u.title}
+                  description={u.descriptionHtml ?? ""}
+                  startDateTime={u.startDateTime}
+                  RSVP={u.totalUniqueRsvps}
+                  limit={u.limit}
+                  by={u.nickname || "anonymous"}
+                  isSeries={u.series}
+                />
+              </a>
+            ))
+          )}
+          {data.pages[0].data.length === 0 && (
+            <div className="font-primary lowercase">
+              no events to display here
+            </div>
+          )}
+        </div>
+      )}
+
+      {isError && (
+        <div className="text-red-500">There was an error fetching events</div>
+      )}
+
+      {infinite && (
         <div ref={ref} className="invisible">
           Intersection Observer Marker
         </div>
