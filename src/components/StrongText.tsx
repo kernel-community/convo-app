@@ -14,7 +14,7 @@ const FieldLabel = ({
       text-sm
       font-semibold
       uppercase
-      text-gray-800
+      text-gray-800 dark:text-[#DCDCDC]
       ${styles}
     `}
     >

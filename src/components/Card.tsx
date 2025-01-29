@@ -13,10 +13,10 @@ export const CardTemplate = ({ children }: { children: ReactNode }) => {
     flex-col rounded-xl
     bg-card-one
     p-4
-    text-primary-muted
-    transition-shadow
+    text-primary-muted transition-shadow
     duration-300
-    ease-in-out hover:shadow-outline
+    ease-in-out
+    hover:shadow-outline dark:text-primary-dark
     sm:m-0 sm:h-64 sm:w-64
     lg:w-72
     `}
@@ -94,6 +94,7 @@ export const Card = ({
             font-heading
             text-lg
             text-white
+            dark:text-primary-dark
             sm:text-xl
           "
           >

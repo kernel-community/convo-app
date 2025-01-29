@@ -10,7 +10,9 @@ export const ConnectButton = () => {
       <div className="mb-1">
         <a href="/profile">
           <span className="text-slate-400">Signing as</span>{" "}
-          <span className="text-slate-200">{user.nickname}</span>
+          <span className="text-slate-200 dark:text-primary-dark">
+            {user.nickname}
+          </span>
         </a>
       </div>
     );

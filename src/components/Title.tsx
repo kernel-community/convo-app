@@ -11,7 +11,8 @@ export const Title = ({
     <div
       className={
         `
-      mx-auto font-secondary text-xl text-primary sm:text-4xl` + ` ${className}`
+      mx-auto font-secondary text-xl text-primary dark:text-primary-dark sm:text-4xl` +
+        ` ${className}`
       }
     >
       {text && text}

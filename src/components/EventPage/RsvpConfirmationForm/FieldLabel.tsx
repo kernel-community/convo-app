@@ -13,7 +13,7 @@ const FieldLabel = ({
       font-secondary
       text-sm
       uppercase
-      text-gray-800
+      text-gray-800 dark:text-[#DCDCDC]
       ${styles}
     `}
     >

@@ -40,3 +40,7 @@ yarn-error.log*
 
 # typescript
 *.tsbuildinfo
+
+# package manager
+pnpm-lock.yaml
+yarn.lock

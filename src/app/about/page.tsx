@@ -46,7 +46,7 @@ const About: NextPage = () => {
             font-heading
             text-4xl
             font-extrabold
-            text-primary
+            text-primary dark:text-primary-dark
             sm:text-5xl
           "
             >
@@ -67,7 +67,7 @@ const About: NextPage = () => {
                       {faq.question}
                     </h1>
                   </Link>
-                  <article className="prose prose-lg">
+                  <article className="prose prose-lg dark:prose-invert">
                     <div
                       dangerouslySetInnerHTML={createMarkup(faq.answer)}
                     ></div>

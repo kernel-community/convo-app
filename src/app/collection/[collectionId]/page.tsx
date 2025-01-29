@@ -22,7 +22,7 @@ const Post = ({ params }: { params: { collectionId: string } }) => {
               text-5xl
               font-bold
               lowercase
-              text-primary
+              text-primary dark:text-primary-dark
               lg:py-5
             "
       >

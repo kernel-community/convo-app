@@ -22,6 +22,7 @@ export const Article = ({
       className={`
           prose
           font-primary
+          dark:prose-invert
           sm:prose-lg
           md:prose-xl
         `}

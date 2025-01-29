@@ -5,7 +5,7 @@ const Footer = () => {
     w-full
     bg-kernel py-5
     font-secondary
-    text-primary-muted
+    text-primary-muted dark:text-primary-dark
     `}
     >
       <div className="flex flex-row items-center justify-center">
