@@ -3,9 +3,11 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
+export type Theme = "dark" | "light" | "sunset" | null;
+
 export interface ThemeState {
-  theme: "dark" | "light" | null;
-  toggleTheme: () => void;
+  theme: Theme;
+  setTheme: (theme: Theme) => void;
   initialTheme: () => void;
 }
 
@@ -13,18 +15,19 @@ export const useThemeStore = create(
   persist<ThemeState>(
     (set, get) => ({
       theme: null,
-      toggleTheme: () =>
+      setTheme: (newTheme: Theme) =>
         set((state) => {
-          let newTheme = state.theme;
-          if (typeof window === "undefined") state.theme;
-          if (state.theme === "dark") {
-            document.documentElement.classList.remove("dark");
-            newTheme = "light";
-          } else {
-            document.documentElement.classList.add("dark");
-            newTheme = "dark";
+          if (typeof window === "undefined") return { theme: state.theme };
+
+          // Remove all theme classes first
+          document.documentElement.classList.remove("light", "dark", "sunset");
+
+          // Add the new theme class if it's not light
+          if (newTheme && newTheme !== "light") {
+            document.documentElement.classList.add(newTheme);
           }
-          document.body.setAttribute("data-dynamic-theme", newTheme);
+
+          document.body.setAttribute("data-dynamic-theme", newTheme || "light");
           return { theme: newTheme };
         }),
       initialTheme: () => {
@@ -33,16 +36,23 @@ export const useThemeStore = create(
         const preferedTheme = window.matchMedia("(prefers-color-scheme: dark)")
           .matches
           ? "dark"
-          : ("light" as "dark" | "light");
+          : ("light" as Theme);
+
         if (!theme) {
           theme = preferedTheme;
           set({ theme: preferedTheme });
-        } else if (theme === "dark") {
-          document.documentElement.classList.add("dark");
-        } else {
-          document.documentElement.classList.remove("dark");
         }
-        document.body.setAttribute("data-dynamic-theme", theme);
+
+        // Remove all theme classes first
+        document.documentElement.classList.remove("light", "dark", "sunset");
+
+        // Add the appropriate theme class and set attribute only if theme is not null
+        if (theme) {
+          if (theme !== "light") {
+            document.documentElement.classList.add(theme);
+          }
+          document.body.setAttribute("data-dynamic-theme", theme);
+        }
       },
     }),
     {
@@ -53,10 +63,10 @@ export const useThemeStore = create(
 
 const selectors = {
   theme: (state: ThemeState) => state.theme,
-  toggleTheme: (state: ThemeState) => state.toggleTheme,
-  initialThme: (state: ThemeState) => state.initialTheme,
+  setTheme: (state: ThemeState) => state.setTheme,
+  initialTheme: (state: ThemeState) => state.initialTheme,
 };
 
 export const useTheme = () => useThemeStore(selectors.theme);
-export const useToggleTheme = () => useThemeStore(selectors.toggleTheme);
-export const useInitialTheme = () => useThemeStore(selectors.initialThme);
+export const useSetTheme = () => useThemeStore(selectors.setTheme);
+export const useInitialTheme = () => useThemeStore(selectors.initialTheme);

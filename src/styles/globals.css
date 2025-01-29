@@ -143,6 +143,36 @@
     --input: 12 6.5% 15.1%;
     --ring: 24 5.7% 82.9%;
   }
+
+  .sunset {
+    --background: 35 100% 98%;
+    --foreground: 20 14.3% 4.1%;
+
+    --card: 35 100% 96%;
+    --card-foreground: 20 14.3% 4.1%;
+
+    --popover: 35 100% 98%;
+    --popover-foreground: 20 14.3% 4.1%;
+
+    --primary: 20 80% 48%;
+    --primary-foreground: 60 9.1% 97.8%;
+
+    --secondary: 35 100% 94%;
+    --secondary-foreground: 24 9.8% 10%;
+
+    --muted: 35 100% 94%;
+    --muted-foreground: 25 5.3% 44.7%;
+
+    --accent: 20 80% 48%;
+    --accent-foreground: 60 9.1% 97.8%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 60 9.1% 97.8%;
+
+    --border: 35 100% 90%;
+    --input: 35 100% 90%;
+    --ring: 20 80% 48%;
+  }
 }
 
 @layer base {
