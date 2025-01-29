@@ -12,7 +12,10 @@ export async function POST(req: NextRequest) {
   }
 
   const event = await prisma.event.findFirst({
-    where: { hash },
+    where: {
+      hash,
+      isDeleted: false,
+    },
     include: {
       proposer: true,
       rsvps: {

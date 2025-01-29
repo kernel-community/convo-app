@@ -5,6 +5,7 @@ import useEvent from "src/hooks/useEvent";
 import Main from "src/layouts/Main";
 import parse from "src/utils/clientEventToClientEventInput";
 import { Button } from "src/components/ui/button";
+import useDeleteEvent from "src/hooks/useDeleteEvent";
 import useUpdateEvent from "src/hooks/useUpdateEvent";
 import { useUser } from "src/context/UserContext";
 import NotAllowedPage from "src/components/NotAllowedPage";
@@ -17,8 +18,9 @@ import type { ClientEventInput } from "src/types";
 const Edit = ({ params }: { params: { eventHash: string } }) => {
   const { push } = useRouter();
   const { eventHash } = params;
-  const { data } = useEvent({ hash: eventHash });
+  const { data } = useEvent({ hash: eventHash, dontFetch: true });
   const { update, isSubmitting: isLoading } = useUpdateEvent();
+  const { deleteEvent, isDeleting } = useDeleteEvent();
   const { fetchedUser: user } = useUser();
   const [isInvalidRequest, setInvalidRequest] = useState(false);
   const [openModalFlag, setOpenModalFlag] = useState<boolean>(false);
@@ -47,14 +49,12 @@ const Edit = ({ params }: { params: { eventHash: string } }) => {
     );
   }
 
-  const deleteEvent = async () => {
-    const event = {
-      ...clientEventInput,
-      sessions: [],
-      hash: eventHash as string,
-    };
-    await update({ event });
-    push(`/rsvp/${event.hash}`);
+  const handleDelete = async () => {
+    const success = await deleteEvent(eventHash);
+    if (success) {
+      // Redirect to home page after successful deletion
+      push("/");
+    }
   };
 
   return (
@@ -63,8 +63,8 @@ const Edit = ({ params }: { params: { eventHash: string } }) => {
         <ConfirmDeleteCredenza
           openModalFlag={openModalFlag}
           setOpenModalFlag={setOpenModalFlag}
-          action={deleteEvent}
-          isLoading={isLoading}
+          action={handleDelete}
+          isLoading={isDeleting}
         />
         <div className="flex flex-col items-center justify-center lg:px-64">
           <div className="flex w-full flex-col items-center justify-between sm:flex-row">
