@@ -20,9 +20,17 @@ import {
   SUBJECT as InviteNotGoingEmailTemplateSubject,
 } from "./templates/InviteNotGoing";
 import {
-  UpdateEmailTemplate,
-  SUBJECT as UpdateEmailTemplateSubject,
-} from "./templates/Update";
+  UpdateProposerEmailTemplate,
+  SUBJECT as UpdateProposerEmailTemplateSubject,
+} from "./templates/UpdateProposer";
+import {
+  UpdateAttendeeGoingEmailTemplate,
+  SUBJECT as UpdateAttendeeGoingEmailTemplateSubject,
+} from "./templates/UpdateAttendeeGoing";
+import {
+  UpdateAttendeeMaybeEmailTemplate,
+  SUBJECT as UpdateAttendeeMaybeEmailTemplateSubject,
+} from "./templates/UpdateAttendeeMaybe";
 import {
   Reminder1hrEmailTemplate,
   SUBJECT as Reminder1hrEmailTemplateSubject,
@@ -35,6 +43,14 @@ import {
   Reminder1hrProposerEmailTemplate,
   SUBJECT as Reminder1hrProposerEmailTemplateSubject,
 } from "./templates/Reminder1hrProposer";
+import {
+  DeletedAttendeeEmailTemplate,
+  SUBJECT as DeletedAttendeeEmailTemplateSubject,
+} from "./templates/DeletedAttendee";
+import {
+  DeletedProposerEmailTemplate,
+  SUBJECT as DeletedProposerEmailTemplateSubject,
+} from "./templates/DeletedProposer";
 
 export interface EmailTemplateProps {
   firstName: string;
@@ -42,14 +58,18 @@ export interface EmailTemplateProps {
 
 export type EmailType =
   | "create"
-  | "update"
+  | "update-proposer"
+  | "update-attendee-going"
+  | "update-attendee-maybe"
   | "reminder24hr"
   | "reminder1hr"
   | "reminder1min"
   | "reminder1hrProposer"
   | "invite-going"
   | "invite-maybe"
-  | "invite-not-going";
+  | "invite-not-going"
+  | "deleted-proposer"
+  | "deleted-attendee";
 
 export const getEmailTemplateFromType = (
   type: EmailType,
@@ -79,10 +99,20 @@ export const getEmailTemplateFromType = (
         template: InviteNotGoingEmailTemplate(props),
         subject: InviteNotGoingEmailTemplateSubject,
       };
-    case "update":
+    case "update-proposer":
       return {
-        template: UpdateEmailTemplate(props),
-        subject: UpdateEmailTemplateSubject,
+        template: UpdateProposerEmailTemplate(props),
+        subject: UpdateProposerEmailTemplateSubject,
+      };
+    case "update-attendee-going":
+      return {
+        template: UpdateAttendeeGoingEmailTemplate(props),
+        subject: UpdateAttendeeGoingEmailTemplateSubject,
+      };
+    case "update-attendee-maybe":
+      return {
+        template: UpdateAttendeeMaybeEmailTemplate(props),
+        subject: UpdateAttendeeMaybeEmailTemplateSubject,
       };
     case "reminder24hr":
       return {
@@ -103,6 +133,16 @@ export const getEmailTemplateFromType = (
       return {
         template: Reminder1hrProposerEmailTemplate(props),
         subject: Reminder1hrProposerEmailTemplateSubject,
+      };
+    case "deleted-attendee":
+      return {
+        template: DeletedAttendeeEmailTemplate(props),
+        subject: DeletedAttendeeEmailTemplateSubject,
+      };
+    case "deleted-proposer":
+      return {
+        template: DeletedProposerEmailTemplate(props),
+        subject: DeletedProposerEmailTemplateSubject,
       };
     default:
       throw new Error(`Unknown email type: ${type}`);
