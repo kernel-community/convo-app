@@ -34,10 +34,18 @@ const ProposeForm = ({ event }: { event?: ClientEventInput }) => {
   } = useForm<ClientEventInput>({
     resolver: zodResolver(clientEventInputValidationScheme),
     defaultValues: useMemo(() => {
-      const DEFAULT_EVENT: Partial<ClientEventInput> = event || {
+      // If we have an event, use its values
+      if (event) return event;
+
+      // Otherwise, create default values
+      const now = new Date(); // Use a single date instance
+      const twoHoursFromNow = new Date(now.getTime() + 2 * 60 * 60 * 1000);
+      const threeHoursFromNow = new Date(now.getTime() + 3 * 60 * 60 * 1000);
+
+      return {
         sessions: [
           {
-            dateTime: new Date(),
+            dateTime: now,
             duration: 1,
             count: 0,
           },
@@ -46,16 +54,11 @@ const ProposeForm = ({ event }: { event?: ClientEventInput }) => {
         gCalEvent: true,
         email: user.email ?? "",
         dateTimeStartAndEnd: {
-          start: DateTime.now().plus({ hours: 2 }).startOf("hour").toJSDate(),
-          end: DateTime.now()
-            .plus({ hours: 2 })
-            .startOf("hour")
-            .plus({ hours: 1 })
-            .toJSDate(),
+          start: twoHoursFromNow,
+          end: threeHoursFromNow,
         },
         recurrenceRule: "",
       };
-      return DEFAULT_EVENT;
     }, [event, user]),
   });
 

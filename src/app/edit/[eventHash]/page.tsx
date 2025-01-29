@@ -18,7 +18,10 @@ import type { ClientEventInput } from "src/types";
 const Edit = ({ params }: { params: { eventHash: string } }) => {
   const { push } = useRouter();
   const { eventHash } = params;
-  const { data } = useEvent({ hash: eventHash, dontFetch: true });
+  const { data, isLoading: isEventLoading } = useEvent({
+    hash: eventHash,
+    dontFetch: true,
+  });
   const { update, isSubmitting: isLoading } = useUpdateEvent();
   const { deleteEvent, isDeleting } = useDeleteEvent();
   const { fetchedUser: user } = useUser();
@@ -36,6 +39,21 @@ const Edit = ({ params }: { params: { eventHash: string } }) => {
       setInvalidRequest(true);
     }
   }, [user, data]);
+
+  if (isEventLoading || !user) {
+    return (
+      <Main>
+        <div className="flex flex-col items-center justify-center lg:px-64">
+          <div className="flex w-full flex-col items-center justify-between sm:flex-row">
+            <div className="px-8 font-heading text-4xl font-extrabold text-primary dark:text-primary-dark sm:text-5xl">
+              <Skeleton className="h-12 w-64" />
+            </div>
+          </div>
+          <div className="my-12 w-full border border-primary dark:border-primary-dark"></div>
+        </div>
+      </Main>
+    );
+  }
 
   if (!clientEventInput) {
     return <div>not found</div>;

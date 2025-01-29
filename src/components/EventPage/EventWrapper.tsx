@@ -92,20 +92,45 @@ const EventWrapperWrapper = ({ eventHash }: { eventHash: string }) => {
     data: fetchedEventData,
   } = useEvent({ hash: eventHash });
 
-  const isEditable =
-    user && fetchedEventData ? user.id === fetchedEventData.proposerId : false;
+  // Show loading state while data or user is loading
+  if (isLoading || !user) {
+    return (
+      <div className="container animate-pulse">
+        <div className="flex flex-row items-center">
+          <div className="h-32 w-full rounded-lg bg-gray-200 dark:bg-gray-700" />
+        </div>
+        <div className="mt-6 grid grid-cols-1 gap-12 lg:grid-cols-3">
+          <div className="h-64 rounded-lg bg-gray-200 dark:bg-gray-700" />
+        </div>
+      </div>
+    );
+  }
+
+  // Show error state
+  if (isError) {
+    return (
+      <div className="container">
+        <div className="flex flex-col items-center justify-center gap-4 py-12">
+          <h2 className="text-2xl font-bold">Failed to load event</h2>
+          <p>Please try refreshing the page</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Only render when we have both user and event data
+  if (!fetchedEventData) {
+    return null;
+  }
+
+  const isEditable = user.id === fetchedEventData.proposerId;
 
   return (
-    <>
-      {!isLoading && !isError && fetchedEventData && (
-        <EventWrapper
-          event={fetchedEventData}
-          isEditable={isEditable}
-          // hostname={hostname}
-          eventHash={eventHash}
-        />
-      )}
-    </>
+    <EventWrapper
+      event={fetchedEventData}
+      isEditable={isEditable}
+      eventHash={eventHash}
+    />
   );
 };
 

@@ -70,18 +70,8 @@ const Post = async ({ params }: Props) => {
   const scheme =
     host.includes("localhost") || host.includes("127.0.0.1") ? "http" : "https";
 
-  const response = await fetch(`${scheme}://${host}/api/query/getEventByHash`, {
-    body: JSON.stringify({ hash: params.eventHash }),
-    method: "POST",
-    headers: { "Content-type": "application/json" },
-  });
-
-  if (!response.ok) {
-    notFound();
-  }
-
-  const { data: event } = await response.json();
-
+  // Move the data fetching to the client component (EventWrapper)
+  // This prevents hydration issues by ensuring consistent rendering
   return (
     <Main className="px-6 lg:px-52">
       <EventWrapper eventHash={params.eventHash} />
