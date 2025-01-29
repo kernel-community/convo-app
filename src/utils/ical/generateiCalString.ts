@@ -16,8 +16,15 @@ export const generateEventString = ({
   description,
   location,
   sequence,
+  status = "CONFIRMED",
 }: // allOtherrecipients,
 ICalRequestParams) => {
+  // For cancelled events, always set PARTSTAT to DECLINED
+  const partstat =
+    status === "CANCELLED"
+      ? "DECLINED"
+      : rsvpTypeToPartStat(recipient.rsvpType as RSVP_TYPE);
+
   const event =
     `BEGIN:VEVENT
 DTSTART:${start}
@@ -26,14 +33,12 @@ DTSTAMP:${start}` +
     `${rrule ? `\n${rrule}\n` : `\n`}` +
     `ORGANIZER;CN="${organizer.name}":mailto:${organizer.email}
 UID:${uid}@evts.convo.cafe
-ATTENDEE;CUTYPE=INDIVIDUAL;ROLE=REQ-PARTICIPANT;PARTSTAT=${rsvpTypeToPartStat(
-      recipient.rsvpType as RSVP_TYPE
-    )};CN=${recipient.email};X-NUM-GUESTS=0:mailto:${recipient.email}
+ATTENDEE;CUTYPE=INDIVIDUAL;ROLE=REQ-PARTICIPANT;PARTSTAT=${partstat};CN=${recipient.email};X-NUM-GUESTS=0:mailto:${recipient.email}
 SUMMARY:${title}
 DESCRIPTION:${description}
 LOCATION:${location}
 SEQUENCE:${sequence}
-STATUS:CONFIRMED
+STATUS:${status}
 END:VEVENT`;
   return event;
 };
@@ -56,9 +61,10 @@ export type ICalRequestParams = {
   sequence: number;
   rrule?: string | null;
   allOtherrecipients: Array<{ name: string; email: string }>;
+  status: "TENTATIVE" | "CONFIRMED" | "CANCELLED";
 };
-// works for google/gmail
 export const generateiCalString = (events: Array<ICalRequestParams>) => {
+  // Use REQUEST as default method, individual event statuses will handle cancellations
   const iCal = `BEGIN:VCALENDAR
 VERSION:2.0
 CALSCALE:GREGORIAN

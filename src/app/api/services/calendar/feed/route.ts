@@ -49,6 +49,7 @@ export async function GET(req: NextRequest) {
         name: event.proposer.nickname,
         email: EVENT_ORGANIZER_EMAIL,
       },
+      status: event.isDeleted ? "CANCELLED" : "CONFIRMED",
       uid: event.id,
       title: event.title,
       description: event.descriptionHtml || "",

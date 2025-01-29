@@ -1,6 +1,6 @@
 import { DateTime } from "luxon";
 import type { ICalRequestParams } from "./generateiCalString";
-import type { Event, Rsvp, RSVP_TYPE, User } from "@prisma/client";
+import { Event, Rsvp, RSVP_TYPE, User } from "@prisma/client";
 import { sandwichDescriptionForCalendar } from "../sandwichDescriptionForCalendar";
 
 export type EventWithProposerAndRsvps = Event & {
@@ -52,9 +52,13 @@ export const generateiCalRequestFromEvent = ({
     sequence: event.sequence,
     recipient: {
       email: recipientEmail,
-      rsvpType,
+      rsvpType: event.isDeleted ? RSVP_TYPE.NOT_GOING : rsvpType,
     },
     rrule: event.rrule,
+    status:
+      event.isDeleted || rsvpType === RSVP_TYPE.NOT_GOING
+        ? "CANCELLED"
+        : "CONFIRMED",
     allOtherrecipients: event.rsvps
       .map((rsvp) => ({
         name: rsvp.attendee.nickname,
