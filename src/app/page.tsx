@@ -30,33 +30,11 @@ const Home = () => {
               lg:text-7xl
             "
           >
-            Convo.
-            {/* {community && (
-              <span className="font-bitter text-base font-medium italic text-slate-400/80 hover:text-slate-400/100">
-                <a
-                  // href="https://www.shefi.org/"
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  for {community.displayName}
-                </a>
-              </span>
-            )} */}
-          </div>
-          <div
-            className="
-                ml-2
-                pt-3
-                font-secondary
-                text-sm
-                text-kernel
-              "
-          >
-            <Link href="/propose">
-              <FancyHighlight>
-                <span className="cursor-pointer">Start a Convo?</span>
-              </FancyHighlight>
+            Start a
+            <Link href={"/propose"}>
+              <FancyHighlight className="mx-3">Convo</FancyHighlight>
             </Link>
+            .
           </div>
         </div>
         <div className="mt-12 flex flex-col gap-6 px-6 lg:px-32 xl:px-40 2xl:px-52">
