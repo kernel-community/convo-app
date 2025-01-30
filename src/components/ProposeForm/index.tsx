@@ -128,6 +128,11 @@ const ProposeForm = ({ event }: { event?: ClientEventInput }) => {
       <form
         onSubmit={handleSubmit(onSubmit, onInvalid)}
         className={`align-center flex flex-col gap-6`}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+          }
+        }}
       >
         {/* Title */}
         <TextField
