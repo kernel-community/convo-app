@@ -70,28 +70,16 @@ export const DateTimeStartAndEnd = ({
         )
       : `0 minutes`;
 
+  // Validate dates whenever either one changes
   useEffect(() => {
     if (!startDate || !endDate) return;
 
     const diffInMs = differenceInMilliseconds(endDate, startDate);
-
     if (diffInMs < 0) {
       // If end is before start, move end to start + 1 hour
       setEndDate(addMinutes(startDate, 60));
     }
-  }, [startDate, endDate]);
-
-  // Separate effect to handle end date changes only
-  useEffect(() => {
-    if (!startDate || !endDate) return;
-
-    const diffInMs = differenceInMilliseconds(endDate, startDate);
-    if (diffInMs > 24 * 60 * 60 * 1000) {
-      // More than 24 hours
-      setStartDate(addMinutes(endDate, -60));
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [endDate]); // Only depends on endDate changes
+  }, [startDate, endDate]); // Run when either date changes
 
   return (
     <div>
@@ -121,7 +109,7 @@ export const DateTimeStartAndEnd = ({
             <DatePicker
               date={endDate || new Date()}
               setDate={setEndDate}
-              fromDate={startDate}
+              fromDate={startDate || new Date()}
               withTime
             />
           </div>

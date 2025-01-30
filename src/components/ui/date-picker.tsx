@@ -11,14 +11,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "src/components/ui/popover";
-import { TimePicker12H } from "./time-picker-12-hour";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "./select";
+import { TimePickerDropdown } from "./time-picker-dropdown";
 
 export function DatePicker({
   date,
@@ -50,23 +43,21 @@ export function DatePicker({
   };
   return (
     <Popover>
-      <PopoverTrigger asChild>
-        <Button
-          variant={"outline"}
-          className={cn(
-            "w-[240px] justify-start text-left font-normal",
-            !date && "text-muted-foreground"
-          )}
-          disabled={disabled}
-        >
-          <CalendarIcon className="mr-2 h-4 w-4" />
-          {date && !disabled ? (
-            format(date, `${withTime ? "PPPp" : "PPP"}`)
-          ) : (
-            <span>Pick a date</span>
-          )}
-        </Button>
-      </PopoverTrigger>
+      <div className="flex flex-row items-center gap-2">
+        <PopoverTrigger asChild>
+          <Button
+            variant={"outline"}
+            className={cn(
+              "w-[240px] justify-start text-left font-normal",
+              !date && "text-muted-foreground"
+            )}
+            disabled={disabled}
+          >
+            {date && !disabled ? format(date, "PPP") : <span>Pick a date</span>}
+          </Button>
+        </PopoverTrigger>
+        {withTime && <TimePickerDropdown date={date} setDate={setDate} />}
+      </div>
       <PopoverContent
         align="start"
         className="flex w-auto flex-col space-y-2 p-2"
@@ -78,7 +69,6 @@ export function DatePicker({
           fromDate={fromDate}
           disabled={disabled}
         />
-        {withTime && <TimePicker12H date={date} setDate={setDate} />}
       </PopoverContent>
     </Popover>
   );
