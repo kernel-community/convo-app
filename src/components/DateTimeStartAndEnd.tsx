@@ -103,7 +103,7 @@ export const DateTimeStartAndEnd = ({
           }
         </div>
       </FieldLabel>
-      <div className="grid grid-cols-1 items-center gap-6 rounded-xl border-2 border-primary bg-primary-light p-4 dark:border-primary-dark dark:bg-background sm:gap-6 sm:p-6">
+      <div className="grid grid-cols-1 items-center gap-6 rounded-lg border-0 bg-muted p-4 sm:gap-6 sm:p-6">
         <div className="flex flex-col justify-between sm:flex-row sm:items-center">
           <FieldLabel>Start Date and Time</FieldLabel>
           <div className="flex flex-col gap-3 sm:flex-row sm:items-end">

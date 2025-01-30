@@ -48,6 +48,7 @@ export const RichTextArea = ({
   fieldName,
   infoText,
   value,
+  className,
 }: {
   name: keyof ClientEventInput;
   fieldName?: string;
@@ -55,6 +56,7 @@ export const RichTextArea = ({
   handleChange: handleChangeType;
   errors?: Partial<FieldErrorsImpl<ClientEventInput>>;
   value?: string;
+  className?: string;
 }) => {
   const isError = errors && errors[name];
 
@@ -102,7 +104,26 @@ export const RichTextArea = ({
           </div>
         </FieldLabel>
       )}
-      <div className="rounded-lg border-2 border-primary p-3 dark:border-primary-dark">
+      <div
+        className={`
+          rounded-lg
+          border-0
+          bg-muted
+          p-3
+          transition-all
+          focus-within:border-2
+          focus-within:border-primary
+          ${className}
+          ${
+            isError
+              ? `
+            bg-red-50
+            focus-within:border-red-500 focus-within:ring-red-500`
+              : `
+            focus-within:border-primary focus-within:ring-primary`
+          }
+        `}
+      >
         {editor && <MenuBar editor={editor} />}
         <EditorContent editor={editor} />
       </div>
