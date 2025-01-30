@@ -1,6 +1,7 @@
 import { DateTime } from "luxon";
 import type { ICalRequestParams } from "./generateiCalString";
-import { Event, Rsvp, RSVP_TYPE, User } from "@prisma/client";
+import type { Event, Rsvp, User } from "@prisma/client";
+import { RSVP_TYPE } from "@prisma/client";
 import { sandwichDescriptionForCalendar } from "../sandwichDescriptionForCalendar";
 
 export type EventWithProposerAndRsvps = Event & {
