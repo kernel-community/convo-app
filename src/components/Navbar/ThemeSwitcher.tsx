@@ -53,7 +53,7 @@ const ThemeSwitcher = () => {
         </button>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent align="end">
+      <DropdownMenuContent align="start">
         <DropdownMenuItem
           className={cn(theme === "light" && "bg-accent")}
           onClick={() => setTheme("light")}
