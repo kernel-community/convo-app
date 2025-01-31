@@ -5,10 +5,10 @@ import { Label } from "./ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
 import { datetime, RRule } from "rrule";
-import { DatePicker } from "./ui/date-picker";
 import FieldLabel from "./StrongText";
 import { Checkbox } from "./ui/checkbox";
 import { PopoverClose } from "@radix-ui/react-popover";
+import { DatePicker } from "./ui/date-picker";
 type RecurrenceType = "never" | "on" | "after";
 type RecurrencePeriod = "daily" | "weekly" | "monthly" | "yearly";
 type RecurrenceRuleInputProps = {

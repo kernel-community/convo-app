@@ -167,7 +167,7 @@ export function TimePickerDropdown({ date, setDate }: TimePickerDropdownProps) {
           setTimeout(() => setOpen(false), 200);
         }}
         placeholder="Enter time..."
-        className="w-full"
+        className="w-full p-2"
       />
       {open && (
         <div className="absolute left-0 top-[calc(100%+4px)] z-50 w-full rounded-md border bg-popover text-popover-foreground shadow-md">

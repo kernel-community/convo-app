@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useState } from "react";
 import FieldLabel from "./StrongText";
-import { DatePicker } from "./ui/date-picker";
 import type { DurationObjectUnits } from "luxon";
 import { DateTime } from "luxon";
 import { addMinutes, differenceInMilliseconds } from "date-fns";
+import { DateAndTimePicker } from "./ui/date-and-time-picker";
 
 const durationObjectToHumanReadableString = (obj: DurationObjectUnits) => {
   const { years, months, days, hours, minutes } = obj;
@@ -91,32 +91,25 @@ export const DateTimeStartAndEnd = ({
           }
         </div>
       </FieldLabel>
-      <div className="grid grid-cols-1 items-center gap-6 rounded-lg border-0 bg-muted p-4 sm:gap-6 sm:p-6">
-        <div className="flex flex-col justify-between sm:flex-row sm:items-center">
-          <FieldLabel>Start Date and Time</FieldLabel>
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
-            <DatePicker
-              date={startDate || new Date()}
-              setDate={setStartDate}
-              fromDate={new Date()}
-              withTime
-            />
-          </div>
+      <div className="grid grid-cols-2 items-center gap-6 rounded-lg border-0 bg-muted p-4 sm:gap-6 sm:p-6">
+        <FieldLabel>Start Date and Time</FieldLabel>
+        <DateAndTimePicker
+          date={startDate || new Date()}
+          setDate={setStartDate}
+          fromDate={new Date()}
+          className="justify-center"
+        />
+        <div> {/* blank div for grid spacing */} </div>
+        <div className="text-center text-sm text-gray-500">
+          Duration: <span className="font-semibold">{duration}</span>
         </div>
-        <div className="flex flex-col justify-between sm:flex-row sm:items-center">
-          <FieldLabel>End Date and Time</FieldLabel>
-          <div className="flex flex-row gap-3 sm:flex-col sm:items-end">
-            <DatePicker
-              date={endDate || new Date()}
-              setDate={setEndDate}
-              fromDate={startDate || new Date()}
-              withTime
-            />
-          </div>
-        </div>
-        <div className="text-right font-inter text-xs text-gray-500">
-          Duration: {duration}
-        </div>
+        <FieldLabel>End Date and Time</FieldLabel>
+        <DateAndTimePicker
+          date={endDate || new Date()}
+          setDate={setEndDate}
+          fromDate={startDate || new Date()}
+          className="justify-center"
+        />
       </div>
     </div>
   );

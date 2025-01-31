@@ -38,9 +38,15 @@ const ProposeForm = ({ event }: { event?: ClientEventInput }) => {
       if (event) return event;
 
       // Otherwise, create default values
-      const now = new Date(); // Use a single date instance
-      const twoHoursFromNow = new Date(now.getTime() + 2 * 60 * 60 * 1000);
-      const threeHoursFromNow = new Date(now.getTime() + 3 * 60 * 60 * 1000);
+      const now = DateTime.now().startOf("hour").toJSDate();
+      const twoHoursFromNow = DateTime.now()
+        .plus({ hours: 2 })
+        .startOf("hour")
+        .toJSDate();
+      const threeHoursFromNow = DateTime.now()
+        .plus({ hours: 3 })
+        .startOf("hour")
+        .toJSDate();
 
       return {
         sessions: [

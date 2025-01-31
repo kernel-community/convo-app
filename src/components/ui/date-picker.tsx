@@ -1,8 +1,5 @@
-"use client";
-
-import * as React from "react";
-import { CalendarIcon } from "@radix-ui/react-icons";
-import { format, addDays } from "date-fns";
+import { format } from "date-fns";
+import { useMediaQuery } from "src/hooks/useMediaQuery";
 import { cn } from "src/lib/utils";
 import { Button } from "src/components/ui/button";
 import { Calendar } from "src/components/ui/calendar";
@@ -11,21 +8,17 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "src/components/ui/popover";
-import { TimePickerDropdown } from "./time-picker-dropdown";
-
-export function DatePicker({
+export const DatePicker = ({
   date,
   setDate,
   fromDate,
-  withTime = false,
-  disabled,
+  disabled = false,
 }: {
   date: Date | undefined;
   fromDate?: Date;
   setDate: (date: Date | undefined) => void;
-  withTime?: boolean;
   disabled?: boolean;
-}) {
+}) => {
   const handleDateSelect = (newDate: Date | undefined) => {
     if (!newDate || !date) {
       setDate(newDate);
@@ -41,23 +34,29 @@ export function DatePicker({
 
     setDate(updatedDate);
   };
+  const isDesktop = useMediaQuery("(min-width: 640px)");
   return (
     <Popover>
-      <div className="flex flex-row items-center gap-2">
-        <PopoverTrigger asChild>
-          <Button
-            variant={"outline"}
-            className={cn(
-              "w-[240px] justify-start text-left font-normal",
-              !date && "text-muted-foreground"
-            )}
-            disabled={disabled}
-          >
-            {date && !disabled ? format(date, "PPP") : <span>Pick a date</span>}
-          </Button>
-        </PopoverTrigger>
-        {withTime && <TimePickerDropdown date={date} setDate={setDate} />}
-      </div>
+      <PopoverTrigger asChild>
+        <Button
+          variant="outline"
+          className={cn(
+            "w-[240px] justify-start p-2 text-left font-normal",
+            !date && "text-muted-foreground"
+          )}
+          disabled={disabled}
+        >
+          {date && !disabled ? (
+            isDesktop ? (
+              format(date, "PPP")
+            ) : (
+              format(date, "PP")
+            )
+          ) : (
+            <span>Pick a date</span>
+          )}
+        </Button>
+      </PopoverTrigger>
       <PopoverContent
         align="start"
         className="flex w-auto flex-col space-y-2 p-2"
@@ -72,4 +71,4 @@ export function DatePicker({
       </PopoverContent>
     </Popover>
   );
-}
+};
