@@ -504,7 +504,12 @@ const Hero = ({
           {collectionHrefs}
         </div>
       )}
-      <div className="grid w-full grid-cols-1 gap-3 py-4 sm:grid-cols-2 sm:grid-cols-3">
+      <div
+        className={cn(
+          "grid w-full grid-cols-1 gap-3 py-4",
+          isUserGoing || isOwnerOfConvo ? "sm:grid-cols-3" : "sm:grid-cols-2"
+        )}
+      >
         <When event={event} />
         <Where
           event={event}

@@ -91,13 +91,13 @@ export const DateTimeStartAndEnd = ({
           }
         </div>
       </FieldLabel>
-      <div className="grid grid-cols-2 items-center gap-6 rounded-lg border-0 bg-muted p-4 sm:gap-6 sm:p-6">
+      <div className="grid justify-start gap-6 rounded-lg border-0 bg-muted p-4 sm:grid-cols-2 sm:items-center sm:gap-6 sm:p-6">
         <FieldLabel>Start Date and Time</FieldLabel>
         <DateAndTimePicker
           date={startDate || new Date()}
           setDate={setStartDate}
           fromDate={new Date()}
-          className="justify-center"
+          className="justify-start sm:justify-center"
         />
         <div> {/* blank div for grid spacing */} </div>
         <div className="text-center text-sm text-gray-500">
@@ -108,7 +108,7 @@ export const DateTimeStartAndEnd = ({
           date={endDate || new Date()}
           setDate={setEndDate}
           fromDate={startDate || new Date()}
-          className="justify-center"
+          className="justify-start sm:justify-center"
         />
       </div>
     </div>
