@@ -13,6 +13,7 @@ import Link from "next/link";
 import { RecurringEventText } from "./ui/event-list";
 import { rrulestr } from "rrule";
 import { cleanupRruleString } from "src/utils/cleanupRruleString";
+import { MonthLoadingState } from "./LoadingState/Month";
 
 export const Month = ({ className }: { className?: string }) => {
   const isDesktop = useMediaQuery("(min-width: 768px)");
@@ -31,7 +32,7 @@ export const Month = ({ className }: { className?: string }) => {
   };
 
   // Fetch events for the current month
-  const { data: events } = useQuery<ClientEvent[]>(
+  const { data: events, isLoading } = useQuery<ClientEvent[]>(
     ["events", currentMonth],
     async () => {
       const response = await fetch("/api/query/getEvents", {
@@ -48,8 +49,8 @@ export const Month = ({ className }: { className?: string }) => {
     }
   );
 
-  if (!events) {
-    return null;
+  if (isLoading || !events) {
+    return <MonthLoadingState />;
   }
 
   // Create a map of dates to events for efficient lookup
@@ -221,8 +222,8 @@ export const Month = ({ className }: { className?: string }) => {
   return (
     <div className={`w-full overflow-hidden ${className}`}>
       {isDesktop ? (
-        <div className="grid grid-cols-4 gap-6">
-          <div className="col-span-3">{calendarView}</div>
+        <div className="grid grid-cols-3 gap-6">
+          <div className="col-span-2">{calendarView}</div>
           <div className="col-span-1">{eventsListView}</div>
         </div>
       ) : (

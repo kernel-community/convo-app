@@ -6,7 +6,9 @@ import { Month } from "src/components/Month";
 const TestPage = () => {
   return (
     <Main className="max-h-[100dvh]">
-      <Month className="px-12" />
+      <div className="container mx-auto">
+        <Month />
+      </div>
     </Main>
   );
 };
