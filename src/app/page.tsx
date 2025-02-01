@@ -12,10 +12,7 @@ const Home = () => {
   const { data: community } = useCurrentCommunity();
   return (
     <>
-      <Main
-        linesOverride={true}
-        showLines={isUndefined(community) || isNil(community)}
-      >
+      <Main>
         <div
           className="
           pl-6

@@ -113,7 +113,7 @@ export const EventsView = ({
   );
 };
 
-const RecurringEventText = ({
+export const RecurringEventText = ({
   recurrenceText,
   startDateTime,
   rruleSet,
