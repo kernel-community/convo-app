@@ -60,7 +60,7 @@ export const Month = ({ className }: { className?: string }) => {
       if (!acc[date]) {
         acc[date] = [];
       }
-      acc[date].push(event);
+      acc[date]!.push(event);
 
       // If it's a recurring event, add it to all relevant dates in the current month
       if (event.rrule) {
@@ -83,7 +83,7 @@ export const Month = ({ className }: { className?: string }) => {
           if (!acc[recurrenceDate]) acc[recurrenceDate] = [];
           // Only add if it's not the original start date
           if (recurrenceDate !== date) {
-            acc[recurrenceDate].push(event);
+            acc[recurrenceDate]!.push(event);
           }
         });
       }
