@@ -21,10 +21,11 @@ export const Article = ({
     <article
       className={`
           prose
+          prose-xl
+          w-full
+          max-w-none
           font-primary
           dark:prose-invert
-          sm:prose-lg
-          md:prose-xl
         `}
     >
       <div dangerouslySetInnerHTML={createMarkup()}></div>

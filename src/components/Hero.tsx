@@ -477,14 +477,15 @@ const Hero = ({
     event.rsvps.filter((rsvp) => rsvp.rsvpType !== RSVP_TYPE.NOT_GOING).length;
   const totalSeats = event.limit;
   return (
-    <div className="flex flex-col justify-items-start">
+    <div className="flex w-full flex-col justify-items-start">
       <div
         className="
+          w-full
           pb-0
           font-heading
           text-3xl
-          font-bold
-          text-primary dark:text-primary-dark
+          font-bold text-primary
+          dark:text-primary-dark
           lg:text-4xl
           xl:text-5xl
         "
@@ -503,23 +504,28 @@ const Hero = ({
           {collectionHrefs}
         </div>
       )}
-      <div className="grid grid-cols-1 gap-3 py-4 sm:grid-cols-3">
+      <div className="grid w-full grid-cols-1 gap-3 py-4 sm:grid-cols-2 sm:grid-cols-3">
         <When event={event} />
         <Where
           event={event}
           isUserGoing={isUserGoing}
           isOwnerOfConvo={isOwnerOfConvo}
         />
-        <WhoElseIsGoing
-          event={event}
-          isUserGoing={isUserGoing}
-          isOwnerOfConvo={isOwnerOfConvo}
-          totalAvailableSeats={totalAvailableSeats}
-          totalSeats={totalSeats}
-        />
+        {isUserGoing || isOwnerOfConvo ? (
+          <WhoElseIsGoing
+            event={event}
+            isUserGoing={isUserGoing}
+            isOwnerOfConvo={isOwnerOfConvo}
+            totalAvailableSeats={totalAvailableSeats}
+            totalSeats={totalSeats}
+          />
+        ) : null}
         <RSVP
           event={event}
-          className="col-span-1 sm:col-span-3 lg:col-span-3"
+          className={cn(
+            "col-span-1",
+            isUserGoing || isOwnerOfConvo ? "sm:col-span-3" : "sm:col-span-2"
+          )}
           totalAvailableSeats={totalAvailableSeats}
           totalSeats={totalSeats}
           isOwnerOfConvo={isOwnerOfConvo}

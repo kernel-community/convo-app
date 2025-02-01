@@ -1,5 +1,3 @@
-import { cn } from "src/lib/utils";
-
 export const MonthLoadingState = () => {
   return (
     <div className="grid grid-cols-3 gap-6">
