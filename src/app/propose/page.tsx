@@ -6,7 +6,7 @@ import Main from "src/layouts/Main";
 const Home: NextPage = () => {
   return (
     <>
-      <Main>
+      <Main className="mx-auto sm:container">
         <div className="flex flex-col items-center justify-center">
           <div
             className="
