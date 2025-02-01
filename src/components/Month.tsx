@@ -102,7 +102,7 @@ export const Month = ({ className }: { className?: string }) => {
       dateStr === DateTime.fromJSDate(today).toFormat("yyyy-MM-dd");
 
     return (
-      <div className="relative flex h-full w-full flex-col">
+      <div className="relative flex h-full w-full flex-col overflow-hidden">
         <div
           className={cn(
             "flex h-full w-full items-center justify-center rounded-t-md transition-colors",
@@ -114,7 +114,7 @@ export const Month = ({ className }: { className?: string }) => {
           {day.getDate()}
         </div>
         {dayEvents.length > 0 && (
-          <div className="absolute bottom-0 flex h-5 w-full items-center justify-end rounded-b-md bg-primary/20 px-2 text-[10px] font-medium text-primary">
+          <div className="absolute bottom-0 flex h-4 w-full items-center justify-end truncate rounded-b-md bg-primary/20 px-1 text-[9px] font-medium text-primary sm:text-[12px]">
             {dayEvents.length} event{dayEvents.length > 1 ? "s" : ""}
           </div>
         )}
