@@ -30,11 +30,11 @@ const items = [
     text: "archive",
     href: "/archive",
   },
-  {
-    icon: <CalendarPlus className={iconStyle} strokeWidth={1.5} />,
-    text: "propose",
-    href: "/propose",
-  },
+  // {
+  //   icon: <CalendarPlus className={iconStyle} strokeWidth={1.5} />,
+  //   text: "propose",
+  //   href: "/propose",
+  // },
 ];
 const desktop = "(min-width: 768px)";
 

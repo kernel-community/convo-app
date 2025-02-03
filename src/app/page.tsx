@@ -1,51 +1,56 @@
 "use client";
 
-import Main from "src/layouts/Main";
+import { useState } from "react";
+import { motion } from "framer-motion";
+import Main from "../layouts/Main";
 import Link from "next/link";
-import { Events } from "src/components/Events";
+import { FancyHighlight } from "../components/FancyHighlight";
+import { AnimatedTextArea } from "../components/AnimatedTextArea";
 import { Button } from "src/components/ui/button";
-import useCurrentCommunity from "src/hooks/useCurrentCommunity";
-import { isNil, isUndefined } from "lodash";
-import { FancyHighlight } from "src/components/FancyHighlight";
 
 const Home = () => {
-  const { data: community } = useCurrentCommunity();
+  const [text, setText] = useState("");
+
   return (
     <>
       <Main>
-        <div
-          className="
-          pl-6
-          md:pl-6
-          lg:pl-64
-        "
-        >
-          <div
-            className="
-              font-heading text-5xl
-              font-bold
-              lg:text-7xl
-            "
-          >
-            Start a
-            <Link href={"/propose"}>
-              <FancyHighlight className="mx-3">Convo</FancyHighlight>
-            </Link>
-            .
+        <div className="flex h-full items-center justify-center">
+          <div className="flex w-full flex-col items-center gap-6 p-4 sm:w-max">
+            <div className="font-heading text-5xl font-bold lg:text-7xl">
+              Start a
+              <Link href="/propose">
+                <FancyHighlight className="mx-3 inline-block">
+                  Convo
+                </FancyHighlight>
+                .
+              </Link>
+            </div>
+            <motion.div className="w-full space-y-2">
+              <AnimatedTextArea
+                value={text}
+                onChange={(e) => setText(e.target.value)}
+                className={`w-full resize-none rounded-lg border p-6 transition-all duration-500 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary ${
+                  text.trim() ? "min-h-[180px]" : "min-h-[280px]"
+                }`}
+              />
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{
+                  opacity: text.trim() ? 1 : 0,
+                  height: text.trim() ? "auto" : 0,
+                }}
+                transition={{
+                  duration: 0.5,
+                  ease: [0.23, 1, 0.32, 1],
+                }}
+                className="overflow-hidden"
+              >
+                <Link href="/propose">
+                  <Button className="w-full">Create</Button>
+                </Link>
+              </motion.div>
+            </motion.div>
           </div>
-        </div>
-        <div className="mt-12 flex flex-col gap-6 px-6 lg:px-32 xl:px-40 2xl:px-52">
-          <div className="mt-12">
-            <Events
-              type="nextTwentyEightDays"
-              title="next"
-              highlight="28 days"
-              take={6}
-            />
-          </div>
-          <Link href={"/all"} className="self-center">
-            <Button>See all Convos</Button>
-          </Link>
         </div>
       </Main>
     </>
