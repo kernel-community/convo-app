@@ -21,7 +21,13 @@ import { RecurrenceRuleInput } from "../RecurrenceRuleInput";
 import { DateTimeStartAndEnd } from "../DateTimeStartAndEnd";
 import { DateTime } from "luxon";
 
-const ProposeForm = ({ event }: { event?: ClientEventInput }) => {
+const ProposeForm = ({
+  event,
+  showRecurrenceInput = true,
+}: {
+  event?: ClientEventInput;
+  showRecurrenceInput?: boolean;
+}) => {
   const { fetchedUser: user } = useUser();
   const { push } = useRouter();
   const isEditing = !!event;
@@ -179,17 +185,19 @@ const ProposeForm = ({ event }: { event?: ClientEventInput }) => {
         />
 
         {/* component/dropdown for recurrence rule */}
-        <Controller
-          name="recurrenceRule"
-          control={control}
-          rules={{ required: false }}
-          render={({ field }) => (
-            <RecurrenceRuleInput
-              handleChange={field.onChange}
-              value={defaultValues?.recurrenceRule}
-            />
-          )}
-        />
+        {showRecurrenceInput && (
+          <Controller
+            name="recurrenceRule"
+            control={control}
+            rules={{ required: false }}
+            render={({ field }) => (
+              <RecurrenceRuleInput
+                handleChange={field.onChange}
+                value={defaultValues?.recurrenceRule}
+              />
+            )}
+          />
+        )}
 
         {/* Limit */}
         <TextField

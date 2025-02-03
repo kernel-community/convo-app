@@ -1,8 +1,16 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Calendar } from "./ui/calendar";
 import { DateTime } from "luxon";
 import { useMediaQuery } from "src/hooks/useMediaQuery";
-import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "./ui/drawer";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerPortal,
+} from "./ui/drawer";
 import { useQuery } from "react-query";
 import type { ClientEvent, EventsRequest } from "src/types";
 
@@ -16,19 +24,55 @@ import { cleanupRruleString } from "src/utils/cleanupRruleString";
 import { MonthLoadingState } from "./LoadingState/Month";
 
 export const Month = ({ className }: { className?: string }) => {
-  const isDesktop = useMediaQuery("(min-width: 768px)");
+  const isDesktop = useMediaQuery("(min-width: 768px)") ?? false; // Default to mobile if undefined
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
   const today = new Date();
   const startOfMonth = DateTime.fromJSDate(today).startOf("month").toJSDate();
 
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>(today);
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [currentMonth, setCurrentMonth] = useState<Date>(startOfMonth);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
+  // Sync URL params with component state
+  useEffect(() => {
+    const dateParam = searchParams.get("date");
+    if (dateParam) {
+      const date = DateTime.fromISO(dateParam).toJSDate();
+      if (DateTime.fromJSDate(date).isValid) {
+        setSelectedDate(date);
+        setIsDrawerOpen(true);
+        // Update current month to show the selected date
+        setCurrentMonth(DateTime.fromJSDate(date).startOf("month").toJSDate());
+      }
+    } else {
+      // If no date in URL, clear selection
+      setSelectedDate(undefined);
+      setIsDrawerOpen(false);
+    }
+  }, [searchParams]);
+
+  // Update URL when date is selected
+  const updateURL = (date: Date | undefined) => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (date) {
+      const isoDate = DateTime.fromJSDate(date).toISODate();
+      if (isoDate) {
+        params.set("date", isoDate);
+      }
+    } else {
+      params.delete("date");
+    }
+    router.push(`?${params.toString()}`, { scroll: false });
+  };
+
   const handleSelect = (date: Date | undefined) => {
     setSelectedDate(date);
-    if (!isDesktop && date) {
+    if (date) {
       setIsDrawerOpen(true);
     }
+    updateURL(date);
   };
 
   // Fetch events for the current month
@@ -162,7 +206,7 @@ export const Month = ({ className }: { className?: string }) => {
     : [];
 
   const calendarView = (
-    <div className="bg-card h-[740px] rounded-lg border">
+    <div className="bg-card h-[740px] w-full rounded-lg border">
       <Calendar
         mode="single"
         selected={selectedDate}
@@ -226,27 +270,75 @@ export const Month = ({ className }: { className?: string }) => {
 
   return (
     <div className={`w-full overflow-hidden ${className}`}>
+      {calendarView}
       {isDesktop ? (
-        <div className="grid grid-cols-3 gap-6">
-          <div className="col-span-2">{calendarView}</div>
-          <div className="col-span-1">{eventsListView}</div>
-        </div>
-      ) : (
-        <>
-          {calendarView}
-          <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
-            <DrawerContent>
-              <div className="max-h-[85vh] overflow-y-auto">
-                <DrawerHeader className="sticky top-0 z-10 bg-background">
-                  <DrawerTitle>
+        <Dialog open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
+          <DialogContent className="h-[36rem] overflow-hidden">
+            <div className="flex h-full flex-col overflow-hidden">
+              <div className="bg-background">
+                <DialogHeader>
+                  <DialogTitle>
                     {selectedDate &&
                       DateTime.fromJSDate(selectedDate).toFormat(
                         "MMMM d, yyyy"
                       )}
-                  </DrawerTitle>
-                </DrawerHeader>
-                <div className="px-4 pb-4">
-                  {selectedDateEvents.length > 0 ? (
+                  </DialogTitle>
+                </DialogHeader>
+                <div className="pb-4" />
+              </div>
+              <div className="flex-1 overflow-y-auto px-6 pb-6">
+                {isLoading ? (
+                  <div className="space-y-4">
+                    {Array.from({ length: 3 }).map((_, i) => (
+                      <div key={i} className="space-y-2">
+                        <div className="h-4 w-3/4 animate-pulse rounded-md bg-muted" />
+                        <div className="h-4 w-1/2 animate-pulse rounded-md bg-muted/50" />
+                      </div>
+                    ))}
+                  </div>
+                ) : selectedDateEvents.length > 0 ? (
+                  <div className="space-y-2">
+                    {selectedDateEvents.map((event) => (
+                      <EventDescription key={event.hash} event={event} />
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-muted-foreground">
+                    No events on this date
+                  </p>
+                )}
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+      ) : (
+        <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
+          <DrawerPortal>
+            <DrawerContent className="fixed inset-x-0 bottom-0 z-50 h-[85vh] rounded-t-[10px]">
+              <div className="mx-auto mt-4 h-2 w-[100px] rounded-full bg-muted" />
+              <div className="h-full overflow-y-auto">
+                <div className="sticky top-0 z-10 bg-background">
+                  <DrawerHeader>
+                    <DrawerTitle>
+                      {selectedDate &&
+                        DateTime.fromJSDate(selectedDate).toFormat(
+                          "MMMM d, yyyy"
+                        )}
+                    </DrawerTitle>
+                  </DrawerHeader>
+                  <div className="pb-4" />
+                </div>
+                <div className="px-6 pb-6">
+                  {isLoading ? (
+                    <div className="space-y-4">
+                      {Array.from({ length: 3 }).map((_, i) => (
+                        <div key={i} className="space-y-2">
+                          <div className="h-4 w-3/4 animate-pulse rounded-md bg-muted" />
+                          <div className="h-4 w-1/2 animate-pulse rounded-md bg-muted/50" />
+                        </div>
+                      ))}
+                    </div>
+                  ) : selectedDateEvents.length > 0 ? (
                     <div className="space-y-2">
                       {selectedDateEvents.map((event) => (
                         <EventDescription key={event.hash} event={event} />
@@ -260,8 +352,8 @@ export const Month = ({ className }: { className?: string }) => {
                 </div>
               </div>
             </DrawerContent>
-          </Drawer>
-        </>
+          </DrawerPortal>
+        </Drawer>
       )}
     </div>
   );
