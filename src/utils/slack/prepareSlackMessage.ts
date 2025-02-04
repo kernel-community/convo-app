@@ -13,7 +13,7 @@ type SlackMessageBlocks = {
   text?: object;
 };
 
-type MessageType = "new" | "reminder" | "updated";
+export type MessageType = "new" | "reminder" | "updated";
 
 const getUsernameAndText = (
   type: MessageType
