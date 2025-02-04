@@ -12,6 +12,7 @@ import type { ClientEventInput } from "src/types";
 import { DateTime } from "luxon";
 import { ScrambleText } from "src/components/ScrambleText";
 import { generateTitle } from "src/utils/generateTitle";
+import WeekView from "src/components/WeekView";
 
 const Home = () => {
   const [text, setText] = useState("");
@@ -48,7 +49,10 @@ const Home = () => {
   return (
     <>
       <Main>
-        <div className="container mx-auto py-8">
+        <div className="container mx-auto py-4">
+          {/* <WeekView /> */}
+          <div className="h-4" />
+
           <div className="flex flex-col items-center">
             <div className="mb-12 text-center">
               <div className="font-heading text-5xl font-bold lg:text-7xl">
@@ -144,7 +148,7 @@ const Home = () => {
                                   .startOf("hour")
                                   .toJSDate(),
                               },
-                          limit: "1",
+                          limit: "0",
                           location: "Online",
                           nickname: "Anonymous",
                           gCalEvent: true,
