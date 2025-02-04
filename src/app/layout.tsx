@@ -1,4 +1,5 @@
 import { Inter } from "next/font/google";
+import { ScrambleProvider } from "src/context/ScrambleContext";
 import "../styles/globals.css";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
@@ -46,9 +47,11 @@ export default function RootLayout({
       </head>
       <body className={inter.className}>
         <Providers>
-          <div vaul-drawer-wrapper="" className="bg-background">
-            {children}
-          </div>
+          <ScrambleProvider>
+            <div vaul-drawer-wrapper="" className="bg-background">
+              {children}
+            </div>
+          </ScrambleProvider>
         </Providers>
         <Analytics />
         <SpeedInsights />

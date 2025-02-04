@@ -1,43 +1,85 @@
 "use client";
 
-import { useState } from "react";
-import { motion } from "framer-motion";
+import { useState, useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import Main from "../layouts/Main";
 import Link from "next/link";
 import { FancyHighlight } from "../components/FancyHighlight";
 import { AnimatedTextArea } from "../components/AnimatedTextArea";
 import { Button } from "src/components/ui/button";
+import ProposeForm from "src/components/ProposeForm";
+import type { ClientEventInput } from "src/types";
+import { DateTime } from "luxon";
+import { ScrambleText } from "src/components/ScrambleText";
+import { generateTitle } from "src/utils/generateTitle";
 
 const Home = () => {
   const [text, setText] = useState("");
+  const [showForm, setShowForm] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [generatedTitle, setGeneratedTitle] = useState<string>("");
+  const [dateTimeStartAndEnd, setDateTimeStartAndEnd] = useState<{
+    start: string;
+    end: string;
+  } | null>(null);
+  const formRef = useRef<HTMLDivElement>(null);
+
+  const handleShowForm = async () => {
+    setIsLoading(true);
+    try {
+      // Generate title and parse datetime before showing form
+      const { title, dateTime } = await generateTitle(text);
+      setGeneratedTitle(title);
+      setDateTimeStartAndEnd(dateTime);
+      console.log({ dateTime });
+      setShowForm(true);
+    } finally {
+      setIsLoading(false);
+    }
+
+    // Wait for form to be rendered before scrolling
+    setTimeout(() => {
+      formRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 100);
+  };
+
+  const userStartedTyping = text.trim() && !showForm;
 
   return (
     <>
       <Main>
-        <div className="flex h-full items-center justify-center">
-          <div className="flex w-full flex-col items-center gap-6 p-4 sm:w-max">
-            <div className="font-heading text-5xl font-bold lg:text-7xl">
-              Start a
-              <Link href="/propose">
-                <FancyHighlight className="mx-3 inline-block">
-                  Convo
+        <div className="container mx-auto py-8">
+          <div className="flex flex-col items-center">
+            <div className="mb-12 text-center">
+              <div className="font-heading text-5xl font-bold lg:text-7xl">
+                <div>Start a</div>
+                <FancyHighlight className="mx-2 inline-block">
+                  {userStartedTyping || showForm ? "Convo" : <ScrambleText />}
                 </FancyHighlight>
                 .
-              </Link>
+              </div>
             </div>
-            <motion.div className="w-full space-y-2">
+
+            <div className="w-full max-w-2xl space-y-2">
               <AnimatedTextArea
                 value={text}
                 onChange={(e) => setText(e.target.value)}
-                className={`w-full resize-none rounded-lg border p-6 transition-all duration-500 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary ${
-                  text.trim() ? "min-h-[180px]" : "min-h-[280px]"
-                }`}
+                onClick={() => {
+                  if (showForm) {
+                    // Reset all form state immediately when clicking the collapsed textarea
+                    setShowForm(false);
+                    setGeneratedTitle("");
+                    setDateTimeStartAndEnd(null);
+                  }
+                }}
+                className="w-full resize-none rounded-lg border p-6 focus:outline-none"
+                isCollapsed={showForm}
               />
               <motion.div
                 initial={{ opacity: 0, height: 0 }}
                 animate={{
-                  opacity: text.trim() ? 1 : 0,
-                  height: text.trim() ? "auto" : 0,
+                  opacity: userStartedTyping ? 1 : 0,
+                  height: userStartedTyping ? "auto" : 0,
                 }}
                 transition={{
                   duration: 0.5,
@@ -45,11 +87,84 @@ const Home = () => {
                 }}
                 className="overflow-hidden"
               >
-                <Link href="/propose">
-                  <Button className="w-full">Create</Button>
-                </Link>
+                <Button
+                  className="w-full"
+                  onClick={handleShowForm}
+                  isLoading={isLoading}
+                >
+                  Create
+                </Button>
               </motion.div>
-            </motion.div>
+
+              <AnimatePresence mode="wait">
+                {showForm && (
+                  <motion.div
+                    ref={formRef}
+                    initial={{ opacity: 0, y: 20, height: 0 }}
+                    animate={{
+                      opacity: 1,
+                      y: 0,
+                      height: "auto",
+                      transition: {
+                        height: { duration: 0.3 },
+                        opacity: { duration: 0.3, delay: 0.1 },
+                      },
+                    }}
+                    exit={{
+                      opacity: 0,
+                      y: 20,
+                      height: 0,
+                      transition: {
+                        height: { duration: 0.3, delay: 0.1 },
+                        opacity: { duration: 0.2 },
+                      },
+                    }}
+                    className="mt-8 overflow-hidden"
+                  >
+                    <ProposeForm
+                      event={
+                        {
+                          description: text,
+                          title:
+                            generatedTitle ||
+                            text.split("\n")[0] ||
+                            "Untitled Convo",
+                          dateTimeStartAndEnd: dateTimeStartAndEnd
+                            ? {
+                                start: new Date(dateTimeStartAndEnd.start),
+                                end: new Date(dateTimeStartAndEnd.end),
+                              }
+                            : {
+                                start: DateTime.now()
+                                  .plus({ hours: 1 })
+                                  .startOf("hour")
+                                  .toJSDate(),
+                                end: DateTime.now()
+                                  .plus({ hours: 2 })
+                                  .startOf("hour")
+                                  .toJSDate(),
+                              },
+                          limit: "1",
+                          location: "Online",
+                          nickname: "Anonymous",
+                          gCalEvent: true,
+                          sessions: [
+                            {
+                              dateTime: dateTimeStartAndEnd
+                                ? new Date(dateTimeStartAndEnd.start)
+                                : DateTime.now().startOf("hour").toJSDate(),
+                              duration: 1,
+                              count: 1,
+                            },
+                          ],
+                          recurrenceRule: undefined,
+                        } as ClientEventInput
+                      }
+                    />
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
           </div>
         </div>
       </Main>
