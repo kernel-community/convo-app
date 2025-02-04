@@ -91,7 +91,7 @@ export const DateTimeStartAndEnd = ({
           }
         </div>
       </FieldLabel>
-      <div className="grid justify-start gap-6 rounded-lg border-0 bg-muted p-4 sm:grid-cols-2 sm:items-center sm:gap-6 sm:p-6">
+      <div className="grid justify-start gap-3 rounded-lg border-0 bg-muted p-4 sm:grid-cols-2 sm:items-center sm:gap-6 sm:p-6">
         <FieldLabel>Start Date and Time</FieldLabel>
         <DateAndTimePicker
           date={startDate || new Date()}
