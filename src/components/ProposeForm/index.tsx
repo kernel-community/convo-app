@@ -5,10 +5,10 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "../ui/button";
 import { RichTextArea } from "./FormFields/RichText";
-import useCreateEvent from "src/hooks/useCreateEvent";
-import useUpdateEvent from "src/hooks/useUpdateEvent";
+import { upsertConvo } from "src/utils/upsertConvo";
 import LoginButton from "../LoginButton";
 import { useEffect, useMemo, useState } from "react";
+import { Switch } from "../ui/switch";
 import { useUser } from "src/context/UserContext";
 import Signature from "../EventPage/Signature";
 import FieldLabel from "../StrongText";
@@ -30,7 +30,8 @@ const ProposeForm = ({
 }) => {
   const { fetchedUser: user } = useUser();
   const { push } = useRouter();
-  const isEditing = !!event;
+
+  const [isLimitEnabled, setIsLimitEnabled] = useState(false);
   const {
     register,
     reset,
@@ -70,15 +71,13 @@ const ProposeForm = ({
           end: threeHoursFromNow,
         },
         recurrenceRule: "",
+        limit: "0",
       };
     }, [event, user]),
   });
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => reset(event), [event]);
-
-  const { create } = useCreateEvent();
-  const { update } = useUpdateEvent();
 
   const [openModalFlag, setOpenModalFlag] = useState<boolean>(false);
 
@@ -100,23 +99,9 @@ const ProposeForm = ({
       return;
     }
     try {
-      setLoading(true);
-      if (isEditing) {
-        const updated = await update({
-          event: convoToCreateData,
-        });
-        if (!updated) throw "undefined response returned from `updated`";
-        if (!updated) throw "empty object returned from `updated`";
-        push(`/rsvp/${updated.hash}`);
-      } else {
-        const created = await create({
-          event: convoToCreateData,
-          userId: user.id,
-        });
-        if (!created) throw "undefined response returned";
-        if (!created) throw "empty array returned";
-        push(`/rsvp/${created.hash}`);
-      }
+      const result = await upsertConvo(convoToCreateData, user?.id);
+      if (!result) throw "No response returned from upsert operation";
+      push(`/rsvp/${result.hash}`);
     } catch (err) {
       console.log(err);
       setLoading(false);
@@ -135,7 +120,6 @@ const ProposeForm = ({
         user={user}
         action={createConvo}
         isLoading={loading}
-        isEditing={isEditing}
       />
       <form
         onSubmit={handleSubmit(onSubmit, onInvalid)}
@@ -200,14 +184,35 @@ const ProposeForm = ({
         )}
 
         {/* Limit */}
-        <TextField
-          name="limit"
-          fieldName="Limit"
-          register={register}
-          errors={errors}
-          required={false}
-          infoText="How many RSVPs are you willing to provide?"
-        />
+        <div className="space-y-4">
+          <div className="flex items-center space-x-2">
+            <Switch
+              id="limit-switch"
+              checked={isLimitEnabled}
+              onCheckedChange={(checked) => {
+                setIsLimitEnabled(checked);
+                reset({ ...defaultValues, limit: checked ? "0" : "0" });
+              }}
+            />
+            <label
+              htmlFor="limit-switch"
+              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+            >
+              Set RSVP Limit
+            </label>
+          </div>
+
+          {isLimitEnabled && (
+            <TextField
+              name="limit"
+              fieldName="Limit"
+              register={register}
+              errors={errors}
+              required={false}
+              infoText="How many RSVPs are you willing to provide?"
+            />
+          )}
+        </div>
 
         {/* Location */}
         <TextField
@@ -219,31 +224,9 @@ const ProposeForm = ({
           required={false}
         />
 
-        {/**
-         * google calendar event creation checkbox
-         * if isEditing -> display an info message saying that the google calendar event will be updated
-         * @todo @angelagilhotra dislay an option to delete the google calendar event
-         */}
-        {isEditing && (
-          <>
-            {event.gCalEvent && (
-              <div>
-                You will receive an email with the updated google calendar event
-                invite.
-              </div>
-            )}
-          </>
-        )}
-
         {user && user.email && (
           <div>
-            <FieldLabel>
-              Email
-              <div className="font-primary text-sm font-light lowercase">
-                You will receive the google calendar event invite on the
-                following email
-              </div>
-            </FieldLabel>
+            <FieldLabel>Email</FieldLabel>
             <div className="mt-2 flex flex-row items-center gap-3">
               {/* <Signature user={user as User} /> */}
               {user.email}

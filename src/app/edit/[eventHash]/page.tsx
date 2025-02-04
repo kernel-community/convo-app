@@ -6,7 +6,6 @@ import Main from "src/layouts/Main";
 import parse from "src/utils/clientEventToClientEventInput";
 import { Button } from "src/components/ui/button";
 import useDeleteEvent from "src/hooks/useDeleteEvent";
-import useUpdateEvent from "src/hooks/useUpdateEvent";
 import { useUser } from "src/context/UserContext";
 import NotAllowedPage from "src/components/NotAllowedPage";
 import { useEffect, useState } from "react";
@@ -14,6 +13,7 @@ import { Skeleton } from "src/components/ui/skeleton";
 import ConfirmDeleteCredenza from "src/components/EventPage/ConfirmDelete";
 import { useRouter } from "next/navigation";
 import type { ClientEventInput } from "src/types";
+import { upsertConvo } from "src/utils/upsertConvo";
 
 const Edit = ({ params }: { params: { eventHash: string } }) => {
   const { push } = useRouter();
@@ -22,17 +22,19 @@ const Edit = ({ params }: { params: { eventHash: string } }) => {
     hash: eventHash,
     dontFetch: true,
   });
-  const { update, isSubmitting: isLoading } = useUpdateEvent();
   const { deleteEvent, isDeleting } = useDeleteEvent();
   const { fetchedUser: user } = useUser();
   const [isInvalidRequest, setInvalidRequest] = useState(false);
   const [openModalFlag, setOpenModalFlag] = useState<boolean>(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // check to see if eventHash from query exists in the database
   // parse and pre-fill event data in the form
   const clientEventInput: ClientEventInput | undefined = data
     ? parse(data)
     : undefined;
+
+  console.log({ clientEventInput });
 
   useEffect(() => {
     if (data && user && user.id !== data.proposerId) {
@@ -98,7 +100,7 @@ const Edit = ({ params }: { params: { eventHash: string } }) => {
             >
               Editing: {clientEventInput?.title}
             </div>
-            {isLoading ? (
+            {isSubmitting ? (
               <Button disabled className="w-[250px] p-0">
                 <Skeleton className="bg-gray-550 h-full w-full" />
               </Button>

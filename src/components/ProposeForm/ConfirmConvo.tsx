@@ -27,7 +27,6 @@ export const ConfirmConvoCredenza = ({
   user,
   action,
   isLoading,
-  isEditing,
 }: {
   openModalFlag: boolean;
   setOpenModalFlag: Dispatch<SetStateAction<boolean>>;
@@ -35,28 +34,15 @@ export const ConfirmConvoCredenza = ({
   user: UserStatus;
   action: () => Promise<void>;
   isLoading: boolean;
-  isEditing: boolean;
 }) => {
   return (
     <Credenza open={openModalFlag} onOpenChange={setOpenModalFlag}>
       <CredenzaContent className="flex h-[34rem] flex-col">
         <CredenzaHeader>
-          {isEditing ? (
-            <CredenzaTitle>Confirm Edits to Convo</CredenzaTitle>
-          ) : (
-            <CredenzaTitle>Confirm Convo</CredenzaTitle>
-          )}
-          {isEditing ? (
-            <CredenzaDescription>
-              You are editing the Convo. Confirm all details below before
-              clicking submit.
-            </CredenzaDescription>
-          ) : (
-            <CredenzaDescription>
-              You are proposing a Convo for Kernel. Confirm all details below
-              before clicking submit.
-            </CredenzaDescription>
-          )}
+          <CredenzaTitle>Confirm Convo</CredenzaTitle>
+          <CredenzaDescription>
+            Confirm all details below before clicking submit.
+          </CredenzaDescription>
         </CredenzaHeader>
         <CredenzaBody className="flex-1 overflow-y-auto">
           <div className="grid w-full grid-cols-[40%_60%] gap-y-4">
@@ -95,8 +81,12 @@ export const ConfirmConvoCredenza = ({
                 </div>
               </>
             )}
-            <FieldLabel>Limit</FieldLabel>
-            <div>{convoToCreateData?.limit}</div>
+            {convoToCreateData?.limit !== "0" && (
+              <>
+                <FieldLabel>Limit</FieldLabel>
+                <div>{convoToCreateData?.limit}</div>
+              </>
+            )}
             <FieldLabel>Location</FieldLabel>
             <div>{convoToCreateData?.location}</div>
             <FieldLabel>Signed by</FieldLabel>
