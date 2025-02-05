@@ -66,20 +66,26 @@ export async function POST(request: Request) {
     const dateTime = parseDateTimeFromText(description);
 
     const response = await cohere.chat({
-      message: `Create a fun, inviting title for this casual hangout or conversation: ${description}
+      message: `Create a title for this conversation that matches its tone and style: ${description}
 
 Rules:
 1. Maximum 40 characters
-2. Keep it casual and friendly
-3. Make it sound inviting and cozy
-4. Use playful language when appropriate
-5. NO explanations or extra text
-6. ONLY output the title
+2. Match the tone and style of the input description
+3. If the description is casual, make it fun and playful
+4. If the description is serious, keep it professional but approachable
+5. If the description mentions activities, include relevant emojis
+6. NO explanations or extra text
+7. ONLY output the title
 
-Format your response exactly like these examples:
+Format examples for casual conversations:
 Coffee & Chill: Design Chat ☕
 Board Game Night & Pizza 🎲
-Cozy Book Club: Fantasy Reads
+Cozy Book Club: Fantasy Reads 📚
+
+Format examples for professional conversations:
+Tech Strategy Discussion 💡
+Product Review: Q1 Roadmap 📊
+Team Sync: Project Updates ✨
 
 Your response:`,
       model: "command",
