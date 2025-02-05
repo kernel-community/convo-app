@@ -3,7 +3,6 @@
 import { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Main from "../layouts/Main";
-import Link from "next/link";
 import { FancyHighlight } from "../components/FancyHighlight";
 import { AnimatedTextArea } from "../components/AnimatedTextArea";
 import { Button } from "src/components/ui/button";
@@ -12,7 +11,7 @@ import type { ClientEventInput } from "src/types";
 import { DateTime } from "luxon";
 import { ScrambleText } from "src/components/ScrambleText";
 import { generateTitle } from "src/utils/generateTitle";
-import WeekView from "src/components/WeekView";
+// import WeekView from "src/components/WeekView";
 
 const Home = () => {
   const [text, setText] = useState("");
@@ -65,6 +64,7 @@ const Home = () => {
             </div>
 
             <div className="w-full max-w-2xl space-y-2">
+              <div className="">Start typing...</div>
               <AnimatedTextArea
                 value={text}
                 onChange={(e) => setText(e.target.value)}
