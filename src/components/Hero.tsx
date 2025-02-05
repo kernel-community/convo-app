@@ -40,6 +40,7 @@ import LoginButton from "./LoginButton";
 import { rsvpTypeToEmoji } from "src/utils/rsvpTypeToEmoji";
 import { cleanupRruleString } from "src/utils/cleanupRruleString";
 import { rrulestr } from "rrule";
+import { ArrowUpRight } from "lucide-react";
 
 const When = ({
   event,
@@ -463,7 +464,6 @@ const Hero = ({
       {k + 1 !== event.collections.length ? "," : ""}
     </Link>
   ));
-
   const { fetchedUser } = useUser();
   const isOwnerOfConvo = fetchedUser
     ? fetchedUser.id === event.proposerId
@@ -493,7 +493,17 @@ const Hero = ({
         {event?.title}
       </div>
       {isOwnerOfConvo && (
-        <div className="text-base italic text-gray-500">You own this convo</div>
+        <div className="flex-inline flex w-full items-center justify-between rounded-xl bg-kernel-light/30 p-3 font-secondary text-base text-gray-600">
+          <span>You own this convo</span>
+          <a
+            href={`/edit/${event.hash}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex-inline flex items-center rounded-full border-2 bg-skin px-2 transition-all duration-300 hover:border-kernel"
+          >
+            Edit <ArrowUpRight className="h-4" />
+          </a>
+        </div>
       )}
 
       {isPartOfCollection && (
