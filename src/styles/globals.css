@@ -16,9 +16,9 @@
     --input: hsl(27 30% 85%);
     --ring: hsl(27 25% 25%);
 
-    --primary: hsl(42 69.1% 65%);
-    --primary-muted: hsl(42 69.1% 75%);
-    --primary-foreground: hsl(20 14.3% 4.1%);
+    --primary: hsl(85, 20%, 50%);
+    --primary-muted:hsl(168.89, 17.2%, 30.78%);
+    --primary-foreground: hsl(0, 0%, 96%);
 
     --card: hsl(27 30% 99%);
     --card-active: hsl(27 35% 97%);
@@ -37,7 +37,8 @@
     --accent: hsl(27 35% 97%);
     --accent-foreground: hsl(27 25% 25%);
 
-    --highlight: hsl(174 60% 50%);
+    /* --highlight: hsl(39, 100%, 89%, 80%); */
+    --highlight: hsl(50, 100%, 91%);
     --highlight-active: hsl(174 65% 45%);
     --highlight-disabled: hsl(174 20% 70%);
     --highlight-foreground: hsl(174 80% 15%);
