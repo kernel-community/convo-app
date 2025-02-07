@@ -66,26 +66,17 @@ export async function POST(request: Request) {
     const dateTime = parseDateTimeFromText(description);
 
     const response = await cohere.chat({
-      message: `Create a title for this conversation that matches its tone and style: ${description}
+      message: `Create a concise title (max 150 characters) that summarizes this description: ${description}
 
-Rules:
-1. Maximum 40 characters
-2. Match the tone and style of the input description
-3. If the description is casual, make it fun and playful
-4. If the description is serious, keep it professional but approachable
-5. If the description mentions activities, include relevant emojis
-6. NO explanations or extra text
-7. ONLY output the title
+This is how I want you to go about it:
+1. First, try to understand what is being said in the text.
+2. If you cannot understand, simply return the first 50 characters of the text.
+3. If you can understand, summarize it to a concise title, capturing the main idea.
+4. Next, try to understand the tone, and if it is informal include one or two emojis if appropriate.
+5. Output only the title, no explanations, nothing other than the title.
+6. If the language is not English, Skip. Don't try to summarize, just return the first 50 characters.
 
-Format examples for casual conversations:
-Coffee & Chill: Design Chat ☕
-Board Game Night & Pizza 🎲
-Cozy Book Club: Fantasy Reads 📚
-
-Format examples for professional conversations:
-Tech Strategy Discussion 💡
-Product Review: Q1 Roadmap 📊
-Team Sync: Project Updates ✨
+Remember to output only the title, no explanations, nothing other than the title.
 
 Your response:`,
       model: "command",

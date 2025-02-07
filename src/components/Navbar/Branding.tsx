@@ -20,7 +20,7 @@ export const Branding = () => {
         <span className="font-brand text-2xl sm:text-xl">Convo.Cafe</span>
       </Link>
       <span className="flex flex-row items-center gap-1 ">
-        <span className=" font-primary text-sm italic sm:text-base">for</span>
+        <span className="font-primary text-sm italic sm:text-base">for</span>
         <div className="relative inline-flex font-primary">
           <motion.a
             href="https://kernel.community/"

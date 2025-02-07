@@ -12,6 +12,7 @@ const TextField = ({
   className,
   required,
   value,
+  autoFocus,
 }: {
   name: keyof ClientEventInput;
   fieldName?: string;
@@ -19,6 +20,7 @@ const TextField = ({
   infoText?: string;
   errors?: Partial<FieldErrorsImpl<ClientEventInput>>;
   placeholder?: string;
+  autoFocus?: boolean;
   className?: string;
   required?: boolean;
   value?: string;
@@ -34,6 +36,7 @@ const TextField = ({
       </FieldLabel>
       <div className="flex flex-col">
         <input
+          autoFocus={autoFocus}
           type="text"
           className={`
           rounded-lg
