@@ -3,7 +3,6 @@
 import { QueryClient, QueryClientProvider } from "react-query";
 import { UserProvider } from "src/context/UserContext";
 import { DynamicContextProvider } from "@dynamic-labs/sdk-react";
-import { DynamicWagmiConnector } from "@dynamic-labs/wagmi-connector";
 import { updateUser } from "src/utils/updateUser";
 import { DEFAULT_USER_NICKNAME } from "src/utils/constants";
 import CursorsContextProvider from "src/context/CursorsContext";
@@ -48,19 +47,17 @@ export default function Providers({
         },
       }}
     >
-      <DynamicWagmiConnector>
-        <QueryClientProvider client={queryClient}>
-          <UserProvider>
-            <RsvpIntentionProvider>
-              <CursorsContextProvider room={room} host={host}>
-                <SharedSpace>
-                  <TooltipProvider>{children}</TooltipProvider>
-                </SharedSpace>
-              </CursorsContextProvider>
-            </RsvpIntentionProvider>
-          </UserProvider>
-        </QueryClientProvider>
-      </DynamicWagmiConnector>
+      <QueryClientProvider client={queryClient}>
+        <UserProvider>
+          <RsvpIntentionProvider>
+            <CursorsContextProvider room={room} host={host}>
+              <SharedSpace>
+                <TooltipProvider>{children}</TooltipProvider>
+              </SharedSpace>
+            </CursorsContextProvider>
+          </RsvpIntentionProvider>
+        </UserProvider>
+      </QueryClientProvider>
     </DynamicContextProvider>
   );
 }
