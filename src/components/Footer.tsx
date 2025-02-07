@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { MoveUpRight } from "lucide-react";
+import { Heart, MoveUpRight } from "lucide-react";
 const Footer = () => {
   const [isMounted, setIsMounted] = useState(false);
 
@@ -15,21 +15,22 @@ const Footer = () => {
     bg-kernel
     w-full py-5
     font-primary
-    text-primary-foreground
     `}
     >
-      <div className="flex flex-row items-center justify-center">
+      <div className="flex flex-row items-center justify-center gap-1 italic">
+        Built{" "}
         <span>
-          Built at{" "}
+          with{" "}
           <div className="relative inline-flex font-primary">
             <motion.a
-              href="https://kernel.community/"
+              href="https://github.com/Kernel-Community/convo-app"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center text-sm italic underline decoration-dotted underline-offset-4 sm:text-base"
               whileHover="hover"
             >
-              Kernel
+              frens{" "}
+              <Heart className="ml-1 h-2 w-2 text-red-500 sm:h-3 sm:w-3" />
               {isMounted && (
                 <>
                   {/* Desktop arrow - appears on hover */}
@@ -55,14 +56,6 @@ const Footer = () => {
           </div>
         </span>
       </div>
-      {/* <div className="text-xs flex flex-row gap-3 justify-center italic font-primary font-thin px-4">
-        <span>
-          If this looks like something you&apos;d like to work on (we need tons of help)&nbsp;
-          <a href="mailto:angela@kernel.community" className="underline">
-          please get in touch!
-          </a>
-        </span>
-      </div> */}
     </div>
   );
 };
