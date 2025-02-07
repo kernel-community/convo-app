@@ -18,6 +18,7 @@ const Main = ({ children, className = "" }: MainProps) => {
       >
         {children}
       </main>
+      <Footer />
     </div>
   );
 };
