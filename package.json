@@ -24,8 +24,7 @@
     "*.{jsx,js,tsx,ts}": "prettier --write"
   },
   "dependencies": {
-    "@dynamic-labs/sdk-react": "^0.18.27",
-    "@dynamic-labs/wagmi-connector": "^0.18.27",
+    "@dynamic-labs/sdk-react": "^0.18.30",
     "@hookform/resolvers": "^2.9.11",
     "@prisma/client": "^5.10.2",
     "@radix-ui/react-checkbox": "^1.1.1",
@@ -103,7 +102,6 @@
     "tailwind-merge": "^2.2.1",
     "tailwindcss-animate": "^1.0.7",
     "vaul": "^1.1.2",
-    "wagmi": "0.9.6",
     "y-prosemirror": "^1.2.2",
     "y-websocket": "^1.5.4",
     "yjs": "^13.6.12",
