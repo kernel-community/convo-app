@@ -28,7 +28,16 @@ const Home = () => {
     setIsLoading(true);
     try {
       // Generate title and parse datetime before showing form
-      const { title, dateTime } = await generateTitle(text);
+      let title: string;
+      let dateTime: { start: string; end: string } | null = null;
+
+      if (text.length > 150) {
+        const result = await generateTitle(text);
+        title = result.title;
+        dateTime = result.dateTime;
+      } else {
+        title = text;
+      }
       setGeneratedTitle(title);
       setDateTimeStartAndEnd(dateTime);
       console.log({ dateTime });
