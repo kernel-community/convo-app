@@ -5,8 +5,10 @@ import { useScramble } from "src/context/ScrambleContext";
 
 const scrambleText = (text: string | undefined, progress: number): string => {
   if (!text) return "";
+  const maxLength = 8;
   return text
     .split("")
+    .slice(0, maxLength)
     .map((char) => {
       // Keep spaces intact
       if (char === " ") return char;
