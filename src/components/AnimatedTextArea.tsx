@@ -49,9 +49,9 @@ export const AnimatedTextArea = ({
   return (
     <textarea
       placeholder={displayText}
-      className={`transition-all duration-300 ease-in-out placeholder:text-muted-foreground/50 ${className} ${
+      className={`border-0 transition-all duration-300 ease-in-out placeholder:text-muted-foreground focus:ring-2 focus:ring-primary focus:ring-offset-2 ${className} ${
         isCollapsed
-          ? "h-[60px] cursor-pointer overflow-scroll border-0 border-2 border-gray-300 bg-skin p-[18px]"
+          ? "bg-skin h-[60px] cursor-pointer overflow-scroll p-[18px]"
           : "h-[180px]"
       } `}
       value={value}

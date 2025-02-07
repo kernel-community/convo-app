@@ -42,11 +42,11 @@ const About: NextPage = () => {
           <div className="flex flex-col items-center justify-center">
             <div
               className="
+            dark:text-primary-dark
             mx-auto
-            font-heading
+            font-primary
             text-4xl
-            font-extrabold
-            text-primary dark:text-primary-dark
+            font-extrabold text-primary
             sm:text-5xl
           "
             >
@@ -62,7 +62,7 @@ const About: NextPage = () => {
               return (
                 <section id={id} key={key} className="mb-6">
                   <Link href={`#${id}`}>
-                    <h1 className="font-robotoSlab text-2xl text-kernel-light hover:text-kernel">
+                    <h1 className="font-robotoSlab text-kernel-light hover:text-kernel text-2xl">
                       <span className="-ml-7 mr-3">#</span>
                       {faq.question}
                     </h1>

@@ -9,7 +9,7 @@ interface MainProps {
 
 const Main = ({ children, className = "" }: MainProps) => {
   return (
-    <div className="relative flex h-screen min-h-screen flex-col overflow-y-auto selection:bg-highlight selection:text-primary dark:text-primary-dark">
+    <div className="dark:text-primary-dark relative flex h-screen min-h-screen flex-col overflow-y-auto selection:bg-highlight selection:text-primary">
       <Navbar />
       <main
         className={`${
@@ -18,7 +18,6 @@ const Main = ({ children, className = "" }: MainProps) => {
       >
         {children}
       </main>
-      <Footer />
     </div>
   );
 };

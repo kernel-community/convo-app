@@ -158,7 +158,7 @@ export const Month = ({ className }: { className?: string }) => {
           {day.getDate()}
         </div>
         {dayEvents.length > 0 && (
-          <div className="absolute bottom-0 flex h-4 w-full items-center justify-end truncate rounded-b-md bg-primary/20 px-1 text-[9px] font-medium text-primary sm:text-[12px]">
+          <div className="bg-primary/20 absolute bottom-0 flex h-4 w-full items-center justify-end truncate rounded-b-md px-1 text-[9px] font-medium text-primary sm:text-[12px]">
             {dayEvents.length} event{dayEvents.length > 1 ? "s" : ""}
           </div>
         )}
@@ -206,7 +206,7 @@ export const Month = ({ className }: { className?: string }) => {
     : [];
 
   const calendarView = (
-    <div className="bg-card h-[740px] w-full rounded-lg border">
+    <div className="h-[740px] w-full rounded-lg border bg-card text-card-foreground">
       <Calendar
         mode="single"
         selected={selectedDate}
@@ -292,7 +292,7 @@ export const Month = ({ className }: { className?: string }) => {
                     {Array.from({ length: 3 }).map((_, i) => (
                       <div key={i} className="space-y-2">
                         <div className="h-4 w-3/4 animate-pulse rounded-md bg-muted" />
-                        <div className="h-4 w-1/2 animate-pulse rounded-md bg-muted/50" />
+                        <div className="bg-muted/50 h-4 w-1/2 animate-pulse rounded-md" />
                       </div>
                     ))}
                   </div>
@@ -334,7 +334,7 @@ export const Month = ({ className }: { className?: string }) => {
                       {Array.from({ length: 3 }).map((_, i) => (
                         <div key={i} className="space-y-2">
                           <div className="h-4 w-3/4 animate-pulse rounded-md bg-muted" />
-                          <div className="h-4 w-1/2 animate-pulse rounded-md bg-muted/50" />
+                          <div className="bg-muted/50 h-4 w-1/2 animate-pulse rounded-md" />
                         </div>
                       ))}
                     </div>

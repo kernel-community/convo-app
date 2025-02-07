@@ -24,7 +24,7 @@ export const Article = ({
           prose-xl
           w-full
           max-w-none
-          font-primary
+          font-secondary
           dark:prose-invert
         `}
     >

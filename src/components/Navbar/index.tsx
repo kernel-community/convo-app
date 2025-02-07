@@ -15,15 +15,12 @@ export const Navbar = () => {
         className={`
           z-10
           flex w-full flex-row items-center justify-between gap-8
-          bg-kernel px-3 font-secondary
-          text-sm
-          text-gray-300
-          shadow-dark
+          p-3 font-secondary
         `}
       >
         <div className="inline-flex flex-row items-center">
           <Branding />
-          <ThemeSwitcher />
+          {/* <ThemeSwitcher /> */}
 
           {/* <span className="ml-2 hidden sm:block">
             <div className="font-base inline-flex cursor-pointer flex-row items-center font-bitter italic text-slate-700">
@@ -38,8 +35,8 @@ export const Navbar = () => {
           </span> */}
         </div>
         <div className="inline-flex flex-row items-center gap-4">
-          <Items />
-          {isDesktop && <ConnectButton />}
+          {/* <Items /> */}
+          <ConnectButton />
         </div>
       </div>
     </>

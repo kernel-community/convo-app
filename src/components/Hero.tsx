@@ -336,7 +336,7 @@ const RSVP = ({
     return (
       <Card
         className={cn(
-          "cursor-pointer border-kernel-light transition-shadow duration-300 hover:shadow-lg",
+          "border-kernel-light cursor-pointer transition-shadow duration-300 hover:shadow-lg",
           className
         )}
       >
@@ -357,7 +357,7 @@ const RSVP = ({
   return (
     <Card
       className={cn(
-        "cursor-pointer border-kernel-light transition-shadow duration-300 hover:shadow-lg",
+        "border-kernel-light cursor-pointer transition-shadow duration-300 hover:shadow-lg",
         className
       )}
     >
@@ -482,10 +482,9 @@ const Hero = ({
         className="
           w-full
           pb-0
-          font-heading
+          font-primary
           text-3xl
-          font-bold text-primary
-          dark:text-primary-dark
+          font-semibold
           lg:text-4xl
           xl:text-5xl
         "
@@ -493,13 +492,13 @@ const Hero = ({
         {event?.title}
       </div>
       {isOwnerOfConvo && (
-        <div className="flex-inline flex w-full items-center justify-between rounded-xl bg-kernel-light/30 p-3 font-secondary text-base text-gray-600">
+        <div className="flex-inline flex w-full items-center justify-between rounded-xl bg-secondary p-3 font-secondary text-base text-gray-600">
           <span>You own this convo</span>
           <a
             href={`/edit/${event.hash}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex-inline flex items-center rounded-full border-2 bg-skin px-2 transition-all duration-300 hover:border-kernel"
+            className="flex-inline bg-skin hover:border-kernel flex items-center rounded-full border-2 bg-primary px-2 transition-all duration-300"
           >
             Edit <ArrowUpRight className="h-4" />
           </a>

@@ -54,16 +54,14 @@ const Home = () => {
 
           <div className="flex flex-col items-center">
             <div className="mb-12 text-center">
-              <div className="font-heading text-5xl font-bold lg:text-7xl">
+              <div className="flex-inline flex flex-col gap-1 font-primary text-4xl sm:flex-row">
                 <div>Start a</div>
-                <FancyHighlight className="mx-2 inline-block">
+                <FancyHighlight className="mx-2 inline-block font-brand">
                   {userStartedTyping || showForm ? "Convo" : <ScrambleText />}
                 </FancyHighlight>
-                .
               </div>
             </div>
-
-            <div className="w-full max-w-2xl space-y-2">
+            <div className="w-full max-w-2xl space-y-2 font-secondary">
               <div className="">Start typing...</div>
               <AnimatedTextArea
                 value={text}
@@ -79,7 +77,7 @@ const Home = () => {
                 className="w-full resize-none rounded-lg border p-6 focus:outline-none"
                 isCollapsed={showForm}
               />
-              <motion.div
+              {/* <motion.div
                 initial={{ opacity: 0, height: 0 }}
                 animate={{
                   opacity: userStartedTyping ? 1 : 0,
@@ -90,15 +88,16 @@ const Home = () => {
                   ease: [0.23, 1, 0.32, 1],
                 }}
                 className="overflow-hidden"
+              > */}
+              <Button
+                className="w-full"
+                onClick={handleShowForm}
+                isLoading={isLoading}
+                variant={"default"}
               >
-                <Button
-                  className="w-full"
-                  onClick={handleShowForm}
-                  isLoading={isLoading}
-                >
-                  Create
-                </Button>
-              </motion.div>
+                Create
+              </Button>
+              {/* </motion.div> */}
 
               <AnimatePresence mode="wait">
                 {showForm && (

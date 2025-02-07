@@ -336,7 +336,7 @@ export const RecurrenceRuleInput = ({
                 Reset
               </Button>
               <PopoverClose asChild>
-                <Button variant="primary" size="sm" className="w-full">
+                <Button variant="default" size="sm" className="w-full">
                   Confirm
                 </Button>
               </PopoverClose>
