@@ -137,6 +137,7 @@ const ProposeForm = ({
           register={register}
           errors={errors}
           required={false}
+          autoFocus={true}
         />
 
         {/* Description */}
