@@ -17,11 +17,11 @@ const All: NextPage = () => {
         >
           <div
             className="
-              font-heading
+              dark:text-primary-dark
+              font-primary
               text-4xl
               font-bold
-              lowercase
-              text-primary dark:text-primary-dark
+              lowercase text-primary
               sm:text-5xl
               lg:py-5
             "
