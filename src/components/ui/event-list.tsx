@@ -253,12 +253,12 @@ const CalendarView = ({
         classNames={{
           day: cn(
             buttonVariants({ variant: "ghost" }),
-            "h-9 w-9 p-0 font-normal aria-selected:opacity-100 opacity-50 hover:bg-kernel-light/80 hover:text-accent-foreground"
+            "h-9 w-9 p-0 font-secondary aria-selected:opacity-100 opacity-50 hover:bg-primary-muted hover:text-accent-foreground"
           ),
           day_selected:
-            "bg-kernel-light text-primary-foreground font-semibold border-2 border-primary-muted",
+            "bg-primary-muted text-foreground font-semibold border-2 border-primary-muted",
           day_today: `${
-            selectedDates.includes(new Date()) ? "bg-kernel-light" : ""
+            selectedDates.includes(new Date()) ? "bg-primary-muted" : ""
           }`,
         }}
       />
