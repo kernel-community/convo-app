@@ -11,6 +11,9 @@ import type { ClientEventInput } from "src/types";
 import { DateTime } from "luxon";
 import { ScrambleText } from "src/components/ScrambleText";
 import { generateTitle } from "src/utils/generateTitle";
+import { ArrowRight } from "lucide-react";
+import Link from "next/link";
+import { Events } from "src/components/Events";
 // import WeekView from "src/components/WeekView";
 
 const Home = () => {
@@ -57,12 +60,9 @@ const Home = () => {
   return (
     <>
       <Main>
-        <div className="container mx-auto py-4">
-          {/* <WeekView /> */}
-          <div className="h-4" />
-
-          <div className="flex flex-col items-center">
-            <div className="mb-12 text-center">
+        <div className="container mx-auto">
+          <div className="flex flex-col items-center gap-6">
+            <div className="text-center">
               <div className="flex-inline flex flex-col gap-1 font-primary text-4xl sm:flex-row">
                 <div>Start a</div>
                 <FancyHighlight className="mx-2 inline-block font-brand">
@@ -86,18 +86,6 @@ const Home = () => {
                 className="w-full resize-none rounded-lg border p-6 focus:outline-none"
                 isCollapsed={showForm}
               />
-              {/* <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{
-                  opacity: userStartedTyping ? 1 : 0,
-                  height: userStartedTyping ? "auto" : 0,
-                }}
-                transition={{
-                  duration: 0.5,
-                  ease: [0.23, 1, 0.32, 1],
-                }}
-                className="overflow-hidden"
-              > */}
               <Button
                 className="w-full"
                 onClick={handleShowForm}
@@ -106,8 +94,6 @@ const Home = () => {
               >
                 Create
               </Button>
-              {/* </motion.div> */}
-
               <AnimatePresence mode="wait">
                 {showForm && (
                   <motion.div
@@ -177,6 +163,25 @@ const Home = () => {
                 )}
               </AnimatePresence>
             </div>
+            <div className="w-full max-w-2xl">
+              <Events
+                type="upcoming"
+                take={20}
+                showFilterPanel
+                title="all upcoming"
+              />
+            </div>
+            <span className="group flex cursor-pointer items-center gap-2 text-xl">
+              <Link
+                className="transform underline decoration-dotted underline-offset-4 transition-all duration-200 sm:translate-x-6 sm:group-hover:translate-x-0"
+                href="/all"
+              >
+                View all
+              </Link>
+              <span className="transform transition-all duration-200 sm:-translate-x-2 sm:opacity-0 sm:group-hover:translate-x-0 sm:group-hover:opacity-100">
+                <ArrowRight className="h-4 w-4" />
+              </span>
+            </span>
           </div>
         </div>
       </Main>

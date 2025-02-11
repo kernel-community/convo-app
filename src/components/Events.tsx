@@ -1,5 +1,5 @@
 import { Title } from "./Title";
-import { Card } from "./Card";
+import { Card, CardTemplate } from "./Card";
 import type { Key } from "react";
 import { useEffect } from "react";
 import type { ClientEvent } from "src/types";
@@ -8,7 +8,9 @@ import { useInView } from "react-intersection-observer";
 import { useUser } from "src/context/UserContext";
 import { useState } from "react";
 import type { EventsRequest } from "src/types";
-import EventLoadingState from "./LoadingState/SingleEvent";
+import Link from "next/link";
+import { DateTime } from "luxon";
+import _ from "lodash";
 
 const FilterButton = ({
   onClick,
@@ -88,7 +90,10 @@ export const Events = ({
       getNextPageParam: (lastPage) => {
         return lastPage.nextId ?? false;
       },
-      refetchInterval: 60000,
+      refetchInterval: 143460000, // every minute
+      refetchOnWindowFocus: false,
+      refetchOnMount: false,
+      refetchIntervalInBackground: false,
       enabled: mounted,
     }
   );
@@ -98,25 +103,41 @@ export const Events = ({
       fetchNextPage();
     }
   }, [inView, hasNextPage, fetchNextPage]);
+  const displayLoadingState =
+    isLoading || !mounted || !data || isFetching || isFetchingNextPage;
 
-  if (!mounted) {
+  const Loading = () => {
     return (
-      <div>
-        <Title text={title} highlight={highlight} className="mb-3" />
-        <div className="flex flex-col gap-4 py-3 sm:flex-row sm:flex-wrap">
-          <EventLoadingState />
-          <EventLoadingState />
-          <EventLoadingState />
-        </div>
+      <div className="flex flex-col gap-2">
+        {Array(3)
+          .fill(0)
+          .map((_, i) => (
+            <CardTemplate key={i} isLoading={true} />
+          ))}
       </div>
     );
-  }
+  };
+  const groupEventsByDay = (pages: { data: ClientEvent[] }[]) => {
+    // Flatten all pages of events into a single array
+    const allEvents = pages.flatMap((page) => page.data);
+
+    // Group events by day
+    const groupedEvents = _.groupBy(allEvents, (event) =>
+      DateTime.fromJSDate(new Date(event.startDateTime)).startOf("day").toISO()
+    );
+
+    // Sort the dates chronologically
+    return Object.entries(groupedEvents).sort(
+      ([dateA], [dateB]) =>
+        DateTime.fromISO(dateA).toMillis() - DateTime.fromISO(dateB).toMillis()
+    );
+  };
 
   return (
-    <div>
-      <Title text={title} highlight={highlight} className="mb-3" />
+    <>
+      {title && <Title text={title} highlight={highlight} className="mb-3" />}
       {user?.isSignedIn && showFilterPanel && (
-        <div className="my-8 flex flex-row gap-12">
+        <div className="my-4 flex flex-row gap-12">
           <FilterButton
             text="all"
             onClick={() => setFilterObject(undefined)}
@@ -136,36 +157,30 @@ export const Events = ({
           />
         </div>
       )}
-
-      {(!data || isLoading || isFetching) && (
-        <div className="flex flex-col gap-4 py-3 sm:flex-row sm:flex-wrap">
-          <EventLoadingState />
-          <EventLoadingState />
-          <EventLoadingState />
-        </div>
-      )}
-
-      {data && !isLoading && !isFetching && (
-        <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
-          {data.pages.map((page) =>
-            page.data.map((u: ClientEvent, k: Key) => (
-              <a href={`/rsvp/${u.hash}`} key={k}>
-                <Card
-                  title={u.title}
-                  description={u.descriptionHtml ?? ""}
-                  startDateTime={u.startDateTime}
-                  RSVP={u.totalUniqueRsvps}
-                  limit={u.limit}
-                  by={u.nickname || "anonymous"}
-                  isSeries={u.series}
-                />
-              </a>
-            ))
-          )}
-          {data.pages[0].data.length === 0 && (
+      {displayLoadingState && <Loading />}
+      {!displayLoadingState && data && (
+        <div className="flex flex-col gap-6">
+          {data.pages[0].data.length === 0 ? (
             <div className="font-primary lowercase">
               no events to display here
             </div>
+          ) : (
+            groupEventsByDay(data.pages).map(([date, events]) => (
+              <div key={date} className="flex flex-col gap-2">
+                <h3 className="font-primary text-lg text-gray-600">
+                  {DateTime.fromISO(date).toLocaleString({
+                    weekday: "long",
+                    month: "long",
+                    day: "numeric",
+                  })}
+                </h3>
+                {events.map((event: ClientEvent, k: Key) => (
+                  <Link href={`/rsvp/${event.hash}`} key={k} className="w-full">
+                    <Card event={event} />
+                  </Link>
+                ))}
+              </div>
+            ))
           )}
         </div>
       )}
@@ -179,6 +194,6 @@ export const Events = ({
           Intersection Observer Marker
         </div>
       )}
-    </div>
+    </>
   );
 };
