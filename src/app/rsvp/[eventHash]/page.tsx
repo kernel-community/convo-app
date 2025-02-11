@@ -73,7 +73,7 @@ const Post = async ({ params }: Props) => {
   // Move the data fetching to the client component (EventWrapper)
   // This prevents hydration issues by ensuring consistent rendering
   return (
-    <Main className="px-6 lg:px-52">
+    <Main className="container mx-auto">
       <EventWrapper eventHash={params.eventHash} />
     </Main>
   );

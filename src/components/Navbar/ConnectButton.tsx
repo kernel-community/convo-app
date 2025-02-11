@@ -9,7 +9,7 @@ export const ConnectButton = () => {
   if (user.isSignedIn) {
     // display user profile
     return (
-      <div>
+      <div className="flex flex-col items-end sm:flex-row sm:gap-1">
         <div className="hidden">
           <DynamicWidget />
         </div>

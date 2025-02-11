@@ -11,13 +11,13 @@ export const Title = ({
     <div
       className={
         `
-      mx-auto font-secondary text-xl text-primary dark:text-primary-dark sm:text-4xl` +
+      dark:text-primary-dark mx-auto font-primary text-xl text-primary sm:text-4xl` +
         ` ${className}`
       }
     >
       {text && text}
       {text && highlight && " "}
-      {highlight && <span className="text-kernel-light">{highlight}</span>}
+      {highlight && <span className="text-highlight-active">{highlight}</span>}
     </div>
   );
 };

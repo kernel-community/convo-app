@@ -47,9 +47,7 @@ const Signature = ({
 
   return (
     <div className="flex flex-row items-center gap-3">
-      <div
-        className={`${font} ${textSizeSmall} text-kernel dark:text-kernel-light md:${textSizeDefault}`}
-      >
+      <div className={`${font} ${textSizeSmall} md:${textSizeDefault}`}>
         {sign}
       </div>
     </div>

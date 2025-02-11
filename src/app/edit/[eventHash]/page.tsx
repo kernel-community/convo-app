@@ -44,14 +44,14 @@ const Edit = ({ params }: { params: { eventHash: string } }) => {
 
   if (isEventLoading || !user) {
     return (
-      <Main>
-        <div className="flex flex-col items-center justify-center lg:px-64">
+      <Main className="container mx-auto">
+        <div className="flex flex-col items-center justify-center">
           <div className="flex w-full flex-col items-center justify-between sm:flex-row">
-            <div className="px-8 font-heading text-4xl font-extrabold text-primary dark:text-primary-dark sm:text-5xl">
+            <div className="font-heading dark:text-primary-dark px-8 text-4xl font-extrabold text-primary sm:text-5xl">
               <Skeleton className="h-12 w-64" />
             </div>
           </div>
-          <div className="my-12 w-full border border-primary dark:border-primary-dark"></div>
+          <div className="dark:border-primary-dark my-12 w-full border border-primary"></div>
         </div>
       </Main>
     );
@@ -79,22 +79,22 @@ const Edit = ({ params }: { params: { eventHash: string } }) => {
 
   return (
     <>
-      <Main>
+      <Main className="container mx-auto">
         <ConfirmDeleteCredenza
           openModalFlag={openModalFlag}
           setOpenModalFlag={setOpenModalFlag}
           action={handleDelete}
           isLoading={isDeleting}
         />
-        <div className="flex flex-col items-center justify-center lg:px-64">
+        <div className="flex flex-col items-center justify-center">
           <div className="flex w-full flex-col items-center justify-between sm:flex-row">
             <div
               className="
               px-8
-              font-heading
+              font-primary
               text-4xl
               font-extrabold
-              text-primary dark:text-primary-dark
+              text-foreground
               sm:text-5xl
             "
             >
@@ -110,11 +110,9 @@ const Edit = ({ params }: { params: { eventHash: string } }) => {
               </Button>
             )}
           </div>
-          <div className="my-12 w-full border border-primary dark:border-primary-dark"></div>
+          <div className="dark:border-primary-dark my-12 w-full border border-primary"></div>
         </div>
-        <div className="px-8 lg:px-64">
-          <ProposeForm event={clientEventInput} />
-        </div>
+        <ProposeForm event={clientEventInput} />
       </Main>
     </>
   );

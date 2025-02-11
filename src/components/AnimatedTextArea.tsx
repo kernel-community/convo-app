@@ -52,7 +52,7 @@ export const AnimatedTextArea = ({
       className={`border-0 transition-all duration-300 ease-in-out placeholder:text-muted-foreground focus:ring-2 focus:ring-primary focus:ring-offset-2 ${className} ${
         isCollapsed
           ? "bg-skin h-[60px] cursor-pointer overflow-scroll p-[18px]"
-          : "h-[180px]"
+          : "h-[120px]"
       } `}
       value={value}
       onChange={onChange}

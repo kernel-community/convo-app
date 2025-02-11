@@ -83,7 +83,7 @@ const When = ({
       </Credenza>
       <Card
         className={cn(
-          "cursor-pointer transition-shadow duration-300 hover:shadow-lg",
+          "cursor-pointer bg-primary-muted font-secondary text-foreground duration-300 hover:border-2 hover:border-primary",
           className
         )}
         onClick={() => (event.recurrenceRule ? setIsOpen(!isOpen) : null)}
@@ -91,7 +91,7 @@ const When = ({
         <CardHeader>
           <CardTitle className="text-base">when</CardTitle>
           <CardDescription>
-            <span className="text-xs text-gray-500">
+            <span className="text-xs text-foreground">
               timezone: {Intl.DateTimeFormat().resolvedOptions().timeZone}
             </span>
           </CardDescription>
@@ -132,7 +132,7 @@ const Where = ({
   return (
     <Card
       className={cn(
-        "cursor-pointer transition-shadow  duration-300 hover:shadow-lg",
+        "cursor-pointer bg-primary-muted font-secondary text-foreground duration-300 hover:border-2 hover:border-primary",
         className
       )}
     >
@@ -166,13 +166,14 @@ const Where = ({
   );
 };
 
-const WhoElseIsGoing = ({
+export const WhoElseIsGoing = ({
   event,
   isUserGoing,
   isOwnerOfConvo,
   className,
   totalAvailableSeats,
   totalSeats,
+  noModal,
 }: {
   event: ClientEvent;
   isUserGoing: boolean;
@@ -180,6 +181,7 @@ const WhoElseIsGoing = ({
   className?: string;
   totalAvailableSeats: number;
   totalSeats: number;
+  noModal?: boolean;
 }) => {
   const [open, setOpen] = useState<boolean>(false);
   const { fetchedUser } = useUser();
@@ -191,53 +193,59 @@ const WhoElseIsGoing = ({
   const hasRsvps = filteredRsvps.length > 0;
   return (
     <>
-      <Credenza open={open} onOpenChange={setOpen}>
-        <CredenzaContent className="flex h-[34rem] flex-col">
-          <CredenzaHeader>All other RSVPs</CredenzaHeader>
-          <CredenzaBody className="flex-1 overflow-y-auto">
-            {isOwnerOfConvo && (
-              <CopyButton
-                text={event.rsvps.map((rsvp) => rsvp.attendee.email).toString()}
-                label="Copy all emails"
-                className="mb-4"
-              />
-            )}
-            {filteredRsvps.map((rsvp, key) => {
-              const photo =
-                rsvp.attendee?.profile?.photo || DEFAULT_PROFILE_IMAGE;
-              return (
-                <div key={key} className="flex flex-row items-center gap-3">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    className="h-10 w-10 rounded-full border-2 border-white dark:border-gray-800"
-                    src={photo}
-                    alt=""
-                    key={key}
-                  />
-                  {fetchedUser.id === rsvp.attendee.id ? (
-                    <span>
-                      <span className="font-bold">You</span>
-                      <span> ({rsvp.attendee.nickname})</span>
-                    </span>
-                  ) : (
-                    <span>{rsvp.attendee.nickname}</span>
-                  )}
-                  <span>{rsvpTypeToEmoji(rsvp.rsvpType)}</span>
-                </div>
-              );
-            })}
-          </CredenzaBody>
-          <CredenzaFooter>
-            <CredenzaClose className="w-full">
-              <Button className="w-full">Close</Button>
-            </CredenzaClose>
-          </CredenzaFooter>
-        </CredenzaContent>
-      </Credenza>
+      {noModal ? null : (
+        <Credenza open={open} onOpenChange={setOpen}>
+          <CredenzaContent className="flex h-[34rem] flex-col">
+            <CredenzaHeader>All other RSVPs</CredenzaHeader>
+            <CredenzaBody className="flex-1 overflow-y-auto">
+              {isOwnerOfConvo && (
+                <CopyButton
+                  text={event.rsvps
+                    .map((rsvp) => rsvp.attendee.email)
+                    .toString()}
+                  label="Copy all emails"
+                  className="mb-4"
+                />
+              )}
+              {filteredRsvps.map((rsvp, key) => {
+                const photo =
+                  rsvp.attendee?.profile?.photo || DEFAULT_PROFILE_IMAGE;
+                return (
+                  <div key={key} className="flex flex-row items-center gap-3">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      className="h-10 w-10 rounded-full border-2 border-white dark:border-gray-800"
+                      src={photo}
+                      alt=""
+                      key={key}
+                    />
+                    {fetchedUser.id === rsvp.attendee.id ? (
+                      <span>
+                        <span className="font-bold">You</span>
+                        <span> ({rsvp.attendee.nickname})</span>
+                      </span>
+                    ) : (
+                      <span>{rsvp.attendee.nickname}</span>
+                    )}
+                    <span>{rsvpTypeToEmoji(rsvp.rsvpType)}</span>
+                  </div>
+                );
+              })}
+            </CredenzaBody>
+            <CredenzaFooter>
+              <CredenzaClose className="w-full">
+                <Button className="w-full">Close</Button>
+              </CredenzaClose>
+            </CredenzaFooter>
+          </CredenzaContent>
+        </Credenza>
+      )}
       <Card
         onClick={() => (hasRsvps ? setOpen(!open) : null)}
         className={cn(
-          "cursor-pointer transition-shadow  duration-300 hover:shadow-lg",
+          `${
+            noModal ? "" : "cursor-pointer"
+          } bg-primary-muted font-secondary text-foreground duration-300 hover:border-2 hover:border-primary`,
           className
         )}
       >
@@ -336,7 +344,7 @@ const RSVP = ({
     return (
       <Card
         className={cn(
-          "border-kernel-light cursor-pointer transition-shadow duration-300 hover:shadow-lg",
+          "cursor-pointer border-4 border-primary bg-primary-muted text-foreground transition-shadow duration-300 hover:shadow-lg",
           className
         )}
       >
@@ -357,7 +365,7 @@ const RSVP = ({
   return (
     <Card
       className={cn(
-        "border-kernel-light cursor-pointer transition-shadow duration-300 hover:shadow-lg",
+        "cursor-pointer border-4 border-primary bg-primary-muted text-foreground transition-shadow duration-300 hover:shadow-lg",
         className
       )}
     >
@@ -428,7 +436,7 @@ const RSVP = ({
           <div className="mt-6">
             <FieldLabel>Signing as</FieldLabel>
             <div className="flex flex-row gap-3">
-              <Signature user={user as User} style="handwritten" />
+              <Signature user={user as User} style="fancy" />
             </div>
           </div>
         )}
@@ -481,24 +489,21 @@ const Hero = ({
       <div
         className="
           w-full
-          pb-0
           font-primary
           text-3xl
           font-semibold
-          lg:text-4xl
-          xl:text-5xl
         "
       >
         {event?.title}
       </div>
       {isOwnerOfConvo && (
-        <div className="flex-inline flex w-full items-center justify-between rounded-xl bg-secondary p-3 font-secondary text-base text-gray-600">
+        <div className="flex-inline my-4 flex w-full items-center justify-between rounded-xl bg-secondary p-3 font-secondary text-base text-gray-600">
           <span>You own this convo</span>
           <a
             href={`/edit/${event.hash}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex-inline bg-skin hover:border-kernel flex items-center rounded-full border-2 bg-primary px-2 transition-all duration-300"
+            className="flex-inline hover:border-kernel flex items-center rounded-full border-2 bg-primary px-2 text-primary-foreground transition-all duration-300"
           >
             Edit <ArrowUpRight className="h-4" />
           </a>
