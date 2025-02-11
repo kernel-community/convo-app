@@ -57,7 +57,8 @@ module.exports = {
           DEFAULT: "var(--card)",
           active: "var(--card-active)",
           disabled: "var(--card-disabled)",
-          foreground: "var(--card-foreground)"
+          foreground: "var(--card-foreground)",
+          muted: "var(--card-muted)"
         },
         highlight: {
           DEFAULT: "var(--highlight)",
