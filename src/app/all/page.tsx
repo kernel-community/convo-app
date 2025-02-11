@@ -20,7 +20,6 @@ const All: NextPage = () => {
               dark:text-primary-dark
               font-primary
               text-4xl
-              font-bold
               lowercase text-primary
               sm:text-5xl
               lg:py-5
