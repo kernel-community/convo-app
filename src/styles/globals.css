@@ -17,13 +17,14 @@
     --ring: hsl(27 25% 25%);
 
     --primary: hsl(85, 20%, 50%);
-    --primary-muted:hsl(168.89, 17.2%, 30.78%);
+    --primary-muted:hsl(85, 20%, 80%);
     --primary-foreground: hsl(0, 0%, 96%);
 
-    --card: hsl(27 30% 99%);
-    --card-active: hsl(27 35% 97%);
-    --card-disabled: hsl(27 10% 85%);
-    --card-foreground: hsl(27 25% 25%);
+    --card: 	hsl(265, 24%, 57%);
+    --card-muted: 	hsl(265, 24%, 87%);
+    --card-active: hsl(265, 24%, 45%);
+    --card-disabled: hsl(265, 25%, 73%);
+    --card-foreground: hsl(0, 0%, 96%);
 
     --popover: hsl(27 30% 99%);
     --popover-foreground: hsl(27 25% 25%);
@@ -37,7 +38,6 @@
     --accent: hsl(27 35% 97%);
     --accent-foreground: hsl(27 25% 25%);
 
-    /* --highlight: hsl(39, 100%, 89%, 80%); */
     --highlight: hsl(50, 100%, 91%);
     --highlight-active: hsl(174 65% 45%);
     --highlight-disabled: hsl(174 20% 70%);
