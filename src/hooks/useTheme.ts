@@ -33,10 +33,7 @@ export const useThemeStore = create(
       initialTheme: () => {
         if (typeof window === "undefined") return;
         let theme = get().theme;
-        const preferedTheme = window.matchMedia("(prefers-color-scheme: dark)")
-          .matches
-          ? "dark"
-          : ("light" as Theme);
+        const preferedTheme = "light" as Theme;
 
         if (!theme) {
           theme = preferedTheme;

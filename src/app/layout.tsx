@@ -26,8 +26,7 @@ export default function RootLayout({
             __html: `
       (function() {
         const storedData = localStorage.getItem('theme-storage');
-        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        let theme = prefersDark ? 'dark' : 'light';
+        let theme = 'light';
         if (storedData) {
           try {
             const parsedData = JSON.parse(storedData);
