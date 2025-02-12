@@ -206,7 +206,7 @@ export const Month = ({ className }: { className?: string }) => {
     : [];
 
   const calendarView = (
-    <div className="h-[740px] w-full rounded-lg border bg-card text-card-foreground">
+    <div className="h-[740px] w-full rounded-lg border bg-secondary text-secondary-foreground">
       <Calendar
         mode="single"
         selected={selectedDate}

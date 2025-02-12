@@ -83,7 +83,7 @@ const When = ({
       </Credenza>
       <Card
         className={cn(
-          "cursor-pointer bg-primary-muted font-secondary text-foreground duration-300 hover:border-2 hover:border-primary",
+          "cursor-pointer border border-2 border-transparent bg-primary-muted font-secondary text-foreground duration-300 hover:border-2 hover:border-primary",
           className
         )}
         onClick={() => (event.recurrenceRule ? setIsOpen(!isOpen) : null)}
@@ -132,7 +132,7 @@ const Where = ({
   return (
     <Card
       className={cn(
-        "cursor-pointer bg-primary-muted font-secondary text-foreground duration-300 hover:border-2 hover:border-primary",
+        "cursor-pointer border border-2 border-transparent bg-primary-muted font-secondary text-foreground duration-300 hover:border-2 hover:border-primary",
         className
       )}
     >
@@ -245,7 +245,7 @@ export const WhoElseIsGoing = ({
         className={cn(
           `${
             noModal ? "" : "cursor-pointer"
-          } bg-primary-muted font-secondary text-foreground duration-300 hover:border-2 hover:border-primary`,
+          } border border-2 border-transparent bg-primary-muted font-secondary text-foreground duration-300 hover:border-2 hover:border-primary`,
           className
         )}
       >
@@ -497,7 +497,7 @@ const Hero = ({
         {event?.title}
       </div>
       {isOwnerOfConvo && (
-        <div className="flex-inline my-4 flex w-full items-center justify-between rounded-xl bg-secondary p-3 font-secondary text-base text-gray-600">
+        <div className="flex-inline my-4 flex w-full items-center justify-between rounded-xl bg-secondary-muted p-3 font-secondary text-base text-secondary-foreground">
           <span>You own this convo</span>
           <a
             href={`/edit/${event.hash}`}

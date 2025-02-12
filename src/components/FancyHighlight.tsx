@@ -15,7 +15,7 @@ export const FancyHighlight = ({
         className
       )}
     >
-      <span className="relative text-primary">{children}</span>
+      <span className="relative text-highlight-foreground">{children}</span>
     </span>
   );
 };

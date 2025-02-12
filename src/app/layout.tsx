@@ -48,9 +48,7 @@ export default function RootLayout({
       <body className={inter.className}>
         <Providers>
           <ScrambleProvider>
-            <div vaul-drawer-wrapper="" className="bg-background">
-              {children}
-            </div>
+            <div vaul-drawer-wrapper="">{children}</div>
           </ScrambleProvider>
         </Providers>
         <Analytics />

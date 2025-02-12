@@ -17,13 +17,9 @@ export const CardTemplate = ({
     return (
       <Skeleton
         className={`
-          flex
           h-[100px]
           cursor-pointer
-          flex-col
-          rounded-md
-          bg-card
-          text-card-foreground
+          rounded-bl-[2rem] rounded-br-[2rem] rounded-tl-[2rem] rounded-tr-[2rem] border border-2 border-transparent bg-primary-muted
         `}
       />
     );
@@ -35,8 +31,7 @@ export const CardTemplate = ({
         flex
         cursor-pointer
         flex-col
-        rounded-md
-        text-card-foreground
+        text-secondary-foreground
       `}
     >
       {children}
@@ -90,8 +85,8 @@ export const Card = ({ event }: { event: ClientEvent }) => {
   const isSeries = !!event.recurrenceRule;
   return (
     <CardTemplate>
-      <div className="flex w-full flex-row rounded-xl border border-transparent bg-primary-muted transition-all duration-200 ease-in-out hover:border-2 hover:border-card">
-        <div className="w-1/5 rounded-xl bg-primary-muted p-4 text-foreground">
+      <div className="flex w-full flex-row rounded-bl-[1rem] rounded-br-[2rem] rounded-tl-[1rem] rounded-tr-[2rem] border border-2 border-transparent bg-primary-muted transition-all duration-200 ease-in-out hover:border-2 hover:border-secondary sm:rounded-bl-[2rem] sm:rounded-tl-[2rem] ">
+        <div className="w-2/5 rounded-bl-[1rem] rounded-br-[2rem] rounded-tl-[1rem] rounded-tr-[2rem] bg-primary-muted p-2 text-foreground sm:w-1/5 sm:rounded-bl-[2rem] sm:rounded-tl-[2rem] sm:p-4">
           <div className="flex flex-col items-start font-secondary">
             <div className="flex flex-row items-center gap-1 text-xl">
               <div>{prettyDate.month}</div>
@@ -100,8 +95,8 @@ export const Card = ({ event }: { event: ClientEvent }) => {
             <div className="text-sm">{prettyDate.time}</div>
           </div>
         </div>
-        <div className="flex w-full grow flex-row rounded-xl bg-card-muted p-4 font-secondary text-foreground">
-          <div className="grow">
+        <div className="flex w-full grow flex-col rounded-l-[2rem] rounded-r-[2rem] bg-secondary-muted p-4 font-secondary text-secondary-foreground sm:rounded-l-[5rem]">
+          <div className="ml-[1rem] flex flex-col justify-between sm:ml-[4rem]">
             <div className="flex flex-col justify-start">
               <div
                 className="
@@ -144,9 +139,6 @@ export const Card = ({ event }: { event: ClientEvent }) => {
                 <div className="text-xxs uppercase">event series</div>
               )}
             </div>
-          </div>
-          <div>
-            {/* <WhoElseIsGoing event={event} isUserGoing={true} isOwnerOfConvo={false} totalAvailableSeats={seats.available} totalSeats={seats.total} /> */}
           </div>
         </div>
       </div>

@@ -41,8 +41,9 @@ const TextField = ({
           className={`
           rounded-lg
           border-0
-          bg-muted
-          transition-all
+          border-2
+          border-transparent
+          bg-muted transition-all
           focus:border-2
           focus:border-primary
           ${` ` + className + ` `}
