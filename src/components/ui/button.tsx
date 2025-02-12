@@ -11,7 +11,7 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          "rounded-md py-2 px-8 font-secondary border-2 border-transparent transition-all duration-300 ease-in-out bg-primary text-primary-foreground hover:border-primary-foreground",
+          "rounded-md py-2 px-8 font-secondary transition-all duration-150 ease-in-out bg-primary text-primary-foreground touch-none select-none shadow-[4px_4px_0px_0px] shadow-foreground active:translate-x-[2px] active:translate-y-[2px] active:shadow-[2px_2px_0px_0px] active:shadow-foreground md:shadow-[8px_8px_0px_0px] md:shadow-foreground md:hover:translate-x-[2px] md:hover:translate-y-[4px] md:hover:shadow-[4px_4px_0px_0px] md:hover:shadow-foreground md:active:translate-x-[4px] md:active:translate-y-[4px] md:active:shadow-none",
         destructive:
           "rounded-md py-2 px-8 font-secondary border-2 border-transparent transition-all duration-300 ease-in-out bg-destructive text-destructive-foreground hover:border-primary-foreground",
         outline:
