@@ -104,7 +104,8 @@ const Home = () => {
                       transition={{ delay: 0.2, duration: 0.2 }}
                       className="mb-2"
                     >
-                      Start typing...
+                      Describe your convo, including date & time, & what you
+                      hope it to feel like...
                     </motion.div>
                     <AnimatedTextArea
                       value={text}
