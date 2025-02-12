@@ -53,12 +53,12 @@ module.exports = {
           DEFAULT: "var(--popover)",
           foreground: "var(--popover-foreground)"
         },
-        card: {
-          DEFAULT: "var(--card)",
-          active: "var(--card-active)",
-          disabled: "var(--card-disabled)",
-          foreground: "var(--card-foreground)",
-          muted: "var(--card-muted)"
+        secondary: {
+          DEFAULT: "var(--secondary)",
+          active: "var(--secondary-active)",
+          disabled: "var(--secondary-disabled)",
+          foreground: "var(--secondary-foreground)",
+          muted: "var(--secondary-muted)"
         },
         highlight: {
           DEFAULT: "var(--highlight)",

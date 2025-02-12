@@ -10,27 +10,24 @@
   :root {
     --radius: 0.5rem;
 
-    --background: hsl(27 20% 92%);
-    --foreground: hsl(27 25% 25%);
+    --background:	 hsl(0, 0%, 91%);
+    --foreground: hsl(0, 0%, 30%);
     --border: hsl(27 30% 85%);
     --input: hsl(27 30% 85%);
     --ring: hsl(27 25% 25%);
 
-    --primary: hsl(85, 20%, 50%);
+    --primary: hsl(110, 31%, 60%);
     --primary-muted:hsl(85, 20%, 80%);
     --primary-foreground: hsl(0, 0%, 96%);
 
-    --card: 	hsl(265, 24%, 57%);
-    --card-muted: 	hsl(265, 24%, 87%);
-    --card-active: hsl(265, 24%, 45%);
-    --card-disabled: hsl(265, 25%, 73%);
-    --card-foreground: hsl(0, 0%, 96%);
+    --secondary: 	hsl(238,64%, 62%);
+    --secondary-muted: 	hsl(238,64%, 70%);
+    --secondary-active: hsl(265, 24%, 45%);
+    --secondary-disabled: hsl(265, 25%, 73%);
+    --secondary-foreground: hsl(0, 0%, 96%);
 
     --popover: hsl(27 30% 99%);
     --popover-foreground: hsl(27 25% 25%);
-
-    --secondary: hsl(27 35% 97%);
-    --secondary-foreground: hsl(27 25% 25%);
 
     --muted: hsl(27 35% 97%);
     --muted-foreground: hsl(27 25% 60%);
@@ -38,10 +35,10 @@
     --accent: hsl(27 35% 97%);
     --accent-foreground: hsl(27 25% 25%);
 
-    --highlight: hsl(50, 100%, 91%);
+    --highlight: hsl(50, 100%, 60%);
     --highlight-active: hsl(174 65% 45%);
     --highlight-disabled: hsl(174 20% 70%);
-    --highlight-foreground: hsl(174 80% 15%);
+    --highlight-foreground: hsl(0, 0%, 30%);
 
     --success: hsl(82 35% 55%);
     --success-active: hsl(82 40% 50%);
@@ -75,10 +72,11 @@
     --primary-muted: hsl(42 45% 20%);
     --primary-foreground: hsl(20 14.3% 95%);
 
-    --card: hsl(27 25% 15%);
-    --card-active: hsl(27 30% 18%);
-    --card-disabled: hsl(27 15% 25%);
-    --card-foreground: hsl(27 15% 90%);
+    --secondary: hsl(27 25% 15%);
+    --secondary-muted: hsl(27 30% 18%);
+    --secondary-active: hsl(27 30% 18%);
+    --secondary-disabled: hsl(27 15% 25%);
+    --secondary-foreground: hsl(27 15% 90%);
 
     --popover: hsl(27 25% 15%);
     --popover-foreground: hsl(27 15% 90%);
