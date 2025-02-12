@@ -3,23 +3,26 @@ import type { ReactNode } from "react";
 const FieldLabel = ({
   children,
   styles,
+  htmlFor,
 }: {
   children: ReactNode;
   styles?: string;
+  htmlFor?: string;
 }) => {
   return (
-    <div
+    <label
+      htmlFor={htmlFor}
       className={`
       font-secondary
       text-sm
       font-semibold
       uppercase
-      text-gray-800 dark:text-[#DCDCDC]
+      text-foreground
       ${styles}
     `}
     >
       {children}
-    </div>
+    </label>
   );
 };
 
