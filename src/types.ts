@@ -114,3 +114,11 @@ export const clientEventInputValidationScheme = z.object({
 });
 
 export type ClientEventInput = z.infer<typeof clientEventInputValidationScheme>;
+
+export type FullEvent = Event & {
+  proposer: User;
+  community: Community & {
+    google: Google;
+    slack: Slack;
+  };
+};
