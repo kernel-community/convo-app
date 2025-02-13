@@ -7,10 +7,12 @@ import { FancyHighlight } from "../components/FancyHighlight";
 import { AnimatedTextArea } from "../components/AnimatedTextArea";
 import { Button } from "src/components/ui/button";
 import ProposeForm from "src/components/ProposeForm";
-import type { ClientEventInput } from "src/types";
 import { DateTime } from "luxon";
 import { ScrambleText } from "src/components/ScrambleText";
 import { generateTitle } from "src/utils/generateTitle";
+import { generateDescription } from "src/utils/generateDescription";
+import { parseDateTime } from "src/utils/parseDateTime";
+import { parseLocation } from "src/utils/parseLocation";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { Events } from "src/components/Events";
@@ -22,10 +24,14 @@ const Home = () => {
   const [showTextArea, setShowTextArea] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [generatedTitle, setGeneratedTitle] = useState<string>("");
+  const [generatedDescription, setGeneratedDescription] = useState<string>("");
   const [dateTimeStartAndEnd, setDateTimeStartAndEnd] = useState<{
     start: string;
     end: string;
   } | null>(null);
+  const [generatedLocation, setGeneratedLocation] = useState<string | null>(
+    null
+  );
   const formRef = useRef<HTMLDivElement>(null);
 
   const handleCreateClick = async () => {
@@ -48,16 +54,28 @@ const Home = () => {
       // Generate title and parse datetime before showing form
       let title: string;
       let dateTime: { start: string; end: string } | null = null;
-
+      let description: string;
+      let location: string | null = null;
       if (text.length > 30) {
-        const result = await generateTitle(text);
-        title = result.title;
-        dateTime = result.dateTime;
+        const [titleResult, descriptionResult, dateTimeResult, locationResult] =
+          await Promise.all([
+            generateTitle(text),
+            generateDescription(text),
+            parseDateTime(text),
+            parseLocation(text),
+          ]);
+        title = titleResult.title;
+        dateTime = dateTimeResult;
+        description = descriptionResult.description;
+        location = locationResult;
       } else {
         title = text;
+        description = text;
       }
       setGeneratedTitle(title);
       setDateTimeStartAndEnd(dateTime);
+      setGeneratedDescription(description);
+      setGeneratedLocation(location);
       setShowForm(true);
     } finally {
       setIsLoading(false);
@@ -177,44 +195,42 @@ const Home = () => {
                   >
                     <div className="mt-8">
                       <ProposeForm
-                        event={
-                          {
-                            description: text,
-                            title:
-                              generatedTitle ||
-                              text.split("\n")[0] ||
-                              "Untitled Convo",
-                            dateTimeStartAndEnd: dateTimeStartAndEnd
-                              ? {
-                                  start: new Date(dateTimeStartAndEnd.start),
-                                  end: new Date(dateTimeStartAndEnd.end),
-                                }
-                              : {
-                                  start: DateTime.now()
-                                    .plus({ hours: 1 })
-                                    .startOf("hour")
-                                    .toJSDate(),
-                                  end: DateTime.now()
-                                    .plus({ hours: 2 })
-                                    .startOf("hour")
-                                    .toJSDate(),
-                                },
-                            limit: "0",
-                            location: "Online",
-                            nickname: "Anonymous",
-                            gCalEvent: true,
-                            sessions: [
-                              {
-                                dateTime: dateTimeStartAndEnd
-                                  ? new Date(dateTimeStartAndEnd.start)
-                                  : DateTime.now().startOf("hour").toJSDate(),
-                                duration: 1,
-                                count: 1,
+                        event={{
+                          description: generatedDescription || text,
+                          title:
+                            generatedTitle ||
+                            text.split("\n")[0] ||
+                            "Untitled Convo",
+                          dateTimeStartAndEnd: dateTimeStartAndEnd
+                            ? {
+                                start: new Date(dateTimeStartAndEnd.start),
+                                end: new Date(dateTimeStartAndEnd.end),
+                              }
+                            : {
+                                start: DateTime.now()
+                                  .plus({ hours: 1 })
+                                  .startOf("hour")
+                                  .toJSDate(),
+                                end: DateTime.now()
+                                  .plus({ hours: 2 })
+                                  .startOf("hour")
+                                  .toJSDate(),
                               },
-                            ],
-                            recurrenceRule: undefined,
-                          } as ClientEventInput
-                        }
+                          limit: "0",
+                          location: generatedLocation || "Somewhere Online",
+                          nickname: "Anonymous",
+                          gCalEvent: true,
+                          sessions: [
+                            {
+                              dateTime: dateTimeStartAndEnd
+                                ? new Date(dateTimeStartAndEnd.start)
+                                : DateTime.now().startOf("hour").toJSDate(),
+                              duration: 1,
+                              count: 1,
+                            },
+                          ],
+                          recurrenceRule: undefined,
+                        }}
                       />
                     </div>
                   </motion.div>
