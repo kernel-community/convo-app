@@ -7,20 +7,20 @@ interface SmolbrainResponse {
   };
 }
 
-interface GenerateTitleResponse {
-  title: string;
+interface GenerateDescriptionResponse {
+  description: string;
 }
 
-export async function generateTitle(
+export async function generateDescription(
   description?: string
-): Promise<GenerateTitleResponse> {
+): Promise<GenerateDescriptionResponse> {
   if (!description?.trim()) {
-    return { title: "Untitled Convo" };
+    return { description: "Convo" };
   }
 
   try {
     const response = await fetch(
-      `${KERNEL_SMOLBRAIN_API}/action/convo/generate-title`,
+      `${KERNEL_SMOLBRAIN_API}/action/convo/generate-description`,
       {
         method: "POST",
         headers: {
@@ -39,13 +39,13 @@ export async function generateTitle(
 
     const data = ((await response.json()) as SmolbrainResponse).data;
     return {
-      title: data.response,
+      description: data.response,
     };
   } catch (error) {
-    console.error("Error generating title:", error);
+    console.error("Error generating description:", error);
     // Fallback to a simple title
     return {
-      title: description?.split("\n")?.[0]?.slice(0, 40) || "Untitled Convo",
+      description: description?.split("\n")?.[0]?.slice(0, 40) || "Convo",
     };
   }
 }
