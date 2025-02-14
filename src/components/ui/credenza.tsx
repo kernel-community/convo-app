@@ -41,11 +41,18 @@ interface CredenzaProps extends BaseProps {
 
 const desktop = "(min-width: 768px)";
 
-const Credenza = ({ children, ...props }: RootCredenzaProps) => {
+const Credenza = ({
+  children,
+  ...props
+}: RootCredenzaProps & { shouldScaleBackground?: boolean }) => {
   const isDesktop = useMediaQuery(desktop);
   const Credenza = isDesktop ? Dialog : Drawer;
 
-  return <Credenza {...props}>{children}</Credenza>;
+  return (
+    <Credenza shouldScaleBackground={false} {...props}>
+      {children}
+    </Credenza>
+  );
 };
 
 const CredenzaTrigger = ({ className, children, ...props }: CredenzaProps) => {
