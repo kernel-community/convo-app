@@ -1,23 +1,92 @@
-import { Title } from "./Title";
-import { Card, CardTemplate } from "./Card";
+import React, { useEffect, useState } from "react";
 import type { Key } from "react";
-import { useEffect } from "react";
-import type { ClientEvent } from "src/types";
 import { useInfiniteQuery } from "react-query";
 import { useInView } from "react-intersection-observer";
-import { useUser } from "src/context/UserContext";
-import { useState } from "react";
-import type { EventsRequest } from "src/types";
 import Link from "next/link";
 import { DateTime } from "luxon";
 import _ from "lodash";
+import { motion } from "framer-motion";
+
+import { useUser } from "src/context/UserContext";
+import { CalendarPopover } from "./CalendarPopover";
+import type { ClientEvent, EventsRequest } from "src/types";
+import { Title } from "./Title";
+import { Card, CardTemplate } from "./Card";
+import { CalendarIcon } from "lucide-react";
+
+interface DateDisplayProps {
+  date: Date | string;
+  onDateChange?: (date: Date) => void;
+  className?: string;
+  eventDates?: Date[];
+}
+
+const DateDisplay = ({
+  date,
+  onDateChange,
+  className = "",
+  eventDates,
+}: DateDisplayProps) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const dateTime =
+    typeof date === "string"
+      ? DateTime.fromISO(date)
+      : DateTime.fromJSDate(date);
+  const dateValue = typeof date === "string" ? new Date(date) : date;
+
+  return (
+    <CalendarPopover
+      isOpen={isOpen}
+      onOpenChange={setIsOpen}
+      onSelect={(newDate) => {
+        onDateChange?.(newDate);
+        setIsOpen(false);
+      }}
+      selectedDate={dateValue}
+      eventDates={eventDates}
+    >
+      <div
+        className={`group flex max-w-max cursor-pointer items-start ${className}`}
+        onClick={() => setIsOpen(true)}
+      >
+        <div className="relative rounded-md rounded-br-[50px] rounded-tl-[50px] bg-primary-muted px-8 py-2 pr-12 transition-[padding] duration-200 md:pr-6 md:group-hover:pr-9">
+          <h3 className="font-primary text-lg text-foreground decoration-dotted underline-offset-4 transition-all group-hover:underline">
+            {(() => {
+              const now = DateTime.now();
+              const diff = dateTime
+                .startOf("day")
+                .diff(now.startOf("day"), "days").days;
+              const isWeekend = dateTime.weekday >= 6;
+              const isThisWeekend = isWeekend && diff >= 0 && diff <= 2;
+
+              if (diff === 0) return "today";
+              if (diff === 1) return "tomorrow";
+              if (isThisWeekend) return "this weekend";
+
+              const isMobile =
+                typeof window !== "undefined" &&
+                window.matchMedia("(max-width: 767px)").matches;
+              return dateTime.toLocaleString({
+                weekday: isMobile ? "short" : "long",
+                month: isMobile ? "short" : "long",
+                day: "numeric",
+                year: "numeric",
+              });
+            })()}
+          </h3>
+          <CalendarIcon className="absolute right-4 top-1/2 block -translate-y-1/2 p-1 opacity-100 transition-opacity duration-200 md:right-3 md:hidden md:opacity-0 md:group-hover:block md:group-hover:opacity-100" />
+        </div>
+      </div>
+    </CalendarPopover>
+  );
+};
 
 const FilterButton = ({
   onClick,
   text,
   active,
 }: {
-  onClick: React.MouseEventHandler<HTMLDivElement>;
+  onClick: () => void;
   text: string;
   active: boolean;
 }) => {
@@ -41,6 +110,7 @@ export const Events = ({
   infinite = false, // to implement or not to implement the infinite scroll
   showFilterPanel = false, // only works when user logged in
   preFilterObject,
+  useDynamicLayout = false,
 }: Pick<EventsRequest, "type"> & {
   title?: string;
   highlight?: string;
@@ -48,12 +118,14 @@ export const Events = ({
   infinite?: boolean;
   showFilterPanel?: boolean;
   preFilterObject?: EventsRequest["filter"];
+  useDynamicLayout?: boolean;
 }) => {
   const { fetchedUser: user } = useUser();
   const [filterObject, setFilterObject] =
     useState<EventsRequest["filter"]>(preFilterObject);
   const { ref, inView } = useInView();
   const [mounted, setMounted] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
 
   useEffect(() => {
     setMounted(true);
@@ -117,25 +189,35 @@ export const Events = ({
       </div>
     );
   };
-  const groupEventsByDay = (pages: { data: ClientEvent[] }[]) => {
-    // Flatten all pages of events into a single array
-    const allEvents = pages.flatMap((page) => page.data);
+  const groupEventsByDay = React.useMemo(() => {
+    return (pages: { data: ClientEvent[] }[]) => {
+      // Flatten all pages of events into a single array
+      const allEvents = pages.flatMap((page) => page.data);
 
-    // Group events by day
-    const groupedEvents = _.groupBy(allEvents, (event) =>
-      DateTime.fromJSDate(new Date(event.startDateTime)).startOf("day").toISO()
-    );
+      // Pre-process dates once
+      const eventsWithProcessedDates = allEvents.map((event) => ({
+        ...event,
+        dayKey: DateTime.fromJSDate(new Date(event.startDateTime))
+          .startOf("day")
+          .toISO(),
+      }));
 
-    // Sort the dates chronologically
-    return Object.entries(groupedEvents).sort(
-      ([dateA], [dateB]) =>
-        DateTime.fromISO(dateA).toMillis() - DateTime.fromISO(dateB).toMillis()
-    );
-  };
+      // Group events by day
+      const groupedEvents = _.groupBy(eventsWithProcessedDates, "dayKey");
+
+      // Sort the dates chronologically
+      return Object.entries(groupedEvents).sort(
+        ([dateA], [dateB]) =>
+          DateTime.fromISO(dateA).toMillis() -
+          DateTime.fromISO(dateB).toMillis()
+      );
+    };
+  }, []);
 
   return (
     <>
       {title && <Title text={title} highlight={highlight} className="mb-3" />}
+
       {user?.isSignedIn && showFilterPanel && (
         <div className="my-4 flex flex-row gap-12">
           <FilterButton
@@ -165,22 +247,111 @@ export const Events = ({
               no events to display here
             </div>
           ) : (
-            groupEventsByDay(data.pages).map(([date, events]) => (
-              <div key={date} className="flex flex-col gap-2">
-                <h3 className="font-primary text-lg text-gray-600">
-                  {DateTime.fromISO(date).toLocaleString({
-                    weekday: "long",
-                    month: "long",
-                    day: "numeric",
-                  })}
-                </h3>
-                {events.map((event: ClientEvent, k: Key) => (
-                  <Link href={`/rsvp/${event.hash}`} key={k} className="w-full">
-                    <Card event={event} />
-                  </Link>
-                ))}
-              </div>
-            ))
+            <>
+              {selectedDate ? (
+                <motion.div
+                  key={selectedDate.toISOString()}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  className="flex flex-col gap-2"
+                >
+                  <div className="flex items-center justify-between">
+                    <DateDisplay
+                      date={selectedDate}
+                      onDateChange={setSelectedDate}
+                      eventDates={data?.pages.flatMap((page) =>
+                        page.data.map(
+                          (event: { startDateTime: string | number | Date }) =>
+                            new Date(event.startDateTime)
+                        )
+                      )}
+                    />
+                    <button
+                      onClick={() => setSelectedDate(null)}
+                      className="rounded-md px-3 py-1 text-sm text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-800"
+                    >
+                      View all
+                    </button>
+                  </div>
+                  {groupEventsByDay(data.pages)
+                    .filter(([date]) =>
+                      DateTime.fromISO(date).hasSame(
+                        DateTime.fromJSDate(selectedDate),
+                        "day"
+                      )
+                    )
+                    .map(([date, events]) => (
+                      <div
+                        key={date}
+                        className={`${
+                          useDynamicLayout && events.length > 2
+                            ? "grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3"
+                            : "flex flex-col gap-2"
+                        }`}
+                      >
+                        {events.map((event: ClientEvent, k: Key) => (
+                          <Link
+                            href={`/rsvp/${event.hash}`}
+                            key={k}
+                            className="h-full w-full"
+                          >
+                            <Card event={event} />
+                          </Link>
+                        ))}
+                      </div>
+                    ))}
+                  {groupEventsByDay(data.pages).filter(([date]) =>
+                    DateTime.fromISO(date).hasSame(
+                      DateTime.fromJSDate(selectedDate),
+                      "day"
+                    )
+                  ).length === 0 && (
+                    <div className="py-8 text-center font-primary text-gray-600">
+                      No Convos scheduled
+                    </div>
+                  )}
+                </motion.div>
+              ) : (
+                groupEventsByDay(data.pages).map(([date, events]) => (
+                  <motion.div
+                    key={date}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.2 }}
+                    className="flex flex-col gap-2"
+                  >
+                    <DateDisplay
+                      date={date}
+                      onDateChange={(newDate) => setSelectedDate(newDate)}
+                      eventDates={data?.pages.flatMap((page) =>
+                        page.data.map(
+                          (event: { startDateTime: string | number | Date }) =>
+                            new Date(event.startDateTime)
+                        )
+                      )}
+                    />
+                    <div
+                      className={`${
+                        useDynamicLayout && events.length > 2
+                          ? "grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3"
+                          : "flex flex-col gap-2"
+                      }`}
+                    >
+                      {events.map((event: ClientEvent, k: Key) => (
+                        <Link
+                          href={`/rsvp/${event.hash}`}
+                          key={k}
+                          className="h-full w-full"
+                        >
+                          <Card event={event} />
+                        </Link>
+                      ))}
+                    </div>
+                  </motion.div>
+                ))
+              )}
+            </>
           )}
         </div>
       )}
