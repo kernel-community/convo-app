@@ -31,7 +31,6 @@ const ProposeForm = ({
   const { fetchedUser: user } = useUser();
   const { push } = useRouter();
 
-  const [isLimitEnabled, setIsLimitEnabled] = useState(false);
   const {
     register,
     reset,
@@ -192,7 +191,8 @@ const ProposeForm = ({
             register={register}
             errors={errors}
             required={false}
-            infoText="How many RSVPs are you willing to provide?"
+            type="number"
+            infoText="Would you like to limit the number of RSVPs to this Convo? (optional - set 0 for No Limit)"
           />
         </div>
 
