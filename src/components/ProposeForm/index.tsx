@@ -186,28 +186,14 @@ const ProposeForm = ({
 
         {/* Limit */}
         <div className="space-y-4">
-          <div className="flex items-center space-x-2">
-            <FieldLabel htmlFor="limit-switch">RSVP Limit</FieldLabel>
-            <Switch
-              id="limit-switch"
-              checked={isLimitEnabled}
-              onCheckedChange={(checked) => {
-                setIsLimitEnabled(checked);
-                reset({ ...defaultValues, limit: "0" });
-              }}
-            />
-          </div>
-
-          {isLimitEnabled && (
-            <TextField
-              name="limit"
-              fieldName="Limit"
-              register={register}
-              errors={errors}
-              required={false}
-              infoText="How many RSVPs are you willing to provide?"
-            />
-          )}
+          <TextField
+            name="limit"
+            fieldName="Limit"
+            register={register}
+            errors={errors}
+            required={false}
+            infoText="How many RSVPs are you willing to provide?"
+          />
         </div>
 
         {/* Location */}

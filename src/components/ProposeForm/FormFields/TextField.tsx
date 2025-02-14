@@ -40,7 +40,6 @@ const TextField = ({
           type="text"
           className={`
           rounded-lg
-          border-0
           border-2
           border-transparent
           bg-muted transition-all
