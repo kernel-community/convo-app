@@ -22,7 +22,6 @@ export const CalendarPopover = ({
   children,
   eventDates = [],
 }: CalendarPopoverProps) => {
-  console.log(eventDates);
   return (
     <Popover open={isOpen} onOpenChange={onOpenChange}>
       <PopoverTrigger>{children}</PopoverTrigger>
