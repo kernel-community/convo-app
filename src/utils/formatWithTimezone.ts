@@ -4,25 +4,29 @@ export function formatWithTimezone(date: Date, timezoneOffset: string): string {
     timezoneOffset.match(/([+-])(\d{2}):(\d{2})/)?.slice(1) || [];
   if (!sign || !hours || !minutes) {
     throw new Error(
-      "Invalid timezone offset format. Expected format: \"+HH:MM\" or \"-HH:MM\""
+      `Invalid timezone offset format. Expected format: "+HH:MM" or "-HH:MM"`
     );
   }
 
-  // Calculate offset in minutes
-  const offsetMinutes =
-    (parseInt(hours) * 60 + parseInt(minutes)) * (sign === "+" ? -1 : 1);
+  // Get UTC time
+  const utcTime = date.getTime();
 
-  // Create a new date by adjusting for the timezone
-  const localDate = new Date(
-    date.getTime() + (date.getTimezoneOffset() + offsetMinutes) * 60000
-  );
+  // Calculate target timezone offset in milliseconds
+  const targetOffsetMs =
+    (parseInt(hours) * 60 + parseInt(minutes)) *
+    (sign === "+" ? -1 : 1) *
+    60000;
 
-  const year = localDate.getFullYear();
-  const month = String(localDate.getMonth() + 1).padStart(2, "0");
-  const day = String(localDate.getDate()).padStart(2, "0");
-  const hrs = String(localDate.getHours()).padStart(2, "0");
-  const mins = String(localDate.getMinutes()).padStart(2, "0");
-  const secs = String(localDate.getSeconds()).padStart(2, "0");
+  // Create date in target timezone
+  const targetDate = new Date(utcTime + targetOffsetMs);
+
+  // Format the date components
+  const year = targetDate.getUTCFullYear();
+  const month = String(targetDate.getUTCMonth() + 1).padStart(2, "0");
+  const day = String(targetDate.getUTCDate()).padStart(2, "0");
+  const hrs = String(targetDate.getUTCHours()).padStart(2, "0");
+  const mins = String(targetDate.getUTCMinutes()).padStart(2, "0");
+  const secs = String(targetDate.getUTCSeconds()).padStart(2, "0");
 
   return `${year}-${month}-${day}T${hrs}:${mins}:${secs}${timezoneOffset}`;
 }

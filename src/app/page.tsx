@@ -17,12 +17,14 @@ import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { Events } from "src/components/Events";
 import { getLocalTimezoneOffset } from "src/utils/getLocalTimezoneOffset";
+import { formatWithTimezone } from "src/utils/formatWithTimezone";
 // import WeekView from "src/components/WeekView";
 
 const Home = () => {
-  // Use ISO string format to avoid date parsing issues
-  const NOW = new Date().toISOString();
   const tzOffset = getLocalTimezoneOffset();
+  // Format current time in local timezone
+  const NOW = formatWithTimezone(new Date(), tzOffset);
+
   const [text, setText] = useState("");
   const [showForm, setShowForm] = useState(false);
   const [showTextArea, setShowTextArea] = useState(false);
