@@ -22,8 +22,14 @@ import { formatWithTimezone } from "src/utils/formatWithTimezone";
 
 const Home = () => {
   const tzOffset = getLocalTimezoneOffset();
+  const currentDate = new Date();
+  console.log("page.tsx time debug:", {
+    rawDate: currentDate,
+    rawISOString: currentDate.toISOString(),
+    tzOffset,
+  });
   // Format current time in local timezone
-  const NOW = formatWithTimezone(new Date(), tzOffset);
+  const NOW = formatWithTimezone(currentDate, tzOffset);
 
   const [text, setText] = useState("");
   const [showForm, setShowForm] = useState(false);

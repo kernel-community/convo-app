@@ -13,9 +13,17 @@ export async function parseDateTime(
   if (!text?.trim()) {
     return null;
   }
-  // Create date from ISO string and format it with the target timezone
+  console.log("parseDateTime.ts time debug:", {
+    inputNow: now,
+    tzOffset,
+  });
   const nowDate = new Date(now);
+  console.log("after new Date():", {
+    nowDate,
+    nowDateISO: nowDate.toISOString(),
+  });
   const formattedNow = formatWithTimezone(nowDate, tzOffset);
+  console.log("after formatWithTimezone:", { formattedNow });
   try {
     const response = await fetch("/api/action/parse-datetime", {
       method: "POST",
