@@ -37,9 +37,7 @@ export const Branding = () => {
         href="/"
         className="hover:underline hover:decoration-dotted hover:underline-offset-4"
       >
-        <span className="font-brand text-lg sm:text-2xl sm:text-xl">
-          Convo.Cafe
-        </span>
+        <span className="font-brand text-lg sm:text-[1.5rem]">Convo.Cafe</span>
       </Link>
       <motion.div
         onHoverStart={() => handleInteraction(true)}
