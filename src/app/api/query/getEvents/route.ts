@@ -1,4 +1,4 @@
-import _, { isNil } from "lodash";
+import _ from "lodash";
 import { DateTime } from "luxon";
 import { prisma } from "src/utils/db";
 import type { ClientEvent, ServerEvent } from "src/types";
