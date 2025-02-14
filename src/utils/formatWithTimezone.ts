@@ -21,9 +21,11 @@ export function formatWithTimezone(date: Date, timezoneOffset: string): string {
   const utcTime = date.getTime();
 
   // Calculate target timezone offset in milliseconds
+  // For -08:00, we want to subtract 8 hours from UTC time
+  // For +08:00, we want to add 8 hours to UTC time
   const targetOffsetMs =
     (parseInt(hours) * 60 + parseInt(minutes)) *
-    (sign === "+" ? -1 : 1) *
+    (sign === "-" ? -1 : 1) *
     60000;
 
   console.log("offset calculation:", {
