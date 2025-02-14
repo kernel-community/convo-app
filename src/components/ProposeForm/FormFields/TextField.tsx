@@ -39,7 +39,7 @@ const TextField = ({
       <div className="flex flex-col">
         <input
           autoFocus={autoFocus}
-          type={type || "text"}
+          type={type}
           className={`
           rounded-lg
           border-2

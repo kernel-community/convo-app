@@ -35,7 +35,7 @@ const ProposeForm = ({
     register,
     reset,
     handleSubmit,
-    formState: { errors, defaultValues },
+    formState: { errors, defaultValues, isSubmitted },
     control,
   } = useForm<ClientEventInput>({
     resolver: zodResolver(clientEventInputValidationScheme),
@@ -220,12 +220,18 @@ const ProposeForm = ({
         <div>
           <FieldLabel>Proposing as</FieldLabel>
           <div className="mt-2 flex flex-row items-center gap-3">
-            <Signature user={user as User} />
+            {user.isSignedIn ? (
+              <Signature user={user as User} />
+            ) : (
+              <div className="font-secondary">You are not signed in</div>
+            )}
           </div>
         </div>
 
         {!user.isSignedIn ? (
-          <LoginButton />
+          <LoginButton
+            disabled={isSubmitted && Object.keys(errors).length > 0}
+          />
         ) : (
           <Button type="submit" isLoading={loading}>
             Submit
