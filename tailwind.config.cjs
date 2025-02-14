@@ -88,16 +88,16 @@ module.exports = {
       typography: {
         invert: {
           css: {
-            '--tw-prose-invert-links': '#c0c0c0',
-            '--tw-prose-invert-bold': '#c0c0c0',
-            '--tw-prose-invert-headings': '#c0c0c0',
+            "--tw-prose-invert-links": "#c0c0c0",
+            "--tw-prose-invert-bold": "#c0c0c0",
+            "--tw-prose-invert-headings": "#c0c0c0",
           },
         },
       },
       fontFamily: {
         fancy: ["Licorice", "sans-serif"],
         brand: ["Nephilm", "sans-serif"],
-        secondary: ["Atkinson Hyperlegible", "sans-serif"],
+        secondary: ["Lato", "sans-serif"],
         primary: ["Lora", "serif"],
       },
       fontSize: {

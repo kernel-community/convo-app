@@ -221,34 +221,65 @@
   animation: pulse-slow 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 @font-face {
-  font-family: "Atkinson Hyperlegible";
-  src: url("/fonts/Atkinson_Hyperlegible/Atkinson-Hyperlegible-Regular-102.ttf") format("truetype");
+  font-family: "Lato";
+  src: url("/fonts/Lato/Lato-Regular.ttf") format("truetype");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: "Atkinson Hyperlegible";
-  src: url("/fonts/Atkinson_Hyperlegible/Atkinson-Hyperlegible-Italic-102.ttf") format("truetype");
+  font-family: "Lato";
+  src: url("/fonts/Lato/Lato-Italic.ttf") format("truetype");
   font-weight: 400;
   font-style: italic;
   font-display: swap;
 }
 
 @font-face {
-  font-family: "Atkinson Hyperlegible";
-  src: url("/fonts/Atkinson_Hyperlegible/Atkinson-Hyperlegible-Bold-102.ttf") format("truetype");
+  font-family: "Lato";
+  src: url("/fonts/Lato/Lato-Bold.ttf") format("truetype");
   font-weight: 700;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: "Atkinson Hyperlegible";
-  src: url("/fonts/Atkinson_Hyperlegible/Atkinson-Hyperlegible-BoldItalic-102.ttf") format("truetype");
+  font-family: "Lato";
+  src: url("/fonts/Lato/Lato-BoldItalic.ttf") format("truetype");
   font-weight: 700;
   font-style: italic;
   font-display: swap;
 }
 
+@font-face {
+  font-family: "Lato";
+  src: url("/fonts/Lato/Lato-Light.ttf") format("truetype");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Lato";
+  src: url("/fonts/Lato/Lato-LightItalic.ttf") format("truetype");
+  font-weight: 300;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Lato";
+  src: url("/fonts/Lato/Lato-Black.ttf") format("truetype");
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Lato";
+  src: url("/fonts/Lato/Lato-BlackItalic.ttf") format("truetype");
+  font-weight: 900;
+  font-style: italic;
+  font-display: swap;
+}
