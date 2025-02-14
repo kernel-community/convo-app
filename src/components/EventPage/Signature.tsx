@@ -37,9 +37,11 @@ const getStyles = (
 const Signature = ({
   user,
   style = "fancy",
+  className,
 }: {
   user: User;
   style?: SignatureStyle;
+  className?: string;
 }) => {
   const sign = user.nickname;
   // signature displayed is of the currently signed in user
@@ -47,7 +49,9 @@ const Signature = ({
 
   return (
     <div className="flex flex-row items-center gap-3">
-      <div className={`${font} ${textSizeSmall} md:${textSizeDefault}`}>
+      <div
+        className={`${font} ${textSizeSmall} md:${textSizeDefault} ${className}`}
+      >
         {sign}
       </div>
     </div>
