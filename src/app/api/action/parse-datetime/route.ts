@@ -13,17 +13,20 @@ const systemPrompt = (
 You must respond with a valid JSON object containing 'start' and 'end' timestamps.
 
 Rules for Date/Time Interpretation:
-1. Handle relative time expressions:
+1. STRICT Time Mappings (ALWAYS use these exact times):
+   - "morning" = EXACTLY 9:00 AM in the input timezone
+   - "afternoon" = EXACTLY 2:00 PM in the input timezone
+   - "evening" = EXACTLY 6:00 PM in the input timezone
+   - "night" = EXACTLY 8:00 PM in the input timezone
+   - "breakfast" = EXACTLY 9:00 AM in the input timezone
+   - "lunch" = EXACTLY 12:00 PM in the input timezone
+   - "dinner" = EXACTLY 7:00 PM in the input timezone
+   - "midnight" = EXACTLY 12:00 AM in the input timezone
+   - "noon" = EXACTLY 12:00 PM in the input timezone
+
+2. Handle relative time expressions:
    - "tomorrow", "next week", "in 2 days"
-   - "morning" = 9:00 AM in the input timezone
-   - "afternoon" = 2:00 PM in the input timezone
-   - "evening" = 6:00 PM in the input timezone
-   - "night" = 8:00 PM in the input timezone
-   - "breakfast" = 9:00 AM in the input timezone
-   - "lunch" = 12:00 PM in the input timezone
-   - "dinner" = 7:00 PM in the input timezone
-   - "midnight" = 12:00 AM in the input timezone
-   - "noon" = 12:00 PM in the input timezone
+   - ALWAYS combine with the EXACT times above
 
 2. Combine relative dates with times:
    - "tomorrow evening" = next day at 6:00 PM in the input timezone
