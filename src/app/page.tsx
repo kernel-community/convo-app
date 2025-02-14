@@ -20,9 +20,8 @@ import { getLocalTimezoneOffset } from "src/utils/getLocalTimezoneOffset";
 // import WeekView from "src/components/WeekView";
 
 const Home = () => {
-  const NOW = new Date().toLocaleString("en-US", {
-    timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-  });
+  // Use ISO string format to avoid date parsing issues
+  const NOW = new Date().toISOString();
   const tzOffset = getLocalTimezoneOffset();
   const [text, setText] = useState("");
   const [showForm, setShowForm] = useState(false);
