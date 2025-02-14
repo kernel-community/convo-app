@@ -10,7 +10,7 @@
   :root {
     --radius: 0.5rem;
 
-    --background:	 hsl(0, 0%, 91%);
+    --background:	 hsl(36, 50%, 96%);
     --foreground: hsl(0, 0%, 30%);
     --border: hsl(27 30% 85%);
     --input: hsl(27 30% 85%);
@@ -20,16 +20,16 @@
     --primary-muted:hsl(85, 20%, 80%);
     --primary-foreground: hsl(0, 0%, 96%);
 
-    --secondary: 	hsl(238,64%, 62%);
-    --secondary-muted: 	hsl(238,64%, 70%);
-    --secondary-active: hsl(265, 24%, 45%);
-    --secondary-disabled: hsl(265, 25%, 73%);
+    --secondary: 	hsl(218, 70%, 54%);
+    --secondary-muted: 	hsl(218, 64%, 62%);
+    --secondary-active: hsl(218, 64%, 62%);
+    --secondary-disabled: hsl(218, 64%, 62%);
     --secondary-foreground: hsl(0, 0%, 96%);
 
     --popover: hsl(27 30% 99%);
     --popover-foreground: hsl(27 25% 25%);
 
-    --muted: hsl(27 35% 97%);
+    --muted: hsl(0, 0%, 93%);
     --muted-foreground: hsl(27 25% 60%);
 
     --accent: hsl(27 35% 97%);

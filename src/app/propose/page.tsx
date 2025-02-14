@@ -6,22 +6,21 @@ import Main from "src/layouts/Main";
 const Home: NextPage = () => {
   return (
     <>
-      <Main className="mx-auto sm:container">
+      <Main>
         <div className="flex flex-col items-center justify-center">
           <div
             className="
+            dark:text-primary-dark
             mx-auto
-            px-8
-            font-heading
+            font-primary
             text-5xl
-            font-extrabold
-            text-primary dark:text-primary-dark
+            font-semibold text-primary
             sm:text-5xl
           "
           >
             Propose a Conversation
           </div>
-          <div className="my-12 w-full border border-primary dark:border-primary-dark lg:w-9/12"></div>
+          <div className="dark:border-primary-dark my-12 w-full border border-primary lg:w-9/12"></div>
         </div>
         <ProposeForm />
       </Main>

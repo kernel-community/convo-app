@@ -44,7 +44,7 @@ const Edit = ({ params }: { params: { eventHash: string } }) => {
 
   if (isEventLoading || !user) {
     return (
-      <Main className="container mx-auto">
+      <Main>
         <div className="flex flex-col items-center justify-center">
           <div className="flex w-full flex-col items-center justify-between sm:flex-row">
             <div className="font-heading dark:text-primary-dark px-8 text-4xl font-extrabold text-primary sm:text-5xl">
@@ -93,7 +93,7 @@ const Edit = ({ params }: { params: { eventHash: string } }) => {
               px-8
               font-primary
               text-4xl
-              font-extrabold
+              font-semibold
               text-foreground
               sm:text-5xl
             "

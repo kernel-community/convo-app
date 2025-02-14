@@ -72,14 +72,8 @@ const EventWrapper = ({
 
   return (
     <>
-      <div className="container">
-        <div className="flex flex-row items-center">
-          <Hero isImported={isImported} isDeleted={isDeleted} event={event} />
-        </div>
-        <div className="mt-4 w-full">
-          <EventDetails html={descriptionHtml} proposer={proposer} />
-        </div>
-      </div>
+      <Hero isImported={isImported} isDeleted={isDeleted} event={event} />
+      <EventDetails html={descriptionHtml} proposer={proposer} />
     </>
   );
 };
@@ -95,7 +89,7 @@ const EventWrapperWrapper = ({ eventHash }: { eventHash: string }) => {
   // Show loading state while data or user is loading
   if (isLoading || !user) {
     return (
-      <div className="container animate-pulse">
+      <div className="animate-pulse">
         <div className="flex flex-row items-center">
           <div className="h-32 w-full rounded-lg bg-gray-200 dark:bg-gray-700" />
         </div>
@@ -109,11 +103,9 @@ const EventWrapperWrapper = ({ eventHash }: { eventHash: string }) => {
   // Show error state
   if (isError) {
     return (
-      <div className="container">
-        <div className="flex flex-col items-center justify-center gap-4 py-12">
-          <h2 className="text-2xl font-bold">Failed to load event</h2>
-          <p>Please try refreshing the page</p>
-        </div>
+      <div className="flex flex-col items-center justify-center gap-4 py-12">
+        <h2 className="text-2xl font-bold">Failed to load event</h2>
+        <p>Please try refreshing the page</p>
       </div>
     );
   }

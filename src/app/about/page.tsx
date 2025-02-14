@@ -31,7 +31,7 @@ const About: NextPage = () => {
   };
   return (
     <>
-      <Main className="mx-auto px-4">
+      <Main>
         <div
           className="
           pl-6

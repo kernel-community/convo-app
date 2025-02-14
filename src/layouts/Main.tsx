@@ -14,9 +14,9 @@ const Main = ({ children, className = "" }: MainProps) => {
       <main
         className={`${
           className.includes("h-full") ? "" : "my-12 sm:my-24"
-        } flex-1 ${className}`}
+        } flex-1`}
       >
-        {children}
+        <div className={`container mx-auto ${className}`}>{children}</div>
       </main>
       <Footer />
     </div>

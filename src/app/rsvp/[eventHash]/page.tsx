@@ -65,15 +65,10 @@ export async function generateMetadata(
 }
 
 const Post = async ({ params }: Props) => {
-  const headersList = headers();
-  const host = headersList.get("host") || "";
-  const scheme =
-    host.includes("localhost") || host.includes("127.0.0.1") ? "http" : "https";
-
   // Move the data fetching to the client component (EventWrapper)
   // This prevents hydration issues by ensuring consistent rendering
   return (
-    <Main className="container mx-auto">
+    <Main className="container">
       <EventWrapper eventHash={params.eventHash} />
     </Main>
   );

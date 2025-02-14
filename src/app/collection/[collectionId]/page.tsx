@@ -14,15 +14,15 @@ const Post = ({ params }: { params: { collectionId: string } }) => {
   } = useCollection({ collectionId });
 
   return (
-    <Main className="px-6 sm:px-24">
+    <Main>
       <div></div>
       <div
         className="
               font-heading
+              dark:text-primary-dark
               text-5xl
               font-bold
-              lowercase
-              text-primary dark:text-primary-dark
+              lowercase text-primary
               lg:py-5
             "
       >

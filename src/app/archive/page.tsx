@@ -17,18 +17,24 @@ const Archive: NextPage = () => {
         >
           <div
             className="
-              font-heading
+              dark:text-primary-dark
+              font-primary
               text-4xl
-              font-bold
-              lowercase
-              text-primary dark:text-primary-dark
+              font-semibold
+              lowercase text-primary
               sm:text-5xl
               lg:py-5
             "
           >
             Archive
           </div>
-          <Events type="past" take={50} infinite={true} showFilterPanel />
+          <Events
+            type="past"
+            take={50}
+            infinite={true}
+            showFilterPanel
+            useDynamicLayout={true}
+          />
         </div>
       </Main>
     </>
