@@ -16,9 +16,14 @@ import { parseLocation } from "src/utils/parseLocation";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { Events } from "src/components/Events";
+import { getLocalTimezoneOffset } from "src/utils/getLocalTimezoneOffset";
 // import WeekView from "src/components/WeekView";
 
 const Home = () => {
+  const NOW = new Date().toLocaleString("en-US", {
+    timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+  });
+  const tzOffset = getLocalTimezoneOffset();
   const [text, setText] = useState("");
   const [showForm, setShowForm] = useState(false);
   const [showTextArea, setShowTextArea] = useState(false);
@@ -61,12 +66,7 @@ const Home = () => {
           await Promise.all([
             generateTitle(text),
             generateDescription(text),
-            parseDateTime(
-              text,
-              new Date().toLocaleString("en-US", {
-                timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-              })
-            ),
+            parseDateTime(text, NOW, tzOffset),
             parseLocation(text),
           ]);
         title = titleResult.title;
@@ -74,7 +74,13 @@ const Home = () => {
         description = descriptionResult.description;
         location = locationResult;
       } else {
+        const [dateTimeResult, locationResult] = await Promise.all([
+          parseDateTime(text, NOW, tzOffset),
+          parseLocation(text),
+        ]);
         title = text;
+        dateTime = dateTimeResult;
+        location = locationResult;
         description = text;
       }
       setGeneratedTitle(title);

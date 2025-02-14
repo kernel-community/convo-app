@@ -1,5 +1,6 @@
 import OpenAI from "openai";
 import { NextResponse } from "next/server";
+import { formatWithTimezone } from "src/utils/formatWithTimezone";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -55,33 +56,9 @@ You must respond with a valid JSON object. Example response format:
 {"start": "2024-02-13T09:00:00-08:00", "end": "2024-02-13T10:00:00-08:00"}
 `;
 
-function getLocalTimezoneOffset(): string {
-  const date = new Date();
-  const offset = -date.getTimezoneOffset();
-  const hours = Math.floor(Math.abs(offset) / 60)
-    .toString()
-    .padStart(2, "0");
-  const minutes = (Math.abs(offset) % 60).toString().padStart(2, "0");
-  return `${offset >= 0 ? "+" : "-"}${hours}:${minutes}`;
-}
-
-function formatWithTimezone(date: Date, timezoneOffset: string): string {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-  const hours = String(date.getHours()).padStart(2, "0");
-  const minutes = String(date.getMinutes()).padStart(2, "0");
-  const seconds = String(date.getSeconds()).padStart(2, "0");
-
-  return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}${timezoneOffset}`;
-}
-
 export async function POST(request: Request) {
   try {
-    const { text } = await request.json();
-    const timezoneOffset = getLocalTimezoneOffset();
-    const now = formatWithTimezone(new Date(), timezoneOffset);
-
+    const { text, now, tzOffset } = await request.json();
     const response = await openai.chat.completions.create({
       model: "gpt-4-turbo-preview",
       messages: [
@@ -112,10 +89,10 @@ export async function POST(request: Request) {
     const startDate = new Date(parsed.start);
     const endDate = new Date(parsed.end);
 
-    const start = formatWithTimezone(startDate, timezoneOffset);
-    const end = formatWithTimezone(endDate, timezoneOffset);
+    const start = formatWithTimezone(startDate, tzOffset);
+    const end = formatWithTimezone(endDate, tzOffset);
 
-    console.log({ start, end, now, timezoneOffset });
+    console.log({ start, end, now, tzOffset });
 
     return NextResponse.json({
       start,

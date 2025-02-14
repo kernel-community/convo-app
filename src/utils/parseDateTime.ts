@@ -1,3 +1,5 @@
+import { formatWithTimezone } from "./formatWithTimezone";
+
 interface DateTimeResponse {
   start: string;
   end: string;
@@ -5,12 +7,13 @@ interface DateTimeResponse {
 
 export async function parseDateTime(
   text: string,
-  now: string
+  now: string,
+  tzOffset: string
 ): Promise<DateTimeResponse | null> {
   if (!text?.trim()) {
     return null;
   }
-
+  const formattedNow = formatWithTimezone(new Date(now), tzOffset);
   try {
     const response = await fetch("/api/action/parse-datetime", {
       method: "POST",
@@ -19,7 +22,8 @@ export async function parseDateTime(
       },
       body: JSON.stringify({
         text,
-        now,
+        now: formattedNow,
+        tzOffset,
       }),
     });
 
