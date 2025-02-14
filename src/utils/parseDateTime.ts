@@ -4,7 +4,8 @@ interface DateTimeResponse {
 }
 
 export async function parseDateTime(
-  text: string
+  text: string,
+  now: string
 ): Promise<DateTimeResponse | null> {
   if (!text?.trim()) {
     return null;
@@ -18,9 +19,7 @@ export async function parseDateTime(
       },
       body: JSON.stringify({
         text,
-        now: new Date().toLocaleString("en-US", {
-          timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-        }),
+        now,
       }),
     });
 
