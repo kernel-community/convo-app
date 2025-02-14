@@ -9,7 +9,7 @@ export const ConnectButton = () => {
   if (user.isSignedIn) {
     // display user profile
     return (
-      <div className="flex flex-col items-end text-[1.5rem] sm:flex-row sm:gap-1">
+      <div className="flex flex-col items-end sm:flex-row sm:gap-1 sm:text-xl">
         <div className="hidden">
           <DynamicWidget />
         </div>
@@ -30,7 +30,7 @@ export const ConnectButton = () => {
       onClick={() => {
         setShowAuthFlow(true);
       }}
-      className="cursor-pointer font-primary text-xl hover:underline hover:decoration-dotted hover:underline-offset-4"
+      className="cursor-pointer font-primary hover:underline hover:decoration-dotted hover:underline-offset-4 sm:text-xl"
     >
       Log in
     </div>
