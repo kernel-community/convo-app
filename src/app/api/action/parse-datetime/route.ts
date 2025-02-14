@@ -10,37 +10,50 @@ const systemPrompt = (
   now: string
 ) => `You are a JSON API that extracts date and time information from text. Current time with timezone is: ${now}.
 
-You must respond with a valid JSON object containing 'start' and 'end' timestamps.
+You must respond with a valid JSON object containing 'start' and 'end' timestamps in 24-hour format.
 
-Rules for Date/Time Interpretation:
-1. STRICT Time Mappings (ALWAYS use these exact times):
-   - "morning" = EXACTLY 9:00 AM in the input timezone
-   - "afternoon" = EXACTLY 2:00 PM in the input timezone
-   - "evening" = EXACTLY 6:00 PM in the input timezone
-   - "night" = EXACTLY 8:00 PM in the input timezone
-   - "breakfast" = EXACTLY 9:00 AM in the input timezone
-   - "lunch" = EXACTLY 12:00 PM in the input timezone
-   - "dinner" = EXACTLY 7:00 PM in the input timezone
-   - "midnight" = EXACTLY 12:00 AM in the input timezone
-   - "noon" = EXACTLY 12:00 PM in the input timezone
+Rules for Time Interpretation (STRICT - NO EXCEPTIONS):
+1. EXACT Time Mappings (use 24-hour format):
+   - "6pm", "6PM", "6:00pm", "6:00PM" = EXACTLY 18:00
+   - "morning" = EXACTLY 09:00
+   - "afternoon" = EXACTLY 14:00
+   - "evening" = EXACTLY 18:00
+   - "night" = EXACTLY 20:00
+   - "breakfast" = EXACTLY 09:00
+   - "lunch" = EXACTLY 12:00
+   - "dinner" = EXACTLY 19:00
+   - "midnight" = EXACTLY 00:00
+   - "noon" = EXACTLY 12:00
 
-2. Handle relative time expressions:
-   - "tomorrow", "next week", "in 2 days"
-   - ALWAYS combine with the EXACT times above
+2. Time Input Rules:
+   - For specific times (e.g. "6pm"), use EXACTLY that time (18:00)
+   - For time words (e.g. "evening"), use the EXACT mapping above
+   - NEVER approximate or adjust these times
+   - ALL times must be in 24-hour format
 
-2. Combine relative dates with times:
-   - "tomorrow evening" = next day at 6:00 PM in the input timezone
-   - "next week breakfast" = same day next week at 9:00 AM in the input timezone
-   - "friday night" = upcoming Friday at 8:00 PM in the input timezone
+3. Date Handling:
+   - For "tomorrow" - use next calendar day
+   - For "next week" - use same day next week
+   - For "in X days" - add X calendar days
 
-3. Time Resolution Rules:
-   - Use the timezone from the input 'now' time for all calculations
-   - If no specific date mentioned but time is, assume the next occurrence
-   - If the resulting time would be in the past relative to input time, move it to the next occurrence
-   - If no end time specified, set it to 1 hour after start time
-   - If end time is specified but would be before start time, adjust it to be after start time
-   - For vague time references, use standard times listed above
-   - If a time range is implied (e.g., "evening"), use 2-hour duration
+4. Output Rules:
+   - ALWAYS preserve the input timezone offset
+   - If no end time given, add EXACTLY 1 hour to start time
+   - Format: YYYY-MM-DDTHH:mm:ss[TIMEZONE]
+   - Example: 2024-02-14T18:00:00-08:00
+
+5. Examples (with input time 2024-02-14T08:00:00-08:00):
+   Input: "tomorrow 6pm"
+   Output: {
+     "start": "2024-02-15T18:00:00-08:00",
+     "end": "2024-02-15T19:00:00-08:00"
+   }
+
+   Input: "next week evening"
+   Output: {
+     "start": "2024-02-21T18:00:00-08:00",
+     "end": "2024-02-21T19:00:00-08:00"
+   }
 
 4. Return Format:
    - Return null if no valid date/time found
@@ -88,13 +101,22 @@ export async function POST(request: Request) {
       return NextResponse.json({ start: null, end: null });
     }
 
-    // Parse the dates and format them with the local timezone
-    const startDate = new Date(parsed.start);
-    const endDate = new Date(parsed.end);
+    console.log("Raw OpenAI response:", { parsed, content });
 
-    const start = formatWithTimezone(startDate, tzOffset);
-    const end = formatWithTimezone(endDate, tzOffset);
+    // Instead of parsing and reformatting, just validate the format
+    const isValidDateFormat = (dateStr: string) => {
+      return /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}[+-]\d{2}:\d{2}$/.test(
+        dateStr
+      );
+    };
 
+    if (!isValidDateFormat(parsed.start) || !isValidDateFormat(parsed.end)) {
+      console.error("Invalid date format from OpenAI");
+      return NextResponse.json({ start: null, end: null });
+    }
+
+    // Use the dates directly from OpenAI's response
+    const { start, end } = parsed;
     console.log({ start, end, now, tzOffset });
 
     return NextResponse.json({
