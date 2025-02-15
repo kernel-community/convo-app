@@ -201,7 +201,7 @@ export const RecurrenceRuleInput = ({
     <>
       <Popover>
         <PopoverTrigger asChild>
-          <Button variant="outline" className="bg-accent font-primary">
+          <Button variant="outline" className="border-2 bg-muted font-primary">
             {formattedRrule || `convert to recurring convo?`}
           </Button>
         </PopoverTrigger>

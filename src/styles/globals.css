@@ -16,12 +16,12 @@
     --input: hsl(27 30% 85%);
     --ring: hsl(27 25% 25%);
 
-    --primary: hsl(110, 31%, 60%);
-    --primary-muted:hsl(85, 20%, 80%);
+    --primary: hsl(110, 35%, 55%);
+    --primary-muted: hsl(110, 25%, 75%);
     --primary-foreground: hsl(0, 0%, 96%);
 
-    --secondary: 	hsl(218, 70%, 54%);
-    --secondary-muted: 	hsl(218, 64%, 62%);
+    --secondary: hsl(218, 60%, 54%);
+    --secondary-muted: hsl(218, 55%, 62%);
     --secondary-active: hsl(218, 64%, 62%);
     --secondary-disabled: hsl(218, 64%, 62%);
     --secondary-foreground: hsl(0, 0%, 96%);
@@ -32,30 +32,30 @@
     --muted: hsl(0, 0%, 93%);
     --muted-foreground: hsl(27 25% 60%);
 
-    --accent: hsl(27 35% 97%);
+    --accent: hsl(170, 35%, 75%);
     --accent-foreground: hsl(27 25% 25%);
 
-    --highlight: hsl(50, 100%, 60%);
+    --highlight: hsl(50, 85%, 65%);
     --highlight-active: hsl(174 65% 45%);
     --highlight-disabled: hsl(174 20% 70%);
     --highlight-foreground: hsl(0, 0%, 30%);
 
-    --success: hsl(82 35% 55%);
+    --success: hsl(82, 45%, 55%);
     --success-active: hsl(82 40% 50%);
     --success-disabled: hsl(82 15% 75%);
     --success-foreground: hsl(82 45% 20%);
 
-    --info: hsl(200 35% 60%);
+    --info: hsl(200, 45%, 60%);
     --info-active: hsl(200 40% 55%);
     --info-disabled: hsl(200 15% 75%);
     --info-foreground: hsl(200 45% 25%);
 
-    --warn: hsl(35 65% 65%);
+    --warn: hsl(35, 55%, 65%);
     --warn-active: hsl(35 70% 60%);
     --warn-disabled: hsl(35 25% 75%);
     --warn-foreground: hsl(35 45% 25%);
 
-    --destructive: hsl(15 65% 55%);
+    --destructive: hsl(15, 55%, 55%);
     --destructive-active: hsl(15 70% 50%);
     --destructive-disabled: hsl(15 25% 75%);
     --destructive-foreground: hsl(15 45% 98%);
