@@ -94,6 +94,7 @@ export const clientEventInputValidationScheme = z.object({
   dateTimeStartAndEnd: z.object({
     start: z.date().default(DateTime.now().toJSDate()),
     end: z.date().default(DateTime.now().plus({ minutes: 30 }).toJSDate()),
+    timezone: z.string().optional(),
   }),
   recurrenceRule: z.string().optional(),
   sessions: z.array(SessionSchema),

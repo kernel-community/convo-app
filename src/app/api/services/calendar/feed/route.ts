@@ -45,6 +45,7 @@ export async function GET(req: NextRequest) {
     return {
       start: `${sdt.toFormat("yyyyLLdd")}T${sdt.toFormat("HHmmss")}Z`,
       end: `${edt.toFormat("yyyyLLdd")}T${edt.toFormat("HHmmss")}Z`,
+      timezone: "UTC",
       organizer: {
         name: event.proposer.nickname,
         email: EVENT_ORGANIZER_EMAIL,

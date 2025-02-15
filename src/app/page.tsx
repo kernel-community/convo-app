@@ -23,11 +23,6 @@ import { formatWithTimezone } from "src/utils/formatWithTimezone";
 const Home = () => {
   const tzOffset = getLocalTimezoneOffset();
   const currentDate = new Date();
-  console.log("page.tsx time debug:", {
-    rawDate: currentDate,
-    rawISOString: currentDate.toISOString(),
-    tzOffset,
-  });
   // Format current time in local timezone
   const NOW = formatWithTimezone(currentDate, tzOffset);
 
@@ -38,8 +33,9 @@ const Home = () => {
   const [generatedTitle, setGeneratedTitle] = useState<string>("");
   const [generatedDescription, setGeneratedDescription] = useState<string>("");
   const [dateTimeStartAndEnd, setDateTimeStartAndEnd] = useState<{
-    start: string;
-    end: string;
+    start: Date;
+    end: Date;
+    timezone?: string;
   } | null>(null);
   const [generatedLocation, setGeneratedLocation] = useState<string | null>(
     null
@@ -65,7 +61,6 @@ const Home = () => {
     try {
       // Generate title and parse datetime before showing form
       let title: string;
-      let dateTime: { start: string; end: string } | null = null;
       let description: string;
       let location: string | null = null;
       if (text.length > 30) {
@@ -77,21 +72,62 @@ const Home = () => {
             parseLocation(text),
           ]);
         title = titleResult.title;
-        dateTime = dateTimeResult;
         description = descriptionResult.description;
         location = locationResult;
+
+        // Handle datetime result
+        if (dateTimeResult) {
+          // Keep dates in their original timezone
+          const dateTimeState = {
+            start: new Date(dateTimeResult.start),
+            end: new Date(dateTimeResult.end),
+            ...(dateTimeResult.timezone
+              ? { timezone: dateTimeResult.timezone }
+              : {}),
+          };
+          console.log("Setting datetime state:", {
+            dateTimeResult,
+            dateTimeState,
+            start: dateTimeState.start.toISOString(),
+            end: dateTimeState.end.toISOString(),
+            timezone: dateTimeState.timezone,
+          });
+          setDateTimeStartAndEnd(dateTimeState);
+        } else {
+          setDateTimeStartAndEnd(null);
+        }
       } else {
         const [dateTimeResult, locationResult] = await Promise.all([
           parseDateTime(text, NOW, tzOffset),
           parseLocation(text),
         ]);
         title = text;
-        dateTime = dateTimeResult;
         location = locationResult;
         description = text;
+
+        // Handle datetime result
+        if (dateTimeResult) {
+          // Keep dates in their original timezone
+          const dateTimeState = {
+            start: new Date(dateTimeResult.start),
+            end: new Date(dateTimeResult.end),
+            ...(dateTimeResult.timezone
+              ? { timezone: dateTimeResult.timezone }
+              : {}),
+          };
+          console.log("Setting datetime state:", {
+            dateTimeResult,
+            dateTimeState,
+            start: dateTimeState.start.toISOString(),
+            end: dateTimeState.end.toISOString(),
+            timezone: dateTimeState.timezone,
+          });
+          setDateTimeStartAndEnd(dateTimeState);
+        } else {
+          setDateTimeStartAndEnd(null);
+        }
       }
       setGeneratedTitle(title);
-      setDateTimeStartAndEnd(dateTime);
       setGeneratedDescription(description);
       setGeneratedLocation(location);
       setShowForm(true);
@@ -224,6 +260,10 @@ const Home = () => {
                           ? {
                               start: new Date(dateTimeStartAndEnd.start),
                               end: new Date(dateTimeStartAndEnd.end),
+                              timezone:
+                                dateTimeStartAndEnd.timezone ||
+                                Intl.DateTimeFormat().resolvedOptions()
+                                  .timeZone,
                             }
                           : {
                               start: DateTime.now()
@@ -234,6 +274,10 @@ const Home = () => {
                                 .plus({ hours: 2 })
                                 .startOf("hour")
                                 .toJSDate(),
+                              timezone:
+                                DateTime.now().zoneName ||
+                                Intl.DateTimeFormat().resolvedOptions()
+                                  .timeZone,
                             },
                         limit: "0",
                         location: generatedLocation || "Somewhere Online",

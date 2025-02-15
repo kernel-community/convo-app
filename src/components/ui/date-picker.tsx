@@ -8,6 +8,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "src/components/ui/popover";
+import { DateTime } from "luxon";
 export const DatePicker = ({
   date,
   setDate,
@@ -25,14 +26,16 @@ export const DatePicker = ({
       return;
     }
 
-    // Preserve the time from the existing date
-    const updatedDate = new Date(newDate);
-    updatedDate.setHours(date.getHours());
-    updatedDate.setMinutes(date.getMinutes());
-    updatedDate.setSeconds(date.getSeconds());
-    updatedDate.setMilliseconds(date.getMilliseconds());
+    // Preserve the time from the existing date using Luxon for proper timezone handling
+    const existingDateTime = DateTime.fromJSDate(date);
+    const newDateTime = DateTime.fromJSDate(newDate).set({
+      hour: existingDateTime.hour,
+      minute: existingDateTime.minute,
+      second: existingDateTime.second,
+      millisecond: existingDateTime.millisecond,
+    });
 
-    setDate(updatedDate);
+    setDate(newDateTime.toJSDate());
   };
   const isDesktop = useMediaQuery("(min-width: 640px)");
   return (

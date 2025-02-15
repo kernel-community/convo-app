@@ -26,13 +26,21 @@ export async function POST(req: NextRequest) {
   // Handle both Date objects and ISO strings
   const startDateTime =
     event.dateTimeStartAndEnd.start instanceof Date
-      ? DateTime.fromJSDate(event.dateTimeStartAndEnd.start)
-      : DateTime.fromISO(event.dateTimeStartAndEnd.start);
+      ? DateTime.fromJSDate(event.dateTimeStartAndEnd.start, {
+          zone: event.dateTimeStartAndEnd.timezone,
+        })
+      : DateTime.fromISO(event.dateTimeStartAndEnd.start, {
+          zone: event.dateTimeStartAndEnd.timezone,
+        });
 
   const endDateTime =
     event.dateTimeStartAndEnd.end instanceof Date
-      ? DateTime.fromJSDate(event.dateTimeStartAndEnd.end)
-      : DateTime.fromISO(event.dateTimeStartAndEnd.end);
+      ? DateTime.fromJSDate(event.dateTimeStartAndEnd.end, {
+          zone: event.dateTimeStartAndEnd.timezone,
+        })
+      : DateTime.fromISO(event.dateTimeStartAndEnd.end, {
+          zone: event.dateTimeStartAndEnd.timezone,
+        });
 
   if (!startDateTime.isValid || !endDateTime.isValid) {
     return NextResponse.json(
@@ -78,8 +86,9 @@ export async function POST(req: NextRequest) {
         limit: event.limit ? Number(event.limit) : 0,
         location: event.location,
         rrule: event.recurrenceRule || null,
-        startDateTime: new Date(event.dateTimeStartAndEnd.start),
-        endDateTime: new Date(event.dateTimeStartAndEnd.end),
+        startDateTime: startDateTime.toJSDate(),
+        endDateTime: endDateTime.toJSDate(),
+        timezone: event.dateTimeStartAndEnd.timezone || "UTC",
         sequence: eventToUpdate.sequence + 1,
       },
       include: {
@@ -178,8 +187,9 @@ export async function POST(req: NextRequest) {
       limit: event.limit ? Number(event.limit) : 0,
       location: event.location,
       rrule: event.recurrenceRule || null,
-      startDateTime: new Date(event.dateTimeStartAndEnd.start),
-      endDateTime: new Date(event.dateTimeStartAndEnd.end),
+      startDateTime: startDateTime.toJSDate(),
+      endDateTime: endDateTime.toJSDate(),
+      timezone: event.dateTimeStartAndEnd.timezone || "UTC",
       hash,
       proposerId: userId,
       communityId: community.id,

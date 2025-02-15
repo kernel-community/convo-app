@@ -1,6 +1,7 @@
 import OpenAI from "openai";
 import { NextResponse } from "next/server";
 import { formatWithTimezone } from "src/utils/formatWithTimezone";
+import { DateTime } from "luxon";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -8,9 +9,18 @@ const openai = new OpenAI({
 
 const systemPrompt = (
   now: string
-) => `You are a JSON API that extracts date and time information from text. Current time with timezone is: ${now}.
+) => `You are a JSON API that extracts date, time, and timezone information from text. Current time with timezone is: ${now}.
 
-You must respond with a valid JSON object containing 'start' and 'end' timestamps in 24-hour format.
+You must detect any timezone mentions in the text. Common timezone patterns include:
+- City names (e.g., "New York time", "Tokyo time")
+- Region names (e.g., "Pacific time", "Eastern time")
+- Abbreviations (e.g., "PST", "EST", "GMT")
+- UTC/GMT offsets (e.g., "UTC+9", "GMT-5")
+
+You must respond with a valid JSON object containing:
+1. 'start' - start timestamp in 24-hour format
+2. 'end' - end timestamp in 24-hour format
+3. 'timezone' - detected timezone IANA name (e.g., "America/New_York", "Asia/Tokyo") or null if no timezone mentioned
 
 Rules for Time Interpretation (STRICT - NO EXCEPTIONS):
 1. EXACT Time Mappings (use 24-hour format):
@@ -98,7 +108,7 @@ export async function POST(request: Request) {
 
     const parsed = JSON.parse(content);
     if (!parsed.start || !parsed.end) {
-      return NextResponse.json({ start: null, end: null });
+      return NextResponse.json({ start: null, end: null, timezone: null });
     }
 
     console.log("Raw OpenAI response:", { parsed, content });
@@ -115,13 +125,30 @@ export async function POST(request: Request) {
       return NextResponse.json({ start: null, end: null });
     }
 
-    // Use the dates directly from OpenAI's response
-    const { start, end } = parsed;
+    // If a timezone was detected, convert the dates to that timezone
+    let { start, end } = parsed;
+
+    if (parsed.timezone) {
+      // Convert dates to the detected timezone
+      const startDate = DateTime.fromISO(start);
+      const endDate = DateTime.fromISO(end);
+
+      // Set the timezone and format
+      start = startDate.setZone(parsed.timezone).toISO();
+      end = endDate.setZone(parsed.timezone).toISO();
+      console.log("Converted to timezone:", {
+        start,
+        end,
+        timezone: parsed.timezone,
+      });
+    }
+
     console.log({ start, end, now, tzOffset });
 
     return NextResponse.json({
       start,
       end,
+      timezone: parsed.timezone,
     });
   } catch (error) {
     console.error("Error parsing datetime:", error);

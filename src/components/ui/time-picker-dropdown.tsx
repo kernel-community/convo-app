@@ -4,6 +4,7 @@ import * as React from "react";
 import { format } from "date-fns";
 import { cn } from "src/lib/utils";
 import { Input } from "./input";
+import { DateTime } from "luxon";
 
 interface TimePickerDropdownProps {
   date?: Date;
@@ -18,15 +19,14 @@ export function TimePickerDropdown({ date, setDate }: TimePickerDropdownProps) {
   // Generate time options in 1-minute intervals
   const timeOptions = React.useMemo(() => {
     const options = [];
-    const now = new Date();
+    const now = DateTime.now();
     // Start from 12:00 AM (00:00)
     for (let hour = 0; hour < 24; hour++) {
       for (let minute = 0; minute < 60; minute++) {
-        const time = new Date(now);
-        time.setHours(hour, minute);
+        const time = now.set({ hour, minute });
         options.push({
-          value: format(time, "h:mm a"),
-          date: new Date(time),
+          value: format(time.toJSDate(), "h:mm a"),
+          date: time.toJSDate(),
         });
       }
     }
@@ -125,10 +125,11 @@ export function TimePickerDropdown({ date, setDate }: TimePickerDropdownProps) {
 
     const parsedTime = parseTimeInput(value);
     if (parsedTime) {
-      const tempDate = new Date();
-      tempDate.setHours(parsedTime.hours);
-      tempDate.setMinutes(parsedTime.minutes);
-      setInputValue(format(tempDate, "h:mm a"));
+      const tempDateTime = DateTime.now().set({
+        hour: parsedTime.hours,
+        minute: parsedTime.minutes,
+      });
+      setInputValue(format(tempDateTime.toJSDate(), "h:mm a"));
       updateTime(value);
     }
   };
@@ -137,9 +138,13 @@ export function TimePickerDropdown({ date, setDate }: TimePickerDropdownProps) {
     if (!date) return;
 
     setInputValue(option.value);
-    const newDate = new Date(date);
-    newDate.setHours(option.date.getHours(), option.date.getMinutes());
-    setDate(newDate);
+    const existingDateTime = DateTime.fromJSDate(date);
+    const optionDateTime = DateTime.fromJSDate(option.date);
+    const newDate = existingDateTime.set({
+      hour: optionDateTime.hour,
+      minute: optionDateTime.minute,
+    });
+    setDate(newDate.toJSDate());
     setOpen(false);
   };
 

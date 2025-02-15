@@ -64,7 +64,8 @@ export const ConfirmConvoCredenza = ({
                     {getDateTimeString(
                       convoToCreateData.dateTimeStartAndEnd.start.toISOString(),
                       "time"
-                    )}
+                    )}{" "}
+                    ({convoToCreateData.dateTimeStartAndEnd.timezone})
                   </FancyHighlight>
                 </div>
               )}

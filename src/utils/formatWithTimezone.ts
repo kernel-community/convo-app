@@ -8,15 +8,6 @@ export function formatWithTimezone(date: Date, timezoneOffset: string): string {
     );
   }
 
-  console.log("formatWithTimezone debug:", {
-    inputDate: date,
-    inputDateISO: date.toISOString(),
-    timezoneOffset,
-    sign,
-    hours,
-    minutes,
-  });
-
   // Get UTC time
   const utcTime = date.getTime();
 
@@ -28,19 +19,8 @@ export function formatWithTimezone(date: Date, timezoneOffset: string): string {
     (sign === "-" ? -1 : 1) *
     60000;
 
-  console.log("offset calculation:", {
-    utcTime,
-    targetOffsetMs,
-    resultTime: utcTime + targetOffsetMs,
-  });
-
   // Create date in target timezone
   const targetDate = new Date(utcTime + targetOffsetMs);
-
-  console.log("target date:", {
-    targetDate,
-    targetDateISO: targetDate.toISOString(),
-  });
 
   // Format the date components
   const year = targetDate.getUTCFullYear();
