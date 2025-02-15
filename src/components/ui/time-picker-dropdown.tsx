@@ -14,6 +14,8 @@ export function TimePickerDropdown({ date, setDate }: TimePickerDropdownProps) {
   const [open, setOpen] = React.useState(false);
   const [inputValue, setInputValue] = React.useState("");
   const inputRef = React.useRef<HTMLInputElement>(null);
+  const dropdownRef = React.useRef<HTMLDivElement>(null);
+  const [activeIndex, setActiveIndex] = React.useState<number>(0);
 
   // Generate time options in 1-minute intervals
   const timeOptions = React.useMemo(() => {
@@ -21,7 +23,7 @@ export function TimePickerDropdown({ date, setDate }: TimePickerDropdownProps) {
     const now = new Date();
     // Start from 12:00 AM (00:00)
     for (let hour = 0; hour < 24; hour++) {
-      for (let minute = 0; minute < 60; minute++) {
+      for (let minute = 0; minute < 60; minute += 30) {
         const time = new Date(now);
         time.setHours(hour, minute);
         options.push({
@@ -144,15 +146,50 @@ export function TimePickerDropdown({ date, setDate }: TimePickerDropdownProps) {
   };
 
   // Update input value when date changes
+  // Find the closest time option to the current date
+  const findClosestTimeIndex = React.useCallback(
+    (currentDate: Date) => {
+      if (!timeOptions.length) return 0;
+
+      let closestIndex = 0;
+      let minDiff = Infinity;
+
+      timeOptions.forEach((option, index) => {
+        const diff = Math.abs(option.date.getTime() - currentDate.getTime());
+        if (diff < minDiff) {
+          minDiff = diff;
+          closestIndex = index;
+        }
+      });
+
+      return closestIndex;
+    },
+    [timeOptions]
+  );
+
   React.useEffect(() => {
     if (date && !inputRef.current?.matches(":focus")) {
       setInputValue(format(date, "h:mm a"));
     }
   }, [date]);
 
-  const filteredOptions = timeOptions.filter((option) =>
-    option.value.toLowerCase().includes(inputValue.toLowerCase())
-  );
+  // Scroll to the active option when dropdown opens
+  React.useEffect(() => {
+    if (open && dropdownRef.current && date) {
+      const index = findClosestTimeIndex(date);
+      setActiveIndex(index);
+
+      const optionHeight = 32; // Approximate height of each option
+      const scrollPosition = index * optionHeight;
+
+      dropdownRef.current.scrollTop =
+        scrollPosition -
+        dropdownRef.current.clientHeight / 2 +
+        optionHeight / 2;
+    }
+  }, [open, date, findClosestTimeIndex]);
+
+  const filteredOptions = timeOptions;
 
   return (
     <div className="relative w-[140px]">
@@ -171,13 +208,14 @@ export function TimePickerDropdown({ date, setDate }: TimePickerDropdownProps) {
       />
       {open && (
         <div className="absolute left-0 top-[calc(100%+4px)] z-50 w-full rounded-md border bg-popover text-popover-foreground shadow-md">
-          <div className="max-h-[300px] overflow-auto p-1">
-            {filteredOptions.map((option) => (
+          <div ref={dropdownRef} className="max-h-[170px] overflow-auto p-1">
+            {timeOptions.map((option) => (
               <div
                 key={option.value}
                 className={cn(
                   "cursor-pointer rounded-sm px-2 py-1.5 text-sm hover:bg-accent hover:text-accent-foreground",
-                  inputValue === option.value &&
+                  (inputValue === option.value ||
+                    timeOptions.indexOf(option) === activeIndex) &&
                     "bg-accent text-accent-foreground"
                 )}
                 onMouseDown={(e) => {
