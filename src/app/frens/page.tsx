@@ -24,7 +24,7 @@ const contributors = [
   {
     name: "Kernel",
     url: "https://kernel.community/",
-    contribution: ["sponsor", "kernel", "big daddy"],
+    contribution: ["sponsor", "kernel"],
     image: "",
   },
   {
