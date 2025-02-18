@@ -1,7 +1,7 @@
 import { EmailTemplateWithEventProps } from "../types";
 import { EmailWrapper } from "../components/EmailWrapper";
 import { EventDetails } from "../components/EventDetails";
-import { StarryEyesEmoji } from "src/components/ui/emojis";
+import { StarryEyesEmoji } from "../components/EmailEmojis";
 
 export const SUBJECT = "You're going to {{event.title}}!";
 

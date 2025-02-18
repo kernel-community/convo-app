@@ -247,7 +247,7 @@ function FrensContent() {
             className="flex items-center space-x-2 rounded-lg border-2 border-foreground bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-muted"
           >
             <CoolEmoji width={33} height={33} className="-m-2" />
-            <span>Join the fun?</span>
+            <span>Join the crew?</span>
           </button>
 
           <AnimatePresence>

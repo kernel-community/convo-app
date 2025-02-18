@@ -1,4 +1,4 @@
-import { CoolEmoji, HeartEmoji } from "src/components/ui/emojis";
+import { CoolEmoji, HeartEmoji } from "./EmailEmojis";
 import { STAGING, DEFAULT_HOST } from "src/utils/constants";
 
 // Using absolute URL for email clients

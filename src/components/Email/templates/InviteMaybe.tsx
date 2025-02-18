@@ -1,7 +1,7 @@
 import { EmailTemplateWithEventProps } from "../types";
 import { EmailWrapper } from "../components/EmailWrapper";
 import { EventDetails } from "../components/EventDetails";
-import { TongueStickingOutEmoji } from "src/components/ui/emojis";
+import { TongueStickingOutEmoji } from "../components/EmailEmojis";
 
 export const SUBJECT = "Tentative RSVP: {{event.title}}";
 
