@@ -1,4 +1,5 @@
 import { Inter } from "next/font/google";
+import { ScrambleProvider } from "src/context/ScrambleContext";
 import "../styles/globals.css";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
@@ -18,9 +19,37 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+      (function() {
+        const storedData = localStorage.getItem('theme-storage');
+        let theme = 'light';
+        if (storedData) {
+          try {
+            const parsedData = JSON.parse(storedData);
+            if (parsedData.state && parsedData.state.theme) {
+              theme = parsedData.state.theme;
+            }
+          } catch (error) {
+            console.error('Failed to parse theme-storage:', error);
+          }
+        }
+        document.documentElement.classList.add(theme);
+        document.body.setAttribute('data-dynamic-theme', theme);
+      })();
+    `,
+          }}
+        />
+      </head>
       <body className={inter.className}>
-        <Providers>{children}</Providers>
+        <Providers>
+          <ScrambleProvider>
+            <div vaul-drawer-wrapper="">{children}</div>
+          </ScrambleProvider>
+        </Providers>
         <Analytics />
         <SpeedInsights />
       </body>

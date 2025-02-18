@@ -31,7 +31,7 @@ const UserContext = createContext<FullUser>(defaultFullUser);
 const useUser = () => {
   const context = useContext(UserContext);
   if (!context) {
-    throw new Error(`useUser must be used within UseUserProvider`);
+    throw new Error("useUser must be used within UseUserProvider");
   }
   return context;
 };
@@ -44,7 +44,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
   const userId = user?.userId;
 
   useQuery(
-    [`user-${userId}`],
+    ["user-" + userId],
     async () => {
       try {
         const r = (
@@ -84,10 +84,19 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
   );
 
   useEffect(() => {
+    // Only clear user state if we're definitely logged out
     if (!isAuthenticated) {
       setFetchedUser(defaultFullUser.fetchedUser);
+      localStorage.removeItem("user_state");
     }
   }, [isAuthenticated]);
+
+  // Save user state to localStorage whenever it changes
+  useEffect(() => {
+    if (fetchedUser.isSignedIn) {
+      localStorage.setItem("user_state", JSON.stringify(fetchedUser));
+    }
+  }, [fetchedUser]);
 
   const value = useMemo(
     () => ({

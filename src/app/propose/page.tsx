@@ -10,22 +10,19 @@ const Home: NextPage = () => {
         <div className="flex flex-col items-center justify-center">
           <div
             className="
+            dark:text-primary-dark
             mx-auto
-            px-8
-            font-heading
+            font-primary
             text-5xl
-            font-extrabold
-            text-primary
+            font-semibold text-primary
             sm:text-5xl
           "
           >
             Propose a Conversation
           </div>
-          <div className="my-12 w-full border border-primary lg:w-9/12"></div>
+          <div className="dark:border-primary-dark my-12 w-full border border-primary lg:w-9/12"></div>
         </div>
-        <div className="px-8 lg:px-96">
-          <ProposeForm />
-        </div>
+        <ProposeForm />
       </Main>
     </>
   );

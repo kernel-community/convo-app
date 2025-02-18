@@ -1,6 +1,6 @@
 import type { FieldErrorsImpl, UseFormRegister } from "react-hook-form";
-import type { ClientEventInput } from "..";
 import FieldLabel from "../../StrongText";
+import type { ClientEventInput } from "src/types";
 
 const TextField = ({
   name,
@@ -12,6 +12,8 @@ const TextField = ({
   className,
   required,
   value,
+  autoFocus,
+  type = "text",
 }: {
   name: keyof ClientEventInput;
   fieldName?: string;
@@ -19,9 +21,11 @@ const TextField = ({
   infoText?: string;
   errors?: Partial<FieldErrorsImpl<ClientEventInput>>;
   placeholder?: string;
+  autoFocus?: boolean;
   className?: string;
   required?: boolean;
   value?: string;
+  type?: string;
 }) => {
   const isError = errors && errors[name];
   return (
@@ -34,17 +38,22 @@ const TextField = ({
       </FieldLabel>
       <div className="flex flex-col">
         <input
-          type="text"
+          autoFocus={autoFocus}
+          type={type}
           className={`
           rounded-lg
+          border-2
+          border-transparent
+          bg-muted transition-all
+          focus:border-2
+          focus:border-primary
           ${` ` + className + ` `}
           ${
             isError
               ? `
-            border-red-300 ring-red-300
+            bg-red-50
             focus:border-red-500 focus:ring-red-500`
               : `
-            border-gray-300 ring-gray-300
             focus:border-primary focus:ring-primary`
           }
           `}

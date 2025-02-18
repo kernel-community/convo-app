@@ -31,7 +31,7 @@ const About: NextPage = () => {
   };
   return (
     <>
-      <Main className="mx-auto px-4">
+      <Main>
         <div
           className="
           pl-6
@@ -42,11 +42,11 @@ const About: NextPage = () => {
           <div className="flex flex-col items-center justify-center">
             <div
               className="
+            dark:text-primary-dark
             mx-auto
-            font-heading
+            font-primary
             text-4xl
-            font-extrabold
-            text-primary
+            font-extrabold text-primary
             sm:text-5xl
           "
             >
@@ -62,12 +62,12 @@ const About: NextPage = () => {
               return (
                 <section id={id} key={key} className="mb-6">
                   <Link href={`#${id}`}>
-                    <h1 className="font-robotoSlab text-2xl text-kernel-light hover:text-kernel">
+                    <h1 className="font-robotoSlab text-kernel-light hover:text-kernel text-2xl">
                       <span className="-ml-7 mr-3">#</span>
                       {faq.question}
                     </h1>
                   </Link>
-                  <article className="prose prose-lg">
+                  <article className="prose prose-lg dark:prose-invert">
                     <div
                       dangerouslySetInnerHTML={createMarkup(faq.answer)}
                     ></div>

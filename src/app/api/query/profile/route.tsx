@@ -1,5 +1,5 @@
 import type { NextRequest } from "next/server";
-import { prisma } from "src/server/db";
+import { prisma } from "src/utils/db";
 import { NextResponse } from "next/server";
 import _ from "lodash";
 import type { Profile } from "@prisma/client";

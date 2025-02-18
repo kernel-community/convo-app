@@ -11,15 +11,16 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          "rounded-xl py-2 px-16 font-kernel-light text-lg uppercase drop-shadow-xl transition-shadow duration-900 ease-in-out hover:shadow-md bg-kernel text-gray-200 hover:shadow-outline",
+          "rounded-md py-2 px-8 font-secondary transition-all duration-150 ease-in-out bg-primary text-primary-foreground touch-none select-none shadow-[4px_4px_0px_0px] shadow-foreground active:translate-x-[2px] active:translate-y-[2px] active:shadow-[2px_2px_0px_0px] active:shadow-foreground md:shadow-[8px_8px_0px_0px] md:shadow-foreground md:hover:translate-x-[2px] md:hover:translate-y-[4px] md:hover:shadow-[4px_4px_0px_0px] md:hover:shadow-foreground md:active:translate-x-[4px] md:active:translate-y-[4px] md:active:shadow-none",
         destructive:
-          "bg-destructive rounded-xl text-destructive-foreground hover:bg-destructive/90 py-2 px-16 font-kernel-light text-lg drop-shadow-xl",
+          "rounded-md py-2 px-8 font-secondary border-2 border-transparent transition-all duration-300 ease-in-out bg-destructive text-destructive-foreground hover:border-primary-foreground",
         outline:
-          "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
+          "rounded-md py-2 px-8 font-secondary border-2 transition-all duration-300 ease-in-out bg-background text-foreground hover:bg-accent hover:border-accent-foreground",
         secondary:
-          "bg-secondary text-secondary-foreground hover:bg-secondary/80",
-        ghost: "hover:bg-accent hover:text-accent-foreground",
-        link: "text-primary underline-offset-4 hover:underline",
+          "rounded-md py-2 px-8 font-secondary border-2 border-transparent transition-all duration-300 ease-in-out bg-secondary text-secondary-foreground hover:border-secondary-foreground",
+        ghost:
+          "rounded-md py-2 px-8 font-secondary border-2 border-transparent transition-all duration-300 ease-in-out text-foreground hover:bg-accent hover:border-accent-foreground",
+        link: "font-secondary transition-all duration-300 ease-in-out text-primary-foreground underline-offset-4 hover:underline hover:decoration-dotted",
       },
       size: {
         default: "h-10 px-4 py-2",

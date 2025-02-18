@@ -16,6 +16,7 @@ enum EventType {
   TEST
 }
 
+// deprecated -- donot use Communities anywhere
 model Community {
   id          String   @id @default(uuid())
   createdAt   DateTime @default(now())
@@ -28,32 +29,44 @@ model Community {
   google      Google?
 }
 
+enum LocationType {
+  ONLINE
+  MAP
+  CUSTOM
+}
+
 model Event {
-  id              String       @id @default(uuid())
-  createdAt       DateTime     @default(now())
-  updatedAt       DateTime     @updatedAt
-  title           String
-  descriptionHtml String?
-  startDateTime   DateTime
-  endDateTime     DateTime
-  location        String
-  hash            String
-  series          Boolean
-  limit           Int
+  id                 String               @id @default(uuid())
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
+  title              String
+  descriptionHtml    String?
+  startDateTime      DateTime
+  endDateTime        DateTime
+  location           String
+  locationType       LocationType         @default(ONLINE)
+  hash               String // @note deprecated
+  series             Boolean // @note deprecated
+  limit              Int
+  rrule              String?
+  sequence           Int                  @default(0)
   // for deleted events
   // can be purged periodically
-  isDeleted       Boolean      @default(false)
+  isDeleted          Boolean              @default(false)
   // google
   // gCalEventRequested Boolean      @default(false) // remove, deprecated
-  gCalEventId     String? // KEEP, DONT REMOVE
+  gCalEventId        String? // KEEP, DONT REMOVE
   // gCalId             String? // remove, deprecated
-  type            EventType    @default(JUNTO)
-  proposerId      String
-  proposer        User         @relation(fields: [proposerId], references: [id], onDelete: Cascade)
-  rsvps           Rsvp[]
-  collections     Collection[]
-  communityId     String?
-  community       Community?   @relation(fields: [communityId], references: [id])
+  type               EventType            @default(JUNTO)
+  proposerId         String
+  proposer           User                 @relation(fields: [proposerId], references: [id], onDelete: Cascade)
+  rsvps              Rsvp[]
+  collections        Collection[]
+  reminders          Email[]
+  // deprecated
+  communityId        String?
+  // deprecated
+  community          Community?           @relation(fields: [communityId], references: [id])
   // if the event was imported from convo.kernel.community
   // if it was, we do not have their RSVPs, since this version uses
   // user's addresses to make them unique and the previous version used
@@ -64,7 +77,8 @@ model Event {
   // if you'd like to query any data related to RSVPs for this particular event"
   // the emails[], gcaleventREquested, gcalEventId will be accurate for these events
   // the proposer data will be inaccurate
-  isImported      Boolean      @default(false)
+  isImported         Boolean              @default(false)
+  PostedSlackMessage PostedSlackMessage[]
 }
 
 model User {
@@ -76,6 +90,7 @@ model User {
   events      Event[]
   rsvps       Rsvp[]
   collections Collection[]
+  reminders   Email[]
 }
 
 model Profile {
@@ -98,19 +113,53 @@ model Collection {
 }
 
 model Rsvp {
-  id         String   @id @default(uuid())
-  createdAt  DateTime @default(now())
+  id         String    @id @default(uuid())
+  createdAt  DateTime  @default(now())
   eventId    String
-  event      Event    @relation(fields: [eventId], references: [id])
+  event      Event     @relation(fields: [eventId], references: [id])
   attendeeId String
-  attendee   User     @relation(fields: [attendeeId], references: [id])
+  attendee   User      @relation(fields: [attendeeId], references: [id])
+  rsvpType   RSVP_TYPE @default(GOING)
 
   @@unique([eventId, attendeeId])
+}
+
+enum RSVP_TYPE {
+  GOING
+  MAYBE
+  NOT_GOING
 }
 
 //////////////////
 ///  SERVICES  ///
 //////////////////
+
+model Email {
+  id         String    @id @default(uuid())
+  createdAt  DateTime  @default(now())
+  userId     String
+  user       User      @relation(fields: [userId], references: [id])
+  eventId    String
+  event      Event     @relation(fields: [eventId], references: [id])
+  reminderId String    @unique // Resend scheduled email id
+  type       EmailType
+  sent       Boolean   @default(false)
+  delivered  Boolean   @default(false)
+  bounced    Boolean   @default(false)
+  cancelled  Boolean   @default(false)
+}
+
+enum EmailType {
+  CREATE
+  INVITE
+  UPDATE
+  REMINDER24HR
+  REMINDER1HR
+  REMINDER1MIN
+  REMINDER1HRPROPOSER
+}
+
+// @deprecated
 model Google {
   id                      String     @id @default(uuid())
   createdAt               DateTime   @default(now())
@@ -136,10 +185,23 @@ model Google {
 }
 
 model Slack {
-  id          String     @id @default(uuid())
-  createdAt   DateTime   @default(now())
-  botToken    String
-  channel     String
-  communityId String?    @unique // one slack instance is associated with 1 community
-  community   Community? @relation(references: [id], fields: [communityId])
+  id                 String               @id @default(uuid())
+  createdAt          DateTime             @default(now())
+  botToken           String
+  channel            String
+  communityId        String?              @unique // one slack instance is associated with 1 community
+  community          Community?           @relation(references: [id], fields: [communityId])
+  PostedSlackMessage PostedSlackMessage[]
+}
+
+model PostedSlackMessage {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  eventId   String
+  event     Event    @relation(fields: [eventId], references: [id])
+  ts        String
+  slack     Slack    @relation(references: [id], fields: [slackId])
+  slackId   String
+
+  @@unique([eventId, slackId])
 }

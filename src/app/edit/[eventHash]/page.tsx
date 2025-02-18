@@ -1,27 +1,32 @@
 "use client";
 
-import type { ClientEventInput } from "src/components/ProposeForm";
 import ProposeForm from "src/components/ProposeForm";
 import useEvent from "src/hooks/useEvent";
 import Main from "src/layouts/Main";
 import parse from "src/utils/clientEventToClientEventInput";
 import { Button } from "src/components/ui/button";
-import useUpdateEvent from "src/hooks/useUpdateEvent";
+import useDeleteEvent from "src/hooks/useDeleteEvent";
 import { useUser } from "src/context/UserContext";
 import NotAllowedPage from "src/components/NotAllowedPage";
 import { useEffect, useState } from "react";
 import { Skeleton } from "src/components/ui/skeleton";
 import ConfirmDeleteCredenza from "src/components/EventPage/ConfirmDelete";
 import { useRouter } from "next/navigation";
+import type { ClientEventInput } from "src/types";
+import { upsertConvo } from "src/utils/upsertConvo";
 
 const Edit = ({ params }: { params: { eventHash: string } }) => {
   const { push } = useRouter();
   const { eventHash } = params;
-  const { data } = useEvent({ hash: eventHash });
-  const { update, isSubmitting: isLoading } = useUpdateEvent();
+  const { data, isLoading: isEventLoading } = useEvent({
+    hash: eventHash,
+    dontFetch: true,
+  });
+  const { deleteEvent, isDeleting } = useDeleteEvent();
   const { fetchedUser: user } = useUser();
   const [isInvalidRequest, setInvalidRequest] = useState(false);
   const [openModalFlag, setOpenModalFlag] = useState<boolean>(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // check to see if eventHash from query exists in the database
   // parse and pre-fill event data in the form
@@ -29,11 +34,28 @@ const Edit = ({ params }: { params: { eventHash: string } }) => {
     ? parse(data)
     : undefined;
 
+  console.log({ clientEventInput });
+
   useEffect(() => {
     if (data && user && user.id !== data.proposerId) {
       setInvalidRequest(true);
     }
   }, [user, data]);
+
+  if (isEventLoading || !user) {
+    return (
+      <Main>
+        <div className="flex flex-col items-center justify-center">
+          <div className="flex w-full flex-col items-center justify-between sm:flex-row">
+            <div className="font-heading dark:text-primary-dark px-8 text-4xl font-extrabold text-primary sm:text-5xl">
+              <Skeleton className="h-12 w-64" />
+            </div>
+          </div>
+          <div className="dark:border-primary-dark my-12 w-full border border-primary"></div>
+        </div>
+      </Main>
+    );
+  }
 
   if (!clientEventInput) {
     return <div>not found</div>;
@@ -47,40 +69,38 @@ const Edit = ({ params }: { params: { eventHash: string } }) => {
     );
   }
 
-  const deleteEvent = async () => {
-    const event = {
-      ...clientEventInput,
-      sessions: [],
-      hash: eventHash as string,
-    };
-    await update({ event });
-    push(`/rsvp/${event.hash}`);
+  const handleDelete = async () => {
+    const success = await deleteEvent(eventHash);
+    if (success) {
+      // Redirect to home page after successful deletion
+      push("/");
+    }
   };
 
   return (
     <>
-      <Main>
+      <Main className="container mx-auto">
         <ConfirmDeleteCredenza
           openModalFlag={openModalFlag}
           setOpenModalFlag={setOpenModalFlag}
-          action={deleteEvent}
-          isLoading={isLoading}
+          action={handleDelete}
+          isLoading={isDeleting}
         />
-        <div className="flex flex-col items-center justify-center lg:px-64">
+        <div className="flex flex-col items-center justify-center">
           <div className="flex w-full flex-col items-center justify-between sm:flex-row">
             <div
               className="
               px-8
-              font-heading
+              font-primary
               text-4xl
-              font-extrabold
-              text-primary
+              font-semibold
+              text-foreground
               sm:text-5xl
             "
             >
               Editing: {clientEventInput?.title}
             </div>
-            {isLoading ? (
+            {isSubmitting ? (
               <Button disabled className="w-[250px] p-0">
                 <Skeleton className="bg-gray-550 h-full w-full" />
               </Button>
@@ -90,11 +110,9 @@ const Edit = ({ params }: { params: { eventHash: string } }) => {
               </Button>
             )}
           </div>
-          <div className="my-12 w-full border border-primary"></div>
+          <div className="dark:border-primary-dark my-12 w-full border border-primary"></div>
         </div>
-        <div className="px-8 lg:px-96">
-          <ProposeForm event={clientEventInput} />
-        </div>
+        <ProposeForm event={clientEventInput} />
       </Main>
     </>
   );

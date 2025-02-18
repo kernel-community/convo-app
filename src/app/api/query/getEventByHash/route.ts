@@ -1,17 +1,21 @@
 import _ from "lodash";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
-import { prisma } from "src/server/db";
-import formatEvent from "src/server/utils/formatEvent";
+import { prisma } from "src/utils/db";
+import formatEvent from "src/utils/formatEvent";
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
   const { hash } = _.pick(body, ["hash"]);
   if (!hash) {
-    throw new Error("Hash undefined in req.body");
+    return NextResponse.json({ error: "Hash is required" }, { status: 400 });
   }
-  const event = await prisma.event.findMany({
-    where: { hash },
+
+  const event = await prisma.event.findFirst({
+    where: {
+      hash,
+      isDeleted: false,
+    },
     include: {
       proposer: true,
       rsvps: {
@@ -32,6 +36,11 @@ export async function POST(req: NextRequest) {
       },
     },
   });
-  const formattedEvent = formatEvent(event);
+
+  if (!event) {
+    return NextResponse.json({ error: "Event not found" }, { status: 404 });
+  }
+
+  const formattedEvent = formatEvent([event]);
   return NextResponse.json({ data: formattedEvent });
 }

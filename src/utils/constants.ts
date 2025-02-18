@@ -11,3 +11,14 @@ export const DEFAULT_HOST = "convo.cafe";
 
 export const DEFAULT_PROFILE_IMAGE =
   "https://maroon-unsightly-clam-495.mypinata.cloud/ipfs/QmV8owGUxkytNkTuFTc8CawFvgxXhPKgrpvVwR4rmMPsnb";
+
+// SENDING EVENT CALENDAR INVITE EMAILS
+export const EVENT_ORGANIZER_NAME = "Convo Cafe";
+export const EVENT_ORGANIZER_EMAIL = "hedwig@convo.cafe";
+
+export const DESKTOP = "(min-width: 768px)";
+
+export const KERNEL_SMOLBRAIN_API =
+  process.env.NEXT_PUBLIC_KERNEL_SMOLBRAIN_API;
+export const KERNEL_SMOLBRAIN_APP_NAME =
+  process.env.NEXT_PUBLIC_KERNEL_SMOLBRAIN_APP_NAME;

@@ -5,65 +5,59 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "../ui/button";
 import { RichTextArea } from "./FormFields/RichText";
-import SessionsInput from "./FormFields/SessionsInput";
-import useCreateEvent from "src/hooks/useCreateEvent";
-import useUpdateEvent from "src/hooks/useUpdateEvent";
+import { upsertConvo } from "src/utils/upsertConvo";
 import LoginButton from "../LoginButton";
 import { useEffect, useMemo, useState } from "react";
+import { Switch } from "../ui/switch";
 import { useUser } from "src/context/UserContext";
 import Signature from "../EventPage/Signature";
 import FieldLabel from "../StrongText";
 import type { User } from "@prisma/client";
 import { useRouter } from "next/navigation";
 import { ConfirmConvoCredenza } from "./ConfirmConvo";
+import type { ClientEventInput } from "src/types";
+import { clientEventInputValidationScheme } from "src/types";
+import { RecurrenceRuleInput } from "../RecurrenceRuleInput";
+import { DateTimeStartAndEnd } from "../DateTimeStartAndEnd";
+import { DateTime } from "luxon";
 
-const SessionSchema = z.object({
-  dateTime: z.date(),
-  duration: z.number().min(0.1, "Invalid duration"),
-  count: z.number(),
-  id: z.string().optional(),
-});
-
-export type Session = z.infer<typeof SessionSchema>;
-
-export const validationSchema = z.object({
-  title: z.string().min(1, "Title is required"),
-  description: z.string().optional(),
-  sessions: z.array(SessionSchema),
-  limit: z
-    .string()
-    .refine((val) => !Number.isNaN(parseInt(val, 10)), {
-      message: "Please enter a number",
-    })
-    .refine((val) => Number(parseInt(val, 10)) >= 0, {
-      message: "Please enter a positive integer",
-    }),
-  location: z.string().min(1, "Location is required"),
-  nickname: z.string().optional(),
-  gCalEvent: z.boolean().default(true),
-  hash: z.string().optional(),
-  email: z.string().optional(),
-});
-
-export type ClientEventInput = z.infer<typeof validationSchema>;
-
-const ProposeForm = ({ event }: { event?: ClientEventInput }) => {
+const ProposeForm = ({
+  event,
+  showRecurrenceInput = true,
+}: {
+  event?: ClientEventInput;
+  showRecurrenceInput?: boolean;
+}) => {
   const { fetchedUser: user } = useUser();
   const { push } = useRouter();
-  const isEditing = !!event;
+
   const {
     register,
     reset,
     handleSubmit,
-    formState: { errors, defaultValues },
+    formState: { errors, defaultValues, isSubmitted },
     control,
   } = useForm<ClientEventInput>({
-    resolver: zodResolver(validationSchema),
+    resolver: zodResolver(clientEventInputValidationScheme),
     defaultValues: useMemo(() => {
-      const DEFAULT_EVENT: Partial<ClientEventInput> = event || {
+      // If we have an event, use its values
+      if (event) return event;
+
+      // Otherwise, create default values
+      const now = DateTime.now().startOf("hour").toJSDate();
+      const twoHoursFromNow = DateTime.now()
+        .plus({ hours: 2 })
+        .startOf("hour")
+        .toJSDate();
+      const threeHoursFromNow = DateTime.now()
+        .plus({ hours: 3 })
+        .startOf("hour")
+        .toJSDate();
+
+      return {
         sessions: [
           {
-            dateTime: new Date(),
+            dateTime: now,
             duration: 1,
             count: 0,
           },
@@ -71,16 +65,18 @@ const ProposeForm = ({ event }: { event?: ClientEventInput }) => {
         nickname: user.nickname,
         gCalEvent: true,
         email: user.email ?? "",
+        dateTimeStartAndEnd: {
+          start: twoHoursFromNow,
+          end: threeHoursFromNow,
+        },
+        recurrenceRule: "",
+        limit: "0",
       };
-      return DEFAULT_EVENT;
     }, [event, user]),
   });
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => reset(event), [event]);
-
-  const { create } = useCreateEvent();
-  const { update } = useUpdateEvent();
 
   const [openModalFlag, setOpenModalFlag] = useState<boolean>(false);
 
@@ -102,32 +98,17 @@ const ProposeForm = ({ event }: { event?: ClientEventInput }) => {
       return;
     }
     try {
-      if (isEditing) {
-        const updated = await update({
-          event: convoToCreateData,
-        });
-        if (!updated) throw "undefined response returned from `updated`";
-        if (!updated[0]) throw "empty array returned from `updated`";
-        push(`/rsvp/${updated[0]?.hash}`);
-      } else {
-        const created = await create({
-          event: convoToCreateData,
-          userId: user.id,
-        });
-        if (!created) throw "undefined response returned";
-        if (!created[0]) throw "empty array returned";
-        push(`/rsvp/${created[0]?.hash}`);
-      }
-      // display success modal
+      const result = await upsertConvo(convoToCreateData, user?.id);
+      if (!result) throw "No response returned from upsert operation";
+      push(`/rsvp/${result.hash}`);
     } catch (err) {
       console.log(err);
       setLoading(false);
     }
-    setLoading(false);
   };
   const onSubmit: SubmitHandler<ClientEventInput> = async (data) => {
-    setConvoToCreateData(() => data); // ensures immediate update to state
     setOpenModalFlag(true);
+    setConvoToCreateData(data);
   };
   return (
     <>
@@ -138,11 +119,15 @@ const ProposeForm = ({ event }: { event?: ClientEventInput }) => {
         user={user}
         action={createConvo}
         isLoading={loading}
-        isEditing={isEditing}
       />
       <form
         onSubmit={handleSubmit(onSubmit, onInvalid)}
         className={`align-center flex flex-col gap-6`}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+          }
+        }}
       >
         {/* Title */}
         <TextField
@@ -151,6 +136,7 @@ const ProposeForm = ({ event }: { event?: ClientEventInput }) => {
           register={register}
           errors={errors}
           required={false}
+          autoFocus={true}
         />
 
         {/* Description */}
@@ -169,30 +155,46 @@ const ProposeForm = ({ event }: { event?: ClientEventInput }) => {
           )}
         />
 
-        {/* Sessions Input */}
+        {/* component for start datetime */}
         <Controller
-          name="sessions"
+          name="dateTimeStartAndEnd"
           control={control}
           rules={{ required: true }}
           render={({ field }) => (
-            <SessionsInput
+            <DateTimeStartAndEnd
               handleChange={field.onChange}
-              preFillSessions={
-                defaultValues?.sessions as ClientEventInput["sessions"]
-              }
+              value={defaultValues?.dateTimeStartAndEnd}
             />
           )}
         />
 
+        {/* component/dropdown for recurrence rule */}
+        {showRecurrenceInput && (
+          <Controller
+            name="recurrenceRule"
+            control={control}
+            rules={{ required: false }}
+            render={({ field }) => (
+              <RecurrenceRuleInput
+                handleChange={field.onChange}
+                value={defaultValues?.recurrenceRule}
+              />
+            )}
+          />
+        )}
+
         {/* Limit */}
-        <TextField
-          name="limit"
-          fieldName="Limit"
-          register={register}
-          errors={errors}
-          required={false}
-          infoText="Enter 0 for no limit"
-        />
+        <div className="space-y-4">
+          <TextField
+            name="limit"
+            fieldName="Limit"
+            register={register}
+            errors={errors}
+            required={false}
+            type="number"
+            infoText="Would you like to limit the number of RSVPs to this Convo? (optional - set 0 for No Limit)"
+          />
+        </div>
 
         {/* Location */}
         <TextField
@@ -204,37 +206,9 @@ const ProposeForm = ({ event }: { event?: ClientEventInput }) => {
           required={false}
         />
 
-        {/**
-         * google calendar event creation checkbox
-         * if isEditing -> display an info message saying that the google calendar event will be updated
-         * @todo @angelagilhotra display an option to delete the google calendar event
-         */}
-        {isEditing && (
-          <>
-            {event.gCalEvent && (
-              <div>
-                Google calendar event associated with this event will be
-                updated.
-              </div>
-            )}
-            {/*
-             * @note
-             * No option to create a google calendar event if one doesn't exist already
-             * because there might be a mismatch in RSVPs - anyone RSVP'd before won't be
-             * added by default (cuz we don't have their email)
-             */}
-          </>
-        )}
-
         {user && user.email && (
           <div>
-            <FieldLabel>
-              Email
-              <div className="font-primary text-sm font-light lowercase">
-                You will receive the google calendar event invite on the
-                following email
-              </div>
-            </FieldLabel>
+            <FieldLabel>Email</FieldLabel>
             <div className="mt-2 flex flex-row items-center gap-3">
               {/* <Signature user={user as User} /> */}
               {user.email}
@@ -246,12 +220,18 @@ const ProposeForm = ({ event }: { event?: ClientEventInput }) => {
         <div>
           <FieldLabel>Proposing as</FieldLabel>
           <div className="mt-2 flex flex-row items-center gap-3">
-            <Signature user={user as User} />
+            {user.isSignedIn ? (
+              <Signature user={user as User} />
+            ) : (
+              <div className="font-secondary">You are not signed in</div>
+            )}
           </div>
         </div>
 
         {!user.isSignedIn ? (
-          <LoginButton />
+          <LoginButton
+            disabled={isSubmitted && Object.keys(errors).length > 0}
+          />
         ) : (
           <Button type="submit" isLoading={loading}>
             Submit

@@ -1,6 +1,5 @@
 "use client";
 import Hero from "../Hero";
-import { SessionsWrapper } from "./RsvpSection";
 import type { ClientEvent } from "src/types";
 import SubmitRsvpSection from "./SubmitRsvpSection";
 import EventDetails from "./EventDetails";
@@ -12,15 +11,14 @@ import useUserRsvpForConvo from "src/hooks/useUserRsvpForConvo";
 import useEvent from "src/hooks/useEvent";
 import { useRouter } from "next/navigation";
 import { useUser } from "src/context/UserContext";
-import { SessionsDetailsNonSubmittable } from "./SessionsDetailsNonSubmittable";
-import ViewOtherRSVPs from "./ViewOtherRSVPs";
+import { EventCard, EventsView } from "../ui/event-list";
+import { useEffect, useState } from "react";
 
 export const rsvpInputSchema = z.object({
   email: z.string().optional(),
   nickname: z.string().optional(),
 });
 export type RsvpInput = z.infer<typeof rsvpInputSchema>;
-
 const EventWrapper = ({
   event,
   isEditable,
@@ -35,81 +33,47 @@ const EventWrapper = ({
   const {
     totalUniqueRsvps,
     descriptionHtml,
-    sessions,
     title,
     proposer,
     // @todo handle deleted event display
     isDeleted,
     isImported,
     collections,
-    createdAt,
+    recurrenceRule,
+    startDateTime,
   } = event;
+
   const { rsvpIntention } = useRsvpIntention();
-  const { rsvps } = useUserRsvpForConvo({ hash: event.hash });
-  const { push } = useRouter();
-  const { eventIds } = rsvpIntention;
+  const { rsvp } = useUserRsvpForConvo({ hash: event.hash });
+  const router = useRouter();
+  const { eventId } = rsvpIntention;
   const {
     fetchedUser: { isSignedIn },
   } = useUser();
-  const isDisabled = eventIds.length === 0;
-  const navigateToEditPage = () => push(`/edit/${event.hash}`);
-  const isPartOfCollection = collections.length > 0;
-  const collectionHrefs = collections.map((c, k) => (
-    <Link key={k} href={`/collection/${c.id}`}>
-      {" "}
-      <span className="text-kernel-light underline decoration-dotted">
-        {c.name}
-      </span>
-      {k + 1 !== collections.length ? "," : ""}
-    </Link>
-  ));
+  const isDisabled = [eventId].length === 0;
+  const navigateToEditPage = () => router.push(`/edit/${event.hash}`);
+  const [isNavigating, setIsNavigating] = useState(false);
+
+  const handleInfoClick = async () => {
+    try {
+      setIsNavigating(true);
+      await router.push(`/rsvp/${eventHash}?info=true`);
+    } catch (error) {
+      console.error("Navigation failed:", error);
+    } finally {
+      setIsNavigating(false);
+    }
+  };
+
+  useEffect(() => {
+    // Prefetch the info page
+    router.prefetch(`/rsvp/${eventHash}?info=true`);
+  }, [eventHash, router]);
+
   return (
     <>
-      <div className="flex flex-row items-center justify-between">
-        <Hero title={title} isImported={isImported} isDeleted={isDeleted} />
-        {isEditable && !event.isDeleted && (
-          <Button onClick={navigateToEditPage}>Edit Event</Button>
-        )}
-      </div>
-      {isPartOfCollection && (
-        <div className="font-primary">
-          {`This event is part of ${
-            collections.length > 1 ? "" : "the "
-          } collection${collections.length > 1 ? "s" : ""}:`}
-          {collectionHrefs}
-        </div>
-      )}
-      <div className="mt-24 grid grid-cols-1 gap-12 lg:grid-cols-3">
-        <EventDetails html={descriptionHtml} proposer={proposer} />
-        <div className="min-w-100 flex flex-col gap-2">
-          {isEditable && (
-            <SessionsDetailsNonSubmittable
-              sessions={sessions}
-              eventHash={eventHash}
-            />
-          )}
-          {!isEditable && (
-            <>
-              <SessionsWrapper
-                sessions={sessions}
-                // hostname={hostname}
-              />
-              {isSignedIn && <ViewOtherRSVPs event={event} />}
-            </>
-          )}
-          {!isEditable && (
-            <SubmitRsvpSection
-              text={
-                totalUniqueRsvps > 5
-                  ? `Join ${totalUniqueRsvps} others in attending the event`
-                  : `Be amongst the first few to RSVP!`
-              }
-              disabled={isDisabled}
-              buttonText={rsvps && rsvps.length > 0 ? "Update RSVP" : "RSVP"}
-            />
-          )}
-        </div>
-      </div>
+      <Hero isImported={isImported} isDeleted={isDeleted} event={event} />
+      <EventDetails html={descriptionHtml} proposer={proposer} />
     </>
   );
 };
@@ -122,20 +86,43 @@ const EventWrapperWrapper = ({ eventHash }: { eventHash: string }) => {
     data: fetchedEventData,
   } = useEvent({ hash: eventHash });
 
-  const isEditable =
-    user && fetchedEventData ? user.id === fetchedEventData.proposerId : false;
+  // Show loading state while data or user is loading
+  if (isLoading || !user) {
+    return (
+      <div className="animate-pulse">
+        <div className="flex flex-row items-center">
+          <div className="h-32 w-full rounded-lg bg-gray-200 dark:bg-gray-700" />
+        </div>
+        <div className="mt-6 grid grid-cols-1 gap-12 lg:grid-cols-3">
+          <div className="h-64 rounded-lg bg-gray-200 dark:bg-gray-700" />
+        </div>
+      </div>
+    );
+  }
+
+  // Show error state
+  if (isError) {
+    return (
+      <div className="flex flex-col items-center justify-center gap-4 py-12">
+        <h2 className="text-2xl font-bold">Failed to load event</h2>
+        <p>Please try refreshing the page</p>
+      </div>
+    );
+  }
+
+  // Only render when we have both user and event data
+  if (!fetchedEventData) {
+    return null;
+  }
+
+  const isEditable = user.id === fetchedEventData.proposerId;
 
   return (
-    <>
-      {!isLoading && !isError && fetchedEventData && (
-        <EventWrapper
-          event={fetchedEventData}
-          isEditable={isEditable}
-          // hostname={hostname}
-          eventHash={eventHash}
-        />
-      )}
-    </>
+    <EventWrapper
+      event={fetchedEventData}
+      isEditable={isEditable}
+      eventHash={eventHash}
+    />
   );
 };
 

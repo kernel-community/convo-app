@@ -1,7 +1,7 @@
 import type { User } from "@prisma/client";
 import _ from "lodash";
 import { NextResponse, type NextRequest } from "next/server";
-import { prisma } from "src/server/db";
+import { prisma } from "src/utils/db";
 
 export async function POST(req: NextRequest) {
   const body = await req.json();

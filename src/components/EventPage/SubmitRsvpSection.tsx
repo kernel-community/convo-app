@@ -47,7 +47,7 @@ const SubmitRsvpSection = ({
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
   const isLoading = loading || isSubmitting;
-  const [openModalFlag, setOpenModalFlag] = useState(false);
+  // const [openModalFlag, setOpenModalFlag] = useState(false);
 
   const submitRSVP = async () => {
     setIsSubmitting(true);
@@ -59,7 +59,7 @@ const SubmitRsvpSection = ({
       return;
     }
     setIsSubmitting(false);
-    setOpenModalFlag(false);
+    // setOpenModalFlag(false);
   };
   const { rsvpIntention: rsvp } = useRsvpIntention();
   const {
@@ -67,21 +67,21 @@ const SubmitRsvpSection = ({
     data: eventsToSubmitRsvpTo,
     refetch: refetchEventsToSubmit,
   } = useEventsFromId({
-    ids: rsvp.eventIds,
+    ids: [rsvp.eventId],
   });
 
   useEffect(() => {
-    if (rsvp.eventIds.length > 0) {
+    if ([rsvp.eventId].length > 0) {
       refetchEventsToSubmit();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [rsvp.eventIds, eventsToSubmitRsvpTo]);
+  }, [rsvp.eventId, eventsToSubmitRsvpTo]);
 
-  const onSubmit: SubmitHandler<RsvpInput> = async () => setOpenModalFlag(true);
+  const onSubmit: SubmitHandler<RsvpInput> = async () => submitRSVP();
 
   return (
     <>
-      <Credenza open={openModalFlag} onOpenChange={setOpenModalFlag}>
+      {/* <Credenza open={openModalFlag} onOpenChange={setOpenModalFlag}>
         <CredenzaContent>
           <CredenzaHeader>
             <CredenzaTitle>Confirm RSVP for Convo</CredenzaTitle>
@@ -97,10 +97,10 @@ const SubmitRsvpSection = ({
               you have previously signed up for):
               <div></div>
               <div className="pt-2">
-                {rsvp.eventIds.length > 0 &&
+                {[rsvp.eventId].length > 0 &&
                   eventsToSubmitRsvpTo &&
-                  eventsToSubmitRsvpTo.sessions.length > 0 &&
-                  eventsToSubmitRsvpTo.sessions.map((e, ek) => {
+                  eventsToSubmitRsvpTo.sessions?.length > 0 &&
+                  eventsToSubmitRsvpTo.sessions?.map((e, ek) => {
                     return (
                       <div key={ek}>
                         {getDateTimeString(
@@ -132,7 +132,7 @@ const SubmitRsvpSection = ({
             </div>
           </CredenzaFooter>
         </CredenzaContent>
-      </Credenza>
+      </Credenza> */}
       <div>
         <div className="flex flex-col gap-2">
           <span className="font-primary text-sm font-light lowercase italic">
@@ -159,6 +159,9 @@ const SubmitRsvpSection = ({
                   type="submit"
                   disabled={disabled}
                   className="mt-3 w-full"
+                  isLoading={
+                    isLoading || isSubmitting || eventsToSubmitRsvpToLoading
+                  }
                 >
                   {buttonText || "RSVP"}
                 </Button>

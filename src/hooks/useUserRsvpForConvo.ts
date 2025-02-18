@@ -28,21 +28,21 @@ const useUserRsvpForConvo = ({
             })
           ).json()
         ).data;
-        return r.rsvps as Array<Rsvp>;
+        return r.rsvp as Rsvp;
       } catch (err) {
         throw err;
       }
     },
     {
       enabled: !dontFetch && !!user.id,
-      refetchInterval: 5000,
+      refetchInterval: 5000, // imma fetch SOOOOO FAAASTTTT (5 seconds)
     }
   );
 
   return {
     isFetching,
     refetch,
-    rsvps: data,
+    rsvp: data,
   };
 };
 

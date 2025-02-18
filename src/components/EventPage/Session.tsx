@@ -51,11 +51,12 @@ const RsvpStatus = ({
         disabled={!isInPresent}
         type="checkbox"
         className={`
-      m-2 mr-4
-      cursor-pointer rounded-md
-      border-gray-300
-      text-primary focus:border-2 focus:border-primary focus:ring-2
-      focus:ring-primary
+      m-2
+      mr-4 cursor-pointer
+      rounded-md border-gray-300
+      bg-background
+      text-primary focus:border-2 focus:border-primary focus:ring-2 focus:ring-primary dark:border-primary-dark
+      dark:text-primary-dark
     `}
         defaultChecked={isChecked}
       />

@@ -1,9 +1,10 @@
+import type { RSVP_TYPE } from "@prisma/client";
 import { useQuery } from "react-query";
 
 type RsvpUpdateRequest = {
   userId: string | null | undefined;
   eventId: string | null | undefined;
-  toRsvp: boolean; // false to remove rsvp, true to add rsvp
+  type: RSVP_TYPE;
 };
 
 const useUpdateRsvp = (rsvp: RsvpUpdateRequest) => {
@@ -13,7 +14,7 @@ const useUpdateRsvp = (rsvp: RsvpUpdateRequest) => {
       try {
         const r = (
           await (
-            await fetch("/api/update/rsvp", {
+            await fetch("/api/create/rsvp", {
               body: JSON.stringify({ rsvp }),
               method: "POST",
               headers: { "Content-type": "application/json" },

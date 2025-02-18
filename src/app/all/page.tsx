@@ -17,18 +17,23 @@ const All: NextPage = () => {
         >
           <div
             className="
-              font-heading
+              dark:text-primary-dark
+              font-primary
               text-4xl
-              font-bold
-              lowercase
-              text-primary
+              lowercase text-primary
               sm:text-5xl
               lg:py-5
             "
           >
             all upcoming
           </div>
-          <Events type={"upcoming"} take={50} infinite={true} showFilterPanel />
+          <Events
+            type={"upcoming"}
+            take={50}
+            infinite={true}
+            showFilterPanel
+            useDynamicLayout={true}
+          />
         </div>
       </Main>
     </>

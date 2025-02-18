@@ -12,7 +12,7 @@ export const Article = ({
   };
   if (card) {
     return (
-      <article className={`font-primary`}>
+      <article className={`font-secondary`}>
         <div dangerouslySetInnerHTML={createMarkup()}></div>
       </article>
     );
@@ -21,9 +21,11 @@ export const Article = ({
     <article
       className={`
           prose
-          font-primary
-          sm:prose-lg
-          md:prose-xl
+          prose-xl
+          w-full
+          max-w-none
+          font-secondary
+          dark:prose-invert
         `}
     >
       <div dangerouslySetInnerHTML={createMarkup()}></div>

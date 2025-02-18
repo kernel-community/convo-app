@@ -57,13 +57,15 @@ export const SessionsWrapper = ({
       case true:
         setRsvpIntention({
           ...rsvpIntention,
-          eventIds: [...rsvpIntention.eventIds, id],
+          eventId: id,
+          // eventIds: [...rsvpIntention.eventIds, id],
         });
         break;
       case false:
         setRsvpIntention({
           ...rsvpIntention,
-          eventIds: rsvpIntention.eventIds.filter((r) => r !== id),
+          eventId: "",
+          // eventIds: rsvpIntention.eventIds.filter((r) => r !== id),
         });
         break;
       default: {
@@ -71,12 +73,16 @@ export const SessionsWrapper = ({
       }
     }
   };
+  console.log("sessions", sessions);
+
   useEffect(() => {
+    console.log("sessions", sessions);
     setRsvpIntention({
       ...rsvpIntention,
-      eventIds: active
-        .filter((event) => event.availableSeats > 0 || event.noLimit)
-        .map((a) => a.id),
+      eventId: sessions[0] ? sessions[0].id : "",
+      // eventIds: active
+      //   .filter((event) => event.availableSeats > 0 || event.noLimit)
+      //   .map((a) => a.id),
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sessions]);
@@ -100,7 +106,7 @@ export const SessionsWrapper = ({
   const { fetch: updateRsvp } = useUpdateRsvp({
     userId: user.id,
     eventId: cancelRsvpEventId,
-    toRsvp: false,
+    type: "NOT_GOING",
   });
 
   return (

@@ -14,7 +14,6 @@ import Placeholder from "@tiptap/extension-placeholder";
 import type { ReactNode } from "react";
 import { Fragment, useCallback } from "react";
 import type { FieldErrorsImpl } from "react-hook-form";
-import type { ClientEventInput } from "..";
 import FieldLabel from "../../StrongText";
 import type { Editor } from "@tiptap/core";
 import Collaboration from "@tiptap/extension-collaboration";
@@ -38,6 +37,7 @@ import {
   RedoIcon,
   UndoIcon,
 } from "lucide-react";
+import type { ClientEventInput } from "src/types";
 
 type handleChangeType = (e: any) => void;
 
@@ -48,6 +48,7 @@ export const RichTextArea = ({
   fieldName,
   infoText,
   value,
+  className,
 }: {
   name: keyof ClientEventInput;
   fieldName?: string;
@@ -55,6 +56,7 @@ export const RichTextArea = ({
   handleChange: handleChangeType;
   errors?: Partial<FieldErrorsImpl<ClientEventInput>>;
   value?: string;
+  className?: string;
 }) => {
   const isError = errors && errors[name];
 
@@ -86,7 +88,7 @@ export const RichTextArea = ({
     ],
     editorProps: {
       attributes: {
-        class: `prose focus:outline-none prose-stone`,
+        class: `focus:outline-none prose prose-stone w-full max-w-none prose-headings:font-bold prose-h1:text-2xl prose-h2:text-xl prose-h3:text-lg prose-ul:list-disc prose-ol:list-decimal prose-li:my-1 dark:text-primary-dark dark:prose-invert`,
       },
     },
     onUpdate: ({ editor }) => handleChange(editor.getHTML()),
@@ -102,7 +104,26 @@ export const RichTextArea = ({
           </div>
         </FieldLabel>
       )}
-      <div className="rounded-lg border-2 border-primary-muted p-3">
+      <div
+        className={`
+          rounded-lg
+          border-2 border-transparent
+          bg-muted
+          p-3
+          transition-all
+          focus-within:border-2
+          focus-within:border-primary
+          ${className}
+          ${
+            isError
+              ? `
+            bg-red-50
+            focus-within:border-red-500 focus-within:ring-red-500`
+              : `
+            focus-within:border-primary focus-within:ring-primary`
+          }
+        `}
+      >
         {editor && <MenuBar editor={editor} />}
         <EditorContent editor={editor} />
       </div>
@@ -241,8 +262,8 @@ const MenuItem = ({
     className={
       `${
         isActive && isActive()
-          ? "bg-primary text-primary-muted"
-          : "bg-white text-primary"
+          ? "dark:bg-fill-dark bg-primary text-primary-muted dark:text-primary-muted"
+          : "dark:text-primary-dark bg-white text-primary dark:bg-black"
       }` +
       ` inline-flex cursor-pointer flex-row items-center gap-2 rounded-lg border-2 border-gray-800 px-2 font-secondary text-xs uppercase`
     }

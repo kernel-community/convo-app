@@ -15,7 +15,7 @@
  *
  */
 
-import { prisma } from "src/server/db";
+import { prisma } from "src/utils/db";
 
 const main = async () => {
   const events = await prisma.event.findMany({

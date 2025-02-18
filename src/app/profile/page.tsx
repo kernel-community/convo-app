@@ -73,12 +73,12 @@ const Profile: NextPage = () => {
                     <input
                       type="text"
                       className="
+                      bg-background
                       font-heading
                       text-5xl
                       font-bold
-                      lowercase
-                      text-primary
-
+                      lowercase text-primary
+                      dark:text-primary-dark
                     "
                       placeholder={userAttributes.nickname}
                       onChange={(event) => {
@@ -96,10 +96,8 @@ const Profile: NextPage = () => {
                     className="
                               font-heading
                               text-5xl
-                              font-bold
-                              lowercase
-                              text-primary
-
+                              font-bold lowercase
+                              text-primary dark:text-primary-dark
                             "
                   >
                     {userAttributes.nickname}
@@ -120,7 +118,7 @@ const Profile: NextPage = () => {
                 <div>
                   <textarea
                     wrap="soft"
-                    className="w-full"
+                    className="w-full bg-background"
                     placeholder={profileAttributes?.bio || ""}
                     onChange={(event) => {
                       return setProfileAttributes((curr) => {
@@ -136,12 +134,17 @@ const Profile: NextPage = () => {
                 <div>{profileAttributes?.bio}</div>
               )}
             </div>
-            <Button onClick={() => onSubmit()} disabled={!isEditing}>
-              Update Profile
-            </Button>
-            <Button onClick={() => onSignOut()} variant="outline">
-              Sign out
-            </Button>
+            <div>Email: {fetchedUser.email}</div>
+            <div className="flex flex-row gap-4">
+              {isEditing && (
+                <Button onClick={() => onSubmit()} disabled={!isEditing}>
+                  Update Profile
+                </Button>
+              )}
+              <Button onClick={() => onSignOut()} variant="outline">
+                Sign out
+              </Button>
+            </div>
           </div>
         </div>
       </Main>

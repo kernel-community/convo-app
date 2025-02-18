@@ -4,8 +4,8 @@
  * attempt sending google calendar invite
  */
 
-import { prisma } from "src/server/db";
-import { sendInvite } from "src/server/utils/google/sendInvite";
+import { prisma } from "src/utils/db";
+import { sendInvite } from "src/utils/google/sendInvite";
 
 const main = async () => {
   const allRsvps = await prisma.rsvp.findMany({

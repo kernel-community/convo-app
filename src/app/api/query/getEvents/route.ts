@@ -1,22 +1,18 @@
-import _, { isNil } from "lodash";
+import _ from "lodash";
 import { DateTime } from "luxon";
-import { prisma } from "src/server/db";
+import { prisma } from "src/utils/db";
 import type { ClientEvent, ServerEvent } from "src/types";
-import { formatEvents } from "src/server/utils/formatEvent";
+import { formatEvents } from "src/utils/formatEvent";
 import type { EventType } from "@prisma/client";
 import { Prisma } from "@prisma/client";
 import type { EventsRequest } from "src/types";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
-import { headers } from "next/headers";
-import isProd from "src/utils/isProd";
 
 // now = from where to start fetching; reference
 export async function POST(request: NextRequest) {
-  const headersList = headers();
-  const hostname = headersList.get("host") ?? "kernel";
-  const subdomain = hostname?.split(".")[0];
   const req = await request.json();
+  console.log({ req });
 
   if (!req) throw new Error("body not found");
   const {
@@ -68,28 +64,11 @@ export async function POST(request: NextRequest) {
     },
     distinct: [Prisma.EventScalarFieldEnum.hash],
   };
-  // check if subdomain is "registered" in our databse
-  // if it is, create communities object accordingly
-  // if not, return all events
-  let community = await prisma.community.findUnique({ where: { subdomain } });
-  if (!community) {
-    // @note
-    // fallback on kernel community if subdomain not found
-    community = await prisma.community.findUnique({
-      where: { subdomain: isProd(hostname) ? "kernel" : "staging" },
-    });
-  }
-  if (!community || isNil(community)) {
-    throw new Error(
-      "Community is undefined. Every event should belong to a community"
-    );
-  }
   const defaultWheres = {
     isDeleted: false,
     type: {
       not: "INTERVIEW" as EventType,
     },
-    community: { id: community?.id },
   };
   let events: Array<ClientEvent> = [];
   let serverEvents: Array<ServerEvent> = [];

@@ -3,7 +3,13 @@
 import { useQuery } from "react-query";
 import type { ClientEvent } from "src/types";
 
-const useEvent = ({ hash }: { hash?: string | string[] }) => {
+const useEvent = ({
+  hash,
+  dontFetch = false,
+}: {
+  hash?: string | string[];
+  dontFetch?: boolean;
+}) => {
   const { isLoading, isError, data, refetch } = useQuery(
     `rsvp_${hash}`,
     async () => {
@@ -23,7 +29,7 @@ const useEvent = ({ hash }: { hash?: string | string[] }) => {
       }
     },
     {
-      refetchInterval: 60000,
+      refetchInterval: dontFetch ? false : 3000,
       enabled: !!hash,
     }
   );

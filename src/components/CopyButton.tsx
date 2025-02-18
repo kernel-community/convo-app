@@ -1,7 +1,15 @@
 import { Check, ClipboardCopy } from "lucide-react";
 import { useEffect, useState } from "react";
 
-const CopyButton = ({ text, label }: { text: string; label?: string }) => {
+const CopyButton = ({
+  text,
+  label,
+  className,
+}: {
+  text: string;
+  label?: string;
+  className?: string;
+}) => {
   const [isCopied, setIsCopied] = useState<boolean>(false);
   const copyText = () => {
     setIsCopied((c) => !c);
@@ -19,7 +27,7 @@ const CopyButton = ({ text, label }: { text: string; label?: string }) => {
     <div
       className={`flex cursor-pointer flex-row items-center gap-3 ${
         label ? "rounded-md bg-slate-200 p-2 " : ""
-      }`}
+      } ${className}`}
       onClick={copyText}
     >
       {label}

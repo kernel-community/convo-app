@@ -11,10 +11,13 @@ const EventDetails = ({
   proposer: ClientEvent["proposer"];
 }) => {
   return (
-    <div className="col-span-2">
+    <>
+      <div className="font-primary text-lg font-light">Convo Description</div>
+      <hr className="border-1 my-4 rounded-lg border-muted" />
       <Article html={html} />
+      <hr className="border-1 my-4 rounded-lg border-muted" />
       {isNicknameSet(proposer.nickname) && <Signature user={proposer} />}
-    </div>
+    </>
   );
 };
 

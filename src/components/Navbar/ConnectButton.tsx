@@ -1,17 +1,27 @@
 "use client";
-import { useDynamicContext } from "@dynamic-labs/sdk-react";
+// import { useDynamicContext } from "@dynamic-labs/sdk-react";
+import { DynamicWidget, useDynamicContext } from "@dynamic-labs/sdk-react-core";
 import { useUser } from "src/context/UserContext";
 export const ConnectButton = () => {
   const { fetchedUser: user } = useUser();
+  const { setShowDynamicUserProfile } = useDynamicContext();
   const { setShowAuthFlow } = useDynamicContext();
   if (user.isSignedIn) {
     // display user profile
     return (
-      <div className="mb-1">
-        <a href="/profile">
-          <span className="text-slate-400">Signing as</span>{" "}
-          <span className="text-slate-200">{user.nickname}</span>
-        </a>
+      <div className="flex flex-col items-end sm:flex-row sm:gap-1 sm:text-xl">
+        <div className="hidden">
+          <DynamicWidget />
+        </div>
+        <span className="">signing as</span>{" "}
+        <span
+          className="cursor-pointer underline decoration-dotted underline-offset-4"
+          onClick={() => {
+            setShowDynamicUserProfile(true);
+          }}
+        >
+          {user.nickname}
+        </span>
       </div>
     );
   }
@@ -20,8 +30,7 @@ export const ConnectButton = () => {
       onClick={() => {
         setShowAuthFlow(true);
       }}
-      className="mb-1
-        cursor-pointer font-semibold lowercase text-highlight"
+      className="cursor-pointer font-primary hover:underline hover:decoration-dotted hover:underline-offset-4 sm:text-xl"
     >
       Log in
     </div>
