@@ -29,14 +29,20 @@ const contributors = [
   },
   {
     name: "Vivek",
-    url: "https://github.com/kernel-community",
+    url: "https://x.com/vsinghdothings",
     contribution: ["kernel", "product"],
     image: "",
   },
   {
+    name: "Andy",
+    url: "https://x.com/cryptowanderer",
+    contribution: ["everything", "kernel"],
+    image: "",
+  },
+  {
     name: "Aliya",
-    url: "https://github.com/kernel-community",
-    contribution: ["kernel"],
+    url: "https://x.com/aliyajypsy",
+    contribution: ["kernel", "product"],
     image: "",
   },
   {
@@ -55,12 +61,6 @@ const contributors = [
     name: "Ash",
     url: "",
     contribution: ["design", "emojis", "logo", "product"],
-    image: "",
-  },
-  {
-    name: "Don",
-    url: "https://github.com/donpdang",
-    contribution: ["dev"],
     image: "",
   },
   {
