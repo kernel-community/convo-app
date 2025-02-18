@@ -11,51 +11,45 @@ export const CreateEmailTemplate: React.FC<
     <div>
       <h1
         style={{
-          marginBottom: "24px",
           fontSize: "24px",
           fontWeight: "bold",
-          margin: "0",
+          margin: "0 0 24px 0",
+          color: "#111",
         }}
       >
         Hello {firstName}! Your Convo is ready 🎉
       </h1>
 
-      <div style={{ marginTop: "16px" }}>
-        <p style={{ margin: "0 0 16px 0" }}>
-          You&apos;ve successfully created a new Convo. Here are the details:
-        </p>
+      <p style={{ margin: "0 0 24px 0", color: "#4a4a4a" }}>
+        You&apos;ve successfully created a new Convo. Here are the details:
+      </p>
 
-        <div
+      <div
+        style={{
+          padding: "24px",
+          backgroundColor: "#f5f5f4",
+          borderRadius: "8px",
+          marginBottom: "24px",
+        }}
+      >
+        <h2
           style={{
-            padding: "24px",
-            backgroundColor: "#f3f4f6",
-            borderRadius: "8px",
-            marginBottom: "16px",
+            fontSize: "20px",
+            fontWeight: "600",
+            margin: "0 0 8px 0",
+            color: "#111",
           }}
         >
-          <h2
-            style={{
-              fontSize: "18px",
-              fontWeight: "600",
-              margin: "0 0 12px 0",
-            }}
-          >
-            {event.title}
-          </h2>
-          {event.descriptionHtml && (
-            <div
-              style={{ color: "#6b7280", margin: "0 0 12px 0" }}
-              dangerouslySetInnerHTML={{ __html: event.descriptionHtml }}
-            />
-          )}
-          <EventDetails event={event} />
-        </div>
+          {event.title}
+        </h2>
 
-        <p style={{ margin: "16px 0 0 0" }}>
-          We&apos;ll notify you when people RSVP. You can always check the
-          status and make updates by visiting your Convo dashboard.
-        </p>
+        <EventDetails event={event} />
       </div>
+
+      <p style={{ margin: "0", color: "#4a4a4a" }}>
+        We&apos;ll notify you when people RSVP. You can always check the status
+        and make updates by visiting your Convo dashboard.
+      </p>
     </div>
   </EmailWrapper>
 );

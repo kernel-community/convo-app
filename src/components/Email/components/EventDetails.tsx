@@ -6,6 +6,11 @@ interface EventDetailsProps {
   showHost?: boolean;
 }
 
+const truncateText = (text: string, maxLength: number): string => {
+  if (text.length <= maxLength) return text;
+  return text.substring(0, maxLength).trim() + "...";
+};
+
 export const EventDetails: React.FC<EventDetailsProps> = ({
   event,
   showDescription = true,
@@ -14,47 +19,47 @@ export const EventDetails: React.FC<EventDetailsProps> = ({
   <div
     style={{
       marginTop: "12px",
-      display: "flex",
-      flexDirection: "column",
-      gap: "8px",
+      display: "grid",
+      gridTemplateColumns: "1fr",
+      gap: "12px",
       fontSize: "14px",
+      color: "#4a4a4a",
     }}
   >
-    <p style={{ margin: "0" }}>
+    <div>
       <strong>When:</strong> {new Date(event.startDateTime).toLocaleString()}
-    </p>
-    <p style={{ margin: "0" }}>
+    </div>
+
+    <div>
       <strong>Where:</strong> {event.location}
-    </p>
+    </div>
+
     {showDescription && event.descriptionHtml && (
-      <p style={{ margin: "0" }}>
-        <strong>Description:</strong> {event.descriptionHtml}
-      </p>
-    )}
-    {showHost && (
-      <p style={{ margin: "0" }}>
-        <strong>Host:</strong> {event.proposerName}
-      </p>
-    )}
-    <p style={{ margin: "0" }}>
-      <strong>Location:</strong>{" "}
-      {event.locationType === "ONLINE" ? (
-        <a
-          href={event.location}
-          style={{
-            color: "#2563eb",
-            textDecoration: "none",
+      <div>
+        <strong>Description:</strong>{" "}
+        <span
+          dangerouslySetInnerHTML={{
+            __html: truncateText(event.descriptionHtml, 250),
           }}
-          onMouseOver={(e) =>
-            (e.currentTarget.style.textDecoration = "underline")
-          }
-          onMouseOut={(e) => (e.currentTarget.style.textDecoration = "none")}
-        >
-          Join meeting
-        </a>
-      ) : (
-        event.location
-      )}
-    </p>
+        />
+      </div>
+    )}
+
+    {showHost && (
+      <div>
+        <strong>Host:</strong> {event.proposerName}
+      </div>
+    )}
+    <div>
+      <strong>Location:</strong>{" "}
+      <span
+        style={{
+          color: "#2563eb",
+          textDecoration: "none",
+        }}
+      >
+        {event.location}
+      </span>
+    </div>
   </div>
 );

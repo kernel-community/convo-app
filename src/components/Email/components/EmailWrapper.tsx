@@ -31,27 +31,34 @@ export const EmailWrapper: React.FC<{ children: React.ReactNode }> = ({
       }}
     >
       {/* Header */}
-      <div
+      <table
         style={{
+          width: "100%",
           marginBottom: "32px",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
+          borderCollapse: "collapse",
         }}
       >
-        <img
-          src={LOGO_URL}
-          alt="Convo Logo"
-          width={40}
-          height={40}
-          style={{
-            width: "40px",
-            height: "40px",
-            opacity: "0.9",
-          }}
-        />
-        <HeartEmoji width={35} height={35} />
-      </div>
+        <tr>
+          <td style={{ width: "40px", padding: 0 }}>
+            <img
+              src={LOGO_URL}
+              alt="Convo Logo"
+              width={40}
+              height={40}
+              style={{
+                width: "40px",
+                height: "40px",
+                opacity: "0.9",
+                display: "block",
+              }}
+            />
+          </td>
+          <td style={{ padding: 0 }}></td>
+          <td style={{ width: "35px", padding: 0, textAlign: "right" }}>
+            <HeartEmoji width={35} height={35} />
+          </td>
+        </tr>
+      </table>
 
       {/* Content */}
       <div style={{ marginBottom: "24px" }}>{children}</div>
