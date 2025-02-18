@@ -58,6 +58,12 @@ const contributors = [
     image: "",
   },
   {
+    name: "Don",
+    url: "https://github.com/donpdang",
+    contribution: ["dev"],
+    image: "",
+  },
+  {
     name: "Kanika",
     url: "",
     contribution: ["frontend"],
