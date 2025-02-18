@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Main from "../layouts/Main";
 import { FancyHighlight } from "../components/FancyHighlight";
@@ -13,7 +13,7 @@ import { generateTitle } from "src/utils/generateTitle";
 import { generateDescription } from "src/utils/generateDescription";
 import { parseDateTime } from "src/utils/parseDateTime";
 import { parseLocation } from "src/utils/parseLocation";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Command, CornerDownLeft } from "lucide-react";
 import Link from "next/link";
 import { Events } from "src/components/Events";
 import { getLocalTimezoneOffset } from "src/utils/getLocalTimezoneOffset";
@@ -46,7 +46,7 @@ const Home = () => {
   );
   const formRef = useRef<HTMLDivElement>(null);
 
-  const handleCreateClick = async () => {
+  const handleCreateClick = useCallback(async () => {
     if (!showTextArea) {
       // First click - show text area
       setShowTextArea(true);
@@ -103,7 +103,19 @@ const Home = () => {
     setTimeout(() => {
       formRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
     }, 100);
-  };
+  }, [text, showTextArea, showForm, NOW, tzOffset]);
+
+  useEffect(() => {
+    const handleKeyPress = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "Enter" && !showForm) {
+        e.preventDefault();
+        handleCreateClick();
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyPress);
+    return () => document.removeEventListener("keydown", handleKeyPress);
+  }, [showForm, handleCreateClick]);
 
   const userStartedTyping = text.trim() && !showForm;
 
@@ -178,11 +190,22 @@ const Home = () => {
                     isLoading={isLoading}
                     variant={"default"}
                   >
-                    {showTextArea
-                      ? text.trim()
-                        ? "Create"
-                        : "Cancel"
-                      : "Create"}
+                    <div className="flex items-center justify-center gap-2">
+                      <span>
+                        {showTextArea
+                          ? text.trim()
+                            ? "Create"
+                            : "Cancel"
+                          : "Create"}
+                      </span>
+                      {showTextArea && text.trim() && (
+                        <div className="hidden items-center gap-1 opacity-50 sm:flex">
+                          <Command className="h-4 w-4" />
+                          <span>+</span>
+                          <CornerDownLeft className="h-4 w-4" />
+                        </div>
+                      )}
+                    </div>
                   </Button>
                 </motion.div>
               )}
