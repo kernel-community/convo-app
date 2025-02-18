@@ -10,30 +10,85 @@ export const InviteGoingEmailTemplate: React.FC<
 > = ({ firstName, event }) => (
   <EmailWrapper>
     <div>
-      <h1 className="mb-6 flex items-center gap-2 font-primary text-2xl">
+      <h1
+        style={{
+          marginBottom: "24px",
+          display: "flex",
+          alignItems: "center",
+          gap: "8px",
+          fontSize: "24px",
+          fontWeight: "bold",
+          margin: "0",
+        }}
+      >
         Yay! You&apos;re going <StarryEyesEmoji width={30} height={30} />
       </h1>
 
-      <div className="space-y-4">
-        <p>Hi {firstName}, your RSVP is confirmed for:</p>
+      <div style={{ marginTop: "16px" }}>
+        <p style={{ margin: "0 0 16px 0" }}>
+          Hi {firstName}, your RSVP is confirmed for:
+        </p>
 
-        <div className="space-y-3 rounded-lg bg-muted p-6">
-          <h2 className="text-lg font-semibold">{event.title}</h2>
+        <div
+          style={{
+            padding: "24px",
+            backgroundColor: "#f3f4f6",
+            borderRadius: "8px",
+            marginBottom: "16px",
+          }}
+        >
+          <h2
+            style={{
+              fontSize: "18px",
+              fontWeight: "600",
+              margin: "0 0 12px 0",
+            }}
+          >
+            {event.title}
+          </h2>
           {event.descriptionHtml && (
-            <p
-              className="text-muted-foreground"
+            <div
+              style={{
+                color: "#6b7280",
+                margin: "0 0 12px 0",
+              }}
               dangerouslySetInnerHTML={{ __html: event.descriptionHtml }}
             />
           )}
           <EventDetails event={event} showDescription={false} />
         </div>
 
-        <div className="bg-primary/5 rounded-lg p-4 text-sm">
-          <p className="font-medium">Quick tips:</p>
-          <ul className="mt-2 list-inside list-disc space-y-1 text-muted-foreground">
-            <li>Add this to your calendar using the attached .ics file</li>
-            <li>You&apos;ll get a reminder 1 hour before the Convo</li>
-            <li>
+        <div
+          style={{
+            backgroundColor: "rgba(59, 130, 246, 0.05)",
+            borderRadius: "8px",
+            padding: "16px",
+            fontSize: "14px",
+          }}
+        >
+          <p
+            style={{
+              margin: "0 0 8px 0",
+              fontWeight: "500",
+            }}
+          >
+            Quick tips:
+          </p>
+          <ul
+            style={{
+              margin: "0",
+              paddingLeft: "20px",
+              color: "#6b7280",
+              listStyleType: "disc",
+            }}
+          >
+            <li style={{ margin: "4px 0" }}>
+              Add this to your calendar using the attached .ics file
+            </li>
+            <li style={{ margin: "4px 0" }}>
+              You&apos;ll get a reminder 1 hour before the Convo
+            </li>
+            <li style={{ margin: "4px 0" }}>
               Need to change your RSVP? No worries, just visit the Convo page
             </li>
           </ul>

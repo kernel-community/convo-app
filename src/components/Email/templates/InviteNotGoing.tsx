@@ -9,23 +9,57 @@ export const InviteNotGoingEmailTemplate: React.FC<
 > = ({ firstName, event }) => (
   <EmailWrapper>
     <div>
-      <h1 className="mb-6 font-primary text-2xl">
+      <h1
+        style={{
+          marginBottom: "24px",
+          fontSize: "24px",
+          fontWeight: "bold",
+          margin: "0",
+        }}
+      >
         Thanks for letting us know!
       </h1>
 
-      <div className="space-y-4">
-        <p>
+      <div style={{ marginTop: "16px" }}>
+        <p style={{ margin: "0 0 16px 0" }}>
           Hi {firstName}, we&apos;ve noted that you won&apos;t be able to
           attend:
         </p>
 
-        <div className="space-y-3 rounded-lg bg-muted p-6">
-          <h2 className="text-lg font-semibold">{event.title}</h2>
+        <div
+          style={{
+            padding: "24px",
+            backgroundColor: "#f3f4f6",
+            borderRadius: "8px",
+            marginBottom: "16px",
+          }}
+        >
+          <h2
+            style={{
+              fontSize: "18px",
+              fontWeight: "600",
+              margin: "0 0 12px 0",
+            }}
+          >
+            {event.title}
+          </h2>
           <EventDetails event={event} showDescription={false} />
         </div>
 
-        <div className="bg-primary/5 rounded-lg p-4 text-sm">
-          <p className="text-muted-foreground">
+        <div
+          style={{
+            backgroundColor: "rgba(59, 130, 246, 0.05)",
+            borderRadius: "8px",
+            padding: "16px",
+            fontSize: "14px",
+          }}
+        >
+          <p
+            style={{
+              margin: "0",
+              color: "#6b7280",
+            }}
+          >
             No worries at all! We hope to catch you at another Convo soon. Feel
             free to update your RSVP if your plans change.
           </p>
