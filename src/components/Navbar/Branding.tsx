@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { MoveUpRight } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
-import ConvoLogo from "public/images/logo.svg";
+import ConvoLogo from "public/images/logo.png";
 
 export const Branding = () => {
   const [isMounted, setIsMounted] = useState(false);
@@ -49,7 +49,13 @@ export const Branding = () => {
           animate={{ rotate: isActive ? 360 : 0 }}
           transition={{ duration: 0.6, ease: "easeInOut" }}
         >
-          <Image src={ConvoLogo} alt="Convo Logo" width={25} height={25} />
+          <Image
+            src={ConvoLogo}
+            alt="Convo Logo"
+            width={25}
+            height={25}
+            className="h-[25px] w-[25px] sm:h-[35px] sm:w-[35px]"
+          />
         </motion.div>
         <motion.div
           initial={{ opacity: 0, x: -20, width: 0 }}
