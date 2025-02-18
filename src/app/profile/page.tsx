@@ -73,12 +73,12 @@ const Profile: NextPage = () => {
                     <input
                       type="text"
                       className="
-                      bg-background
-                      font-heading
-                      text-5xl
-                      font-bold
-                      lowercase text-primary
                       dark:text-primary-dark
+                      bg-background
+                      font-primary
+                      text-5xl
+                      font-bold lowercase
+                      text-primary
                     "
                       placeholder={userAttributes.nickname}
                       onChange={(event) => {
@@ -94,10 +94,10 @@ const Profile: NextPage = () => {
                 ) : (
                   <div
                     className="
-                              font-heading
-                              text-5xl
-                              font-bold lowercase
-                              text-primary dark:text-primary-dark
+                              dark:text-primary-dark
+                              font-primary
+                              text-5xl font-semibold
+                              lowercase text-primary
                             "
                   >
                     {userAttributes.nickname}

@@ -7,11 +7,11 @@ export const NotAllowedPage = ({ message }: { message?: string }) => {
         <div className="flex flex-col items-center justify-center">
           <div
             className="
+          dark:text-primary-dark
           mx-auto
-          font-heading
+          font-primary
           text-5xl
-          font-extrabold
-          text-primary dark:text-primary-dark
+          font-semibold text-primary
           sm:text-5xl
         "
           >

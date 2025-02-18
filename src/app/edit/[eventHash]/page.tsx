@@ -47,7 +47,7 @@ const Edit = ({ params }: { params: { eventHash: string } }) => {
       <Main>
         <div className="flex flex-col items-center justify-center">
           <div className="flex w-full flex-col items-center justify-between sm:flex-row">
-            <div className="font-heading dark:text-primary-dark px-8 text-4xl font-extrabold text-primary sm:text-5xl">
+            <div className="dark:text-primary-dark px-8 font-primary text-4xl font-extrabold text-primary sm:text-5xl">
               <Skeleton className="h-12 w-64" />
             </div>
           </div>

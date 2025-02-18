@@ -18,10 +18,10 @@ const Post = ({ params }: { params: { collectionId: string } }) => {
       <div></div>
       <div
         className="
-              font-heading
               dark:text-primary-dark
+              font-primary
               text-5xl
-              font-bold
+              font-semibold
               lowercase text-primary
               lg:py-5
             "
