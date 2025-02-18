@@ -12,7 +12,6 @@ import { CalendarPopover } from "./CalendarPopover";
 import type { ClientEvent, EventsRequest } from "src/types";
 import { Title } from "./Title";
 import { Card, CardTemplate } from "./Card";
-import { CalendarIcon } from "lucide-react";
 
 interface DateDisplayProps {
   date: Date | string;
@@ -49,8 +48,8 @@ const DateDisplay = ({
         className={`group flex max-w-max cursor-pointer items-start ${className}`}
         onClick={() => setIsOpen(true)}
       >
-        <div className="relative rounded-md rounded-br-[50px] rounded-tl-[50px] bg-primary-muted px-8 py-2 pr-12 transition-[padding] duration-200 md:pr-6 md:group-hover:pr-9">
-          <h3 className="font-primary text-lg text-foreground decoration-dotted underline-offset-4 transition-all group-hover:underline">
+        <div className="relative rounded-md rounded-br-[50px] rounded-tl-[50px] bg-primary-muted px-8 py-2 pr-6">
+          <h3 className="font-primary text-lg text-foreground underline decoration-dotted underline-offset-4 transition-all md:no-underline md:group-hover:underline">
             {(() => {
               const now = DateTime.now();
               const diff = dateTime
@@ -74,7 +73,6 @@ const DateDisplay = ({
               });
             })()}
           </h3>
-          <CalendarIcon className="absolute right-4 top-1/2 block -translate-y-1/2 p-1 opacity-100 transition-opacity duration-200 md:right-3 md:hidden md:opacity-0 md:group-hover:block md:group-hover:opacity-100" />
         </div>
       </div>
     </CalendarPopover>
