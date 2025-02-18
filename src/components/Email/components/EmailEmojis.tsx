@@ -7,7 +7,8 @@ interface EmojiProps {
 }
 
 // Using absolute URL for email clients
-const BASE_URL = process.env.NODE_ENV === "production" ? DEFAULT_HOST : STAGING;
+// const BASE_URL = process.env.NODE_ENV === "production" ? DEFAULT_HOST : STAGING;
+const BASE_URL = STAGING;
 
 export function CoolEmoji({ width = 16, height = 16, className }: EmojiProps) {
   return (
