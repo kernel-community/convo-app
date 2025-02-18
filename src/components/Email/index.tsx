@@ -51,10 +51,9 @@ import {
   DeletedProposerEmailTemplate,
   SUBJECT as DeletedProposerEmailTemplateSubject,
 } from "./templates/DeletedProposer";
+import { EmailTemplateWithEventProps } from "./types";
 
-export interface EmailTemplateProps {
-  firstName: string;
-}
+export type { EmailTemplateProps, EmailTemplateWithEventProps } from "./types";
 
 export type EmailType =
   | "create"
@@ -73,65 +72,68 @@ export type EmailType =
 
 export const getEmailTemplateFromType = (
   type: EmailType,
-  props: EmailTemplateProps
+  props: EmailTemplateWithEventProps
 ): {
   template: React.ReactNode;
   subject: string;
 } => {
+  const { firstName, event } = props;
+  const basicProps = { firstName };
+
   switch (type) {
     case "create":
       return {
-        template: CreateEmailTemplate(props),
+        template: CreateEmailTemplate({ ...props }),
         subject: CreateEmailTemplateSubject,
       };
     case "invite-going":
       return {
-        template: InviteGoingEmailTemplate(props),
+        template: InviteGoingEmailTemplate({ ...props }),
         subject: InviteGoingEmailTemplateSubject,
       };
     case "invite-maybe":
       return {
-        template: InviteMaybeEmailTemplate(props),
+        template: InviteMaybeEmailTemplate({ ...props }),
         subject: InviteMaybeEmailTemplateSubject,
       };
     case "invite-not-going":
       return {
-        template: InviteNotGoingEmailTemplate(props),
+        template: InviteNotGoingEmailTemplate({ ...props }),
         subject: InviteNotGoingEmailTemplateSubject,
       };
     case "update-proposer":
       return {
-        template: UpdateProposerEmailTemplate(props),
+        template: UpdateProposerEmailTemplate({ ...props }),
         subject: UpdateProposerEmailTemplateSubject,
       };
     case "update-attendee-going":
       return {
-        template: UpdateAttendeeGoingEmailTemplate(props),
+        template: UpdateAttendeeGoingEmailTemplate({ ...props }),
         subject: UpdateAttendeeGoingEmailTemplateSubject,
       };
     case "update-attendee-maybe":
       return {
-        template: UpdateAttendeeMaybeEmailTemplate(props),
+        template: UpdateAttendeeMaybeEmailTemplate({ ...props }),
         subject: UpdateAttendeeMaybeEmailTemplateSubject,
       };
     case "reminder24hr":
       return {
-        template: Reminder24hrEmailTemplate(props),
+        template: Reminder24hrEmailTemplate({ ...props }),
         subject: Reminder24hrEmailTemplateSubject,
       };
     case "reminder1hr":
       return {
-        template: Reminder1hrEmailTemplate(props),
+        template: Reminder1hrEmailTemplate({ ...props }),
         subject: Reminder1hrEmailTemplateSubject,
       };
     case "reminder1min":
       return {
-        template: Reminder1minEmailTemplate(props),
+        template: Reminder1minEmailTemplate({ ...props }),
         subject: Reminder1minEmailTemplateSubject,
       };
     case "reminder1hrProposer":
       return {
-        template: Reminder1hrProposerEmailTemplate(props),
+        template: Reminder1hrProposerEmailTemplate({ ...props }),
         subject: Reminder1hrProposerEmailTemplateSubject,
       };
     case "deleted-attendee":

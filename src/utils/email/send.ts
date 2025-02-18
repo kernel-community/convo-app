@@ -10,6 +10,7 @@ import { generateiCalRequestFromEvent } from "../ical/generateiCalRequestFromEve
 import { EVENT_ORGANIZER_EMAIL } from "../constants";
 import { EVENT_ORGANIZER_NAME } from "../constants";
 import { emailTypeToRsvpType } from "../emailTypeToRsvpType";
+import { ConvoEvent } from "src/components/Email/types";
 export const sendEventEmail = async ({
   receiver,
   event,
@@ -46,9 +47,50 @@ export const sendEventEmail = async ({
     }),
   ]);
   console.log({ iCal });
-  const { template, subject } = getEmailTemplateFromType(type, {
-    firstName: receiver.nickname,
-  });
+  // Process subject template variables
+  const processSubject = (subject: string, data: { event: ConvoEvent }) => {
+    return subject.replace(/\{\{([^}]+)\}\}/g, (match, key) => {
+      const keys = key.trim().split(".");
+      let value: any = data;
+      for (const k of keys) {
+        value = value?.[k];
+      }
+      return value?.toString() ?? match;
+    });
+  };
+
+  // Convert Prisma Event to ConvoEvent format
+  const convoEvent: ConvoEvent = {
+    id: event.id,
+    title: event.title,
+    descriptionHtml: event.descriptionHtml ?? undefined,
+    startDateTime: event.startDateTime.toISOString(),
+    endDateTime: event.endDateTime.toISOString(),
+    location: event.location,
+    locationType: event.locationType,
+    hash: event.hash,
+    limit: event.limit,
+    sequence: event.sequence,
+    isDeleted: event.isDeleted,
+    gCalEventId: event.gCalEventId ?? undefined,
+    type: event.type,
+    proposerId: event.proposerId,
+    proposerName: event.proposer.nickname,
+  };
+
+  // Create basic template props without event for non-event templates
+  const basicProps = { firstName: receiver.nickname };
+
+  // Create full props with event for templates that need it
+  const fullProps = { ...basicProps, event: convoEvent };
+
+  // Get template and subject
+  const { template, subject: rawSubject } = getEmailTemplateFromType(
+    type,
+    fullProps
+  );
+
+  const subject = processSubject(rawSubject, { event: convoEvent });
   const method =
     emailTypeToRsvpType(type) === "NOT_GOING" || event.isDeleted === true
       ? "CANCEL"

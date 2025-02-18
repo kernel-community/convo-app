@@ -13,11 +13,10 @@ const EventDetails = ({
   return (
     <>
       <div className="font-primary text-lg font-light">Convo Description</div>
-      <hr className="border-1 my-4 rounded-lg border-secondary-muted shadow-md" />
+      <hr className="border-1 my-4 rounded-lg border-muted" />
       <Article html={html} />
-      {isNicknameSet(proposer.nickname) && (
-        <Signature user={proposer} className="my-4" />
-      )}
+      <hr className="border-1 my-4 rounded-lg border-muted" />
+      {isNicknameSet(proposer.nickname) && <Signature user={proposer} />}
     </>
   );
 };
