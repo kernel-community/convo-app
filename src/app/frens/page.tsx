@@ -24,7 +24,7 @@ const contributors = [
   {
     name: "Kernel",
     url: "https://kernel.community/",
-    contribution: ["sponsor", "kernel"],
+    contribution: ["sponsor", "kernel", "big daddy"],
     image: "",
   },
   {
@@ -54,7 +54,7 @@ const contributors = [
   {
     name: "Ash",
     url: "",
-    contribution: ["design", "emojis", "logo"],
+    contribution: ["design", "emojis", "logo", "product"],
     image: "",
   },
   {
@@ -208,7 +208,7 @@ function FrensContent() {
       <div className="flex flex-col items-center space-y-8">
         <div className="flex flex-col space-y-2">
           <h1 className="flex items-center gap-2 whitespace-nowrap font-primary text-3xl font-semibold italic sm:gap-3 sm:text-4xl lg:text-5xl">
-            Built with Frens
+            Frens of Convo
             <Image
               src="/images/logo.png"
               alt="Convo Logo"
