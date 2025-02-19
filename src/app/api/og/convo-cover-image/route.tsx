@@ -4,6 +4,7 @@ import type { NextRequest } from "next/server";
 import { DateTime } from "luxon";
 import { rrulestr } from "rrule";
 import { cleanupRruleString } from "src/utils/cleanupRruleString";
+import QRCode from "qrcode";
 
 export const runtime = "edge";
 export const dynamic = "force-dynamic";
@@ -90,6 +91,23 @@ export async function GET(req: NextRequest) {
   const dt = DateTime.fromISO(startDateTime);
   const formattedDate = dt.toFormat("cccc, LLLL d");
   const formattedTime = dt.toFormat("h:mm a ZZZZ");
+
+  // Generate QR code for the RSVP URL
+  const rsvpUrl = `${baseUrl}/rsvp/${eventHash}`;
+  const qrCodeSvg = await QRCode.toString(rsvpUrl, {
+    type: "svg",
+    width: 70,
+    margin: 0,
+    color: {
+      dark: "#4D4D4D",
+      light: "#F7F4F0",
+    },
+  });
+
+  // Convert SVG to data URL
+  const qrCodeDataUrl = `data:image/svg+xml;base64,${Buffer.from(
+    qrCodeSvg
+  ).toString("base64")}`;
 
   return new ImageResponse(
     (
@@ -192,6 +210,7 @@ export async function GET(req: NextRequest) {
                 flexDirection: "column",
                 alignItems: "center",
                 gap: "0.75rem",
+                marginBottom: "2rem",
               }}
             >
               <div
@@ -237,7 +256,7 @@ export async function GET(req: NextRequest) {
             )}
           </div>
 
-          {/* Bottom bar with RSVP link and Convo Cafe */}
+          {/* Bottom bar with RSVP link, QR code, and Convo Cafe */}
           <div
             style={{
               position: "absolute",
@@ -247,21 +266,36 @@ export async function GET(req: NextRequest) {
               padding: "1.5rem 2rem",
               display: "flex",
               justifyContent: "space-between",
-              alignItems: "center",
+              alignItems: "flex-end",
               background: "rgba(247, 244, 240, 0.95)",
             }}
           >
             <div
               style={{
-                fontSize: 20,
-                color: "rgb(128, 128, 128)",
                 display: "flex",
-                alignItems: "center",
+                flexDirection: "column",
+                alignItems: "flex-start",
                 gap: "0.5rem",
               }}
             >
+              {/* QR Code */}
+              <img
+                src={qrCodeDataUrl}
+                width="60"
+                height="60"
+                alt="RSVP QR Code"
+                style={{
+                  borderRadius: "4px",
+                }}
+              />
               {eventHash && (
-                <span style={{ fontStyle: "italic" }}>
+                <span
+                  style={{
+                    fontSize: 16,
+                    color: "rgb(128, 128, 128)",
+                    fontStyle: "italic",
+                  }}
+                >
                   {domain}/rsvp/{eventHash}
                 </span>
               )}
