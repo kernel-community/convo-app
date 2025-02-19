@@ -41,22 +41,50 @@ export async function generateMetadata(
     const previousImages = parentMetadata.openGraph?.images || [];
 
     // Enhanced metadata for better SEO
+    const formattedDate = event.startDateTime
+      ? new Date(event.startDateTime).toLocaleDateString("en-US", {
+          weekday: "long",
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+          hour: "numeric",
+          minute: "2-digit",
+          timeZoneName: "short",
+        })
+      : "";
+
+    const metaTitle = `${event.title} | Convo Cafe`;
+    const metaDescription = `Join us for ${event.title} on ${formattedDate}. ${event.description}`;
+
+    // Generate dynamic OG image URL
+    const imageUrl = new URL(`${scheme}://${host}/api/og/convo-cover-image`);
+    imageUrl.searchParams.set("title", event.title);
+    imageUrl.searchParams.set("startDateTime", event.startDateTime);
+    imageUrl.searchParams.set("eventHash", params.eventHash);
+    if (event.recurrenceRule) {
+      imageUrl.searchParams.set("recurrenceRule", event.recurrenceRule);
+    }
+    if (event.proposer?.nickname) {
+      imageUrl.searchParams.set("proposerNickname", event.proposer.nickname);
+    }
+
     return {
-      title: event.title,
-      description: event.description,
+      title: metaTitle,
+      description: metaDescription,
       openGraph: {
-        title: event.title,
-        description: event.description,
+        title: metaTitle,
+        description: metaDescription,
         url: `${scheme}://${host}/rsvp/${params.eventHash}`,
         siteName: "Convo Cafe",
-        images: ["", ...previousImages],
+        images: [imageUrl.toString()],
         locale: "en_US",
-        type: "website",
+        type: "article",
       },
       twitter: {
         card: "summary_large_image",
-        title: event.title,
-        description: event.description,
+        title: metaTitle,
+        description: metaDescription,
+        images: [imageUrl.toString()],
       },
     };
   } catch (error) {
