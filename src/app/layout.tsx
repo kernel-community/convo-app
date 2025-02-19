@@ -39,10 +39,11 @@ export const metadata: Metadata = {
       "Plant the kernel of a conversation. Connect, share, build together.",
     images: [
       {
-        url: "/og-image.png",
+        url: "https://convo.cafe/og-image.png",
         width: 1200,
         height: 630,
         alt: "Convo Cafe",
+        type: "image/png",
       },
     ],
   },
@@ -51,7 +52,7 @@ export const metadata: Metadata = {
     title: "Convo Cafe | Plant the kernel of a conversation",
     description:
       "Plant the kernel of a conversation. Connect, share, build together.",
-    images: ["/og-image.png"],
+    images: ["https://convo.cafe/og-image.png"],
     creator: "@kernel0x",
     site: "@kernel0x",
   },
