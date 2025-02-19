@@ -1,7 +1,7 @@
 import Main from "src/layouts/Main";
 import EventWrapper from "src/components/EventPage/EventWrapper";
 import type { Metadata, ResolvingMetadata } from "next";
-import { headers } from "next/headers";
+
 import { notFound } from "next/navigation";
 
 type Props = {
@@ -15,16 +15,13 @@ export async function generateMetadata(
   { params }: Props,
   parent: ResolvingMetadata
 ): Promise<Metadata> {
-  const headersList = headers();
-  const host = headersList.get("host") || "";
-  const scheme =
-    host.includes("localhost") || host.includes("127.0.0.1") ? "http" : "https";
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://www.convo.cafe";
 
   try {
     // Parallelize the requests
     const [parentMetadata, response] = await Promise.all([
       parent,
-      fetch(`${scheme}://${host}/api/query/getEventByHash`, {
+      fetch(`${baseUrl}/api/query/getEventByHash`, {
         body: JSON.stringify({ hash: params.eventHash }),
         method: "POST",
         headers: { "Content-type": "application/json" },
@@ -57,7 +54,7 @@ export async function generateMetadata(
     const metaDescription = `Join us for ${event.title} on ${formattedDate}. ${event.description}`;
 
     // Generate dynamic OG image URL
-    const imageUrl = new URL(`${scheme}://${host}/api/og/convo-cover-image`);
+    const imageUrl = new URL(`${baseUrl}/api/og/convo-cover-image`);
     imageUrl.searchParams.set("title", event.title);
     imageUrl.searchParams.set("startDateTime", event.startDateTime);
     imageUrl.searchParams.set("eventHash", params.eventHash);
@@ -74,7 +71,7 @@ export async function generateMetadata(
       openGraph: {
         title: metaTitle,
         description: metaDescription,
-        url: `${scheme}://${host}/rsvp/${params.eventHash}`,
+        url: `${baseUrl}/rsvp/${params.eventHash}`,
         siteName: "Convo Cafe",
         images: [imageUrl.toString()],
         locale: "en_US",

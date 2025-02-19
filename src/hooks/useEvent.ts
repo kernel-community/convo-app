@@ -14,9 +14,10 @@ const useEvent = ({
     `rsvp_${hash}`,
     async () => {
       try {
+        const baseUrl = window.location.origin;
         const r = (
           await (
-            await fetch("/api/query/getEventByHash", {
+            await fetch(`${baseUrl}/api/query/getEventByHash`, {
               body: JSON.stringify({ hash }),
               method: "POST",
               headers: { "Content-type": "application/json" },
