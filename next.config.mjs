@@ -13,5 +13,20 @@ const config = {
     locales: ["en"],
     defaultLocale: "en",
   },
+  async redirects() {
+    return [
+      {
+        source: "/:path*",
+        has: [
+          {
+            type: "host",
+            value: "convo.cafe",
+          },
+        ],
+        destination: "https://www.convo.cafe/:path*",
+        permanent: true,
+      },
+    ];
+  },
 };
 export default config;
