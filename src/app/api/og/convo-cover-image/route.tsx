@@ -6,6 +6,8 @@ import { rrulestr } from "rrule";
 import { cleanupRruleString } from "src/utils/cleanupRruleString";
 
 export const runtime = "edge";
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 async function loadFonts() {
   try {
@@ -73,9 +75,9 @@ export async function GET(req: NextRequest) {
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://convo.cafe";
   const domain = new URL(baseUrl).hostname;
 
-  // Truncate title if it's too long (max 50 chars)
+  // Truncate title if it's too long (max 100 chars)
   const title =
-    rawTitle.length > 50 ? rawTitle.substring(0, 47) + "..." : rawTitle;
+    rawTitle.length > 100 ? rawTitle.substring(0, 97) + "..." : rawTitle;
 
   if (!title || !startDateTime) {
     return new Response("Missing required parameters", { status: 400 });
@@ -132,10 +134,10 @@ export async function GET(req: NextRequest) {
           >
             <img
               src={`${baseUrl}/images/logo.png`}
-              width="50"
-              height="50"
+              width="55"
+              height="55"
               alt="Convo Logo"
-              style={{ width: "50px", height: "50px" }}
+              style={{ width: "55px", height: "55px" }}
             />
           </div>
           {/* Content Container */}
@@ -145,10 +147,10 @@ export async function GET(req: NextRequest) {
               flexDirection: "column",
               alignItems: "center",
               justifyContent: "center",
-              gap: title.length > 25 ? "2rem" : "1.5rem",
+              gap: "2rem",
               flex: 1,
               width: "100%",
-              maxWidth: "80%",
+              maxWidth: "85%",
             }}
           >
             {/* Title */}
@@ -157,35 +159,26 @@ export async function GET(req: NextRequest) {
                 display: "flex",
                 justifyContent: "center",
                 alignItems: "center",
-                fontSize: 96,
+                fontSize: title.length > 50 ? 64 : 72,
                 textAlign: "center",
-                lineHeight: 1.1,
+                lineHeight: 1.2,
                 fontFamily: "Lora Medium Italic",
                 width: "100%",
-                minHeight: title.length > 25 ? 220 : 110, // Adjust height based on title length
+                minHeight: title.length > 50 ? 180 : 140,
+                maxHeight: 200,
                 position: "relative",
-                zIndex: 10,
+                zIndex: 1,
               }}
             >
               <div
                 style={{
-                  maxWidth: "85%",
-                  padding: "0.1em 0.2em", // Add padding around text
-                  display: title.length > 25 ? "-webkit-box" : "block",
-                  ...(title.length > 25
-                    ? {
-                        // For longer titles, use -webkit-box with line clamping
-                        WebkitLineClamp: 2,
-                        WebkitBoxOrient: "vertical",
-                        overflow: "visible", // Allow ligatures to extend outside
-                        textOverflow: "ellipsis",
-                      }
-                    : {
-                        // For shorter titles, center in one line
-                        whiteSpace: "nowrap",
-                        overflow: "visible", // Allow ligatures to extend outside
-                        textOverflow: "ellipsis",
-                      }),
+                  maxWidth: "90%",
+                  padding: "0.2em",
+                  display: "-webkit-box",
+                  WebkitLineClamp: title.length > 50 ? 3 : 2,
+                  WebkitBoxOrient: "vertical",
+                  overflow: "visible",
+                  textOverflow: "ellipsis",
                 }}
               >
                 {title}

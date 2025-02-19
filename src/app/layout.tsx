@@ -8,6 +8,13 @@ import type { Metadata } from "next";
 
 const inter = Inter({ subsets: ["latin"] });
 
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+};
+
 export const metadata: Metadata = {
   title: {
     default: "Convo Cafe | Plant the kernel of a conversation",
@@ -76,12 +83,7 @@ export const metadata: Metadata = {
     ],
     apple: [{ url: "/apple-touch-icon.png" }],
   },
-  viewport: {
-    width: "device-width",
-    initialScale: 1,
-    maximumScale: 1,
-    userScalable: false,
-  },
+
   verification: {
     google: "google-site-verification-code", // Add your verification code
   },
@@ -98,6 +100,19 @@ export const metadata: Metadata = {
   },
 };
 
+// PWA handler script
+const registerServiceWorker = `
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function() {
+      navigator.serviceWorker.register('/sw.js').then(function(registration) {
+        console.log('ServiceWorker registration successful');
+      }, function(err) {
+        console.log('ServiceWorker registration failed: ', err);
+      });
+    });
+  }
+`;
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -106,6 +121,13 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
+        <link
+          rel="manifest"
+          href="/manifest.json"
+          crossOrigin="use-credentials"
+        />
+        <meta name="theme-color" content="#F7F4F0" />
+        <link rel="apple-touch-icon" href="/images/logo.png" />
         <script
           dangerouslySetInnerHTML={{
             __html: `
