@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useEffect, useState } from "react";
 import type { Key } from "react";
 import { useInfiniteQuery } from "react-query";
