@@ -177,7 +177,7 @@ export async function GET(req: NextRequest) {
                   display: "-webkit-box",
                   WebkitLineClamp: title.length > 50 ? 3 : 2,
                   WebkitBoxOrient: "vertical",
-                  overflow: "visible",
+                  overflow: "hidden",
                   textOverflow: "ellipsis",
                 }}
               >
@@ -275,7 +275,7 @@ export async function GET(req: NextRequest) {
                 gap: "0.5rem",
               }}
             >
-              <span style={{ fontFamily: "Nephilm" }}>Convo Cafe</span>
+              <span style={{ fontFamily: "Nephilm" }}>Convo.Cafe</span>
             </div>
           </div>
         </div>
