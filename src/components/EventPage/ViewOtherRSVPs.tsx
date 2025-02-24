@@ -1,6 +1,6 @@
 import { RSVP_TYPE } from "@prisma/client";
 import type { ClientEvent } from "src/types";
-import { DEFAULT_PROFILE_IMAGE } from "src/utils/constants";
+import { UserImage } from "src/components/ui/default-user-image";
 
 export default function ViewOtherRSVPs({ event }: { event: ClientEvent }) {
   const filteredRsvps = event.uniqueRsvps.filter(
@@ -10,14 +10,12 @@ export default function ViewOtherRSVPs({ event }: { event: ClientEvent }) {
     <>
       <div className="flex cursor-pointer -space-x-4 rtl:space-x-reverse">
         {filteredRsvps.slice(0, 3).map((rsvp, key) => {
-          const photo = rsvp.attendee?.profile?.photo || DEFAULT_PROFILE_IMAGE;
           return (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              className="h-8 w-8 rounded-full border-2 border-white dark:border-gray-800"
-              src={photo}
-              alt=""
+            <UserImage
               key={key}
+              photo={rsvp.attendee?.profile?.photo}
+              size="sm"
+              userId={rsvp.attendee.id}
             />
           );
         })}

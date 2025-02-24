@@ -24,7 +24,7 @@ import { cn } from "src/lib/utils";
 import { useEffect, useState } from "react";
 import { Button } from "./ui/button";
 import { useUser } from "src/context/UserContext";
-import { DEFAULT_PROFILE_IMAGE } from "src/utils/constants";
+import { UserImage } from "src/components/ui/default-user-image";
 import { EventCard, EventsView } from "./ui/event-list";
 import CopyButton from "./CopyButton";
 import { parseConvoLocation } from "src/utils/parseConvoLocation";
@@ -208,16 +208,15 @@ export const WhoElseIsGoing = ({
                 />
               )}
               {filteredRsvps.map((rsvp, key) => {
-                const photo =
-                  rsvp.attendee?.profile?.photo || DEFAULT_PROFILE_IMAGE;
                 return (
-                  <div key={key} className="flex flex-row items-center gap-3">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      className="h-10 w-10 rounded-full border-2 border-white dark:border-gray-800"
-                      src={photo}
-                      alt=""
-                      key={key}
+                  <div
+                    key={key}
+                    className="my-2 flex flex-row items-center gap-3"
+                  >
+                    <UserImage
+                      photo={rsvp.attendee?.profile?.photo}
+                      size="md"
+                      userId={rsvp.attendee.id}
                     />
                     {fetchedUser.id === rsvp.attendee.id ? (
                       <span>

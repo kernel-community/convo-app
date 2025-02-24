@@ -3,7 +3,6 @@ import { prisma } from "src/utils/db";
 import { NextResponse } from "next/server";
 import _ from "lodash";
 import type { Profile } from "@prisma/client";
-import { DEFAULT_PROFILE_IMAGE } from "src/utils/constants";
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
@@ -14,7 +13,7 @@ export async function POST(req: NextRequest) {
   return NextResponse.json({
     data: {
       ...profile,
-      photo: profile?.photo || DEFAULT_PROFILE_IMAGE,
+      photo: profile?.photo,
     } as Profile,
   });
 }
