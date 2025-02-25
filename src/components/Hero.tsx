@@ -83,7 +83,7 @@ const When = ({
       </Credenza>
       <Card
         className={cn(
-          "cursor-pointer border border-2 border-transparent bg-primary-muted font-secondary text-foreground duration-300 hover:border-2 hover:border-primary",
+          "cursor-pointer border-2 border-border bg-background font-secondary text-foreground duration-300 hover:border-foreground",
           className
         )}
         onClick={() => (event.recurrenceRule ? setIsOpen(!isOpen) : null)}
@@ -132,7 +132,7 @@ const Where = ({
   return (
     <Card
       className={cn(
-        "cursor-pointer border border-2 border-transparent bg-primary-muted font-secondary text-foreground duration-300 hover:border-2 hover:border-primary",
+        "cursor-pointer border-2 border-border bg-background font-secondary text-foreground duration-300 hover:border-foreground",
         className
       )}
     >
@@ -244,7 +244,7 @@ export const WhoElseIsGoing = ({
         className={cn(
           `${
             noModal ? "" : "cursor-pointer"
-          } border border-2 border-transparent bg-primary-muted font-secondary text-foreground duration-300 hover:border-2 hover:border-primary`,
+          } border-2 border-border bg-background font-secondary text-foreground duration-300 hover:border-foreground`,
           className
         )}
       >
@@ -269,9 +269,30 @@ export const WhoElseIsGoing = ({
 };
 
 const RSVP_TYPE_MESSAGES = {
-  [RSVP_TYPE.GOING]: "You are currently marked as Going",
-  [RSVP_TYPE.MAYBE]: "You are currently marked as Maybe",
-  [RSVP_TYPE.NOT_GOING]: "You are currently marked as Not Going",
+  [RSVP_TYPE.GOING]: (
+    <>
+      You are currently marked as{" "}
+      <span className="underline decoration-dotted underline-offset-4">
+        Going
+      </span>
+    </>
+  ),
+  [RSVP_TYPE.MAYBE]: (
+    <>
+      You are currently marked as{" "}
+      <span className="underline decoration-dotted underline-offset-4">
+        Maybe
+      </span>
+    </>
+  ),
+  [RSVP_TYPE.NOT_GOING]: (
+    <>
+      You are currently marked as{" "}
+      <span className="underline decoration-dotted underline-offset-4">
+        Not Going
+      </span>
+    </>
+  ),
 } as const;
 
 const ConvoSeats = ({
@@ -332,9 +353,17 @@ const RSVP = ({
     }
   };
   const getCurrentRsvpTypeToString = () => {
-    return rsvp?.rsvpType
-      ? RSVP_TYPE_MESSAGES[rsvp.rsvpType]
-      : "You have not RSVPed yet";
+    return rsvp?.rsvpType ? (
+      RSVP_TYPE_MESSAGES[rsvp.rsvpType]
+    ) : (
+      <>
+        You have not{" "}
+        <span className="underline decoration-dotted underline-offset-4">
+          RSVPed
+        </span>{" "}
+        yet
+      </>
+    );
   };
   if (isOwnerOfConvo) {
     return null;
@@ -343,7 +372,7 @@ const RSVP = ({
     return (
       <Card
         className={cn(
-          "cursor-pointer border-4 border-primary bg-primary-muted text-foreground transition-shadow duration-300 hover:shadow-lg",
+          "cursor-pointer border-2 border-border bg-background text-foreground duration-300",
           className
         )}
       >
@@ -364,7 +393,7 @@ const RSVP = ({
   return (
     <Card
       className={cn(
-        "cursor-pointer border-4 border-primary bg-primary-muted text-foreground transition-shadow duration-300 hover:shadow-lg",
+        "cursor-pointer border-2 border-border bg-background text-foreground duration-300",
         className
       )}
     >
@@ -387,9 +416,10 @@ const RSVP = ({
         <RadioGroup className="flex flex-row gap-6 text-gray-500">
           <div
             className={cn(
-              "flex cursor-pointer flex-row items-center gap-2",
+              "flex cursor-pointer flex-row items-center gap-2 px-4 py-2",
               rsvp?.rsvpType === RSVP_TYPE.GOING &&
-                "rounded-full bg-slate-200 px-4 py-2"
+                "rounded-full border-2 border-foreground",
+              rsvpType === RSVP_TYPE.GOING && "rounded-full bg-muted"
             )}
           >
             <RadioGroupItem
@@ -402,9 +432,10 @@ const RSVP = ({
           </div>
           <div
             className={cn(
-              "flex cursor-pointer flex-row items-center gap-2",
+              "flex cursor-pointer flex-row items-center gap-2 px-4 py-2",
               rsvp?.rsvpType === RSVP_TYPE.MAYBE &&
-                "rounded-full bg-slate-200 px-4 py-2"
+                "rounded-full border-2 border-foreground bg-muted",
+              rsvpType === RSVP_TYPE.MAYBE && "rounded-full bg-muted"
             )}
           >
             <RadioGroupItem
@@ -417,9 +448,10 @@ const RSVP = ({
           </div>
           <div
             className={cn(
-              "flex cursor-pointer flex-row items-center gap-2",
+              "flex cursor-pointer flex-row items-center gap-2 px-4 py-2",
               rsvp?.rsvpType === RSVP_TYPE.NOT_GOING &&
-                "rounded-full bg-slate-200 px-4 py-2"
+                "rounded-full border-2 border-foreground bg-muted",
+              rsvpType === RSVP_TYPE.NOT_GOING && "rounded-full bg-muted"
             )}
           >
             <RadioGroupItem
