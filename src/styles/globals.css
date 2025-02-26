@@ -36,9 +36,9 @@
     --accent-foreground: hsl(27 25% 25%);
 
     --highlight: hsl(50, 85%, 65%);
-    --highlight-active: hsl(174 65% 45%);
-    --highlight-disabled: hsl(174 20% 70%);
-    --highlight-foreground: hsl(0, 0%, 30%);
+    --highlight-active: hsl(45, 90%, 45%);
+    --highlight-disabled: hsl(51, 64%, 74%);
+    --highlight-foreground: hsl(45, 20%, 20%); 
 
     --success: hsl(82, 45%, 55%);
     --success-active: hsl(82 40% 50%);

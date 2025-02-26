@@ -1,5 +1,8 @@
 import type { ClientEvent } from "src/types";
 import { InfoBox } from "./InfoBox";
+import { useRef } from "react";
+import { ChevronDown, Plus } from "lucide-react";
+import { AddRsvpCredenza } from "./AddRsvpCredenza";
 import {
   Card,
   CardContent,
@@ -24,6 +27,7 @@ import { cn } from "src/lib/utils";
 import { useEffect, useState } from "react";
 import { Button } from "./ui/button";
 import { useUser } from "src/context/UserContext";
+import { motion, AnimatePresence } from "framer-motion";
 import { UserImage } from "src/components/ui/default-user-image";
 import { EventCard, EventsView } from "./ui/event-list";
 import CopyButton from "./CopyButton";
@@ -40,7 +44,7 @@ import LoginButton from "./LoginButton";
 import { rsvpTypeToEmoji } from "src/utils/rsvpTypeToEmoji";
 import { cleanupRruleString } from "src/utils/cleanupRruleString";
 import { rrulestr } from "rrule";
-import { ArrowUpRight } from "lucide-react";
+import { ArrowUpRight, ChevronUp } from "lucide-react";
 
 const When = ({
   event,
@@ -413,7 +417,7 @@ const RSVP = ({
           totalSeats={totalSeats}
           isSignedIn={true}
         />
-        <RadioGroup className="flex flex-row gap-6 text-gray-500">
+        <RadioGroup className="flex flex-col gap-6 text-gray-500 sm:flex-row">
           <div
             className={cn(
               "flex cursor-pointer flex-row items-center gap-2 px-4 py-2",
@@ -504,9 +508,8 @@ const Hero = ({
     </Link>
   ));
   const { fetchedUser } = useUser();
-  const isOwnerOfConvo = fetchedUser
-    ? fetchedUser.id === event.proposerId
-    : false;
+  const isOwnerOfConvo = fetchedUser?.id === event.proposerId;
+  const isKernelCommunityMember = fetchedUser?.isKernelCommunityMember;
   const { rsvp: userRsvp } = useUserRsvpForConvo({ hash: event.hash });
   const isUserGoing =
     userRsvp?.rsvpType === RSVP_TYPE.GOING ||
@@ -527,6 +530,18 @@ const Hero = ({
       >
         {event?.title}
       </div>
+
+      {isKernelCommunityMember && (
+        <motion.div
+          className="my-4 w-full"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.3 }}
+        >
+          <AdminMetricsAccordion event={event} />
+        </motion.div>
+      )}
+
       {isOwnerOfConvo && (
         <div className="flex-inline my-4 flex w-full items-center justify-between rounded-xl bg-secondary-muted p-3 font-secondary text-base text-secondary-foreground">
           <span>You own this convo</span>
@@ -549,6 +564,7 @@ const Hero = ({
           {collectionHrefs}
         </div>
       )}
+
       <div
         className={cn(
           "grid w-full grid-cols-1 gap-3 py-4",
@@ -581,6 +597,7 @@ const Hero = ({
           isOwnerOfConvo={isOwnerOfConvo}
         />
       </div>
+
       {isImported && (
         <InfoBox type="warning">
           This event was imported. The number of RSVPs might not be correct.
@@ -592,6 +609,338 @@ const Hero = ({
         </InfoBox>
       )}
     </div>
+  );
+};
+
+const AdminMetricsAccordion = ({ event }: { event: ClientEvent }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [showScrollIndicator, setShowScrollIndicator] = useState(false);
+  const [rsvpFilter, setRsvpFilter] = useState("all");
+  const [showAddRsvp, setShowAddRsvp] = useState(false);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  const filteredRsvps = event.rsvps.filter((rsvp) =>
+    rsvpFilter === "all" ? true : rsvp.rsvpType === rsvpFilter
+  );
+
+  useEffect(() => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+
+    const checkScroll = () => {
+      const hasOverflow = container.scrollHeight > container.clientHeight;
+      const isScrolled = container.scrollTop > 0;
+      setShowScrollIndicator(hasOverflow && !isScrolled);
+    };
+
+    checkScroll();
+    container.addEventListener("scroll", checkScroll);
+
+    // Re-check when content changes
+    const observer = new ResizeObserver(checkScroll);
+    observer.observe(container);
+
+    return () => {
+      container.removeEventListener("scroll", checkScroll);
+      observer.disconnect();
+    };
+  }, [isOpen, rsvpFilter]);
+
+  return (
+    <motion.div
+      className="group rounded-md border-2 border-secondary bg-background p-4 text-foreground"
+      initial={false}
+      animate={{
+        borderRadius: isOpen ? "0.75rem" : "0.75rem",
+      }}
+    >
+      <motion.div
+        className="flex cursor-pointer items-center justify-between gap-2 font-secondary text-base font-semibold text-foreground"
+        onClick={() => setIsOpen(!isOpen)}
+      >
+        <span>Shh 🤫</span>
+        <motion.div
+          animate={{ rotate: isOpen ? 180 : 0 }}
+          transition={{ duration: 0.1 }}
+        >
+          <ChevronUp className="h-5 w-5" />
+        </motion.div>
+      </motion.div>
+
+      <AnimatePresence initial={false}>
+        {isOpen && (
+          <motion.div
+            className="mt-4 space-y-4"
+            initial={{ height: 0, opacity: 0 }}
+            animate={{
+              height: "auto",
+              opacity: 1,
+              transition: {
+                height: {
+                  duration: 0.2,
+                },
+                opacity: {
+                  duration: 0.3,
+                  delay: 0.08,
+                },
+              },
+            }}
+            exit={{
+              height: 0,
+              opacity: 0,
+              transition: {
+                height: {
+                  duration: 0.3,
+                },
+                opacity: {
+                  duration: 0.2,
+                },
+              },
+            }}
+            style={{ overflow: "hidden" }}
+          >
+            {/* Event Details */}
+            <div className="border-foreground/20 space-y-2 border-t-4 pt-6 first:border-t-0 first:pt-0">
+              <h3 className="text-primary-foreground/90 font-secondary text-sm font-semibold">
+                Event Details
+              </h3>
+              <div className="grid grid-cols-1 gap-4 rounded-lg bg-white/10 p-3 text-sm backdrop-blur-sm sm:grid-cols-2">
+                <div>
+                  <p className="text-primary-foreground/60">Event ID</p>
+                  <p className="font-mono">{event.id}</p>
+                </div>
+                <div>
+                  <p className="text-primary-foreground/60">Hash</p>
+                  <p className="font-mono">{event.hash}</p>
+                </div>
+                <div>
+                  <p className="text-primary-foreground/60">Created At</p>
+                  <p>{new Date(event.createdAt).toLocaleString()}</p>
+                </div>
+                <div>
+                  <p className="text-primary-foreground/60">Last Updated</p>
+                  <p>{new Date(event.updatedAt).toLocaleString()}</p>
+                </div>
+                <div>
+                  <p className="text-primary-foreground/60">Event Type</p>
+                  <p>{event.type}</p>
+                </div>
+                <div>
+                  <p className="text-primary-foreground/60">Location Type</p>
+                  <p>{event.locationType}</p>
+                </div>
+              </div>
+            </div>
+
+            {/* RSVP Stats */}
+            <div className="border-foreground/20 space-y-2 border-t-2 pt-6">
+              <h3 className="text-primary-foreground/90 font-secondary text-sm font-semibold">
+                RSVP Statistics
+              </h3>
+              <div className="grid grid-cols-1 gap-4 rounded-lg bg-white/10 p-3 text-sm backdrop-blur-sm sm:grid-cols-2">
+                <div>
+                  <p className="text-primary-foreground/60">RSVPs</p>
+                  <p>
+                    {
+                      event.rsvps.filter((r) => r.rsvpType !== "NOT_GOING")
+                        .length
+                    }
+                  </p>
+                </div>
+                <div>
+                  <p className="text-primary-foreground/60">Capacity</p>
+                  <p>{event.limit === 0 ? "Unlimited" : event.limit}</p>
+                </div>
+                <div>
+                  <p className="text-primary-foreground/60">Available Seats</p>
+                  <p>
+                    {event.limit === 0
+                      ? "Unlimited"
+                      : event.limit - event.rsvps.length}
+                  </p>
+                </div>
+              </div>
+              <div className="relative">
+                <div className="flex items-center justify-between gap-2 border-t-2 py-3 text-sm">
+                  <span>
+                    <span className="text-primary-foreground/60">
+                      Filter by status:
+                    </span>
+                    <select
+                      value={rsvpFilter}
+                      onChange={(e) => setRsvpFilter(e.target.value)}
+                      className="focus:ring-highlight/50 rounded-md border border-border bg-background px-2 py-1 text-sm focus:outline-none focus:ring-2"
+                    >
+                      <option value="all">All</option>
+                      <option value="GOING">Going</option>
+                      <option value="NOT_GOING">Not Going</option>
+                      <option value="MAYBE">Maybe</option>
+                    </select>
+                  </span>
+
+                  <span>
+                    <Button
+                      onClick={() => setShowAddRsvp(true)}
+                      size="sm"
+                      className="gap-1"
+                      variant={"outline"}
+                    >
+                      <Plus className="h-4 w-4" />
+                      Add RSVP
+                    </Button>
+
+                    <AddRsvpCredenza
+                      isOpen={showAddRsvp}
+                      onClose={() => setShowAddRsvp(false)}
+                      eventId={event.id}
+                      onSuccess={() => {
+                        // Refresh the page to show new RSVP
+                        window.location.reload();
+                      }}
+                    />
+                  </span>
+                </div>
+
+                <div
+                  ref={scrollContainerRef}
+                  className="scrollbar-thin scrollbar-track-muted/5 scrollbar-thumb-muted/20 relative h-48 overflow-y-auto rounded-lg bg-muted p-3 text-sm backdrop-blur-sm"
+                >
+                  {/* Scroll indicator */}
+                  <div
+                    className={`text-primary-foreground/50 absolute bottom-2 right-2 z-10 ${
+                      !showScrollIndicator && "hidden"
+                    }`}
+                  >
+                    <ChevronDown className="h-5 w-5 animate-bounce" />
+                  </div>
+                  {/* Table view (desktop) */}
+                  <table className="hidden w-full md:table">
+                    <thead className="sticky top-0 bg-highlight-disabled text-left">
+                      <tr>
+                        <th className="p-2 first:rounded-tl-md">Status</th>
+                        <th className="p-2">Name</th>
+                        <th className="p-2">Email</th>
+                        <th className="p-2 last:rounded-tr-md">Last updated</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredRsvps.length === 0 ? (
+                        <tr>
+                          <td
+                            colSpan={4}
+                            className="text-primary-foreground/60 p-8 text-center"
+                          >
+                            No records found
+                          </td>
+                        </tr>
+                      ) : (
+                        filteredRsvps.map((rsvp, index) => (
+                          <tr key={index} className="border-t border-white/10">
+                            <td className="p-2">
+                              {rsvpTypeToEmoji(rsvp.rsvpType)}
+                            </td>
+                            <td className="p-2">{rsvp.attendee.nickname}</td>
+                            <td className="p-2 font-mono text-xs">
+                              {rsvp.attendee.email}
+                            </td>
+                            <td className="p-2 font-mono text-xs">
+                              {new Date(rsvp.updatedAt).toLocaleString()}
+                            </td>
+                          </tr>
+                        ))
+                      )}{" "}
+                    </tbody>
+                  </table>
+
+                  {/* Card view (mobile) */}
+                  <div className="space-y-3 md:hidden">
+                    {filteredRsvps.length === 0 ? (
+                      <div className="text-primary-foreground/60 py-8 text-center">
+                        No records found
+                      </div>
+                    ) : (
+                      filteredRsvps.map((rsvp, index) => (
+                        <div
+                          key={index}
+                          className="space-y-2 rounded-lg border border-border bg-background p-3"
+                        >
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <span>{rsvpTypeToEmoji(rsvp.rsvpType)}</span>
+                              <span className="font-medium">
+                                {rsvp.attendee.nickname}
+                              </span>
+                            </div>
+                            <span className="text-primary-foreground/60 text-xs">
+                              {new Date(rsvp.updatedAt).toLocaleString()}
+                            </span>
+                          </div>
+                          <div className="text-primary-foreground/60 font-mono text-xs">
+                            {rsvp.attendee.email}
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+                {/* Scroll indicator */}
+                <div
+                  className={`absolute bottom-2 right-2 transition-opacity duration-200 ${
+                    showScrollIndicator ? "opacity-100" : "opacity-0"
+                  }`}
+                >
+                  <div className="animate-bounce rounded-full bg-highlight-disabled p-1.5">
+                    <ChevronDown className="h-4 w-4 text-highlight-foreground" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Proposer Info */}
+            <div className="border-foreground/20 space-y-2 border-t-2 pt-6">
+              <h3 className="text-primary-foreground/90 font-secondary text-sm font-semibold">
+                Proposer Information
+              </h3>
+              <div className="rounded-lg bg-white/10 p-3 text-sm backdrop-blur-sm">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <div>
+                    <p className="text-primary-foreground/60">Proposer ID</p>
+                    <p className="font-mono">{event.proposerId}</p>
+                  </div>
+                  <div>
+                    <p className="text-primary-foreground/60">Nickname</p>
+                    <p>{event.proposer.nickname}</p>
+                  </div>
+                  <div>
+                    <p className="text-primary-foreground/60">Email</p>
+                    <p>{event.proposer.email || "Not provided"}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Additional Metadata */}
+            <div className="border-foreground/20 space-y-2 border-t-2 pt-6">
+              <h3 className="text-primary-foreground/90 font-secondary text-sm font-semibold">
+                Additional Metadata
+              </h3>
+              <div className="rounded-lg bg-white/10 p-3 text-sm backdrop-blur-sm">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <div>
+                    <p className="text-primary-foreground/60">Sequence</p>
+                    <p>{event.sequence}</p>
+                  </div>
+                  <div>
+                    <p className="text-primary-foreground/60">Is Series</p>
+                    <p>{event.series ? "Yes" : "No"}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
   );
 };
 
