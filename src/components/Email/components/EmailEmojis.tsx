@@ -1,4 +1,4 @@
-import { STAGING, DEFAULT_HOST } from "src/utils/constants";
+import { DEFAULT_HOST } from "src/utils/constants";
 
 interface EmojiProps {
   width?: number;
@@ -8,7 +8,7 @@ interface EmojiProps {
 
 // Using absolute URL for email clients
 // const BASE_URL = process.env.NODE_ENV === "production" ? DEFAULT_HOST : STAGING;
-const BASE_URL = STAGING;
+const BASE_URL = DEFAULT_HOST;
 
 export function CoolEmoji({ width = 16, height = 16, className }: EmojiProps) {
   return (
