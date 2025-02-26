@@ -1,9 +1,9 @@
 import { CoolEmoji, HeartEmoji } from "./EmailEmojis";
-import { STAGING, DEFAULT_HOST } from "src/utils/constants";
+import { DEFAULT_HOST } from "src/utils/constants";
 
 // Using absolute URL for email clients
 // const BASE_URL = process.env.NODE_ENV === "production" ? DEFAULT_HOST : STAGING;
-const BASE_URL = STAGING;
+const BASE_URL = DEFAULT_HOST;
 const LOGO_URL = `https://${BASE_URL}/images/logo.png`;
 
 export const EmailWrapper: React.FC<{ children: React.ReactNode }> = ({
