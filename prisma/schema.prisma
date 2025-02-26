@@ -117,6 +117,7 @@ model Collection {
 model Rsvp {
   id         String    @id @default(uuid())
   createdAt  DateTime  @default(now())
+  updatedAt DateTime @updatedAt @default(now())
   eventId    String
   event      Event     @relation(fields: [eventId], references: [id])
   attendeeId String
