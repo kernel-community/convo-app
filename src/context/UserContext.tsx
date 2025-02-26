@@ -8,6 +8,7 @@ import { useQuery } from "react-query";
 
 export type UserStatus = Partial<User> & {
   isSignedIn: boolean;
+  isKernelCommunityMember: boolean;
 };
 
 export type FullUser = {
@@ -21,6 +22,7 @@ const defaultFullUser: FullUser = {
     address: undefined,
     nickname: undefined,
     isSignedIn: false,
+    isKernelCommunityMember: false,
   },
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   setFetchedUser: () => {},
@@ -41,6 +43,12 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
   const [fetchedUser, setFetchedUser] = useState<UserStatus>(
     defaultFullUser.fetchedUser
   );
+
+  const isKernelCommunityMember = useMemo(() => {
+    const email = user?.email;
+    return email ? email.endsWith("@kernel.community") : false;
+  }, [user?.email]);
+
   const userId = user?.userId;
 
   useQuery(
@@ -63,6 +71,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
             // in the database + the user is
             // connected via web3
             isSignedIn: isAuthenticated,
+            isKernelCommunityMember,
           };
         });
         return r;
