@@ -1,18 +1,16 @@
 "use client";
 import Hero from "../Hero";
 import type { ClientEvent } from "src/types";
-import SubmitRsvpSection from "./SubmitRsvpSection";
 import EventDetails from "./EventDetails";
 import { useRsvpIntention } from "src/context/RsvpIntentionContext";
 import { z } from "zod";
-import { Button } from "../ui/button";
-import Link from "next/link";
 import useUserRsvpForConvo from "src/hooks/useUserRsvpForConvo";
 import useEvent from "src/hooks/useEvent";
 import { useRouter } from "next/navigation";
 import { useUser } from "src/context/UserContext";
-import { EventCard, EventsView } from "../ui/event-list";
 import { useEffect, useState } from "react";
+import CursorsContextProvider from "src/context/CursorsContext";
+import SharedSpace from "src/components/SharedSpace";
 
 export const rsvpInputSchema = z.object({
   email: z.string().optional(),
@@ -30,6 +28,7 @@ const EventWrapper = ({
   // hostname: string;
   eventHash: string;
 }) => {
+  const host = process.env.NEXT_PUBLIC_PARTYKIT_SERVER_HOST || "";
   const {
     totalUniqueRsvps,
     descriptionHtml,
@@ -71,10 +70,14 @@ const EventWrapper = ({
   }, [eventHash, router]);
 
   return (
-    <>
-      <Hero isImported={isImported} isDeleted={isDeleted} event={event} />
-      <EventDetails html={descriptionHtml} proposer={proposer} />
-    </>
+    <CursorsContextProvider host={host} roomId={eventHash}>
+      <SharedSpace>
+        <>
+          <Hero isImported={isImported} isDeleted={isDeleted} event={event} />
+          <EventDetails html={descriptionHtml} proposer={proposer} />
+        </>
+      </SharedSpace>
+    </CursorsContextProvider>
   );
 };
 

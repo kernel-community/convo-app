@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 "use client";
 
-import { useState, useEffect, useContext, createContext, useRef } from "react";
+import { useState, useEffect, useContext, createContext } from "react";
 import usePartySocket from "partysocket/react";
 
 type Position = {
@@ -35,7 +35,7 @@ export function useCursors() {
 
 export default function CursorsContextProvider(props: {
   host: string;
-  room: string;
+  roomId: string;
   children: React.ReactNode;
 }) {
   const [self, setSelf] = useState<Position | null>(null);
@@ -44,9 +44,11 @@ export default function CursorsContextProvider(props: {
     height: number;
   }>({ width: 0, height: 0 });
 
+  const room = `convo-room-${props.roomId}-${process.env.NODE_ENV}`;
+
   const socket = usePartySocket({
     host: props.host,
-    room: props.room,
+    room: room,
   });
   const [others, setOthers] = useState<OtherCursorsMap>({});
 

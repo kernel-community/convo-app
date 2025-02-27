@@ -5,8 +5,6 @@ import { UserProvider } from "src/context/UserContext";
 import { DynamicContextProvider } from "@dynamic-labs/sdk-react";
 import { updateUser } from "src/utils/updateUser";
 import { DEFAULT_USER_NICKNAME } from "src/utils/constants";
-import CursorsContextProvider from "src/context/CursorsContext";
-import SharedSpace from "src/components/SharedSpace";
 import { TooltipProvider } from "src/components/ui/tooltip";
 import { RsvpIntentionProvider } from "src/context/RsvpIntentionContext";
 
@@ -19,7 +17,6 @@ export default function Providers({
 }>) {
   const host = process.env.NEXT_PUBLIC_PARTYKIT_SERVER_HOST || "";
   const createUser = updateUser;
-  const room = `convo-room-${process.env.NODE_ENV}`;
   return (
     <DynamicContextProvider
       settings={{
@@ -50,11 +47,7 @@ export default function Providers({
       <QueryClientProvider client={queryClient}>
         <UserProvider>
           <RsvpIntentionProvider>
-            <CursorsContextProvider room={room} host={host}>
-              <SharedSpace>
-                <TooltipProvider>{children}</TooltipProvider>
-              </SharedSpace>
-            </CursorsContextProvider>
+            <TooltipProvider>{children}</TooltipProvider>
           </RsvpIntentionProvider>
         </UserProvider>
       </QueryClientProvider>
