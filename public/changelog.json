@@ -1,0 +1,1821 @@
+{
+  "lastUpdated": "2025-02-28T00:20:35Z",
+  "entries": [
+    {
+      "commitHash": "e8d8981a07ee18e3513875ce06431d0a2a69310d",
+      "date": "2025-02-27T15:49:29-08:00",
+      "author": "Angela Gilhotra",
+      "title": "add contributing + update readme",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "0b01cc09a7301164b9b5d980ae66810f52ab58a1",
+      "date": "2025-02-27T15:40:58-08:00",
+      "author": "Angela Gilhotra",
+      "title": "Remove  script from package.json",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "0843b87b04f9caab4e8cbed4535f143bd8097a5f",
+      "date": "2025-02-27T00:28:39-08:00",
+      "author": "Angela Gilhotra",
+      "title": "add test route + test API",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "df9f21f92a4fa97ac54150f863905bc4dde7810b",
+      "date": "2025-02-27T00:27:58-08:00",
+      "author": "Angela Gilhotra",
+      "title": "use flags",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "28ace00025ed79363fc8e798d3f81f1a7f1293b5",
+      "date": "2025-02-27T00:26:25-08:00",
+      "author": "Angela Gilhotra",
+      "title": "remove query and info logs",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "dc8f9e8327e8b7e4684956e987276c663aa10763",
+      "date": "2025-02-26T17:02:35-08:00",
+      "author": "Angela Gilhotra",
+      "title": "#301",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "a05c9c40f7139ca6ff1c8b72bb8ac3c52bed2bca",
+      "date": "2025-02-25T20:35:13-08:00",
+      "author": "Angela Gilhotra",
+      "title": "add 'Shh' accordion",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "1b817985b14a5c4ba450dba18bce9fa16d46d8c9",
+      "date": "2025-02-25T20:34:18-08:00",
+      "author": "Angela Gilhotra",
+      "title": "Add create user route",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "59607fb5e91b1a396953d41334bdca1e34887377",
+      "date": "2025-02-25T20:31:43-08:00",
+      "author": "Angela Gilhotra",
+      "title": "add isKernelCommunityMember boolean in user context",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "5a31fa31b8ac18a14d814c96ab72a6ea4785cb4e",
+      "date": "2025-02-25T20:29:10-08:00",
+      "author": "Angela Gilhotra",
+      "title": "Add updatedAt to rsvp table",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "d080aa18d24d453f952d92e91ae00ff4ac28427b",
+      "date": "2025-02-25T20:22:23-08:00",
+      "author": "Angela Gilhotra",
+      "title": "fix logo url",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "b558d0a570344cb0720cb8f2ed3fe470eeef54b2",
+      "date": "2025-02-25T20:10:00-08:00",
+      "author": "Angela Gilhotra",
+      "title": "fix email emoji images",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "ea9b1b27cf946a08db38ea8900eb568a51fdecfb",
+      "date": "2025-02-24T16:06:57-08:00",
+      "author": "Angela Gilhotra",
+      "title": "fix colors",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "7737faeb55f5de1b55a75b2174cd15a80f27608d",
+      "date": "2025-02-24T13:32:22-08:00",
+      "author": "Angela Gilhotra",
+      "title": "remove DEFAULT_PROFILE_IMAGE and use a deterministic random emoji instead",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "684a0faee127c3db57772766ff2e0de88cc8a15d",
+      "date": "2025-02-24T13:31:03-08:00",
+      "author": "Angela Gilhotra",
+      "title": "upgrade luicide",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "8f31cbe98f563f898fd8ab6d01f7e38c29d5eff2",
+      "date": "2025-02-19T16:09:56-08:00",
+      "author": "Angela Gilhotra",
+      "title": "trigger deploy",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "7ef9667d859fcd7958dba72ecf818c5726eb9b46",
+      "date": "2025-02-19T16:00:07-08:00",
+      "author": "Angela Gilhotra",
+      "title": "update test db route",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "89c95aaead8d8acb7209bef3f34b0a444314eb79",
+      "date": "2025-02-19T15:49:44-08:00",
+      "author": "Angela Gilhotra",
+      "title": "Remove cron apis",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "cc38d862ff0a1e18f3fe92a3e5ef881169e29c92",
+      "date": "2025-02-19T15:47:10-08:00",
+      "author": "Angela Gilhotra",
+      "title": "debug db",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "8e24fa0f2f4e110dcaf4074439b3a7e30afa0e6a",
+      "date": "2025-02-19T15:43:00-08:00",
+      "author": "Angela Gilhotra",
+      "title": "try fixing rsvp pages",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "cba24b8d4d82a19a9210f5adfcd78a01545f0dc3",
+      "date": "2025-02-19T15:33:56-08:00",
+      "author": "Angela Gilhotra",
+      "title": "fix?",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "4457ee59be69aac014615738418764f1d5be55e0",
+      "date": "2025-02-18T20:17:26-08:00",
+      "author": "Angela Gilhotra",
+      "title": "add qr code",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "a03893ab454dbe24fc94fdc8a7034d2d5d4a0038",
+      "date": "2025-02-18T19:54:25-08:00",
+      "author": "Angela Gilhotra",
+      "title": "fix cover image",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "fda272daafd69226dd05b718edfe91fd81071b3c",
+      "date": "2025-02-18T19:41:01-08:00",
+      "author": "Angela Gilhotra",
+      "title": "make PWA + fix convo cover image generator route",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "32435df8ade5b1d4121f16ce269b1dc885ee5586",
+      "date": "2025-02-18T19:04:24-08:00",
+      "author": "Angela Gilhotra",
+      "title": "fix metadata for Telegram",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "466984d8fd39e83429fc8dda3194045fd24635f1",
+      "date": "2025-02-18T18:43:19-08:00",
+      "author": "Angela Gilhotra",
+      "title": "Add metadata for SEO",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "c048391b0af2b348c7f1b7b3bb61684e448554d9",
+      "date": "2025-02-18T18:40:22-08:00",
+      "author": "Angela Gilhotra",
+      "title": "Add og:image",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "07c3d44a913f88fdb988d94262fc1e9dc89dff78",
+      "date": "2025-02-18T18:39:42-08:00",
+      "author": "Angela Gilhotra",
+      "title": "use client on Events component",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "740143599b13b383d7c43167c1ce7756077d3e82",
+      "date": "2025-02-18T15:47:17-08:00",
+      "author": "Angela Gilhotra",
+      "title": "update frens",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "cc7d5b33bce613126012bc4f8b802212269769ce",
+      "date": "2025-02-18T13:33:25-08:00",
+      "author": "Angela Gilhotra",
+      "title": "add listener for cmd/ctrl and enter",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "b23a6dd1a7a4b5de1bb04d74acf98159849d2aff",
+      "date": "2025-02-17T21:05:49-08:00",
+      "author": "Angela Gilhotra",
+      "title": "fix heading font",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "ba278dd49c56fa6feac4c10a09a801973b16ea24",
+      "date": "2025-02-17T20:44:13-08:00",
+      "author": "Angela Gilhotra",
+      "title": "Remove test page",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "7bdc7d71c90df335b9a07aa2447463f45e6c51b8",
+      "date": "2025-02-17T20:34:23-08:00",
+      "author": "Angela Gilhotra",
+      "title": "Merge branch 'staging'",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "204ebf618fbd9abd408295f21a5c98f2bc28b446",
+      "date": "2025-02-17T20:32:28-08:00",
+      "author": "Angela Gilhotra",
+      "title": "fix",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "87e5bdb469291b0c10948e5dedd77991da7b1630",
+      "date": "2025-02-17T20:30:34-08:00",
+      "author": "Angela Gilhotra",
+      "title": "BIIIGGGGG merge (#278)",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "b5ac36967a1146188dfb7ce613014512fcb715d1",
+      "date": "2025-02-17T20:23:35-08:00",
+      "author": "Angela Gilhotra",
+      "title": "fix email styling",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "a6bf361f16894c3dee05b7a8f4d5645334449c2c",
+      "date": "2025-02-17T20:22:49-08:00",
+      "author": "Angela Gilhotra",
+      "title": "Add Don",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "95b5003f95e207cfeccaed70941a951cfb0be51c",
+      "date": "2025-02-17T19:48:05-08:00",
+      "author": "Angela Gilhotra",
+      "title": "fix heart emoji",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "1bf8e99dc980b041c57398693944ba175dbe23e7",
+      "date": "2025-02-17T19:43:42-08:00",
+      "author": "Angela Gilhotra",
+      "title": "fix email styling",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "d5a789a7aa467dd08e443b695a55c1a52768f40d",
+      "date": "2025-02-17T19:29:25-08:00",
+      "author": "Angela Gilhotra",
+      "title": "fun -> crew + server safe emojis",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "e5bf3f41f7cf97f9d9a56e534700c7bea0f0c8cb",
+      "date": "2025-02-17T19:21:54-08:00",
+      "author": "Angela Gilhotra",
+      "title": "fix email",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "1177d8856d89eef73f7e0090563dc229c7f8eeee",
+      "date": "2025-02-17T19:09:31-08:00",
+      "author": "Angela Gilhotra",
+      "title": "make emails",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "f807cf93ab7bc0a5062395cf83887140f8063d86",
+      "date": "2025-02-17T18:47:02-08:00",
+      "author": "Angela Gilhotra",
+      "title": "big daddy eheehehe",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "e37fffcc8b1d5a30431c69c14078645e1a8a4f42",
+      "date": "2025-02-17T16:42:41-08:00",
+      "author": "Angela Gilhotra",
+      "title": "Remove calendar icon",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "3c09ec0dc3ff7bece58248c9d7643f42d8b5042d",
+      "date": "2025-02-17T16:41:36-08:00",
+      "author": "Angela Gilhotra",
+      "title": "Add frens page",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "c21cd839e4e913818542e0ccce4d36a805f19147",
+      "date": "2025-02-17T16:40:53-08:00",
+      "author": "Angela Gilhotra",
+      "title": "Add emojis components",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "c30a93df2fc83257a836e5183984f789bfd8b7b5",
+      "date": "2025-02-17T16:40:17-08:00",
+      "author": "Angela Gilhotra",
+      "title": "update images import",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "1d357223b73a9a1eed35d6809efba47da3dfdd2b",
+      "date": "2025-02-17T16:39:19-08:00",
+      "author": "Angela Gilhotra",
+      "title": "Add images + update logo",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "11643bf6801cde510dac2d2285ed61eeb5052816",
+      "date": "2025-02-14T20:29:33-08:00",
+      "author": "Angela Gilhotra",
+      "title": "add color to duration",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "b5cac773e195e90e5739fd04acdb59ad65d88898",
+      "date": "2025-02-14T20:07:51-08:00",
+      "author": "Angela Gilhotra",
+      "title": "fix colors",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "0031d9be39df5661a00805b6c51b57b1d406dbc7",
+      "date": "2025-02-14T20:03:35-08:00",
+      "author": "Angela Gilhotra",
+      "title": "fix timepicker",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "4663334980cdbc62fa6b4abf2969eefc61bb1e45",
+      "date": "2025-02-14T14:57:24-08:00",
+      "author": "Angela Gilhotra",
+      "title": "fix offset calculation",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "7ac17b1a815c664d112c739570204b29330f8b27",
+      "date": "2025-02-14T14:46:08-08:00",
+      "author": "Angela Gilhotra",
+      "title": "Add logs for debugging",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "4b3145c6cb599a0b7559d744f6c2be8f156a70cc",
+      "date": "2025-02-14T14:40:44-08:00",
+      "author": "Angela Gilhotra",
+      "title": "fix day offset",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "bed4b4756961cf76eca052820e6e54eec8c92ff2",
+      "date": "2025-02-14T14:31:07-08:00",
+      "author": "Angela Gilhotra",
+      "title": "fix day offset",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "25a217e8d97f1a338dbf67b4209d4f9890873892",
+      "date": "2025-02-14T14:24:43-08:00",
+      "author": "Angela Gilhotra",
+      "title": "fix for datetime parsing",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "05b8416f6e94920a7710e15d48f8d88fb44945e5",
+      "date": "2025-02-14T14:13:28-08:00",
+      "author": "Angela Gilhotra",
+      "title": "fix for datetime parsing",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "e7adf662877c8d4645267a7e6f37ef34711692a5",
+      "date": "2025-02-14T14:05:56-08:00",
+      "author": "Angela Gilhotra",
+      "title": "fix for datetime parsing",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "e4d0334d0849e5e81258e2cc11a68f8171ea9074",
+      "date": "2025-02-14T13:47:21-08:00",
+      "author": "Angela Gilhotra",
+      "title": "remove logging",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "86eac5c897c6452ec283fd5c07791f58e98477f7",
+      "date": "2025-02-14T13:46:40-08:00",
+      "author": "Angela Gilhotra",
+      "title": "fix parsing timezone + always parse location and datetime irrespective of length of prompt",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "0652580586a5bd316a71c95bb4e3f0d739fa608c",
+      "date": "2025-02-14T13:22:21-08:00",
+      "author": "Angela Gilhotra",
+      "title": "textfield type + make submit button disabled if errors",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "f2dc6f62b3a11887c3a2fa25bd24edeb425abaac",
+      "date": "2025-02-14T12:48:14-08:00",
+      "author": "Angela Gilhotra",
+      "title": "make limit field a number, update copy for info text",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "766c26703ac002dc887a0c80aca8a4689a60e676",
+      "date": "2025-02-14T12:31:14-08:00",
+      "author": "Angela Gilhotra",
+      "title": "fix login button sizing",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "f32728a660b5a59bc6b0072a9900c8d19a25908d",
+      "date": "2025-02-13T22:30:00-08:00",
+      "author": "Angela Gilhotra",
+      "title": "add vercel og",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "55781b07691bf1d8084aada8c285c7c68c8a698e",
+      "date": "2025-02-13T21:50:45-08:00",
+      "author": "Angela Gilhotra",
+      "title": "remove limit toggle + make it a number field",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "001f3708172def96608ad2d53fed95bcf4501699",
+      "date": "2025-02-13T21:48:48-08:00",
+      "author": "Angela Gilhotra",
+      "title": "send time from browser",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "63337ad30046bb0ff73b7c7395b0b4ac19705fad",
+      "date": "2025-02-13T21:47:44-08:00",
+      "author": "Angela Gilhotra",
+      "title": "slightly bigger branding and connect button",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "1a5a5837b505817e187433799f77205cf589860f",
+      "date": "2025-02-13T21:46:50-08:00",
+      "author": "Angela Gilhotra",
+      "title": "fix spacing on rsvp page",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "d07b9306ac6e20638962681b180a5119aced79f0",
+      "date": "2025-02-13T21:46:03-08:00",
+      "author": "Angela Gilhotra",
+      "title": "design polish",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "b68a25ad932440dbe7d480153783081d37faec0b",
+      "date": "2025-02-13T21:43:43-08:00",
+      "author": "Angela Gilhotra",
+      "title": "send time from browser",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "9e895cf58d612e0e9ddef65f794667eea05275ac",
+      "date": "2025-02-13T20:46:03-08:00",
+      "author": "Angela Gilhotra",
+      "title": "use lato as secondary font",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "be6027849e36d355091cbbd5736f42353ed32639",
+      "date": "2025-02-13T20:20:11-08:00",
+      "author": "Angela Gilhotra",
+      "title": "add calendar popover",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "5269b2a795dbbee3cf1f9c65c32fa2150e37ad06",
+      "date": "2025-02-13T20:18:06-08:00",
+      "author": "Angela Gilhotra",
+      "title": "remove unused imports",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "0f93fe4a2a28cbbbd07ea3f0fb5e066db29b155b",
+      "date": "2025-02-13T20:16:47-08:00",
+      "author": "Angela Gilhotra",
+      "title": "make dialog look pretty",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "22d68b720aac4bb7a0344e7078a1f940a5d30e75",
+      "date": "2025-02-12T20:17:49-08:00",
+      "author": "Angela Gilhotra",
+      "title": "use parsers",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "da2ebbf2e331d0a012d04bc5765ce23f377bca21",
+      "date": "2025-02-12T20:17:06-08:00",
+      "author": "Angela Gilhotra",
+      "title": "fix imports",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "740b794ae2cdee8ddf69df3aa75f15c69a50f75f",
+      "date": "2025-02-12T20:16:24-08:00",
+      "author": "Angela Gilhotra",
+      "title": "add parsers",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "6cf811c6443d8d24879c703469c7e28c5c1a885a",
+      "date": "2025-02-12T20:15:23-08:00",
+      "author": "Angela Gilhotra",
+      "title": "add smolbrain api",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "2430b152561985c9acc43fcd6caf676a641e5800",
+      "date": "2025-02-12T20:14:20-08:00",
+      "author": "Angela Gilhotra",
+      "title": "remove unused action",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "a2339b476297842a1e231fe328e93dcbdae7022a",
+      "date": "2025-02-11T18:10:19-08:00",
+      "author": "Angela Gilhotra",
+      "title": "add small logo",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "6bfd2a04c72f202071bb09962d00040a1a1fa6f2",
+      "date": "2025-02-11T18:07:57-08:00",
+      "author": "Angela Gilhotra",
+      "title": "add logo png",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "78e379560ae20d765e5b472d685d41b63d4d31f4",
+      "date": "2025-02-11T18:01:00-08:00",
+      "author": "Angela Gilhotra",
+      "title": "update text",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "41a73fae3d1731d743279881f8bf8922f4cd8be5",
+      "date": "2025-02-11T18:00:05-08:00",
+      "author": "Angela Gilhotra",
+      "title": "strict use of light theme",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "47464cd748ba30efc7bb29709a0a1a7c6bd21165",
+      "date": "2025-02-11T17:56:47-08:00",
+      "author": "Angela Gilhotra",
+      "title": "update branding",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "5faf99da53c5c79f1c573c6d2c1e45c313a1ccd2",
+      "date": "2025-02-11T17:56:11-08:00",
+      "author": "Angela Gilhotra",
+      "title": "make textfield visible on create button click",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "60b908ba3c2e1edd2715cfe969ef1062fc5b9e9f",
+      "date": "2025-02-11T17:54:58-08:00",
+      "author": "Angela Gilhotra",
+      "title": "update button ui",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "3a946f944fa0c23c130fd894676e47b13e69614f",
+      "date": "2025-02-11T17:52:42-08:00",
+      "author": "Angela Gilhotra",
+      "title": "use fieldlabel",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "53c1806983c37abbdfb3df729c1d8dfc58320f10",
+      "date": "2025-02-11T17:51:44-08:00",
+      "author": "Angela Gilhotra",
+      "title": "make fieldlabel a label tag",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "524488e57c4762ef4c272aabe8d18ab95a17b4bc",
+      "date": "2025-02-11T17:50:03-08:00",
+      "author": "Angela Gilhotra",
+      "title": "design polish",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "3efeab3428fd9980e67d968d4bd91b8488789980",
+      "date": "2025-02-11T17:46:12-08:00",
+      "author": "Angela Gilhotra",
+      "title": "update colors",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "df7cb873727daa5dc0bd6962ae9c1450d8a98426",
+      "date": "2025-02-11T17:44:23-08:00",
+      "author": "Angela Gilhotra",
+      "title": "update logo + cleanup images",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "1b6798b899ff16442fd8a1cf4e85775501fab502",
+      "date": "2025-02-10T18:24:17-08:00",
+      "author": "Angela Gilhotra",
+      "title": "fix",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "3565462722059a68751b37466270f330b8a94a11",
+      "date": "2025-02-10T18:17:08-08:00",
+      "author": "Angela Gilhotra",
+      "title": "fix font",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "4458c8634c2809f36ee818827d0a1130f9cef0f7",
+      "date": "2025-02-10T18:11:41-08:00",
+      "author": "Angela Gilhotra",
+      "title": "update footer",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "c95f5319bcfce688de7d712873bfd4c901e7fadb",
+      "date": "2025-02-10T18:11:04-08:00",
+      "author": "Angela Gilhotra",
+      "title": "design polish",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "f8cbdd16f1a8aa37e54f7c2bb558e1d35edd3a4f",
+      "date": "2025-02-10T18:09:23-08:00",
+      "author": "Angela Gilhotra",
+      "title": "fix colors in events-view",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "79901f763b73c29a67232b7256685d5b1c8e476e",
+      "date": "2025-02-10T18:08:02-08:00",
+      "author": "Angela Gilhotra",
+      "title": "goofing with colors",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "c05c16083eb760819d82decc304aba4be3f01d57",
+      "date": "2025-02-10T18:06:55-08:00",
+      "author": "Angela Gilhotra",
+      "title": "add all upcoming events to home page",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "39b2e32fdfa4fe06c84de80d07cc43e79278b73b",
+      "date": "2025-02-10T18:05:25-08:00",
+      "author": "Angela Gilhotra",
+      "title": "add muted color",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "b2acf01d29135a3de5f4df492462d6562c590d18",
+      "date": "2025-02-06T18:59:55-08:00",
+      "author": "Angela Gilhotra",
+      "title": "colors",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "9d7b7b01826e9a4a84367f0348d360d170edd0ed",
+      "date": "2025-02-06T18:59:23-08:00",
+      "author": "Angela Gilhotra",
+      "title": "Autofocus",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "a9b1b1d4d70a6671d61e70cdd6efc7f621992439",
+      "date": "2025-02-06T18:58:30-08:00",
+      "author": "Angela Gilhotra",
+      "title": "fix prompt, branding, make title autofocus",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "c1311d3b950122dff7d60a6d31a04b358e0dafe2",
+      "date": "2025-02-06T18:57:11-08:00",
+      "author": "Angela Gilhotra",
+      "title": "fix footer",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "8c858f40dd2318dc76b01571a006c84f8769542d",
+      "date": "2025-02-06T18:46:05-08:00",
+      "author": "Angela Gilhotra",
+      "title": "generate only if bigger than 150 charc",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "1f2602b86c98171f4cbbb751668c66412926c359",
+      "date": "2025-02-06T18:15:01-08:00",
+      "author": "Angela Gilhotra",
+      "title": "new footer",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "e6c068ed5ec0b806ceb288d329c0f7bcaf500a64",
+      "date": "2025-02-06T18:09:38-08:00",
+      "author": "Angela Gilhotra",
+      "title": "design polish",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "c1f8ca7e33fb52a13ee410588821facf93f51ffe",
+      "date": "2025-02-06T18:08:05-08:00",
+      "author": "Angela Gilhotra",
+      "title": "smol fix on scramble",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "08370a74af0843c92495686078dfff772367f8f0",
+      "date": "2025-02-06T18:07:15-08:00",
+      "author": "Angela Gilhotra",
+      "title": "remove wagmi provider - not required",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "4fec4316aae3c532c7914ccee685efba18b2ea43",
+      "date": "2025-02-06T18:05:18-08:00",
+      "author": "Angela Gilhotra",
+      "title": "cleanup design",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "a88c304fa1af6bf44ec0b21be3692e722157610f",
+      "date": "2025-02-06T18:04:02-08:00",
+      "author": "Angela Gilhotra",
+      "title": "cleanup fonts",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "d1e905d0bfa00690329c2fd73f4d9529b74e9a5d",
+      "date": "2025-02-06T18:00:05-08:00",
+      "author": "Angela Gilhotra",
+      "title": "upgrade dynamic package",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "10eccc9cb897238b0cb02acd55a102aa29129461",
+      "date": "2025-02-05T11:40:12-08:00",
+      "author": "Angela Gilhotra",
+      "title": "update prompt",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "76802692143f8e9873a2f3e5b87843f245854566",
+      "date": "2025-02-05T11:38:28-08:00",
+      "author": "Angela Gilhotra",
+      "title": "Add edit button",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "5cfc8359f4791bd7871cf643107e3b17f8a4b98e",
+      "date": "2025-02-05T11:36:56-08:00",
+      "author": "Angela Gilhotra",
+      "title": "fix build errrrrr",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "a6d096acb6a86fab483be9ac2c61522b42ee179c",
+      "date": "2025-02-04T15:42:10-08:00",
+      "author": "Angela Gilhotra",
+      "title": "fix: default limit",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "3df67d6e4f39f4bcdbef9494105396a41046b2d7",
+      "date": "2025-02-04T15:29:27-08:00",
+      "author": "Angela Gilhotra",
+      "title": "fix: slack bot bug",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "3181014ae83ff38099f7e6fb07a1ef6e9b286d8f",
+      "date": "2025-02-03T17:50:16-08:00",
+      "author": "Angela Gilhotra",
+      "title": "trigger deploy",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "04e2e396abcb9a082dda29bcbbb3edbc488d9474",
+      "date": "2025-02-03T17:33:36-08:00",
+      "author": "Angela Gilhotra",
+      "title": "use upsert instead of create or edit convo",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "463326ad9d4c6e8a6fbcda5e71c6a85257304283",
+      "date": "2025-02-03T17:32:42-08:00",
+      "author": "Angela Gilhotra",
+      "title": "small ui fix",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "a93a8b8d599ba85020dde05922ab869d2cbc992e",
+      "date": "2025-02-03T17:31:42-08:00",
+      "author": "Angela Gilhotra",
+      "title": "use cohere to generate title and parse date and time",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "f09efe0f18481838eea9e76c02de702b4c888947",
+      "date": "2025-02-03T17:30:39-08:00",
+      "author": "Angela Gilhotra",
+      "title": "fix date picker spacing for mobile",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "77463b0186fcb8b7bc0ff60e66eefb5709db4838",
+      "date": "2025-02-03T17:29:37-08:00",
+      "author": "Angela Gilhotra",
+      "title": "scramble text context",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "51a95abbf1b307eebc18aa2a9fc6234151c9fd5e",
+      "date": "2025-02-03T17:28:01-08:00",
+      "author": "Angela Gilhotra",
+      "title": "add new table to maintain slack threads and messages + add unique constraint",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "250f06c29dfbe652ca236403b6240a0c48ae41c7",
+      "date": "2025-02-03T16:51:07-08:00",
+      "author": "Angela Gilhotra",
+      "title": "add switch ui component",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "cb23c9e5f3668b24df3981de5c323cdd68ca4bb8",
+      "date": "2025-02-03T16:45:51-08:00",
+      "author": "Angela Gilhotra",
+      "title": "use cohere",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "f1381033a74171fb964f88b19f657bef09a3d050",
+      "date": "2025-02-03T12:21:42-08:00",
+      "author": "Angela Gilhotra",
+      "title": "new homepage",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "f85a2a0993a359fd887e367958898d008c8caabd",
+      "date": "2025-02-03T12:16:55-08:00",
+      "author": "Angela Gilhotra",
+      "title": "add AnimatedTextArea component",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "526b9a98de25c60d14184f9e05d08ae5a4a3766e",
+      "date": "2025-02-03T12:15:21-08:00",
+      "author": "Angela Gilhotra",
+      "title": "fix propose sheet, fix month component, fix popover",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "b28f4d264c6af718ce42d9b3ea58c89f6ebec405",
+      "date": "2025-02-03T12:12:28-08:00",
+      "author": "Angela Gilhotra",
+      "title": "add packages",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "be0e6ff456c9722287db0e2453cbcc082af30518",
+      "date": "2025-02-03T12:09:19-08:00",
+      "author": "Angela Gilhotra",
+      "title": "fix padding on propose form",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "3231f760195b1bc85782d0d9e79ab863d19f56e0",
+      "date": "2025-01-31T20:27:00-08:00",
+      "author": "Angela Gilhotra",
+      "title": "new component: propose sheet",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "db3991b8627f605696d0e7ed37e0d402e599e736",
+      "date": "2025-01-31T20:25:37-08:00",
+      "author": "Angela Gilhotra",
+      "title": "ui fixes",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "84dc75d6efedd06ab7be30617fe66689d7d14194",
+      "date": "2025-01-31T20:23:44-08:00",
+      "author": "Angela Gilhotra",
+      "title": "propose page ui",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "e76693367021520db4126f5facd3cb96524649da",
+      "date": "2025-01-31T20:03:27-08:00",
+      "author": "Angela Gilhotra",
+      "title": "make rsvp page prettier; improve Month component",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "be13a7e1a25e8804971178bbfa3b2f74b3c17182",
+      "date": "2025-01-31T19:40:59-08:00",
+      "author": "Angela Gilhotra",
+      "title": "add loading state + make center",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "991ccfa791b4edc1dea1d0a58a1e01cd1014d137",
+      "date": "2025-01-31T18:13:29-08:00",
+      "author": "Angela Gilhotra",
+      "title": "smol fix",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "c5cf0d1b588ae5c54ef44e5670fdd79846a1b21c",
+      "date": "2025-01-31T18:12:55-08:00",
+      "author": "Angela Gilhotra",
+      "title": "Test new homepage:",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "b9e257e2de88aeb8149274d7208c756cf6550d58",
+      "date": "2025-01-31T14:41:53-08:00",
+      "author": "Angela Gilhotra",
+      "title": "fix datetime component; approximations + positioning",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "6b653286f18df4f5dc0345b9cfbf5077fdcd618c",
+      "date": "2025-01-29T19:25:33-08:00",
+      "author": "Angela Gilhotra",
+      "title": "dont auto submit form when pressed enter",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "5d712655bbbdebef30eaea2ddd2c46e42ac63549",
+      "date": "2025-01-29T19:23:01-08:00",
+      "author": "Angela Gilhotra",
+      "title": "use time picker dropdown instead",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "82acc285f19f60e5abc246257b296f0bd7cd3af2",
+      "date": "2025-01-29T19:22:07-08:00",
+      "author": "Angela Gilhotra",
+      "title": "time picker dropdown component",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "1ced1dbda9b9aa85550b8d5ecc91950d9cc5b416",
+      "date": "2025-01-29T19:21:17-08:00",
+      "author": "Angela Gilhotra",
+      "title": "fix imports",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "15d2b94d78b4564c356d6962873c6ea0f2c0cec6",
+      "date": "2025-01-29T19:20:28-08:00",
+      "author": "Angela Gilhotra",
+      "title": "fix globals.css",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "25fe1cf74327cffbf990a16918df273a1f0b1a05",
+      "date": "2025-01-29T17:29:12-08:00",
+      "author": "Angela Gilhotra",
+      "title": "small polish to propose form",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "03a59c8a795c2bdd17ee77d9b5f26d951eb6cc3c",
+      "date": "2025-01-29T16:55:04-08:00",
+      "author": "Angela Gilhotra",
+      "title": "remove community + move themeswitcher to start",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "0e187b7b6670e11b3765d41537dccde9d8381572",
+      "date": "2025-01-29T15:33:53-08:00",
+      "author": "Angela Gilhotra",
+      "title": "experiment: Add sunset theme",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "396077135efc1ddfb9c0eb08f46a6d499761db70",
+      "date": "2025-01-29T15:33:04-08:00",
+      "author": "Angela Gilhotra",
+      "title": "Convo -> Start a convo",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "1a0db345d1499b14400eb9329c766ca6bf1cab65",
+      "date": "2025-01-29T15:12:56-08:00",
+      "author": "Angela Gilhotra",
+      "title": "fix hydration errors",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "1962e137a48f125fd5199e857c69947b3a2b2ef9",
+      "date": "2025-01-29T14:59:59-08:00",
+      "author": "Angela Gilhotra",
+      "title": "fix hydration error",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "28a1dadd8b5cdde82b0c697bf9585ff0b4696c37",
+      "date": "2025-01-29T13:28:55-08:00",
+      "author": "Angela Gilhotra",
+      "title": "Feature: theming (#268)",
+      "description": "Thank you @Ricy137 ❤️",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "a5453386fe53db81935bbfaa481102fc6ecc578f",
+      "date": "2025-01-28T18:15:30-08:00",
+      "author": "Angela Gilhotra",
+      "title": "dontFetch option in useEvent hook",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "6b63e36223b176252ad7c3caca97f293e9e042e9",
+      "date": "2025-01-28T18:14:47-08:00",
+      "author": "Angela Gilhotra",
+      "title": "emails",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "e8dc62ebd50d98e926e6f115d6dccd478eb6dfd6",
+      "date": "2025-01-28T18:13:25-08:00",
+      "author": "Angela Gilhotra",
+      "title": "add seat info in whoelseisgoing component",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "a69071a2618c8c92b4eb372ba747af2081411c97",
+      "date": "2025-01-28T18:12:30-08:00",
+      "author": "Angela Gilhotra",
+      "title": "send emails to attendees on convo update",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "f345acf67f550ebbbfaff2a81305b2916d013297",
+      "date": "2025-01-28T18:10:27-08:00",
+      "author": "Angela Gilhotra",
+      "title": "add method to ical string",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "93f3ecebd0b7cd602e935d6380d0c4990d872d2c",
+      "date": "2025-01-28T18:08:49-08:00",
+      "author": "Angela Gilhotra",
+      "title": "delete convo hooks",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "afe2026b3b1ad4692f0917dd67fd24dec9e3d1e1",
+      "date": "2025-01-28T18:05:47-08:00",
+      "author": "Angela Gilhotra",
+      "title": "add delete api",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "af0edf55778db18c13364e1859647da846623f96",
+      "date": "2025-01-28T15:15:03-08:00",
+      "author": "Angela Gilhotra",
+      "title": "make center",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "a2e21095d974e703f051b1c66999f22dd61903b8",
+      "date": "2025-01-28T15:05:42-08:00",
+      "author": "Angela Gilhotra",
+      "title": "add convo not found 404 page",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "0078aaa847245f8759b97124fa437e592decab06",
+      "date": "2025-01-28T13:23:50-08:00",
+      "author": "Angela Gilhotra",
+      "title": "add recurrencerule on the rsvp page",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "cfebef50892e9db7bcc68ed7702bfd6496288d31",
+      "date": "2025-01-28T13:15:51-08:00",
+      "author": "Angela Gilhotra",
+      "title": "fixes for rsvp page",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "67fa6de9ef042c01266fa2f73ce253f79335bebb",
+      "date": "2025-01-27T17:47:19-08:00",
+      "author": "Angela Gilhotra",
+      "title": "fix top margin",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "ed8ba411bf95b1046988068bd7bae4ef0ea8c363",
+      "date": "2025-01-27T17:46:34-08:00",
+      "author": "Angela Gilhotra",
+      "title": "display seat info",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "29369d21b59bd6a2c6e71806b3de8156cb9e2ff3",
+      "date": "2025-01-27T17:41:46-08:00",
+      "author": "Angela Gilhotra",
+      "title": "fix",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "071194ab07bbe5fd2ec2fea87884e1bd27bc6d11",
+      "date": "2025-01-27T15:20:06-08:00",
+      "author": "Angela Gilhotra",
+      "title": "Fix",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "effe4bbd5ad0577ff8fb2aea59c18fde7d0025a6",
+      "date": "2025-01-27T15:14:23-08:00",
+      "author": "Angela Gilhotra",
+      "title": "propose form convo duration picker",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "5320fef416cdbc7a1f5ed8c4d6b34a50a617606d",
+      "date": "2025-01-27T14:52:39-08:00",
+      "author": "Angela Gilhotra",
+      "title": "editing events",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "e24357dd2955d137c67df1e268d4f197531906e2",
+      "date": "2025-01-26T15:42:00-08:00",
+      "author": "Angela Gilhotra",
+      "title": "remove generateStaticParams",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "ab2e3a6c42f8c352a71c685722ff5fea67cd89c4",
+      "date": "2025-01-26T15:36:06-08:00",
+      "author": "Angela Gilhotra",
+      "title": "debug: Add error handling",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "27b9b1d3dcac7e72b59fe9bad0d56379f7da0acc",
+      "date": "2025-01-26T15:28:30-08:00",
+      "author": "Angela Gilhotra",
+      "title": "trigger build",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "a39ee550be318a487387f00dc3651ad8ca298bb2",
+      "date": "2025-01-26T15:03:56-08:00",
+      "author": "Angela Gilhotra",
+      "title": "ui: rsvp page",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "3c7bba3cba864562500a761f8a8c4596d693e5c8",
+      "date": "2025-01-26T15:02:49-08:00",
+      "author": "Angela Gilhotra",
+      "title": "rsvps",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "446613a585ede1ace52ecf9ba37a3686813d138e",
+      "date": "2025-01-26T14:48:11-08:00",
+      "author": "Angela Gilhotra",
+      "title": "use rsvptype",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "8a73f5ea905bb29dd426b80a7999afb20460b171",
+      "date": "2025-01-26T14:46:27-08:00",
+      "author": "Angela Gilhotra",
+      "title": "add location type and rsvp type",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "a6f11f21a21cf7c2b38d5bc592ec460605fbe1ce",
+      "date": "2025-01-26T14:44:22-08:00",
+      "author": "Angela Gilhotra",
+      "title": "add prodid to ical string",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "04e717cc7a2ea13f62697bee63b2d1a2a3186dd3",
+      "date": "2025-01-22T16:39:07-08:00",
+      "author": "Angela Gilhotra",
+      "title": "prefetch edit page",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "3de2eaee5683774e0489aaa98d373f46ceaa0824",
+      "date": "2025-01-22T16:23:09-08:00",
+      "author": "Angela Gilhotra",
+      "title": "event -> convo",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "f07a4792bdeb77b51185160ff47bda9cffbfe831",
+      "date": "2025-01-22T16:21:26-08:00",
+      "author": "Angela Gilhotra",
+      "title": "add incremental static re-generation + static pre-generation + enhanced metadata",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "04cdc7d14bec74b404b9f7bbd3da1f1f5ff90209",
+      "date": "2025-01-21T17:01:58-08:00",
+      "author": "Angela Gilhotra",
+      "title": "ui: new components, update rsvp page",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "86af3c5e7e487f34ab5af0fd764273c42145b6de",
+      "date": "2025-01-21T16:37:11-08:00",
+      "author": "Angela Gilhotra",
+      "title": "ui: add tabs component",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "d3186b1a0f75bc5f1df6b0b4dcc91a96c0b472a7",
+      "date": "2025-01-21T16:35:37-08:00",
+      "author": "Angela Gilhotra",
+      "title": "ui: new component to display calendar and list by month view of events",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "219a75630068be621bfad6e03c80e5ca3cbef59d",
+      "date": "2025-01-21T16:34:36-08:00",
+      "author": "Angela Gilhotra",
+      "title": "fix count input and add cleanup util",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "40175be81dbad1daed92bab3f5e35a8d74b863f2",
+      "date": "2025-01-21T16:33:27-08:00",
+      "author": "Angela Gilhotra",
+      "title": "chore",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "5d163a3732ac00dbe360d84944aa386842af1e24",
+      "date": "2025-01-21T16:32:30-08:00",
+      "author": "Angela Gilhotra",
+      "title": "ui/components: add basic highlight and update fancy highlight",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "5f08278871f97ed0f9c130b66d32a8e169a1a941",
+      "date": "2025-01-21T16:31:35-08:00",
+      "author": "Angela Gilhotra",
+      "title": "add deprecated note",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "90183b5cb27ec4fdea8ec1acbdec9905bd497c74",
+      "date": "2025-01-21T16:30:37-08:00",
+      "author": "Angela Gilhotra",
+      "title": "install radix-ui tabs",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "dae5b45c4dba3de628406f053393c7421ef000cd",
+      "date": "2025-01-20T14:54:16-08:00",
+      "author": "Angela Gilhotra",
+      "title": "fix: all other rsvps dialog and confirm convo dialog",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "c3901dfd7f702c9072aee7f0b58b0e2ed3f94e19",
+      "date": "2025-01-20T13:31:35-08:00",
+      "author": "Angela Gilhotra",
+      "title": "Merge branch 'main' into staging",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "372a306b9697dcc735a31b81fb62ea52f5051bd5",
+      "date": "2025-01-20T13:30:39-08:00",
+      "author": "Angela Gilhotra",
+      "title": "fix: convo url in calendar invite",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "5574f19b7dfc703ff4ad41ecba23e57ab72115e4",
+      "date": "2025-01-20T13:13:25-08:00",
+      "author": "Angela Gilhotra",
+      "title": "new: add sanitization and sandwiching for description",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "2025fb887b81aa9931176ea2859dea9fa0970df1",
+      "date": "2025-01-20T13:11:56-08:00",
+      "author": "Angela Gilhotra",
+      "title": "fix: idk why it suddenly started erroring for type",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "5edccb93753bf60be1e7343116b52463019863d4",
+      "date": "2025-01-20T13:11:03-08:00",
+      "author": "Angela Gilhotra",
+      "title": "fix: subtitle on the homepage",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "56c70697139dd67b1d4895fc1db2190e3aeca53e",
+      "date": "2025-01-20T13:10:14-08:00",
+      "author": "Angela Gilhotra",
+      "title": "add isomorphic-dompurify",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "b6a792680fa25105ab95ffab4dfef1e74cfdefa0",
+      "date": "2025-01-20T11:24:14-08:00",
+      "author": "Angela Gilhotra",
+      "title": "fix: description field displaying formatted content in the propose form",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "6fe57b612a03f40efbc845be1a7f0d52ae2022c1",
+      "date": "2025-01-20T11:23:28-08:00",
+      "author": "Angela Gilhotra",
+      "title": "fix: confirmation modal recurrence highlight",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "ac4406719888bdfdbcb9f2ab5e2da8124e2a72b7",
+      "date": "2025-01-20T11:01:34-08:00",
+      "author": "Angela Gilhotra",
+      "title": "fix confirmation modal",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "c8eaf081911100b1b6f25d258c56e2a6ee5cd328",
+      "date": "2025-01-17T15:21:28-08:00",
+      "author": "Angela Gilhotra",
+      "title": "ui: make 60 mins default",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "4f3fc4d98af1dbe76a664497163bf7d28c748d04",
+      "date": "2025-01-16T17:06:54-08:00",
+      "author": "Angela Gilhotra",
+      "title": "utils: fix sender for create emails, gmail wasn't automatically rendering event in the email if organizer and recipient are the same",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "7a459768cb5214812522308318dd88c05a07cfc7",
+      "date": "2025-01-16T17:05:10-08:00",
+      "author": "Angela Gilhotra",
+      "title": "cronjob: add logging",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "44e8c58893a397955e750fa2aa53e3b9d565d3ca",
+      "date": "2025-01-16T16:48:07-08:00",
+      "author": "Angela Gilhotra",
+      "title": "cronjob: add logs",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "3051ff9cf06ef55bcaf515726f7905a0d28b2fb3",
+      "date": "2025-01-16T16:41:34-08:00",
+      "author": "Angela Gilhotra",
+      "title": "test",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "25c1b100b588d6427be278668a6e05187773f7e4",
+      "date": "2025-01-16T16:39:20-08:00",
+      "author": "Angela Gilhotra",
+      "title": "Fix cron job",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "c7aa7673e5db71b6504173401bc0dff73e517f6f",
+      "date": "2025-01-16T16:23:59-08:00",
+      "author": "Angela Gilhotra",
+      "title": "fix runtime for cronjob",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "37b497700eb34fec02bda9e9410c65edf8d6e094",
+      "date": "2025-01-16T16:08:22-08:00",
+      "author": "Angela Gilhotra",
+      "title": "debug: test ical string",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "dd9f42e0b321664257864fb160bd501cf766bf09",
+      "date": "2025-01-16T16:00:27-08:00",
+      "author": "Angela Gilhotra",
+      "title": "replace scheduledAt with vercel cron job",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "d561a64d88fea15e336c7aeeb13fab6faa875c3f",
+      "date": "2025-01-16T15:30:15-08:00",
+      "author": "Angela Gilhotra",
+      "title": "send from hedwig",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "84664d34d75b4c6cd072d8cd812fd7355c6ab2ac",
+      "date": "2025-01-16T14:50:21-08:00",
+      "author": "Angela Gilhotra",
+      "title": "Update README.md",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "c8dc23509d54d1fe9200705118e5bb7935810ee7",
+      "date": "2025-01-16T14:50:04-08:00",
+      "author": "Angela Gilhotra",
+      "title": "Update README.md",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "29225c35fd20f3d656f15729b25c7913e437ab97",
+      "date": "2025-01-16T13:48:53-08:00",
+      "author": "Angela Gilhotra",
+      "title": "Update README.md",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "f2083b6638cf9700c51de7ba31883f5810192fd4",
+      "date": "2025-01-16T13:45:47-08:00",
+      "author": "Angela Gilhotra",
+      "title": "add webhooks",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "bb5e3debe70a2bead899a4bc02c84d93fb90435b",
+      "date": "2025-01-16T13:45:10-08:00",
+      "author": "Angela Gilhotra",
+      "title": "update cal feed api",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "ed5ce3bdc00232e2c7f1897210a33028c93c8f85",
+      "date": "2025-01-16T13:44:07-08:00",
+      "author": "Angela Gilhotra",
+      "title": "create and rsvp apis",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "71f8d847cfdace6303f6fc9d6ee8aad02b5ce1bd",
+      "date": "2025-01-16T13:40:48-08:00",
+      "author": "Angela Gilhotra",
+      "title": "Add notes",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "87b765d2838f739310527b1865a079c4615ac7b2",
+      "date": "2025-01-16T13:35:40-08:00",
+      "author": "Angela Gilhotra",
+      "title": "update db",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "47ce1402f8359dcd1bfeea90590bb302da65705d",
+      "date": "2025-01-16T12:57:55-08:00",
+      "author": "Angela Gilhotra",
+      "title": "update database",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "473fb622ee64ad43b13d9c46ce870c3d74faf4a2",
+      "date": "2025-01-16T12:46:19-08:00",
+      "author": "Angela Gilhotra",
+      "title": "upgrade resend",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "4d84cfb6f01ca6b01d8826fea3b96d2baf5e2b93",
+      "date": "2025-01-15T13:19:35-08:00",
+      "author": "Angela Gilhotra",
+      "title": "remove visibility of all other recipients from the calendar event",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "8eb6a801464b8eced0c71664bf3f9520057f881a",
+      "date": "2025-01-15T12:12:16-08:00",
+      "author": "Angela Gilhotra",
+      "title": "add buttons to recurrence rule selector",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "6f52276570f9a0019d3fc2a92013db81cd797c96",
+      "date": "2025-01-15T12:02:39-08:00",
+      "author": "Angela Gilhotra",
+      "title": "smol polishing",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "0af7f204fd4d2e7e51883f8e1d9044b6fe588556",
+      "date": "2025-01-15T12:01:42-08:00",
+      "author": "Angela Gilhotra",
+      "title": "fix date picker",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "87b48217f155248b356f1ba867186605511473a3",
+      "date": "2025-01-08T17:29:19-08:00",
+      "author": "Angela Gilhotra",
+      "title": "fix: see other rsvps",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "9e871f9bb702467fbc2f230b21e7e1f95f086fef",
+      "date": "2025-01-08T17:12:27-08:00",
+      "author": "Angela Gilhotra",
+      "title": "add all recipients to the ical",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "5b49ff0237e7dee4b1276be9af547cd4cf7838b7",
+      "date": "2025-01-08T16:47:00-08:00",
+      "author": "Angela Gilhotra",
+      "title": "Test with multiple recipients",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "edeafe8c0c71a9c77d422c8b14efbfe3e35bff2c",
+      "date": "2025-01-04T01:54:53-08:00",
+      "author": "Angela Gilhotra",
+      "title": "trigger deploy",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "cfb799a37546aaf1ca0b4ebf0d103174b894e7ff",
+      "date": "2025-01-04T01:33:48-08:00",
+      "author": "Angela Gilhotra",
+      "title": "mmmm still thinking",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "155c0f5f64fac112a29715471fdd0f80e5f962b5",
+      "date": "2025-01-04T01:26:49-08:00",
+      "author": "Angela Gilhotra",
+      "title": "editing events",
+      "description": "",
+      "type": "improvement"
+    },
+    {
+      "commitHash": "95253c66c986afde1ff7b03c8063e338ca58cc57",
+      "date": "2025-01-03T17:36:51-08:00",
+      "author": "Angg",
+      "title": "Update FUNDING.yml",
+      "description": "",
+      "type": "improvement"
+    }
+  ]
+}
