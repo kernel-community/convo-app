@@ -8,20 +8,14 @@ on:
 jobs:
   update-changelog:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18'
-
-      - name: Install dependencies
-        run: npm install --legacy-peer-deps
-
-      - name: Get commits and update changelog
+      - name: Update changelog
         run: |
           # Create public directory if it doesn't exist
           mkdir -p public
@@ -29,37 +23,42 @@ jobs:
           # Function to determine change type from commit message
           get_change_type() {
             local msg="$1"
-            if [[ $msg == *"feat:"* || $msg == *"feature:"* ]]; then
+            if [[ $msg == feat:* || $msg == feature:* ]]; then
               echo "feature"
-            elif [[ $msg == *"improve:"* || $msg == *"enhancement:"* ]]; then
+            elif [[ $msg == improve:* || $msg == enhancement:* ]]; then
               echo "improvement"
-            elif [[ $msg == *"fix:"* || $msg == *"bug:"* ]]; then
+            elif [[ $msg == fix:* || $msg == bug:* ]]; then
               echo "fix"
-            elif [[ $msg == *"beta:"* ]]; then
+            elif [[ $msg == beta:* ]]; then
               echo "beta"
+            elif [[ $msg == chore:* ]]; then
+              echo "chore"
             else
               echo "improvement"
             fi
           }
 
-          # Get commits since last tag or initial commit if no tags
-          LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || git rev-list --max-parents=0 HEAD)
-          
-          # Process commits and create JSON entries
-          COMMITS=$(git log --pretty=format:'{%n  "commitHash": "%H",%n  "date": "%aI",%n  "author": "%an",%n  "title": "%s",%n  "description": "%b",%n  "type": "'"$(get_change_type \"%s\")"'"%n},' $LAST_TAG..HEAD)
-          
-          # Remove trailing comma and wrap in array
-          COMMITS="[${COMMITS%,}]"
-          
-          # Create final JSON with metadata
+          # Get all commits from 2025
+          COMMITS=$(git log --since="2025-01-01" --pretty=format:'{
+            "commitHash": "%H",
+            "date": "%aI",
+            "author": "%an",
+            "title": "%s",
+            "description": "%b",
+            "type": "'$(get_change_type "%s")'"
+          },' | sed '$ s/,$//')
+
+          # Create the final JSON structure
           echo "{
             \"lastUpdated\": \"$(date -u +"%Y-%m-%dT%H:%M:%SZ")\",
-            \"entries\": $COMMITS
+            \"entries\": [
+              $COMMITS
+            ]
           }" > public/changelog.json
 
-      - name: Commit and push if changed
-        run: |
-          git config --global user.name 'GitHub Action'
-          git config --global user.email 'action@github.com'
+          # Commit and push the updated changelog
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
           git add public/changelog.json
-          git diff --quiet && git diff --staged --quiet || (git commit -m "chore: update changelog" && git push)
+          git commit -m "chore: Update changelog [skip ci]"
+          git push
