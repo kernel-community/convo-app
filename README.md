@@ -2,9 +2,8 @@
 > _Why are we alive if not to make connections?_
 
 ### App
-
-- Staging (deploying from `staging` branch, has the latest updates): https://staging.convo.cafe
-- Prod (deploying from `main` branch): https://convo.cafe
+- Prod (deploying from `main` branch): https://www.convo.cafe
+- Contribute: Read the contributing doc here: [CONTRIBUTING.md](CONTRIBUTING.md)
 
 ### Read more
 
