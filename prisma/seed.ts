@@ -49,7 +49,7 @@ async function main() {
         profile: {
           create: {
             bio: "Learning and teaching at Kernel",
-            photo: "https://kernel.community/images/paul.png",
+            photo: "https://www.convo.cafe/images/paul.png",
           },
         },
       },

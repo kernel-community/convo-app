@@ -7,7 +7,7 @@ export const CALENDAR_IDS = {
 };
 
 export const STAGING = "staging.convo.cafe";
-export const DEFAULT_HOST = "convo.cafe";
+export const DEFAULT_HOST = "www.convo.cafe";
 
 // SENDING EVENT CALENDAR INVITE EMAILS
 export const EVENT_ORGANIZER_NAME = "Convo Cafe";

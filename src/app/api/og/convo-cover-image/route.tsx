@@ -12,7 +12,7 @@ export const revalidate = 0;
 
 async function loadFonts() {
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://www.convo.cafe";
 
     // Load Nephilm font
     const nephilmUrl = new URL(
@@ -73,7 +73,7 @@ export async function GET(req: NextRequest) {
   const eventHash = searchParams.get("eventHash");
 
   // Get the domain from environment variable
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://convo.cafe";
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://www.convo.cafe";
   const domain = new URL(baseUrl).hostname;
 
   // Truncate title if it's too long (max 100 chars)

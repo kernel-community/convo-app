@@ -699,39 +699,6 @@ const AdminMetricsAccordion = ({ event }: { event: ClientEvent }) => {
             }}
             style={{ overflow: "hidden" }}
           >
-            {/* Event Details */}
-            <div className="border-foreground/20 space-y-2 border-t-4 pt-6 first:border-t-0 first:pt-0">
-              <h3 className="text-primary-foreground/90 font-secondary text-sm font-semibold">
-                Event Details
-              </h3>
-              <div className="grid grid-cols-1 gap-4 rounded-lg bg-white/10 p-3 text-sm backdrop-blur-sm sm:grid-cols-2">
-                <div>
-                  <p className="text-primary-foreground/60">Event ID</p>
-                  <p className="font-mono">{event.id}</p>
-                </div>
-                <div>
-                  <p className="text-primary-foreground/60">Hash</p>
-                  <p className="font-mono">{event.hash}</p>
-                </div>
-                <div>
-                  <p className="text-primary-foreground/60">Created At</p>
-                  <p>{new Date(event.createdAt).toLocaleString()}</p>
-                </div>
-                <div>
-                  <p className="text-primary-foreground/60">Last Updated</p>
-                  <p>{new Date(event.updatedAt).toLocaleString()}</p>
-                </div>
-                <div>
-                  <p className="text-primary-foreground/60">Event Type</p>
-                  <p>{event.type}</p>
-                </div>
-                <div>
-                  <p className="text-primary-foreground/60">Location Type</p>
-                  <p>{event.locationType}</p>
-                </div>
-              </div>
-            </div>
-
             {/* RSVP Stats */}
             <div className="border-foreground/20 space-y-2 border-t-2 pt-6">
               <h3 className="text-primary-foreground/90 font-secondary text-sm font-semibold">

@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = "https://convo.cafe";
+  const baseUrl = "https://www.convo.cafe";
 
   // Add all your static routes
   const routes = ["", "/frens", "/all", "/propose"].map((route) => ({

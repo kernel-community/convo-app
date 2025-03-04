@@ -35,18 +35,18 @@ export const metadata: Metadata = {
     "cozy",
   ],
   authors: [{ name: "Kernel Community" }],
-  metadataBase: new URL("https://convo.cafe"),
+  metadataBase: new URL("https://www.convo.cafe"),
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: "https://convo.cafe",
+    url: "https://www.convo.cafe",
     siteName: "Convo Cafe",
     title: "Convo Cafe | Plant the kernel of a conversation",
     description:
       "Plant the kernel of a conversation. Connect, share, build together.",
     images: [
       {
-        url: "https://convo.cafe/og-image.png",
+        url: "https://www.convo.cafe/og-image.png",
         width: 1200,
         height: 630,
         alt: "Convo Cafe",
@@ -59,7 +59,7 @@ export const metadata: Metadata = {
     title: "Convo Cafe | Plant the kernel of a conversation",
     description:
       "Plant the kernel of a conversation. Connect, share, build together.",
-    images: ["https://convo.cafe/og-image.png"],
+    images: ["https://www.convo.cafe/og-image.png"],
     creator: "@kernel0x",
     site: "@kernel0x",
   },
@@ -88,7 +88,7 @@ export const metadata: Metadata = {
     google: "google-site-verification-code", // Add your verification code
   },
   alternates: {
-    canonical: "https://convo.cafe",
+    canonical: "https://www.convo.cafe",
   },
   other: {
     "apple-mobile-web-app-capable": "yes",
