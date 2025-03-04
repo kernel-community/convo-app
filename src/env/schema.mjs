@@ -7,9 +7,10 @@ import { z } from "zod";
  */
 export const serverSchema = z.object({
   DATABASE_URL: z.string().url(),
+  DIRECT_URL: z.string().url(),
   NODE_ENV: z.enum(["development", "test", "production"]),
-  CLIENT_SECRET: z.string().min(1),
-  CLIENT_ID: z.string().min(1),
+  RESEND_API_KEY: z.string().min(1),
+  OPENAI_API_KEY: z.string().min(1),
 });
 
 /**
@@ -19,9 +20,10 @@ export const serverSchema = z.object({
  */
 export const serverEnv = {
   DATABASE_URL: process.env.DATABASE_URL,
+  DIRECT_URL: process.env.DIRECT_URL,
   NODE_ENV: process.env.NODE_ENV,
-  CLIENT_SECRET: process.env.CLIENT_SECRET,
-  CLIENT_ID: process.env.CLIENT_ID,
+  RESEND_API_KEY: process.env.RESEND_API_KEY,
+  OPENAI_API_KEY: process.env.OPENAI_API_KEY,
 };
 
 /**
@@ -32,6 +34,9 @@ export const serverEnv = {
 export const clientSchema = z.object({
   NEXT_PUBLIC_DYNAMIC_ENVIRONMENT_ID: z.string(),
   NEXT_PUBLIC_PARTYKIT_SERVER_HOST: z.string(),
+  NEXT_PUBLIC_KERNEL_SMOLBRAIN_API: z.string(),
+  NEXT_PUBLIC_KERNEL_SMOLBRAIN_APP_NAME: z.string(),
+  NEXT_PUBLIC_APP_URL: z.string(),
 });
 
 /**
@@ -45,4 +50,9 @@ export const clientEnv = {
     process.env.NEXT_PUBLIC_DYNAMIC_ENVIRONMENT_ID,
   NEXT_PUBLIC_PARTYKIT_SERVER_HOST:
     process.env.NEXT_PUBLIC_PARTYKIT_SERVER_HOST,
+  NEXT_PUBLIC_KERNEL_SMOLBRAIN_API:
+    process.env.NEXT_PUBLIC_KERNEL_SMOLBRAIN_API,
+  NEXT_PUBLIC_KERNEL_SMOLBRAIN_APP_NAME:
+    process.env.NEXT_PUBLIC_KERNEL_SMOLBRAIN_APP_NAME,
+  NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
 };
