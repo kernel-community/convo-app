@@ -13,15 +13,16 @@
     "start": "next start",
     "start:local": "npx prisma generate && npx prisma migrate dev && npm run dev",
     "vercel-build": "prisma generate && prisma migrate deploy && next build",
-    "data": "npx prisma format && npx prisma generate && npx prisma db push",
-    "data-reset": "npx prisma migrate reset",
-    "prepare-migrations": "npx prisma migrate dev",
+    "db:data": "npx prisma format && npx prisma generate && npx prisma db push",
+    "db:reset": "npx prisma migrate reset",
+    "db:migrate": "npx prisma migrate dev",
     "format": "prettier --check --ignore-path .gitignore .",
     "format:fix": "prettier --write --ignore-path .gitignore .",
     "prepare": "husky install",
     "trigger-build": "git commit --allow-empty -m 'Trigger Build' && git push",
     "db:studio": "BROWSER=none prisma studio",
-    "capture-screenshots": "node scripts/capture-screenshots.js"
+    "capture-screenshots": "node scripts/capture-screenshots.js",
+    "db:seed": "npx prisma db seed"
   },
   "lint-staged": {
     "*.{jsx,js,tsx,ts}": "prettier --write"
