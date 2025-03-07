@@ -519,7 +519,7 @@ const Hero = ({
         {event?.title}
       </div>
 
-      {isKernelCommunityMember && (
+      {(isKernelCommunityMember || isOwnerOfConvo) && (
         <motion.div
           className="my-4 w-full"
           initial={{ opacity: 0 }}
