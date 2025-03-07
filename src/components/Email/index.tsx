@@ -51,7 +51,16 @@ import {
   DeletedProposerEmailTemplate,
   SUBJECT as DeletedProposerEmailTemplateSubject,
 } from "./templates/DeletedProposer";
-import { EmailTemplateWithEventProps } from "./types";
+import {
+  ProposerMessageTemplate,
+  SUBJECT as ProposerMessageTemplateSubject,
+} from "./templates/ProposerMessage";
+
+import type { EmailTemplateWithEventProps } from "./types";
+
+type ProposerMessageProps = EmailTemplateWithEventProps & {
+  message: string;
+};
 
 export type { EmailTemplateProps, EmailTemplateWithEventProps } from "./types";
 
@@ -68,11 +77,12 @@ export type EmailType =
   | "invite-maybe"
   | "invite-not-going"
   | "deleted-proposer"
-  | "deleted-attendee";
+  | "deleted-attendee"
+  | "proposer-message";
 
 export const getEmailTemplateFromType = (
   type: EmailType,
-  props: EmailTemplateWithEventProps
+  props: EmailTemplateWithEventProps | ProposerMessageProps
 ): {
   template: React.ReactNode;
   subject: string;
@@ -146,6 +156,19 @@ export const getEmailTemplateFromType = (
         template: DeletedProposerEmailTemplate(props),
         subject: DeletedProposerEmailTemplateSubject,
       };
+    case "proposer-message": {
+      if (!("text" in props)) {
+        throw new Error("Message is required for proposer-message email type");
+      }
+      const messageProps = {
+        ...props,
+        message: props.text, // Convert text prop to message prop
+      } as ProposerMessageProps;
+      return {
+        template: ProposerMessageTemplate(messageProps),
+        subject: ProposerMessageTemplateSubject,
+      };
+    }
     default:
       throw new Error(`Unknown email type: ${type}`);
   }
