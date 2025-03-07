@@ -10,18 +10,21 @@ import { generateiCalRequestFromEvent } from "../ical/generateiCalRequestFromEve
 import { EVENT_ORGANIZER_EMAIL } from "../constants";
 import { EVENT_ORGANIZER_NAME } from "../constants";
 import { emailTypeToRsvpType } from "../emailTypeToRsvpType";
-import { ConvoEvent } from "src/components/Email/types";
+import type { ConvoEvent } from "src/components/Email/types";
+
 export const sendEventEmail = async ({
   receiver,
   event,
   type,
   text,
+  returnOptionsOnly = false,
 }: {
   receiver: User;
   type: EmailType;
   text?: string;
   event: EventWithProposerAndRsvps;
-}) => {
+  returnOptionsOnly?: boolean;
+}): Promise<CreateEmailOptions | { id: string }> => {
   if (!receiver.email) {
     throw new Error(`receiver ${receiver.id} has no email`);
   }
@@ -82,7 +85,7 @@ export const sendEventEmail = async ({
   const basicProps = { firstName: receiver.nickname };
 
   // Create full props with event for templates that need it
-  const fullProps = { ...basicProps, event: convoEvent };
+  const fullProps = { ...basicProps, event: convoEvent, text };
 
   // Get template and subject
   const { template, subject: rawSubject } = getEmailTemplateFromType(
@@ -110,6 +113,10 @@ export const sendEventEmail = async ({
     ],
   };
   console.log({ opts });
+  // If returnOptionsOnly is true, just return the options without sending
+  if (returnOptionsOnly) {
+    return opts;
+  }
   try {
     const { data, error } = await resend.emails.send(opts);
 
@@ -136,6 +143,109 @@ export const sendEventEmail = async ({
       e instanceof Error
         ? e.message
         : "An unexpected error occurred while sending email"
+    );
+  }
+};
+
+/**
+ * Sends batch emails using Resend's batch API
+ * Handles rate limiting by adding timeouts when there are more than 100 recipients
+ *
+ * @param emails Array of email options to send in batch
+ * @returns Array of email IDs
+ */
+export const sendBatch = async (
+  emails: CreateEmailOptions[]
+): Promise<Array<{ id: string }>> => {
+  // If there are no emails, return empty array
+  if (emails.length === 0) {
+    return [];
+  }
+
+  try {
+    // If there are more than 100 recipients, split into batches with timeouts
+    if (emails.length > 100) {
+      const batchSize = 100;
+      const batches = [];
+
+      // Split emails into batches of 100
+      for (let i = 0; i < emails.length; i += batchSize) {
+        batches.push(emails.slice(i, i + batchSize));
+      }
+
+      // Send each batch with a timeout between them to respect rate limits
+      const results = [];
+      for (let i = 0; i < batches.length; i++) {
+        const batch = batches[i];
+        if (!batch) continue;
+
+        console.log(
+          `Sending batch ${i + 1} of ${batches.length} (${batch.length} emails)`
+        );
+
+        const { data, error } = await resend.batch.send(batch);
+
+        if (error) {
+          console.error("Batch email sending failed:", error);
+          throw new Error(`Failed to send batch emails: ${error.message}`);
+        }
+
+        if (!data) {
+          throw new Error("No data returned from resend batch send");
+        }
+
+        // Handle the response data properly
+        // The data object should have a 'data' property that contains the array of results
+        if (Array.isArray(data)) {
+          results.push(...data);
+        } else if (data.data && Array.isArray(data.data)) {
+          // If data has a nested data array property
+          results.push(...data.data);
+        } else {
+          // If it's a single result
+          results.push(data as any);
+        }
+
+        // Add timeout between batches to avoid rate limits (except for the last batch)
+        if (i < batches.length - 1) {
+          console.log("Waiting 1 second before sending next batch...");
+          await new Promise((resolve) => setTimeout(resolve, 1000));
+        }
+      }
+
+      return results;
+    } else {
+      // For smaller batches, send all at once
+      const { data, error } = await resend.batch.send(emails);
+
+      if (error) {
+        console.error("Batch email sending failed:", error);
+        throw new Error(`Failed to send batch emails: ${error.message}`);
+      }
+
+      if (!data) {
+        throw new Error("No data returned from resend batch send");
+      }
+
+      // Handle the response data properly
+      // The data object should have a 'data' property that contains the array of results
+      if (Array.isArray(data)) {
+        return data;
+      } else if (data.data && Array.isArray(data.data)) {
+        // If data has a nested data array property
+        return data.data;
+      } else {
+        // If it's a single result
+        return [data as any];
+      }
+    }
+  } catch (e) {
+    // Handle any unexpected errors from the API
+    console.error("Unexpected error while sending batch emails:", e);
+    throw new Error(
+      e instanceof Error
+        ? e.message
+        : "An unexpected error occurred while sending batch emails"
     );
   }
 };
