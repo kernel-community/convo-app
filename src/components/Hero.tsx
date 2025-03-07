@@ -1,8 +1,9 @@
 import type { ClientEvent } from "src/types";
 import { InfoBox } from "./InfoBox";
 import { useRef } from "react";
-import { ChevronDown, Plus } from "lucide-react";
+import { ChevronDown, MessageCircle, Plus, WrenchIcon } from "lucide-react";
 import { AddRsvpCredenza } from "./AddRsvpCredenza";
+import { MessageCredenza } from "./MessageCredenza";
 import {
   Card,
   CardContent,
@@ -30,7 +31,6 @@ import { useUser } from "src/context/UserContext";
 import { motion, AnimatePresence } from "framer-motion";
 import { UserImage } from "src/components/ui/default-user-image";
 import { EventCard, EventsView } from "./ui/event-list";
-import CopyButton from "./CopyButton";
 import { parseConvoLocation } from "src/utils/parseConvoLocation";
 import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
 import { Label } from "./ui/label";
@@ -44,8 +44,7 @@ import LoginButton from "./LoginButton";
 import { rsvpTypeToEmoji } from "src/utils/rsvpTypeToEmoji";
 import { cleanupRruleString } from "src/utils/cleanupRruleString";
 import { rrulestr } from "rrule";
-import { ArrowUpRight, ChevronUp } from "lucide-react";
-
+import { ArrowUpRight } from "lucide-react";
 const When = ({
   event,
   className,
@@ -202,15 +201,6 @@ export const WhoElseIsGoing = ({
           <CredenzaContent className="flex h-[34rem] flex-col">
             <CredenzaHeader>All other RSVPs</CredenzaHeader>
             <CredenzaBody className="flex-1 overflow-y-auto">
-              {isOwnerOfConvo && (
-                <CopyButton
-                  text={event.rsvps
-                    .map((rsvp) => rsvp.attendee.email)
-                    .toString()}
-                  label="Copy all emails"
-                  className="mb-4"
-                />
-              )}
               {filteredRsvps.map((rsvp, key) => {
                 return (
                   <div
@@ -501,9 +491,7 @@ const Hero = ({
   const collectionHrefs = event.collections.map((c, k) => (
     <Link key={k} href={`/collection/${c.id}`}>
       {" "}
-      <span className="text-kernel-light underline decoration-dotted">
-        {c.name}
-      </span>
+      <span className="text-primary underline decoration-dotted">{c.name}</span>
       {k + 1 !== event.collections.length ? "," : ""}
     </Link>
   ));
@@ -540,20 +528,6 @@ const Hero = ({
         >
           <AdminMetricsAccordion event={event} />
         </motion.div>
-      )}
-
-      {isOwnerOfConvo && (
-        <div className="flex-inline my-4 flex w-full items-center justify-between rounded-xl bg-secondary-muted p-3 font-secondary text-base text-secondary-foreground">
-          <span>You own this convo</span>
-          <a
-            href={`/edit/${event.hash}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex-inline hover:border-kernel flex items-center rounded-full border-2 bg-primary px-2 text-primary-foreground transition-all duration-300"
-          >
-            Edit <ArrowUpRight className="h-4" />
-          </a>
-        </div>
       )}
 
       {isPartOfCollection && (
@@ -612,16 +586,34 @@ const Hero = ({
   );
 };
 
+const RSVP_STATUS_MAP = {
+  GOING: "Going",
+  NOT_GOING: "Not Going",
+  MAYBE: "Maybe",
+} as const;
+
 const AdminMetricsAccordion = ({ event }: { event: ClientEvent }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [showScrollIndicator, setShowScrollIndicator] = useState(false);
   const [rsvpFilter, setRsvpFilter] = useState("all");
+  const [showMessageInput, setShowMessageInput] = useState(false);
+  const [message, setMessage] = useState("");
+  const [isSending, setIsSending] = useState(false);
   const [showAddRsvp, setShowAddRsvp] = useState(false);
+  const [showMessageConfirm, setShowMessageConfirm] = useState(false);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const filteredRsvps = event.rsvps.filter((rsvp) =>
     rsvpFilter === "all" ? true : rsvp.rsvpType === rsvpFilter
   );
+
+  useEffect(() => {
+    // Reset message input if there are no RSVPs after filtering
+    if (filteredRsvps.length === 0) {
+      setShowMessageInput(false);
+      setMessage("");
+    }
+  }, [filteredRsvps.length]);
 
   useEffect(() => {
     const container = scrollContainerRef.current;
@@ -645,7 +637,7 @@ const AdminMetricsAccordion = ({ event }: { event: ClientEvent }) => {
       observer.disconnect();
     };
   }, [isOpen, rsvpFilter]);
-
+  const { fetchedUser } = useUser();
   return (
     <motion.div
       className="group rounded-md border-2 border-secondary bg-background p-4 text-foreground"
@@ -658,12 +650,14 @@ const AdminMetricsAccordion = ({ event }: { event: ClientEvent }) => {
         className="flex cursor-pointer items-center justify-between gap-2 font-secondary text-base font-semibold text-foreground"
         onClick={() => setIsOpen(!isOpen)}
       >
-        <span>Shh 🤫</span>
+        <span className="inline-flex items-center gap-2">
+          Manage Event <WrenchIcon className="h-4 w-4" />{" "}
+        </span>
         <motion.div
           animate={{ rotate: isOpen ? 180 : 0 }}
           transition={{ duration: 0.1 }}
         >
-          <ChevronUp className="h-5 w-5" />
+          <ChevronDown className="h-5 w-5" />
         </motion.div>
       </motion.div>
 
@@ -699,12 +693,23 @@ const AdminMetricsAccordion = ({ event }: { event: ClientEvent }) => {
             }}
             style={{ overflow: "hidden" }}
           >
+            <div className="flex-inline my-4 flex w-full items-center justify-between rounded-xl bg-secondary-muted p-3 font-secondary text-base text-secondary-foreground">
+              <span>Edit Convo Details</span>
+              <a
+                href={`/edit/${event.hash}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex-inline flex items-center rounded-full border-2 bg-primary px-2 text-primary-foreground transition-all duration-300 hover:border-primary"
+              >
+                Edit <ArrowUpRight className="h-4" />
+              </a>
+            </div>
             {/* RSVP Stats */}
             <div className="border-foreground/20 space-y-2 border-t-2 pt-6">
               <h3 className="text-primary-foreground/90 font-secondary text-sm font-semibold">
                 RSVP Statistics
               </h3>
-              <div className="grid grid-cols-1 gap-4 rounded-lg bg-white/10 p-3 text-sm backdrop-blur-sm sm:grid-cols-2">
+              <div className="grid grid-cols-1 gap-4 rounded-lg bg-white/10 p-3 text-sm backdrop-blur-sm sm:grid-cols-3">
                 <div>
                   <p className="text-primary-foreground/60">RSVPs</p>
                   <p>
@@ -727,138 +732,235 @@ const AdminMetricsAccordion = ({ event }: { event: ClientEvent }) => {
                   </p>
                 </div>
               </div>
-              <div className="relative">
-                <div className="flex items-center justify-between gap-2 border-t-2 py-3 text-sm">
-                  <span>
+            </div>
+            <div className="relative">
+              <div className="flex items-center justify-between gap-2 border-t-2 py-3 text-sm">
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-2">
                     <span className="text-primary-foreground/60">
-                      Filter by status:
+                      Filter / Message RSVPs:{" "}
                     </span>
                     <select
                       value={rsvpFilter}
                       onChange={(e) => setRsvpFilter(e.target.value)}
-                      className="focus:ring-highlight/50 rounded-md border border-border bg-background px-2 py-1 text-sm focus:outline-none focus:ring-2"
+                      className="focus:ring-highlight/50 rounded-md border border-border bg-background px-2 py-1 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary"
                     >
                       <option value="all">All</option>
                       <option value="GOING">Going</option>
                       <option value="NOT_GOING">Not Going</option>
                       <option value="MAYBE">Maybe</option>
                     </select>
-                  </span>
+                  </div>
+                  {filteredRsvps.length > 0 && (
+                    <div className="relative">
+                      <button
+                        onClick={() => setShowMessageInput(!showMessageInput)}
+                        className="bg-primary/10 hover:bg-primary/20 flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1 text-primary-foreground transition-colors"
+                      >
+                        <MessageCircle className="h-4 w-4" />
+                        Message?
+                      </button>
+                      <MessageCredenza
+                        isOpen={showMessageConfirm}
+                        onClose={() => setShowMessageConfirm(false)}
+                        recipients={filteredRsvps}
+                        message={message}
+                        isLoading={isSending}
+                        onSend={async () => {
+                          try {
+                            setIsSending(true);
+                            const response = await fetch("/api/send-message", {
+                              method: "POST",
+                              headers: {
+                                "Content-Type": "application/json",
+                              },
+                              body: JSON.stringify({
+                                recipients:
+                                  fetchedUser &&
+                                  !filteredRsvps.some(
+                                    (rsvp) =>
+                                      rsvp.attendee.id === fetchedUser.id
+                                  )
+                                    ? [
+                                        ...filteredRsvps,
+                                        { attendee: fetchedUser },
+                                      ]
+                                    : filteredRsvps,
+                                event,
+                                message,
+                              }),
+                            });
 
-                  <span>
-                    <Button
-                      onClick={() => setShowAddRsvp(true)}
-                      size="sm"
-                      className="gap-1"
-                      variant={"outline"}
-                    >
-                      <Plus className="h-4 w-4" />
-                      Add RSVP
-                    </Button>
+                            if (!response.ok) {
+                              throw new Error("Failed to send messages");
+                            }
 
-                    <AddRsvpCredenza
-                      isOpen={showAddRsvp}
-                      onClose={() => setShowAddRsvp(false)}
-                      eventId={event.id}
-                      onSuccess={() => {
-                        // Refresh the page to show new RSVP
-                        window.location.reload();
-                      }}
-                    />
-                  </span>
+                            setShowMessageConfirm(false);
+                            setShowMessageInput(false);
+                            setMessage("");
+                          } catch (error) {
+                            console.error("Error sending messages:", error);
+                          } finally {
+                            setIsSending(false);
+                          }
+                        }}
+                      />
+                      <AnimatePresence></AnimatePresence>
+                    </div>
+                  )}
                 </div>
 
-                <div
-                  ref={scrollContainerRef}
-                  className="scrollbar-thin scrollbar-track-muted/5 scrollbar-thumb-muted/20 relative h-48 overflow-y-auto rounded-lg bg-muted p-3 text-sm backdrop-blur-sm"
-                >
-                  {/* Scroll indicator */}
-                  <div
-                    className={`text-primary-foreground/50 absolute bottom-2 right-2 z-10 ${
-                      !showScrollIndicator && "hidden"
-                    }`}
+                <div>
+                  <Button
+                    onClick={() => setShowAddRsvp(true)}
+                    size="sm"
+                    className="gap-1"
+                    variant={"outline"}
                   >
-                    <ChevronDown className="h-5 w-5 animate-bounce" />
-                  </div>
-                  {/* Table view (desktop) */}
-                  <table className="hidden w-full md:table">
-                    <thead className="sticky top-0 bg-highlight-disabled text-left">
-                      <tr>
-                        <th className="p-2 first:rounded-tl-md">Status</th>
-                        <th className="p-2">Name</th>
-                        <th className="p-2">Email</th>
-                        <th className="p-2 last:rounded-tr-md">Last updated</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {filteredRsvps.length === 0 ? (
-                        <tr>
-                          <td
-                            colSpan={4}
-                            className="text-primary-foreground/60 p-8 text-center"
-                          >
-                            No records found
-                          </td>
-                        </tr>
-                      ) : (
-                        filteredRsvps.map((rsvp, index) => (
-                          <tr key={index} className="border-t border-white/10">
-                            <td className="p-2">
-                              {rsvpTypeToEmoji(rsvp.rsvpType)}
-                            </td>
-                            <td className="p-2">{rsvp.attendee.nickname}</td>
-                            <td className="p-2 font-mono text-xs">
-                              {rsvp.attendee.email}
-                            </td>
-                            <td className="p-2 font-mono text-xs">
-                              {new Date(rsvp.updatedAt).toLocaleString()}
-                            </td>
-                          </tr>
-                        ))
-                      )}{" "}
-                    </tbody>
-                  </table>
+                    <Plus className="h-4 w-4" />
+                    Add RSVP
+                  </Button>
 
-                  {/* Card view (mobile) */}
-                  <div className="space-y-3 md:hidden">
-                    {filteredRsvps.length === 0 ? (
-                      <div className="text-primary-foreground/60 py-8 text-center">
-                        No records found
-                      </div>
-                    ) : (
-                      filteredRsvps.map((rsvp, index) => (
-                        <div
-                          key={index}
-                          className="space-y-2 rounded-lg border border-border bg-background p-3"
-                        >
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                              <span>{rsvpTypeToEmoji(rsvp.rsvpType)}</span>
-                              <span className="font-medium">
-                                {rsvp.attendee.nickname}
-                              </span>
-                            </div>
-                            <span className="text-primary-foreground/60 text-xs">
-                              {new Date(rsvp.updatedAt).toLocaleString()}
-                            </span>
-                          </div>
-                          <div className="text-primary-foreground/60 font-mono text-xs">
-                            {rsvp.attendee.email}
-                          </div>
-                        </div>
-                      ))
-                    )}
-                  </div>
+                  <AddRsvpCredenza
+                    isOpen={showAddRsvp}
+                    onClose={() => setShowAddRsvp(false)}
+                    eventId={event.id}
+                    onSuccess={() => {
+                      // Refresh the page to show new RSVP
+                      window.location.reload();
+                    }}
+                  />
                 </div>
+              </div>
+              {/* Message input section with animation */}
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{
+                  height: showMessageInput ? "auto" : 0,
+                  opacity: showMessageInput ? 1 : 0,
+                }}
+                transition={{ duration: 0.3 }}
+                className="overflow-hidden"
+              >
+                <div className="mb-4 space-y-3 rounded-lg p-4">
+                  <textarea
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
+                    placeholder="Type your message here..."
+                    className="placeholder:text-foreground/50 w-full rounded-lg border border-primary p-3 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                    rows={3}
+                  />
+                  <button
+                    onClick={() => {
+                      if (message.trim()) {
+                        setShowMessageConfirm(true);
+                      }
+                    }}
+                    className="hover:bg-primary/90 flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm text-white transition-colors disabled:cursor-not-allowed disabled:opacity-50"
+                    disabled={!message.trim()}
+                  >
+                    Send to{" "}
+                    {rsvpFilter === "all"
+                      ? "all RSVPs"
+                      : `${
+                          RSVP_STATUS_MAP[
+                            rsvpFilter as keyof typeof RSVP_STATUS_MAP
+                          ]
+                        } RSVPs`}{" "}
+                    <ArrowUpRight className="h-4 w-4" />
+                  </button>
+                </div>
+              </motion.div>
+              <div
+                ref={scrollContainerRef}
+                className="scrollbar-thin scrollbar-track-muted/5 scrollbar-thumb-muted/20 relative h-48 overflow-y-auto rounded-lg bg-muted p-3 text-sm backdrop-blur-sm"
+              >
                 {/* Scroll indicator */}
                 <div
-                  className={`absolute bottom-2 right-2 transition-opacity duration-200 ${
-                    showScrollIndicator ? "opacity-100" : "opacity-0"
+                  className={`text-primary-foreground/50 absolute bottom-2 right-2 z-10 ${
+                    !showScrollIndicator && "hidden"
                   }`}
                 >
-                  <div className="animate-bounce rounded-full bg-highlight-disabled p-1.5">
-                    <ChevronDown className="h-4 w-4 text-highlight-foreground" />
-                  </div>
+                  <ChevronDown className="h-5 w-5 animate-bounce" />
+                </div>
+                {/* Table view (desktop) */}
+                <table className="hidden w-full md:table">
+                  <thead className="sticky top-0 bg-highlight-disabled text-left">
+                    <tr>
+                      <th className="p-2 first:rounded-tl-md">Status</th>
+                      <th className="p-2">Name</th>
+                      <th className="p-2">Email</th>
+                      <th className="p-2 last:rounded-tr-md">Last updated</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredRsvps.length === 0 ? (
+                      <tr>
+                        <td
+                          colSpan={4}
+                          className="text-primary-foreground/60 p-8 text-center"
+                        >
+                          No records found
+                        </td>
+                      </tr>
+                    ) : (
+                      filteredRsvps.map((rsvp, index) => (
+                        <tr key={index} className="border-t border-white/10">
+                          <td className="p-2">
+                            {rsvpTypeToEmoji(rsvp.rsvpType)}
+                          </td>
+                          <td className="p-2">{rsvp.attendee.nickname}</td>
+                          <td className="p-2 font-mono text-xs">
+                            {rsvp.attendee.email}
+                          </td>
+                          <td className="p-2 font-mono text-xs">
+                            {new Date(rsvp.updatedAt).toLocaleString()}
+                          </td>
+                        </tr>
+                      ))
+                    )}{" "}
+                  </tbody>
+                </table>
+
+                {/* Card view (mobile) */}
+                <div className="space-y-3 md:hidden">
+                  {filteredRsvps.length === 0 ? (
+                    <div className="text-primary-foreground/60 py-8 text-center">
+                      No records found
+                    </div>
+                  ) : (
+                    filteredRsvps.map((rsvp, index) => (
+                      <div
+                        key={index}
+                        className="space-y-2 rounded-lg border border-border bg-background p-3"
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <span>{rsvpTypeToEmoji(rsvp.rsvpType)}</span>
+                            <span className="font-medium">
+                              {rsvp.attendee.nickname}
+                            </span>
+                          </div>
+                          <span className="text-primary-foreground/60 text-xs">
+                            {new Date(rsvp.updatedAt).toLocaleString()}
+                          </span>
+                        </div>
+                        <div className="text-primary-foreground/60 font-mono text-xs">
+                          {rsvp.attendee.email}
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+              {/* Scroll indicator */}
+              <div
+                className={`absolute bottom-2 right-2 transition-opacity duration-200 ${
+                  showScrollIndicator ? "opacity-100" : "opacity-0"
+                }`}
+              >
+                <div className="animate-bounce rounded-full bg-highlight-disabled p-1.5">
+                  <ChevronDown className="h-4 w-4 text-highlight-foreground" />
                 </div>
               </div>
             </div>
