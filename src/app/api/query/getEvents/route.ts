@@ -58,7 +58,6 @@ export async function POST(request: NextRequest) {
       community: {
         include: {
           slack: true,
-          google: true,
         },
       },
     },

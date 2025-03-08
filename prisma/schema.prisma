@@ -5,9 +5,8 @@ generator client {
   provider = "prisma-client-js"
 }
 
-
 datasource db {
-  provider = "postgresql"
+  provider  = "postgresql"
   url       = env("DATABASE_URL")
   directUrl = env("DIRECT_URL")
 }
@@ -18,7 +17,6 @@ enum EventType {
   TEST
 }
 
-// deprecated -- donot use Communities anywhere
 model Community {
   id          String   @id @default(uuid())
   createdAt   DateTime @default(now())
@@ -28,7 +26,6 @@ model Community {
   subdomain   String   @unique
   events      Event[]
   slack       Slack?
-  google      Google?
 }
 
 enum LocationType {
@@ -117,7 +114,7 @@ model Collection {
 model Rsvp {
   id         String    @id @default(uuid())
   createdAt  DateTime  @default(now())
-  updatedAt DateTime @updatedAt @default(now())
+  updatedAt  DateTime  @default(now()) @updatedAt
   eventId    String
   event      Event     @relation(fields: [eventId], references: [id])
   attendeeId String
@@ -160,31 +157,6 @@ enum EmailType {
   REMINDER1HR
   REMINDER1MIN
   REMINDER1HRPROPOSER
-}
-
-// @deprecated
-model Google {
-  id                      String     @id @default(uuid())
-  createdAt               DateTime   @default(now())
-  // credentials
-  clientId                String
-  projectId               String
-  authUri                 String
-  tokenUri                String
-  authProviderX509CertUrl String
-  clientSecret            String
-  redirectUris            String[]
-  javascriptOrigins       String[]
-  // token
-  accessToken             String
-  refreshToken            String
-  scope                   String
-  tokenType               String
-  expiryDate              String
-  // the calendar to send events to
-  calendarId              String?
-  communityId             String?    @unique // one google service is associated with 1 community
-  community               Community? @relation(references: [id], fields: [communityId])
 }
 
 model Slack {
