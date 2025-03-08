@@ -66,7 +66,7 @@ export async function POST(request: NextRequest) {
   const defaultWheres = {
     isDeleted: false,
     type: {
-      not: "INTERVIEW" as EventType,
+      not: "UNLISTED" as EventType,
     },
   };
   let events: Array<ClientEvent> = [];

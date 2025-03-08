@@ -13,7 +13,8 @@ datasource db {
 
 enum EventType {
   JUNTO
-  INTERVIEW // @note could be "unlisted" @anggxyz
+  UNLISTED
+  INTERVIEW
   TEST
 }
 
@@ -49,33 +50,16 @@ model Event {
   limit              Int
   rrule              String?
   sequence           Int                  @default(0)
-  // for deleted events
-  // can be purged periodically
   isDeleted          Boolean              @default(false)
-  // google
-  // gCalEventRequested Boolean      @default(false) // remove, deprecated
   gCalEventId        String? // KEEP, DONT REMOVE
-  // gCalId             String? // remove, deprecated
   type               EventType            @default(JUNTO)
   proposerId         String
   proposer           User                 @relation(fields: [proposerId], references: [id], onDelete: Cascade)
   rsvps              Rsvp[]
   collections        Collection[]
   reminders          Email[]
-  // deprecated
   communityId        String?
-  // deprecated
   community          Community?           @relation(fields: [communityId], references: [id])
-  // if the event was imported from convo.kernel.community
-  // if it was, we do not have their RSVPs, since this version uses
-  // user's addresses to make them unique and the previous version used
-  // email addresses
-  // having isImported = true, means
-  // the UI will show an info box mentioning "This event was imported from the previous version of the app
-  // and the total number of RSVPs might not be accurate. Please email
-  // if you'd like to query any data related to RSVPs for this particular event"
-  // the emails[], gcaleventREquested, gcalEventId will be accurate for these events
-  // the proposer data will be inaccurate
   isImported         Boolean              @default(false)
   PostedSlackMessage PostedSlackMessage[]
 }
