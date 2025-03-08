@@ -4,7 +4,6 @@ import type {
   Collection,
   Community,
   Event,
-  Google,
   Profile,
   Rsvp,
   Slack,
@@ -24,7 +23,6 @@ export type ServerEvent = Event & {
   collections: Array<Collection>;
   community:
     | (Community & {
-        google: Google | null;
         slack: Slack | null;
       })
     | null;
@@ -118,7 +116,6 @@ export type ClientEventInput = z.infer<typeof clientEventInputValidationScheme>;
 export type FullEvent = Event & {
   proposer: User;
   community: Community & {
-    google: Google;
     slack: Slack;
   };
 };
