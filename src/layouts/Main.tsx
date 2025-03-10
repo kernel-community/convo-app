@@ -5,12 +5,13 @@ import type { ReactNode } from "react";
 interface MainProps {
   children: ReactNode;
   className?: string;
+  isBeta?: boolean;
 }
 
-const Main = ({ children, className = "" }: MainProps) => {
+const Main = ({ isBeta = false, children, className = "" }: MainProps) => {
   return (
     <div className="relative flex min-h-screen flex-col overflow-y-auto selection:bg-highlight selection:text-primary">
-      <Navbar />
+      <Navbar isBeta={isBeta} />
       <main
         className={`${
           className.includes("h-full") ? "" : "my-12 sm:my-24"
