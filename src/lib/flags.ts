@@ -1,6 +1,5 @@
 import { flag } from "flags/next";
 import { dedupe } from "flags/next";
-import { cookies } from "next/headers";
 
 // Define our entities type for type safety
 interface ConvoEntities {
@@ -33,7 +32,7 @@ const identifyUser = dedupe(({ headers, cookies }) => {
 
 // List of beta users who should have beta mode enabled
 const BETA_USERS = [
-  "angela.gilhotra+beta@gmail.com",
+  "angela.gilhotra@gmail.com",
   // Add more beta users as needed
 ];
 
