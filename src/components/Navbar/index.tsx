@@ -1,8 +1,10 @@
+"use client";
+
 import { Branding } from "./Branding";
 import { ClientNavbar } from "./ClientNavbar";
 
-// Server component that evaluates the beta flag
-export async function Navbar({ isBeta }: { isBeta: boolean }) {
+// Client component that accepts the beta flag as a prop
+export function Navbar({ isBeta }: { isBeta: boolean }) {
   return (
     <div
       className={`

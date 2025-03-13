@@ -9,10 +9,7 @@ import { Button } from "src/components/ui/button";
 import ProposeForm from "src/components/ProposeForm";
 import { DateTime } from "luxon";
 import { ScrambleText } from "src/components/ScrambleText";
-import { generateTitle } from "src/utils/generateTitle";
-import { generateDescription } from "src/utils/generateDescription";
-import { parseDateTime } from "src/utils/parseDateTime";
-import { parseLocation } from "src/utils/parseLocation";
+// These imports are used in the API route now, not directly in the component
 import { ArrowRight, Command, CornerDownLeft } from "lucide-react";
 import Link from "next/link";
 import { Events } from "src/components/Events";
@@ -48,7 +45,7 @@ const Home = () => {
   );
   const formRef = useRef<HTMLDivElement>(null);
 
-  const handleCreateClick = useCallback(async () => {
+  const handleCreateClick = useCallback(() => {
     if (!showTextArea) {
       // First click - show text area
       setShowTextArea(true);
@@ -64,42 +61,38 @@ const Home = () => {
 
     // Text entered - show form
     setIsLoading(true);
-    try {
-      // Generate title and parse datetime before showing form
-      let title: string;
-      let dateTime: { start: string; end: string } | null = null;
-      let description: string;
-      let location: string | null = null;
-      if (text.length > 30) {
-        const [titleResult, descriptionResult, dateTimeResult, locationResult] =
-          await Promise.all([
-            generateTitle(text),
-            generateDescription(text),
-            parseDateTime(text, NOW, tzOffset),
-            parseLocation(text),
-          ]);
-        title = titleResult.title;
-        dateTime = dateTimeResult;
-        description = descriptionResult.description;
-        location = locationResult;
-      } else {
-        const [dateTimeResult, locationResult] = await Promise.all([
-          parseDateTime(text, NOW, tzOffset),
-          parseLocation(text),
-        ]);
-        title = text;
-        dateTime = dateTimeResult;
-        location = locationResult;
-        description = text;
-      }
-      setGeneratedTitle(title);
-      setDateTimeStartAndEnd(dateTime);
-      setGeneratedDescription(description);
-      setGeneratedLocation(location);
-      setShowForm(true);
-    } finally {
-      setIsLoading(false);
-    }
+
+    // Use fetch to call our API route instead of calling async functions directly
+    fetch("/api/client-data", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        text,
+        now: NOW,
+        tzOffset,
+      }),
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then((data) => {
+        setGeneratedTitle(data.title);
+        setDateTimeStartAndEnd(data.dateTime);
+        setGeneratedDescription(data.description);
+        setGeneratedLocation(data.location);
+        setShowForm(true);
+      })
+      .catch((error) => {
+        console.error("Error processing data:", error);
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
 
     // Wait for form to be rendered before scrolling
     setTimeout(() => {
