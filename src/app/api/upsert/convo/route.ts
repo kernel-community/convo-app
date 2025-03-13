@@ -161,14 +161,22 @@ export async function POST(req: NextRequest) {
 
   const hash = event.hash || nanoid(10);
 
-  const community = await prisma.community.findUnique({
+  // Find or create the kernel community
+  let community = await prisma.community.findUnique({
     where: { subdomain: "kernel" },
   });
 
+  // If community doesn't exist, create it
   if (!community || isNil(community)) {
-    throw new Error(
-      "Community is undefined. Every event should belong to a community"
-    );
+    console.log("Kernel community not found, creating it now");
+    community = await prisma.community.create({
+      data: {
+        subdomain: "kernel",
+        displayName: "Kernel",
+        description: "Kernel Community",
+      },
+    });
+    console.log("Created new kernel community:", community.id);
   }
 
   const created = await prisma.event.create({
