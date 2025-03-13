@@ -4,6 +4,9 @@ import { NextResponse } from "next/server";
 import { prisma } from "src/utils/db";
 import { cookies } from "next/headers";
 
+// This tells Next.js this route should be dynamically rendered
+export const dynamic = "force-dynamic";
+
 export async function POST(req: NextRequest) {
   const body = await req.json();
   const { userId } = _.pick(body, ["userId"]);

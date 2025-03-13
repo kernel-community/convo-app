@@ -1,6 +1,9 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
+// This tells Next.js this route should be dynamically rendered
+export const dynamic = "force-dynamic";
+
 const SESSION_COOKIE = "session";
 
 export async function GET() {
