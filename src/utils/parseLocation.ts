@@ -4,7 +4,13 @@ export async function parseLocation(text: string): Promise<string | null> {
   }
 
   try {
-    const response = await fetch("/api/action/parse-location", {
+    // Get the base URL from environment or use a default for local development
+    const baseUrl =
+      typeof window !== "undefined"
+        ? window.location.origin
+        : process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+
+    const response = await fetch(`${baseUrl}/api/action/parse-location`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
