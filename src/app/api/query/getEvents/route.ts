@@ -8,6 +8,44 @@ import { Prisma } from "@prisma/client";
 import type { EventsRequest } from "src/types";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
+import { rrulestr } from "rrule";
+
+// Helper function to clean up RRULE string for parsing
+function cleanupRruleString(rruleString: string): string {
+  // Remove any DTSTART component as we'll set it explicitly
+  return rruleString.replace(/DTSTART:[^\n]+\n?/i, "");
+}
+
+// Helper function to check if a recurring event has future occurrences
+function hasUpcomingOccurrences(
+  rruleString: string,
+  startDateTime: Date,
+  now: Date,
+  lookAheadMonths = 6
+): boolean {
+  try {
+    if (!rruleString) return false;
+
+    // Parse the recurrence rule
+    const rruleSetObject = rrulestr(cleanupRruleString(rruleString), {
+      dtstart: startDateTime,
+    });
+
+    // Set a reasonable future date to check for occurrences
+    // Default to 6 months in the future to limit computation
+    const futureDate = new Date(now);
+    futureDate.setMonth(futureDate.getMonth() + lookAheadMonths);
+
+    // Get the next occurrence after now
+    const nextOccurrences = rruleSetObject.between(now, futureDate, true);
+
+    // If there's at least one occurrence in the future, return true
+    return nextOccurrences.length > 0;
+  } catch (error) {
+    console.error("Error checking recurrence rule:", error);
+    return false;
+  }
+}
 
 // now = from where to start fetching; reference
 export async function POST(request: NextRequest) {
@@ -114,7 +152,11 @@ export async function POST(request: NextRequest) {
       break;
     case "upcoming":
       {
-        serverEvents = await prisma.event.findMany({
+        // Define a reasonable look-ahead period (6 months)
+        const lookAheadMonths = 6;
+
+        // First, get all regular upcoming events (non-recurring or recurring with future start dates)
+        const upcomingEvents = await prisma.event.findMany({
           ...defaultIncludes,
           where: {
             startDateTime: {
@@ -125,6 +167,64 @@ export async function POST(request: NextRequest) {
           orderBy: {
             startDateTime: "asc",
           },
+        });
+
+        // Then, get past recurring events that might have future occurrences
+        const pastRecurringEvents = await prisma.event.findMany({
+          ...defaultIncludes,
+          where: {
+            startDateTime: {
+              lte: Now,
+            },
+            rrule: {
+              not: null,
+            },
+            ...defaultWheres,
+          },
+          orderBy: {
+            startDateTime: "asc",
+          },
+        });
+
+        console.log(`Found ${upcomingEvents.length} regular upcoming events`);
+        console.log(
+          `Found ${pastRecurringEvents.length} past recurring events to check`
+        );
+
+        // Filter past recurring events to only those with future occurrences
+        const recurringEventsWithFutureOccurrences = [];
+
+        for (const event of pastRecurringEvents) {
+          if (!event.rrule) continue;
+
+          const hasUpcoming = hasUpcomingOccurrences(
+            event.rrule,
+            new Date(event.startDateTime),
+            Now,
+            lookAheadMonths
+          );
+
+          if (hasUpcoming) {
+            recurringEventsWithFutureOccurrences.push(event);
+          }
+        }
+
+        console.log(
+          `Found ${recurringEventsWithFutureOccurrences.length} past recurring events with future occurrences`
+        );
+
+        // Combine regular upcoming events with recurring events that have future occurrences
+        serverEvents = [
+          ...upcomingEvents,
+          ...recurringEventsWithFutureOccurrences,
+        ];
+
+        // Sort all events by start date
+        serverEvents.sort((a, b) => {
+          return (
+            new Date(a.startDateTime).getTime() -
+            new Date(b.startDateTime).getTime()
+          );
         });
       }
       break;
