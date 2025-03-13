@@ -27,4 +27,3 @@ Built at [Kernel](https://kernel.community/)
 
 ### Beta mode
 any user with email from `@kernel.community` or with `+convobeta` in their email will have beta mode enabled. Look for `in beta` in top left of the app.
-![alt text](image.png)
