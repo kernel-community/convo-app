@@ -25,7 +25,7 @@ export const CalendarPopover = ({
   return (
     <Popover open={isOpen} onOpenChange={onOpenChange}>
       <PopoverTrigger>{children}</PopoverTrigger>
-      <PopoverContent className="h-[300px] w-auto p-0" align="start">
+      <PopoverContent className="h-[350px] w-auto p-0" align="start">
         <Calendar
           mode="single"
           selected={selectedDate}
