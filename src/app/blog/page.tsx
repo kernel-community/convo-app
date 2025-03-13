@@ -3,21 +3,24 @@ import Main from "src/layouts/Main";
 import { DateTime } from "luxon";
 import Image from "next/image";
 import Link from "next/link";
+import BlogBackground from "src/components/BlogBackground";
 
 export default function BlogPage() {
   const embers = getAllEmbers();
 
   return (
     <Main>
-      <div className="container py-16">
+      {/* Background SVG */}
+      <BlogBackground />
+      <div className="container relative py-16">
         <div className="mb-16">
           <h1 className="mb-3 inline-flex items-center gap-4 font-primary text-4xl">
             Hearth{" "}
             <Image
-              src="/images/Hearth.svg"
+              src="/images/hearth.svg"
               alt="Hearth"
-              width={22}
-              height={22}
+              width={32}
+              height={32}
             />
           </h1>
           <p className="max-w-2xl font-secondary text-lg leading-relaxed text-muted-foreground">

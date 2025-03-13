@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import ReactMarkdown from "react-markdown";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import BlogBackground from "src/components/BlogBackground";
 
 interface Props {
   params: {
@@ -21,7 +22,9 @@ export default function BlogPost({ params }: Props) {
 
   return (
     <Main>
-      <article className="container py-16">
+      {/* Background SVG */}
+      <BlogBackground />
+      <article className="container relative py-16">
         <Link href={"/blog"}>
           <span className="mb-6 flex flex-row gap-2 font-secondary text-muted-foreground underline decoration-dashed underline-offset-4 hover:text-primary">
             <ArrowLeft />
