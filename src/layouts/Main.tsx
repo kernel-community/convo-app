@@ -1,6 +1,9 @@
+"use client";
+
 import { Navbar } from "src/components/Navbar";
 import Footer from "src/components/Footer";
 import type { ReactNode } from "react";
+import { useBetaMode } from "src/hooks/useBetaMode";
 
 interface MainProps {
   children: ReactNode;
@@ -8,9 +11,10 @@ interface MainProps {
 }
 
 const Main = ({ children, className = "" }: MainProps) => {
+  const isBeta = useBetaMode();
   return (
     <div className="relative flex min-h-screen flex-col overflow-y-auto selection:bg-highlight selection:text-primary">
-      <Navbar />
+      <Navbar isBeta={isBeta} />
       <main
         className={`${
           className.includes("h-full") ? "" : "my-12 sm:my-24"

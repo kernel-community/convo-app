@@ -25,7 +25,13 @@ export async function parseDateTime(
   const formattedNow = formatWithTimezone(nowDate, tzOffset);
   console.log("after formatWithTimezone:", { formattedNow });
   try {
-    const response = await fetch("/api/action/parse-datetime", {
+    // Get the base URL from environment or use a default for local development
+    const baseUrl =
+      typeof window !== "undefined"
+        ? window.location.origin
+        : process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+
+    const response = await fetch(`${baseUrl}/api/action/parse-datetime`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

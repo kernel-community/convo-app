@@ -1,6 +1,5 @@
 import { flag } from "flags/next";
 import { dedupe } from "flags/next";
-import { cookies } from "next/headers";
 
 // Define our entities type for type safety
 interface ConvoEntities {
@@ -31,17 +30,30 @@ const identifyUser = dedupe(({ headers, cookies }) => {
   }
 });
 
-// Beta mode flag - enables beta features for @convo.cafe users
+// List of beta users who should have beta mode enabled
+const BETA_USERS = [
+  "angela.gilhotra@gmail.com",
+  // Add more beta users as needed
+];
+
+// Beta mode flag - enables beta features for specific users
 export const betaMode = flag<boolean, ConvoEntities>({
   key: "beta-mode",
   identify: identifyUser,
   decide({ entities }) {
+    const userEmail = entities?.user?.email;
+
+    // Check if user is in beta list, has @kernel.community email, or has +convobeta in email
     const isEnabled =
-      entities?.user?.email?.endsWith("@kernel.community") ?? false;
+      (userEmail && BETA_USERS.includes(userEmail)) ||
+      (userEmail?.endsWith("@kernel.community") ?? false) ||
+      (userEmail?.includes("+convobeta") ?? false);
+
     console.log("[Flags] Beta mode:", {
       isEnabled,
-      email: entities?.user?.email,
+      email: userEmail,
     });
+
     return isEnabled;
   },
 });
@@ -60,12 +72,19 @@ export const experimentalUI = flag<boolean, ConvoEntities>({
   key: "experimental-ui",
   identify: identifyUser,
   decide({ entities }) {
+    const userEmail = entities?.user?.email;
+
+    // Check if user is in beta list, has @kernel.community email, or has +convobeta in email
     const isEnabled =
-      entities?.user?.email?.endsWith("@kernel.community") ?? false;
+      (userEmail && BETA_USERS.includes(userEmail)) ||
+      (userEmail?.endsWith("@kernel.community") ?? false) ||
+      (userEmail?.includes("+convobeta") ?? false);
+
     console.log("[Flags] Experimental UI:", {
       isEnabled,
-      email: entities?.user?.email,
+      email: userEmail,
     });
+
     return isEnabled;
   },
 });

@@ -5,6 +5,7 @@ import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import Providers from "./providers";
 import type { Metadata } from "next";
+import { BetaModeWrapper } from "src/components/BetaModeWrapper";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -100,24 +101,15 @@ export const metadata: Metadata = {
   },
 };
 
-// PWA handler script
-const registerServiceWorker = `
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', function() {
-      navigator.serviceWorker.register('/sw.js').then(function(registration) {
-        console.log('ServiceWorker registration successful');
-      }, function(err) {
-        console.log('ServiceWorker registration failed: ', err);
-      });
-    });
-  }
-`;
+// PWA handler script is injected in the head section
 
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // We don't need to await the beta mode flag here
+  // The client components will handle this through the context
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
@@ -152,11 +144,15 @@ export default function RootLayout({
         />
       </head>
       <body className={inter.className}>
-        <Providers>
-          <ScrambleProvider>
-            <div vaul-drawer-wrapper="">{children}</div>
-          </ScrambleProvider>
-        </Providers>
+        <BetaModeWrapper>
+          {(isBetaMode) => (
+            <Providers isBetaMode={isBetaMode}>
+              <ScrambleProvider>
+                <div vaul-drawer-wrapper="">{children}</div>
+              </ScrambleProvider>
+            </Providers>
+          )}
+        </BetaModeWrapper>
         <Analytics />
         <SpeedInsights />
       </body>

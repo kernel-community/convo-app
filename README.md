@@ -1,7 +1,7 @@
 
 > _Why are we alive if not to make connections?_
 
-### App
+## App
 - Prod (deploying from `main` branch): https://www.convo.cafe
 - Contribute: Read the contributing doc here: [CONTRIBUTING.md](CONTRIBUTING.md)
 
@@ -22,3 +22,8 @@
 - ENS: `convo.cafe`
 
 Built at [Kernel](https://kernel.community/)
+
+## Setup Instructions
+
+### Beta mode
+any user with email from `@kernel.community` or with `+convobeta` in their email will have beta mode enabled. Look for `in beta` in top left of the app.
