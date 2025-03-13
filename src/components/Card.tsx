@@ -50,7 +50,7 @@ export const Card = ({ event }: { event: ClientEvent }) => {
     month: DT.now().toFormat("LLL"),
     time: DT.now().toFormat("hh:mm a"),
   });
-  const [isPast, setIsPast] = useState<boolean>(false);
+  // We no longer need the isPast state since we're not using it in the UI
   const [seats, setSeats] = useState<{
     available: number;
     total: number;
@@ -67,7 +67,7 @@ export const Card = ({ event }: { event: ClientEvent }) => {
       month: d.toFormat("LLL"),
       time: d.toFormat("hh:mm a"),
     });
-    if (d.diffNow().milliseconds < 0) setIsPast(true);
+    // We no longer need to set isPast since we removed that state
   }, [event.startDateTime]);
 
   useEffect(() => {
@@ -114,18 +114,26 @@ export const Card = ({ event }: { event: ClientEvent }) => {
           />
         </div>
         <div className="flex flex-row justify-between">
-          {seats.available > 0 && !isPast && !isSeries && (
-            <div className="text-xs font-thin">
-              <span>
-                {seats.available} / {seats.total}
-              </span>
-              <span className="text-xxs">&nbsp;seats available</span>
-            </div>
-          )}
-          {seats.total !== 0 && seats.available <= 0 && (
-            <div className="text-xxs font-thin">No seats available</div>
-          )}
-          {isSeries && <div className="text-xxs uppercase">event series</div>}
+          <div className="flex flex-col gap-1">
+            {/* Display RSVPs (if 2 or more) or available seats */}
+            {event.totalUniqueRsvps >= 2 ? (
+              <div className="text-xs font-thin">
+                {event.totalUniqueRsvps} people going
+              </div>
+            ) : (
+              seats.total > 0 && (
+                <div className="text-xs font-thin">
+                  {seats.available} {seats.available === 1 ? "seat" : "seats"}{" "}
+                  available
+                </div>
+              )
+            )}
+
+            {/* Display recurring event info */}
+            {isSeries && (
+              <div className="text-xxs font-thin">Is a recurring event</div>
+            )}
+          </div>
         </div>
       </div>
     </CardTemplate>
