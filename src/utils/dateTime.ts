@@ -28,7 +28,7 @@ export const getDateTimeString = (
   const time = DateTime.fromISO(date, { zone });
   switch (option) {
     case "date":
-      return time.toFormat("d LLL yyyy");
+      return time.toFormat("ccc, d LLL yyyy");
     case "time":
       return time.toFormat("hh:mm a");
     default:
