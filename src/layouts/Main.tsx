@@ -1,7 +1,9 @@
+"use client";
+
 import { Navbar } from "src/components/Navbar";
 import Footer from "src/components/Footer";
 import type { ReactNode } from "react";
-import { useBetaMode } from "src/app/providers";
+import { useBetaMode } from "src/hooks/useBetaMode";
 
 interface MainProps {
   children: ReactNode;

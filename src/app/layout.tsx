@@ -5,7 +5,7 @@ import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import Providers from "./providers";
 import type { Metadata } from "next";
-import { betaMode } from "src/lib/flags";
+import { BetaModeWrapper } from "src/components/BetaModeWrapper";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -114,14 +114,13 @@ const registerServiceWorker = `
   }
 `;
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // Evaluate the beta mode flag on the server
-  const isBetaMode = await betaMode();
-  console.log({ isBetaMode });
+  // We don't need to await the beta mode flag here
+  // The client components will handle this through the context
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
@@ -156,10 +155,12 @@ export default async function RootLayout({
         />
       </head>
       <body className={inter.className}>
-        <Providers isBetaMode={isBetaMode}>
-          <ScrambleProvider>
-            <div vaul-drawer-wrapper="">{children}</div>
-          </ScrambleProvider>
+        <Providers>
+          <BetaModeWrapper>
+            <ScrambleProvider>
+              <div vaul-drawer-wrapper="">{children}</div>
+            </ScrambleProvider>
+          </BetaModeWrapper>
         </Providers>
         <Analytics />
         <SpeedInsights />
