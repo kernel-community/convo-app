@@ -150,15 +150,33 @@ const Where = ({
       <CardContent>
         <div className="rounded-xl bg-slate-400/10 px-2 py-1 text-sm text-gray-500 transition-all duration-300 hover:bg-slate-400/20">
           {(isUserGoing || isOwnerOfConvo) && event.location
-            ? event.location.length > 20
-              ? event.location.substring(0, 20) + "..."
-              : event.location
+            ? (() => {
+                try {
+                  new URL(event.location); // If this succeeds, it's a valid URL
+                  return (
+                    <a
+                      href={event.location}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-500 underline"
+                    >
+                      {event.location.length > 100
+                        ? event.location.substring(0, 100) + "..."
+                        : event.location}
+                    </a>
+                  );
+                } catch {
+                  return event.location.length > 100
+                    ? event.location.substring(0, 100) + "..."
+                    : event.location;
+                }
+              })()
             : null}
+
           {!(isUserGoing || isOwnerOfConvo) && (
             <span className="font-mono text-sm text-gray-500">
               somewhere{" "}
               <span className="italic">
-                {" "}
                 {parseConvoLocation(event.locationType)}
               </span>
             </span>
