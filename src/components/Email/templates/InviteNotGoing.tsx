@@ -2,7 +2,7 @@ import type { EmailTemplateWithEventProps } from "../types";
 import { EmailWrapper } from "../components/EmailWrapper";
 import { EventDetails } from "../components/EventDetails";
 
-export const SUBJECT = "Can&apos;t make it to {{event.title}}";
+export const SUBJECT = "Can't make it to {{event.title}}";
 
 export const InviteNotGoingEmailTemplate: React.FC<
   Readonly<EmailTemplateWithEventProps>
