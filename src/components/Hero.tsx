@@ -171,6 +171,27 @@ const Where = ({
                     : event.location;
                 }
               })()
+            ? (() => {
+                try {
+                  new URL(event.location); // If this succeeds, it's a valid URL
+                  return (
+                    <a
+                      href={event.location}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-500 underline"
+                    >
+                      {event.location.length > 100
+                        ? event.location.substring(0, 100) + "..."
+                        : event.location}
+                    </a>
+                  );
+                } catch {
+                  return event.location.length > 100
+                    ? event.location.substring(0, 100) + "..."
+                    : event.location;
+                }
+              })()
             : null}
 
           {!(isUserGoing || isOwnerOfConvo) && (
