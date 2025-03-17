@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
 import { LogoAnimation } from "./LogoAnimation";
+import BetaBadge from "src/components/ui/beta-badge";
 
 // Props interface for the Branding component
 interface BrandingProps {
@@ -22,11 +23,9 @@ export function Branding({ isBeta }: BrandingProps) {
             </span>
           </div>
         </Link>
-        {isBeta && (
-          <span className="text-right text-sm font-light italic text-emerald-600">
-            in beta
-          </span>
-        )}
+        <div className="flex items-center justify-end">
+          {isBeta && <BetaBadge className="ml-0" />}
+        </div>
       </div>
 
       <LogoAnimation />

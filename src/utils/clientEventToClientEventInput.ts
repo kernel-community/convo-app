@@ -43,6 +43,7 @@ const parse = (event: ClientEvent): ClientEventInput => {
       end: new Date(event.endDateTime),
     },
     recurrenceRule: event.rrule || "",
+    type: event.type,
   };
 };
 

@@ -76,6 +76,7 @@ export const EventFormSection: React.FC<EventFormSectionProps> = ({
               location: generatedLocation || "Somewhere Online",
               nickname: "Anonymous",
               gCalEvent: true,
+              type: "JUNTO",
               sessions: [
                 {
                   dateTime: dateTimeStartAndEnd
