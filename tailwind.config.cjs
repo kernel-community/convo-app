@@ -103,6 +103,9 @@ module.exports = {
       fontSize: {
         xxs: "0.69rem",
       },
+      backgroundSize: {
+        "200": "200% 200%",
+      },
       boxShadow: {
         dark: "0px 30px 41px rgba(33, 33, 68, 0.24)",
         outline: "rgba(6, 24, 44, 0.4) 0px 0px 0px 2px, rgba(6, 24, 44, 0.65) 0px 4px 6px -1px, rgba(255, 255, 255, 0.08) 0px 1px 0px inset",
@@ -121,10 +124,21 @@ module.exports = {
           from: { height: "var(--radix-accordion-content-height)" },
           to: { height: "0" },
         },
+        "pulse-subtle": {
+          "0%, 100%": { opacity: 1 },
+          "50%": { opacity: 0.85 },
+        },
+        "gradient-rotate": {
+          "0%": { backgroundPosition: "0% 50%" },
+          "50%": { backgroundPosition: "100% 50%" },
+          "100%": { backgroundPosition: "0% 50%" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        "pulse-subtle": "pulse-subtle 2s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+        "gradient-rotate": "gradient-rotate 3s ease infinite",
       },
     },
   },

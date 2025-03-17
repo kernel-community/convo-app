@@ -81,6 +81,7 @@ export async function POST(req: NextRequest) {
         startDateTime: new Date(event.dateTimeStartAndEnd.start),
         endDateTime: new Date(event.dateTimeStartAndEnd.end),
         sequence: eventToUpdate.sequence + 1,
+        type: event.type,
       },
       include: {
         proposer: true,
@@ -194,6 +195,7 @@ export async function POST(req: NextRequest) {
       series: event.recurrenceRule ? true : false,
       isDeleted: false,
       sequence: 0,
+      type: event.type,
     },
     include: {
       proposer: true,
