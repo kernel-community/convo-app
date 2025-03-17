@@ -97,7 +97,6 @@ export async function POST(req: NextRequest) {
         collections: true,
         community: {
           include: {
-            google: true,
             slack: true,
           },
         },
