@@ -143,7 +143,7 @@ const Where = ({
         <CardTitle className="text-base">where</CardTitle>
         {!isUserGoing && (
           <CardDescription>
-            <span className="text-xs text-gray-500">RSVP to see location</span>
+            <span className="text-xs text-gray-500"> </span>
           </CardDescription>
         )}
       </CardHeader>
@@ -155,13 +155,7 @@ const Where = ({
               : event.location
             : null}
           {!(isUserGoing || isOwnerOfConvo) && (
-            <span className="font-mono text-sm text-gray-500">
-              somewhere{" "}
-              <span className="italic">
-                {" "}
-                {parseConvoLocation(event.locationType)}
-              </span>
-            </span>
+            <span className="text-sm text-gray-500">RSVP to see location</span>
           )}
         </div>
       </CardContent>
