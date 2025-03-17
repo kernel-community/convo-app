@@ -1,18 +1,18 @@
 import type { FieldErrorsImpl, SubmitHandler } from "react-hook-form";
 import { useForm, Controller } from "react-hook-form";
 import TextField from "./FormFields/TextField";
-import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "../ui/button";
 import { RichTextArea } from "./FormFields/RichText";
 import { upsertConvo } from "src/utils/upsertConvo";
 import LoginButton from "../LoginButton";
 import { useEffect, useMemo, useState } from "react";
-import { Switch } from "../ui/switch";
 import { useUser } from "src/context/UserContext";
+import { useBetaMode } from "src/hooks/useBetaMode";
 import Signature from "../EventPage/Signature";
 import FieldLabel from "../StrongText";
 import type { User } from "@prisma/client";
+import { EventType } from "@prisma/client";
 import { useRouter } from "next/navigation";
 import { ConfirmConvoCredenza } from "./ConfirmConvo";
 import type { ClientEventInput } from "src/types";
@@ -20,6 +20,15 @@ import { clientEventInputValidationScheme } from "src/types";
 import { RecurrenceRuleInput } from "../RecurrenceRuleInput";
 import { DateTimeStartAndEnd } from "../DateTimeStartAndEnd";
 import { DateTime } from "luxon";
+import { Label } from "../ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
+import BetaBadge from "../ui/beta-badge";
 
 const ProposeForm = ({
   event,
@@ -29,6 +38,8 @@ const ProposeForm = ({
   showRecurrenceInput?: boolean;
 }) => {
   const { fetchedUser: user } = useUser();
+  const isBetaMode = useBetaMode();
+  console.log("Beta mode enabled:", isBetaMode);
   const { push } = useRouter();
 
   const {
@@ -205,6 +216,47 @@ const ProposeForm = ({
           errors={errors}
           required={false}
         />
+
+        {/* Event Type - Only visible to beta users */}
+        {isBetaMode && (
+          <div className="space-y-4">
+            <div className="flex flex-col space-y-2">
+              <div className="flex items-center">
+                <Label htmlFor="type" className="font-secondary">
+                  Event Type
+                </Label>
+                <BetaBadge />
+              </div>
+              <Controller
+                name="type"
+                control={control}
+                render={({ field }) => (
+                  <Select
+                    value={field.value || EventType.JUNTO}
+                    onValueChange={(value) =>
+                      field.onChange(value as EventType)
+                    }
+                    defaultValue={EventType.JUNTO}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select event type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value={EventType.JUNTO}>JUNTO</SelectItem>
+                      <SelectItem value={EventType.UNLISTED}>
+                        UNLISTED
+                      </SelectItem>
+                      <SelectItem value={EventType.INTERVIEW}>
+                        INTERVIEW
+                      </SelectItem>
+                      <SelectItem value={EventType.TEST}>TEST</SelectItem>
+                    </SelectContent>
+                  </Select>
+                )}
+              />
+            </div>
+          </div>
+        )}
 
         {user && user.email && (
           <div>
