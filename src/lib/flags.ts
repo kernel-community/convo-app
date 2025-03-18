@@ -43,11 +43,10 @@ export const betaMode = flag<boolean, ConvoEntities>({
   decide({ entities }) {
     const userEmail = entities?.user?.email;
 
-    // Check if user is in beta list, has @kernel.community email, or has +convobeta in email
+    // Check if user is in beta list, has @kernel.community email
     const isEnabled =
       (userEmail && BETA_USERS.includes(userEmail)) ||
-      (userEmail?.endsWith("@kernel.community") ?? false) ||
-      (userEmail?.includes("+convobeta") ?? false);
+      (userEmail?.endsWith("@kernel.community") ?? false);
 
     console.log("[Flags] Beta mode:", {
       isEnabled,
@@ -74,11 +73,10 @@ export const experimentalUI = flag<boolean, ConvoEntities>({
   decide({ entities }) {
     const userEmail = entities?.user?.email;
 
-    // Check if user is in beta list, has @kernel.community email, or has +convobeta in email
+    // Check if user is in beta list, has @kernel.community email
     const isEnabled =
       (userEmail && BETA_USERS.includes(userEmail)) ||
-      (userEmail?.endsWith("@kernel.community") ?? false) ||
-      (userEmail?.includes("+convobeta") ?? false);
+      (userEmail?.endsWith("@kernel.community") ?? false);
 
     console.log("[Flags] Experimental UI:", {
       isEnabled,
