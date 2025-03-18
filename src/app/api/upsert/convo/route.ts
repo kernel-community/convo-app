@@ -4,11 +4,90 @@ import { nanoid } from "nanoid";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { headers } from "next/headers";
-import type { ClientEventInput } from "src/types";
+import type { ClientEventInput, ServerEvent } from "src/types";
 import { sendEventEmail } from "src/utils/email/send";
+import type { Rsvp, User } from "@prisma/client";
 import { RSVP_TYPE } from "@prisma/client";
 import { DateTime } from "luxon";
 import { sendMessage } from "src/utils/slack/sendMessage";
+
+// Helper function to send emails asynchronously without blocking the response
+const sendEmailsAsync = async (
+  event: ServerEvent,
+  proposer: User,
+  goingAttendees: (Rsvp & { attendee: User })[] = [],
+  maybeAttendees: (Rsvp & { attendee: User })[] = [],
+  isUpdate = false
+) => {
+  try {
+    // Send email to proposer
+    await sendEventEmail({
+      event,
+      type: isUpdate ? "update-proposer" : "create",
+      receiver: proposer,
+    });
+
+    // Send emails to attendees who RSVP'd as Going
+    if (goingAttendees.length > 0) {
+      // Collect all email options
+      const goingEmailPromises = goingAttendees.map((rsvp) =>
+        sendEventEmail({
+          event,
+          type: "update-attendee-going",
+          receiver: rsvp.attendee,
+        })
+      );
+
+      // Process in batches to avoid rate limiting
+      for (let i = 0; i < goingEmailPromises.length; i += 10) {
+        const batch = goingEmailPromises.slice(i, i + 10);
+        await Promise.all(batch);
+
+        // Add a small delay between batches to avoid rate limiting
+        if (i + 10 < goingEmailPromises.length) {
+          await new Promise((resolve) => setTimeout(resolve, 500));
+        }
+      }
+    }
+
+    // Send emails to attendees who RSVP'd as Maybe
+    if (maybeAttendees.length > 0) {
+      // Collect all email options
+      const maybeEmailPromises = maybeAttendees.map((rsvp) =>
+        sendEventEmail({
+          event,
+          type: "update-attendee-maybe",
+          receiver: rsvp.attendee,
+        })
+      );
+
+      // Process in batches to avoid rate limiting
+      for (let i = 0; i < maybeEmailPromises.length; i += 10) {
+        const batch = maybeEmailPromises.slice(i, i + 10);
+        await Promise.all(batch);
+
+        // Add a small delay between batches to avoid rate limiting
+        if (i + 10 < maybeEmailPromises.length) {
+          await new Promise((resolve) => setTimeout(resolve, 500));
+        }
+      }
+    }
+
+    // Send notification on a slack channel
+    const headersList = headers();
+    const host = headersList.get("host") ?? "kernel";
+    await sendMessage({
+      event,
+      host,
+      type: isUpdate ? "updated" : "new", // "new" | "reminder" | "updated"
+    });
+
+    console.log("All notifications sent successfully");
+  } catch (error) {
+    console.error("Error sending notifications:", error);
+    // We don't throw here since this is running asynchronously
+  }
+};
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
@@ -103,50 +182,24 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    // Send email for event update to proposer
-    await sendEventEmail({
-      event: updated,
-      type: "update-proposer",
-      receiver: updated.proposer,
-    });
-
-    // Send emails to attendees who RSVP'd as Going
+    // Filter attendees
     const goingAttendees = updated.rsvps.filter(
       (rsvp) => rsvp.rsvpType === RSVP_TYPE.GOING
     );
 
-    await Promise.all(
-      goingAttendees.map((rsvp) =>
-        sendEventEmail({
-          event: updated,
-          type: "update-attendee-going",
-          receiver: rsvp.attendee,
-        })
-      )
-    );
-
-    // Send emails to attendees who RSVP'd as Maybe
     const maybeAttendees = updated.rsvps.filter(
       (rsvp) => rsvp.rsvpType === RSVP_TYPE.MAYBE
     );
 
-    await Promise.all(
-      maybeAttendees.map((rsvp) =>
-        sendEventEmail({
-          event: updated,
-          type: "update-attendee-maybe",
-          receiver: rsvp.attendee,
-        })
-      )
-    );
-
-    // send notification on a slack channel
-    const headersList = headers();
-    const host = headersList.get("host") ?? "kernel";
-    await sendMessage({
-      event: updated,
-      host,
-      type: "updated", // "new" | "reminder" | "updated"
+    // Start sending emails asynchronously without awaiting
+    sendEmailsAsync(
+      updated,
+      updated.proposer,
+      goingAttendees,
+      maybeAttendees,
+      true
+    ).catch((error) => {
+      console.error("Background email sending failed:", error);
     });
 
     return NextResponse.json(updated);
@@ -216,21 +269,9 @@ export async function POST(req: NextRequest) {
     },
   });
 
-  // Send email for event creation
-  await sendEventEmail({
-    event: created,
-    type: "create",
-    receiver: user,
-  });
-
-  // send notification on a slack channel
-  const headersList = headers();
-  const host = headersList.get("host") ?? "kernel";
-
-  await sendMessage({
-    event: created,
-    host,
-    type: "new", // "new" | "reminder" | "updated"
+  // Start sending emails asynchronously without awaiting
+  sendEmailsAsync(created, user).catch((error) => {
+    console.error("Background email sending failed:", error);
   });
 
   return NextResponse.json(created);
