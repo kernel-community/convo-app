@@ -14,6 +14,7 @@ import ConfirmDeleteCredenza from "src/components/EventPage/ConfirmDelete";
 import { useRouter } from "next/navigation";
 import type { ClientEventInput } from "src/types";
 import { upsertConvo } from "src/utils/upsertConvo";
+import { useBetaMode } from "src/app/providers";
 
 const Edit = ({ params }: { params: { eventHash: string } }) => {
   const { push } = useRouter();
@@ -27,6 +28,7 @@ const Edit = ({ params }: { params: { eventHash: string } }) => {
   const [isInvalidRequest, setInvalidRequest] = useState(false);
   const [openModalFlag, setOpenModalFlag] = useState<boolean>(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const isBetaMode = useBetaMode();
 
   // check to see if eventHash from query exists in the database
   // parse and pre-fill event data in the form
@@ -37,10 +39,10 @@ const Edit = ({ params }: { params: { eventHash: string } }) => {
   console.log({ clientEventInput });
 
   useEffect(() => {
-    if (data && user && user.id !== data.proposerId) {
+    if (data && user && user.id !== data.proposerId && !isBetaMode) {
       setInvalidRequest(true);
     }
-  }, [user, data]);
+  }, [user, data, isBetaMode]);
 
   if (isEventLoading || !user) {
     return (
