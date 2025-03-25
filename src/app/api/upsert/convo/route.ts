@@ -10,6 +10,10 @@ import type { Rsvp, User } from "@prisma/client";
 import { RSVP_TYPE } from "@prisma/client";
 import { DateTime } from "luxon";
 import { sendMessage } from "src/utils/slack/sendMessage";
+import {
+  scheduleReminderEmails,
+  cancelReminderEmails,
+} from "src/utils/email/scheduleReminders";
 
 // Helper function to send emails asynchronously without blocking the response
 const sendEmailsAsync = async (
@@ -202,6 +206,46 @@ export async function POST(req: NextRequest) {
       console.error("Background email sending failed:", error);
     });
 
+    // Cancel existing reminder emails and schedule new ones
+    // We do this in the background to avoid blocking the response
+    (async () => {
+      try {
+        // Cancel existing reminder emails
+        await cancelReminderEmails(updated.id);
+
+        // Schedule new reminder emails for the proposer and attendees
+        const allRecipients = [
+          updated.proposer,
+          ...goingAttendees.map((rsvp) => rsvp.attendee),
+          ...maybeAttendees.map((rsvp) => rsvp.attendee),
+        ];
+
+        // Schedule reminders for each recipient individually
+        for (const recipient of allRecipients) {
+          // Determine if this recipient is a "maybe" attendee
+          const isMaybeAttendee = maybeAttendees.some(
+            (rsvp) => rsvp.attendee.id === recipient.id
+          );
+
+          await scheduleReminderEmails({
+            event: updated,
+            recipient,
+            isProposer: recipient.id === updated.proposerId,
+            isMaybe: isMaybeAttendee,
+          });
+        }
+
+        console.log(
+          `Rescheduled reminder emails for updated event ${updated.id}`
+        );
+      } catch (error) {
+        console.error(
+          `Error rescheduling reminder emails for updated event ${updated.id}:`,
+          error
+        );
+      }
+    })();
+
     return NextResponse.json(updated);
   }
 
@@ -273,6 +317,28 @@ export async function POST(req: NextRequest) {
   sendEmailsAsync(created, user).catch((error) => {
     console.error("Background email sending failed:", error);
   });
+
+  // Schedule reminder emails
+  // We do this in the background to avoid blocking the response
+  (async () => {
+    try {
+      // Schedule reminder emails for the proposer with custom subject line
+      await scheduleReminderEmails({
+        event: created,
+        recipient: user,
+        isProposer: true,
+      });
+
+      console.log(
+        `Scheduled reminder emails for proposer of new event ${created.id}`
+      );
+    } catch (error) {
+      console.error(
+        `Error scheduling reminder emails for new event ${created.id}:`,
+        error
+      );
+    }
+  })();
 
   return NextResponse.json(created);
 }

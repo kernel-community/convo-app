@@ -2,6 +2,7 @@ import { RSVP_TYPE } from "@prisma/client";
 import { NextResponse } from "next/server";
 import { prisma } from "src/utils/db";
 import { sendEventEmail } from "src/utils/email/send";
+import { cancelReminderEmails } from "src/utils/email/scheduleReminders";
 
 export async function POST(request: Request) {
   const { eventHash } = await request.json();
@@ -66,6 +67,19 @@ export async function POST(request: Request) {
           })
         )
     );
+
+    // Cancel any scheduled reminder emails
+    try {
+      await cancelReminderEmails(updated.id);
+      console.log(`Cancelled reminder emails for deleted event ${updated.id}`);
+    } catch (error) {
+      console.error(
+        `Error cancelling reminder emails for deleted event ${updated.id}:`,
+        error
+      );
+      // Don't throw here, as we still want to return success for the deletion
+    }
+
     return NextResponse.json({ success: true, event: updated });
   } catch (error) {
     console.error("Error marking event as deleted:", error);

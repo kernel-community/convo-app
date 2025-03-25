@@ -5,6 +5,10 @@ import { NextResponse } from "next/server";
 import { sendEventEmail } from "src/utils/email/send";
 import { RSVP_TYPE } from "@prisma/client";
 import { rsvpTypeToEmailType } from "src/utils/rsvpTypetoEmailType";
+import {
+  scheduleReminderEmails,
+  cancelReminderEmailsForUser,
+} from "src/utils/email/scheduleReminders";
 
 type RsvpRequest = {
   userId: string;
@@ -82,5 +86,31 @@ export async function POST(req: NextRequest) {
   });
   console.log(`sent email to ${user.email} for event ${rsvp.eventId}`);
   console.log({ data });
+
+  // Handle reminder emails based on RSVP type
+  try {
+    if (rsvp.type === RSVP_TYPE.GOING || rsvp.type === RSVP_TYPE.MAYBE) {
+      // Schedule reminder emails for the attendee
+      await scheduleReminderEmails({
+        event,
+        recipient: user,
+        isProposer: event.proposerId === user.id,
+        isMaybe: rsvp.type === RSVP_TYPE.MAYBE,
+      });
+      console.log(
+        `Scheduled reminder emails for user ${user.id} for event ${event.id} (${rsvp.type})`
+      );
+    } else if (rsvp.type === RSVP_TYPE.NOT_GOING) {
+      // Cancel any existing reminder emails for this user
+      await cancelReminderEmailsForUser(event.id, user.id);
+      console.log(
+        `Cancelled reminder emails for user ${user.id} for event ${event.id}`
+      );
+    }
+  } catch (error) {
+    console.error(`Error handling reminder emails for RSVP:`, error);
+    // Don't throw here, as we still want to return success for the RSVP
+  }
+
   return NextResponse.json({ data: rsvp.eventId });
 }
