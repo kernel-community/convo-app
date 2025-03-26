@@ -43,6 +43,7 @@ model Event {
   descriptionHtml    String?
   startDateTime      DateTime
   endDateTime        DateTime
+  creationTimezone   String?
   location           String
   locationType       LocationType         @default(ONLINE)
   hash               String // @note deprecated
