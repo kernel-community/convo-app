@@ -1,5 +1,6 @@
 
 > _Why are we alive if not to make connections?_
+> _What am **I**, if not, in relation with **you**?_
 
 ## App
 - Prod (deploying from `main` branch): https://www.convo.cafe
