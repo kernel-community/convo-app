@@ -1,6 +1,6 @@
 import Main from "src/layouts/Main";
 import EventWrapper from "src/components/EventPage/EventWrapper";
-import type { Metadata, ResolvingMetadata } from "next";
+import type { Metadata } from "next";
 
 import { notFound } from "next/navigation";
 
@@ -11,23 +11,17 @@ type Props = {
 // Remove generateStaticParams completely and rely only on ISR
 export const revalidate = 3600; // revalidate every hour
 
-export async function generateMetadata(
-  { params }: Props,
-  parent: ResolvingMetadata
-): Promise<Metadata> {
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://www.convo.cafe";
 
   try {
-    // Parallelize the requests
-    const [parentMetadata, response] = await Promise.all([
-      parent,
-      fetch(`${baseUrl}/api/query/getEventByHash`, {
-        body: JSON.stringify({ hash: params.eventHash }),
-        method: "POST",
-        headers: { "Content-type": "application/json" },
-        next: { revalidate: 3600 },
-      }),
-    ]);
+    // Fetch the event data
+    const response = await fetch(`${baseUrl}/api/query/getEventByHash`, {
+      body: JSON.stringify({ hash: params.eventHash }),
+      method: "POST",
+      headers: { "Content-type": "application/json" },
+      next: { revalidate: 3600 },
+    });
 
     if (!response.ok) {
       notFound();
@@ -35,7 +29,6 @@ export async function generateMetadata(
 
     const eventResponse = await response.json();
     const event = eventResponse.data;
-    const previousImages = parentMetadata.openGraph?.images || [];
 
     // Enhanced metadata for better SEO
     const formattedDate = event.startDateTime
@@ -63,6 +56,10 @@ export async function generateMetadata(
     }
     if (event.proposer?.nickname) {
       imageUrl.searchParams.set("proposerNickname", event.proposer.nickname);
+    }
+    // Pass the creation timezone if available
+    if (event.creationTimezone) {
+      imageUrl.searchParams.set("creationTimezone", event.creationTimezone);
     }
 
     return {

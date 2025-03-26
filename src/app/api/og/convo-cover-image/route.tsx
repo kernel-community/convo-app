@@ -71,6 +71,7 @@ export async function GET(req: NextRequest) {
   const recurrenceRule = searchParams.get("recurrenceRule");
   const proposerNickname = searchParams.get("proposerNickname");
   const eventHash = searchParams.get("eventHash");
+  const creationTimezone = searchParams.get("creationTimezone");
 
   // Get the domain from environment variable
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://www.convo.cafe";
@@ -88,9 +89,20 @@ export async function GET(req: NextRequest) {
     await loadFonts();
 
   // Format date and time
-  const dt = DateTime.fromISO(startDateTime);
+  let dt = DateTime.fromISO(startDateTime);
+
+  // If we have a creation timezone, use it to format the time
+  if (creationTimezone) {
+    dt = dt.setZone(creationTimezone);
+  }
+
   const formattedDate = dt.toFormat("cccc, LLLL d");
-  const formattedTime = dt.toFormat("h:mm a ZZZZ");
+  const formattedTime = dt.toFormat("h:mm a");
+
+  // Add the timezone name to the formatted time
+  const timezoneName = creationTimezone
+    ? ` (${creationTimezone.replace(/\//g, " ")})`
+    : ` (UTC${dt.toFormat("ZZ")})`;
 
   // Generate QR code for the RSVP URL
   const rsvpUrl = `${baseUrl}/rsvp/${eventHash}`;
@@ -165,42 +177,82 @@ export async function GET(req: NextRequest) {
               flexDirection: "column",
               alignItems: "center",
               justifyContent: "center",
-              gap: "2rem",
+              gap: "1.5rem",
               flex: 1,
               width: "100%",
               maxWidth: "85%",
             }}
           >
-            {/* Title */}
+            {/* Title and Proposer Container */}
             <div
               style={{
                 display: "flex",
+                flexDirection: "column",
                 justifyContent: "center",
                 alignItems: "center",
-                fontSize: title.length > 50 ? 64 : 72,
-                textAlign: "center",
-                lineHeight: 1.2,
-                fontFamily: "Lora Medium Italic",
                 width: "100%",
-                minHeight: title.length > 50 ? 180 : 140,
-                maxHeight: 200,
                 position: "relative",
                 zIndex: 1,
               }}
             >
+              {/* Title */}
               <div
                 style={{
-                  maxWidth: "90%",
-                  padding: "0.2em",
-                  display: "-webkit-box",
-                  WebkitLineClamp: title.length > 50 ? 3 : 2,
-                  WebkitBoxOrient: "vertical",
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  fontSize: title.length > 50 ? 64 : 72,
+                  textAlign: "center",
+                  lineHeight: 1.2,
+                  fontFamily: "Lora Medium Italic",
+                  width: "100%",
+                  minHeight: proposerNickname
+                    ? title.length > 50
+                      ? 150
+                      : 120
+                    : title.length > 50
+                    ? 180
+                    : 140,
+                  maxHeight: proposerNickname ? 160 : 200,
                 }}
               >
-                {title}
+                <div
+                  style={{
+                    maxWidth: "90%",
+                    padding: "0.2em",
+                    display: "-webkit-box",
+                    WebkitLineClamp: proposerNickname
+                      ? title.length > 50
+                        ? 2
+                        : 2
+                      : title.length > 50
+                      ? 3
+                      : 2,
+                    WebkitBoxOrient: "vertical",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                  }}
+                >
+                  {title}
+                </div>
               </div>
+
+              {/* Proposer - positioned directly under the title */}
+              {proposerNickname && (
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: 24,
+                    color: "rgb(128, 128, 128)",
+                    marginTop: "0.5rem",
+                    marginBottom: "0.5rem",
+                  }}
+                >
+                  <span>by {proposerNickname}</span>
+                </div>
+              )}
             </div>
 
             {/* Date and Time */}
@@ -224,7 +276,10 @@ export async function GET(req: NextRequest) {
               >
                 <span>{formattedDate}</span>
                 <span style={{ color: "rgb(217, 204, 191)" }}>|</span>
-                <span>{formattedTime}</span>
+                <span>
+                  {formattedTime}
+                  {timezoneName}
+                </span>
               </div>
 
               {recurrenceRule && (
@@ -240,20 +295,7 @@ export async function GET(req: NextRequest) {
               )}
             </div>
 
-            {/* Proposer */}
-            {proposerNickname && (
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "0.5rem",
-                  fontSize: 24,
-                  color: "rgb(128, 128, 128)",
-                }}
-              >
-                <span>by {proposerNickname}</span>
-              </div>
-            )}
+            {/* Proposer is now moved up directly under the title */}
           </div>
 
           {/* Bottom bar with RSVP link, QR code, and Convo Cafe */}
