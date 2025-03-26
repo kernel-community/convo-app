@@ -15,13 +15,25 @@ export const upsertConvo = async (event: ClientEventInput, userId?: string) => {
   }
 
   try {
+    // Only include the timezone for new events (no ID means it's a new event)
+    let eventToSend = event;
+
+    if (!event.id) {
+      // This is a new event, so include the timezone
+      const creationTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      eventToSend = {
+        ...event,
+        creationTimezone,
+      };
+    }
+
     const response = await fetch("/api/upsert/convo", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        event,
+        event: eventToSend,
         userId,
       }),
     });

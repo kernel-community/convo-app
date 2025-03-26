@@ -165,6 +165,8 @@ export async function POST(req: NextRequest) {
         endDateTime: new Date(event.dateTimeStartAndEnd.end),
         sequence: eventToUpdate.sequence + 1,
         type: event.type,
+        // Preserve the original creation timezone - don't update it
+        // We'll only add a UI for changing timezone later if needed
       },
       include: {
         proposer: true,
@@ -276,6 +278,9 @@ export async function POST(req: NextRequest) {
     console.log("Created new kernel community:", community.id);
   }
 
+  // The creationTimezone is now part of the event object
+  // It was captured on the client side to ensure we're using the user's actual timezone
+
   const created = await prisma.event.create({
     data: {
       title: event.title,
@@ -292,6 +297,7 @@ export async function POST(req: NextRequest) {
       isDeleted: false,
       sequence: 0,
       type: event.type,
+      creationTimezone: event.creationTimezone, // Store the timezone the event was created in
     },
     include: {
       proposer: true,
