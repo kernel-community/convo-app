@@ -280,7 +280,6 @@ export async function POST(req: NextRequest) {
 
   // The creationTimezone is now part of the event object
   // It was captured on the client side to ensure we're using the user's actual timezone
-
   const created = await prisma.event.create({
     data: {
       title: event.title,
