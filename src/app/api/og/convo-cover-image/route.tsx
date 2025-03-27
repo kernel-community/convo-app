@@ -99,10 +99,8 @@ export async function GET(req: NextRequest) {
   const formattedDate = dt.toFormat("cccc, LLLL d");
   const formattedTime = dt.toFormat("h:mm a");
 
-  // Add the timezone name to the formatted time
-  const timezoneName = creationTimezone
-    ? ` (${creationTimezone.replace(/\//g, " ")})`
-    : ` (UTC${dt.toFormat("ZZ")})`;
+  // Add the timezone abbreviation to the formatted time (3-letter format)
+  const timezoneName = ` (${dt.toFormat("z")})`;
 
   // Generate QR code for the RSVP URL
   const rsvpUrl = `${baseUrl}/rsvp/${eventHash}`;
@@ -276,10 +274,26 @@ export async function GET(req: NextRequest) {
               >
                 <span>{formattedDate}</span>
                 <span style={{ color: "rgb(217, 204, 191)" }}>|</span>
-                <span>
-                  {formattedTime}
-                  {timezoneName}
-                </span>
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                  }}
+                >
+                  <span style={{ color: "rgb(128, 128, 128)" }}>
+                    {formattedTime}
+                  </span>
+                  <span
+                    style={{
+                      fontSize: 14,
+                      color: "rgb(160, 160, 160)",
+                      marginTop: "0rem",
+                    }}
+                  >
+                    {timezoneName}
+                  </span>
+                </div>
               </div>
 
               {recurrenceRule && (
