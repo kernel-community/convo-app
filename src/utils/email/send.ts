@@ -112,7 +112,6 @@ export const sendEventEmail = async ({
       },
     ],
   };
-  console.log({ opts });
   // If returnOptionsOnly is true, just return the options without sending
   if (returnOptionsOnly) {
     return opts;
