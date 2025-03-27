@@ -90,15 +90,18 @@ export async function POST(req: NextRequest) {
   // Handle reminder emails based on RSVP type
   try {
     if (rsvp.type === RSVP_TYPE.GOING || rsvp.type === RSVP_TYPE.MAYBE) {
-      // Schedule reminder emails for the attendee
-      await scheduleReminderEmails({
+      // Schedule reminder emails for the attendee asynchronously without blocking the response
+      // This prevents users from seeing a loading state while emails are being scheduled
+      scheduleReminderEmails({
         event,
         recipient: user,
         isProposer: event.proposerId === user.id,
         isMaybe: rsvp.type === RSVP_TYPE.MAYBE,
+      }).catch((error) => {
+        console.error(`Error scheduling reminder emails: ${error}`);
       });
       console.log(
-        `Scheduled reminder emails for user ${user.id} for event ${event.id} (${rsvp.type})`
+        `Scheduling reminder emails for user ${user.id} for event ${event.id} (${rsvp.type})`
       );
     } else if (rsvp.type === RSVP_TYPE.NOT_GOING) {
       // Cancel any existing reminder emails for this user

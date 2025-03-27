@@ -110,7 +110,12 @@ export const scheduleReminderEmails = async ({
   // Create emails for the recipient
   const createdEmails: Email[] = [];
 
-  for (const reminder of remindersToSchedule) {
+  // Process reminders with rate limiting
+  for (let i = 0; i < remindersToSchedule.length; i++) {
+    // Safe to access as we're iterating within the array bounds
+    const reminder = remindersToSchedule[i];
+    // Skip if reminder is undefined (shouldn't happen but TypeScript needs this check)
+    if (!reminder) continue;
     try {
       // Get email template and subject
       const basicProps = { firstName: recipient.nickname };
@@ -170,6 +175,12 @@ export const scheduleReminderEmails = async ({
         scheduledAt: reminder.scheduledTime.toISOString(),
       });
 
+      // Add a timeout between requests to respect Resend's rate limit of 2 requests per second
+      // Only add timeout if there are more reminders to process
+      if (i < remindersToSchedule.length - 1) {
+        await new Promise((resolve) => setTimeout(resolve, 500)); // 500ms delay for 2 req/sec rate limit
+      }
+
       if (error) {
         console.error("Failed to schedule reminder email:", error);
         continue;
@@ -228,7 +239,12 @@ export const scheduleReminderEmailsForMultipleRecipients = async ({
 }): Promise<Email[]> => {
   const createdEmails: Email[] = [];
 
-  for (const attendee of attendees) {
+  // Process attendees with rate limiting
+  for (let i = 0; i < attendees.length; i++) {
+    // Safe to access as we're iterating within the array bounds
+    const attendee = attendees[i];
+    // Skip if attendee is undefined (shouldn't happen but TypeScript needs this check)
+    if (!attendee) continue;
     const emails = await scheduleReminderEmails({
       event,
       recipient: attendee,
@@ -236,6 +252,17 @@ export const scheduleReminderEmailsForMultipleRecipients = async ({
     });
 
     createdEmails.push(...emails);
+
+    // Add a timeout between processing attendees to respect Resend's rate limit
+    // Only add timeout if there are more attendees to process
+    if (i < attendees.length - 1) {
+      console.log(
+        `Processed reminders for attendee ${i + 1}/${
+          attendees.length
+        }, waiting before next attendee...`
+      );
+      await new Promise((resolve) => setTimeout(resolve, 500)); // 500ms delay for 2 req/sec rate limit
+    }
   }
 
   return createdEmails;
@@ -341,7 +368,20 @@ export const cancelReminderEmailsForUser = async (
 /**
  * Maps the email template type to the database EmailType enum
  */
-function mapEmailTypeToDbType(type: EmailType): any {
+// Define a type for the database email types to match Prisma's EmailType enum
+type DbEmailType =
+  | "CREATE"
+  | "INVITE"
+  | "UPDATE"
+  | "REMINDER24HR"
+  | "REMINDER1HR"
+  | "REMINDER1MIN"
+  | "REMINDER1HRPROPOSER";
+
+/**
+ * Maps the email template type to the database EmailType enum
+ */
+function mapEmailTypeToDbType(type: EmailType): DbEmailType {
   switch (type) {
     case "reminder1hr":
       return "REMINDER1HR";

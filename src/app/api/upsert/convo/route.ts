@@ -223,22 +223,28 @@ export async function POST(req: NextRequest) {
         ];
 
         // Schedule reminders for each recipient individually
-        for (const recipient of allRecipients) {
-          // Determine if this recipient is a "maybe" attendee
-          const isMaybeAttendee = maybeAttendees.some(
-            (rsvp) => rsvp.attendee.id === recipient.id
-          );
+        // Schedule reminder emails asynchronously without blocking the response
+        // This prevents users from seeing a loading state while emails are being scheduled
+        Promise.all(
+          allRecipients.map(async (recipient) => {
+            // Determine if this recipient is a "maybe" attendee
+            const isMaybeAttendee = maybeAttendees.some(
+              (rsvp) => rsvp.attendee.id === recipient.id
+            );
 
-          await scheduleReminderEmails({
-            event: updated,
-            recipient,
-            isProposer: recipient.id === updated.proposerId,
-            isMaybe: isMaybeAttendee,
-          });
-        }
+            return scheduleReminderEmails({
+              event: updated,
+              recipient,
+              isProposer: recipient.id === updated.proposerId,
+              isMaybe: isMaybeAttendee,
+            });
+          })
+        ).catch((error) => {
+          console.error(`Error scheduling reminder emails: ${error}`);
+        });
 
         console.log(
-          `Rescheduled reminder emails for updated event ${updated.id}`
+          `Scheduling reminder emails for updated event ${updated.id}`
         );
       } catch (error) {
         console.error(
@@ -325,25 +331,25 @@ export async function POST(req: NextRequest) {
 
   // Schedule reminder emails
   // We do this in the background to avoid blocking the response
-  (async () => {
-    try {
-      // Schedule reminder emails for the proposer with custom subject line
-      await scheduleReminderEmails({
-        event: created,
-        recipient: user,
-        isProposer: true,
-      });
-
+  Promise.all([
+    // Schedule reminder emails for the proposer with custom subject line
+    scheduleReminderEmails({
+      event: created,
+      recipient: user,
+      isProposer: true,
+    }),
+  ])
+    .then(() => {
       console.log(
         `Scheduled reminder emails for proposer of new event ${created.id}`
       );
-    } catch (error) {
+    })
+    .catch((error) => {
       console.error(
         `Error scheduling reminder emails for new event ${created.id}:`,
         error
       );
-    }
-  })();
+    });
 
   return NextResponse.json(created);
 }
