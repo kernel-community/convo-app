@@ -34,10 +34,35 @@ export async function GET(request: Request) {
   }`;
 
   try {
+    // Sample attendees for testing
+    const sampleAttendees = [
+      {
+        id: "attendee-1",
+        nickname: "Jane Smith",
+        rsvpStatus: "GOING" as const,
+      },
+      {
+        id: "attendee-2",
+        nickname: "John Doe",
+        rsvpStatus: "GOING" as const,
+      },
+      {
+        id: "attendee-3",
+        nickname: "Alex Johnson",
+        rsvpStatus: "MAYBE" as const,
+      },
+      {
+        id: "attendee-4",
+        nickname: "Sam Wilson",
+        rsvpStatus: "NOT_GOING" as const,
+      },
+    ];
+
     // Get the email template
     const { template, subject } = getEmailTemplateFromType(type as EmailType, {
       firstName: "Test User",
       event: sampleEvent,
+      attendees: sampleAttendees,
     });
 
     // Render the email template to HTML
@@ -128,12 +153,18 @@ export async function GET(request: Request) {
                 <option value="reminder24hr" ${
                   type === "reminder24hr" ? "selected" : ""
                 }>24 Hour Reminder</option>
+                <option value="reminder72hr" ${
+                  type === "reminder72hr" ? "selected" : ""
+                }>72 Hour Reminder</option>
                 <option value="reminder1min" ${
                   type === "reminder1min" ? "selected" : ""
                 }>1 Minute Reminder</option>
                 <option value="reminder1hrProposer" ${
                   type === "reminder1hrProposer" ? "selected" : ""
                 }>1 Hour Reminder (Proposer)</option>
+                <option value="reminder72hrProposer" ${
+                  type === "reminder72hrProposer" ? "selected" : ""
+                }>72 Hour Reminder (Proposer)</option>
                 <option value="create" ${
                   type === "create" ? "selected" : ""
                 }>Create Event</option>

@@ -1,4 +1,4 @@
-import { EventType, LocationType } from "@prisma/client";
+import type { EventType, LocationType } from "@prisma/client";
 
 export interface ConvoEvent {
   id: string;
@@ -16,6 +16,8 @@ export interface ConvoEvent {
   type: EventType;
   proposerId: string;
   proposerName: string; // From User relation
+  creationTimezone?: string;
+  startTime?: Date; // For date formatting
 }
 
 export interface EmailTemplateProps {
@@ -24,4 +26,9 @@ export interface EmailTemplateProps {
 
 export interface EmailTemplateWithEventProps extends EmailTemplateProps {
   event: ConvoEvent;
+  attendees?: Array<{
+    id: string;
+    nickname: string;
+    rsvpStatus: "GOING" | "MAYBE" | "NOT_GOING";
+  }>;
 }

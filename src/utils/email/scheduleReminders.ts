@@ -41,11 +41,9 @@ export const scheduleReminderEmails = async ({
   }
 
   // Calculate reminder times
-  const oneHourBefore = new Date(
-    event.startDateTime.getTime() - 60 * 60 * 1000
-  );
-  const twentyFourHoursBefore = new Date(
-    event.startDateTime.getTime() - 24 * 60 * 60 * 1000
+  const oneMinuteBefore = new Date(event.startDateTime.getTime() - 60 * 1000);
+  const seventyTwoHoursBefore = new Date(
+    event.startDateTime.getTime() - 72 * 60 * 60 * 1000
   );
 
   // Don't schedule reminders that are in the past
@@ -54,18 +52,25 @@ export const scheduleReminderEmails = async ({
     scheduledTime: Date;
   }[] = [];
 
-  if (oneHourBefore > now) {
+  if (oneMinuteBefore > now) {
     remindersToSchedule.push({
-      type: "reminder1hr",
-      scheduledTime: oneHourBefore,
+      type: "reminder1min",
+      scheduledTime: oneMinuteBefore,
     });
   }
 
-  if (twentyFourHoursBefore > now) {
-    remindersToSchedule.push({
-      type: "reminder24hr",
-      scheduledTime: twentyFourHoursBefore,
-    });
+  if (seventyTwoHoursBefore > now) {
+    if (isProposer) {
+      remindersToSchedule.push({
+        type: "reminder72hrProposer",
+        scheduledTime: seventyTwoHoursBefore,
+      });
+    } else {
+      remindersToSchedule.push({
+        type: "reminder72hr",
+        scheduledTime: seventyTwoHoursBefore,
+      });
+    }
   }
 
   if (remindersToSchedule.length === 0) {
@@ -376,7 +381,9 @@ type DbEmailType =
   | "REMINDER24HR"
   | "REMINDER1HR"
   | "REMINDER1MIN"
-  | "REMINDER1HRPROPOSER";
+  | "REMINDER1HRPROPOSER"
+  | "REMINDER72HR"
+  | "REMINDER72HRPROPOSER";
 
 /**
  * Maps the email template type to the database EmailType enum
@@ -391,6 +398,10 @@ function mapEmailTypeToDbType(type: EmailType): DbEmailType {
       return "REMINDER1MIN";
     case "reminder1hrProposer":
       return "REMINDER1HRPROPOSER";
+    case "reminder72hr":
+      return "REMINDER72HR";
+    case "reminder72hrProposer":
+      return "REMINDER72HRPROPOSER";
     case "create":
       return "CREATE";
     case "invite-going":
@@ -401,6 +412,11 @@ function mapEmailTypeToDbType(type: EmailType): DbEmailType {
     case "update-attendee-going":
     case "update-attendee-maybe":
       return "UPDATE";
+    case "deleted-proposer":
+    case "deleted-attendee":
+      return "UPDATE"; // Using UPDATE type for deletion emails
+    case "proposer-message":
+      return "UPDATE"; // Using UPDATE type for proposer messages
     default:
       throw new Error(`Unknown email type: ${type}`);
   }

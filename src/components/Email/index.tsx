@@ -4,6 +4,14 @@ import {
   SUBJECT as Reminder24hrEmailTemplateSubject,
 } from "./templates/Reminder24hr";
 import {
+  Reminder72hrEmailTemplate,
+  SUBJECT as Reminder72hrEmailTemplateSubject,
+} from "./templates/Reminder72hr";
+import {
+  Reminder72hrProposerEmailTemplate,
+  SUBJECT as Reminder72hrProposerEmailTemplateSubject,
+} from "./templates/Reminder72hrProposer";
+import {
   CreateEmailTemplate,
   SUBJECT as CreateEmailTemplateSubject,
 } from "./templates/Create";
@@ -73,6 +81,8 @@ export type EmailType =
   | "reminder1hr"
   | "reminder1min"
   | "reminder1hrProposer"
+  | "reminder72hr"
+  | "reminder72hrProposer"
   | "invite-going"
   | "invite-maybe"
   | "invite-not-going"
@@ -87,14 +97,33 @@ export const getEmailTemplateFromType = (
   template: React.ReactNode;
   subject: string;
 } => {
-  const { firstName, event } = props;
-  const basicProps = { firstName };
+  // Extract props safely with type checking
+  const firstName = "firstName" in props ? props.firstName : "";
+  const event = "event" in props ? props.event : undefined;
 
   switch (type) {
     case "create":
       return {
         template: CreateEmailTemplate({ ...props }),
         subject: CreateEmailTemplateSubject,
+      };
+    case "reminder72hr":
+      return {
+        template: Reminder72hrEmailTemplate({
+          ...(props as EmailTemplateWithEventProps),
+        }),
+        subject: Reminder72hrEmailTemplateSubject.replace(
+          "{proposerName}",
+          (props as EmailTemplateWithEventProps).event.proposerName ||
+            "Your Host"
+        ),
+      };
+    case "reminder72hrProposer":
+      return {
+        template: Reminder72hrProposerEmailTemplate({
+          ...(props as EmailTemplateWithEventProps),
+        }),
+        subject: Reminder72hrProposerEmailTemplateSubject,
       };
     case "invite-going":
       return {
