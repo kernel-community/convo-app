@@ -101,8 +101,6 @@ export async function POST(request: Request) {
       return NextResponse.json({ start: null, end: null });
     }
 
-    console.log("Raw OpenAI response:", { parsed, content });
-
     // Instead of parsing and reformatting, just validate the format
     const isValidDateFormat = (dateStr: string) => {
       return /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}[+-]\d{2}:\d{2}$/.test(

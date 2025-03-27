@@ -23,7 +23,6 @@ export async function parseDateTime(
     nowDateISO: nowDate.toISOString(),
   });
   const formattedNow = formatWithTimezone(nowDate, tzOffset);
-  console.log("after formatWithTimezone:", { formattedNow });
   try {
     // Get the base URL from environment or use a default for local development
     const baseUrl =

@@ -73,10 +73,8 @@ export const SessionsWrapper = ({
       }
     }
   };
-  console.log("sessions", sessions);
 
   useEffect(() => {
-    console.log("sessions", sessions);
     setRsvpIntention({
       ...rsvpIntention,
       eventId: sessions[0] ? sessions[0].id : "",

@@ -25,7 +25,6 @@ export async function parseLocation(text: string): Promise<string | null> {
     const data = await response.json();
     if (!data) return null;
     if (!data.location) return null;
-    console.log({ data });
     return data.location || null;
   } catch (error) {
     console.error("Error parsing location:", error);
