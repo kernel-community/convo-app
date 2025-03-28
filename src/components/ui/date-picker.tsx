@@ -2,12 +2,14 @@ import { format } from "date-fns";
 import { useMediaQuery } from "src/hooks/useMediaQuery";
 import { cn } from "src/lib/utils";
 import { Button } from "src/components/ui/button";
+import { Calendar as CalendarIcon } from "lucide-react";
 import { Calendar } from "src/components/ui/calendar";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "src/components/ui/popover";
+
 export const DatePicker = ({
   date,
   setDate,
@@ -41,17 +43,14 @@ export const DatePicker = ({
         <Button
           variant="outline"
           className={cn(
-            "w-[150px] justify-start p-2 text-left font-normal sm:w-[240px]",
+            "w-full justify-start p-2 text-left font-normal",
             !date && "text-muted-foreground"
           )}
           disabled={disabled}
         >
+          <CalendarIcon className="mr-2 h-4 w-4 text-success" />
           {date && !disabled ? (
-            isDesktop ? (
-              format(date, "PPP")
-            ) : (
-              format(date, "PP")
-            )
+            format(date, "EEE, MMM d")
           ) : (
             <span>Pick a date</span>
           )}

@@ -2,8 +2,9 @@
 
 import * as React from "react";
 import { format } from "date-fns";
+import { Clock } from "lucide-react";
 import { cn } from "src/lib/utils";
-import { Input } from "./input";
+import { Input } from "src/components/ui/input";
 
 interface TimePickerDropdownProps {
   date?: Date;
@@ -192,20 +193,23 @@ export function TimePickerDropdown({ date, setDate }: TimePickerDropdownProps) {
   const filteredOptions = timeOptions;
 
   return (
-    <div className="relative w-[140px]">
-      <Input
-        ref={inputRef}
-        type="text"
-        value={inputValue}
-        onChange={handleInputChange}
-        onFocus={() => setOpen(true)}
-        onBlur={() => {
-          // Small delay to allow for option clicks
-          setTimeout(() => setOpen(false), 200);
-        }}
-        placeholder="Enter time..."
-        className="w-full p-2"
-      />
+    <div className="relative w-[110px]">
+      <div className="relative flex w-full items-center">
+        <Clock className="absolute left-2 h-4 w-4 text-success" />
+        <Input
+          ref={inputRef}
+          type="text"
+          value={inputValue}
+          onChange={handleInputChange}
+          onFocus={() => setOpen(true)}
+          onBlur={() => {
+            // Small delay to allow for option clicks
+            setTimeout(() => setOpen(false), 200);
+          }}
+          placeholder="Enter time..."
+          className="w-full py-2 pl-8 pr-4"
+        />
+      </div>
       {open && (
         <div className="absolute left-0 top-[calc(100%+4px)] z-50 w-full rounded-md border bg-popover text-popover-foreground shadow-md">
           <div ref={dropdownRef} className="max-h-[170px] overflow-auto p-1">

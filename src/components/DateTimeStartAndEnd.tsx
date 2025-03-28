@@ -64,9 +64,8 @@ export const DateTimeStartAndEnd = ({
 
   const getDurationColor = (start: Date, end: Date) => {
     const diffInMinutes = differenceInMinutes(end, start);
-    if (diffInMinutes <= 30) return "text-info";
     if (diffInMinutes <= 60) return "text-success";
-    if (diffInMinutes <= 180) return "text-warn";
+    if (diffInMinutes < 240) return "text-warn";
     return "text-destructive";
   };
 
@@ -106,43 +105,57 @@ export const DateTimeStartAndEnd = ({
   return (
     <div>
       <FieldLabel>
-        When?
+        Date and Time
         <div className="font-primary text-sm font-light lowercase">
           {
-            "Define start and end times and optionally a recurring schedule for your Convo"
+            "Define start and end times and optionally a recurring schedule for your convo"
           }
         </div>
       </FieldLabel>
-      <div className="grid justify-start gap-3 rounded-lg border-2 border-foreground bg-muted p-4 sm:grid-cols-2 sm:items-center sm:gap-6 sm:p-6">
-        <FieldLabel>Start Date and Time</FieldLabel>
-        <DateAndTimePicker
-          date={startDate || new Date()}
-          setDate={setStartDate}
-          fromDate={new Date()}
-          className="justify-start sm:justify-center"
-        />
-        <div> {/* blank div for grid spacing */} </div>
-        <div className="flex items-center justify-center gap-2 text-center text-sm">
-          Duration:{" "}
-          <span className={cn("font-semibold", durationColor)}>{duration}</span>
-          {showWarning && (
-            <Popover>
-              <PopoverTrigger>
-                <AlertCircle className="h-4 w-4 text-destructive" />
-              </PopoverTrigger>
-              <PopoverContent className="w-fit p-3">
-                <p className="text-sm">Are you sure about this duration?</p>
-              </PopoverContent>
-            </Popover>
-          )}
+      <div className="space-y-3 rounded-lg bg-muted p-3">
+        <div className="grid grid-cols-[auto,1fr,auto] items-start gap-4">
+          <div className="flex items-center gap-2 pt-2.5">
+            <div className="flex h-2 w-2 items-center">
+              <div className="h-2 w-2 rounded-full bg-success"></div>
+            </div>
+            <span className="w-8 text-sm">Start</span>
+          </div>
+          <DateAndTimePicker
+            date={startDate || new Date()}
+            setDate={setStartDate}
+            fromDate={new Date()}
+          />
         </div>
-        <FieldLabel>End Date and Time</FieldLabel>
-        <DateAndTimePicker
-          date={endDate || new Date()}
-          setDate={setEndDate}
-          fromDate={startDate || new Date()}
-          className="justify-start sm:justify-center"
-        />
+        <div className="grid grid-cols-[auto,1fr,auto] items-start gap-4">
+          <div className="flex items-center gap-2 pt-2.5">
+            <div className="flex h-2 w-2 items-center">
+              <div className="h-2 w-2 rounded-full border border-success"></div>
+            </div>
+            <span className="w-8 text-sm">End</span>
+          </div>
+          <div className="space-y-1">
+            <DateAndTimePicker
+              date={endDate || new Date()}
+              setDate={setEndDate}
+              fromDate={startDate || new Date()}
+            />
+            <div className="flex items-center gap-2 whitespace-nowrap pl-2 text-sm">
+              <span className={cn("font-medium", durationColor)}>
+                Duration: {duration}
+              </span>
+              {showWarning && (
+                <Popover>
+                  <PopoverTrigger>
+                    <AlertCircle className="h-4 w-4 text-destructive" />
+                  </PopoverTrigger>
+                  <PopoverContent className="w-fit p-3">
+                    <p className="text-sm">Are you sure about this duration?</p>
+                  </PopoverContent>
+                </Popover>
+              )}
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
