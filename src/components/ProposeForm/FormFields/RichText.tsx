@@ -21,25 +21,20 @@ import * as Y from "yjs";
 import Highlight from "@tiptap/extension-highlight";
 import {
   BoldIcon,
-  Code2,
   CodeIcon,
   Heading1Icon,
   Heading2Icon,
   Heading3Icon,
-  HighlighterIcon,
   ItalicIcon,
   LinkIcon,
   ListIcon,
-  ListMinus,
-  ListMinusIcon,
   ListOrderedIcon,
-  PilcrowIcon,
   RedoIcon,
   UndoIcon,
 } from "lucide-react";
 import type { ClientEventInput } from "src/types";
 
-type handleChangeType = (e: any) => void;
+type handleChangeType = (content: string) => void;
 
 export const RichTextArea = ({
   name,
@@ -49,6 +44,7 @@ export const RichTextArea = ({
   infoText,
   value,
   className,
+  required,
 }: {
   name: keyof ClientEventInput;
   fieldName?: string;
@@ -57,6 +53,7 @@ export const RichTextArea = ({
   errors?: Partial<FieldErrorsImpl<ClientEventInput>>;
   value?: string;
   className?: string;
+  required?: boolean;
 }) => {
   const isError = errors && errors[name];
 
@@ -97,7 +94,7 @@ export const RichTextArea = ({
   return (
     <div>
       {fieldName && (
-        <FieldLabel styles="my-auto">
+        <FieldLabel styles="my-auto" required={required}>
           {fieldName}
           <div className="font-primary text-sm font-light lowercase">
             {infoText}

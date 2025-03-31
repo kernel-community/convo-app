@@ -4,10 +4,12 @@ const FieldLabel = ({
   children,
   styles,
   htmlFor,
+  required = false,
 }: {
   children: ReactNode;
   styles?: string;
   htmlFor?: string;
+  required?: boolean;
 }) => {
   return (
     <label
@@ -22,6 +24,7 @@ const FieldLabel = ({
     `}
     >
       {children}
+      {required && <span className="ml-1 text-red-500">*</span>}
     </label>
   );
 };
