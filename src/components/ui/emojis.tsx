@@ -18,6 +18,18 @@ export function CoolEmoji({ width = 16, height = 16, className }: EmojiProps) {
   );
 }
 
+export function SadEmoji({ width = 16, height = 16, className }: EmojiProps) {
+  return (
+    <Image
+      src="/images/emojis/sad.png"
+      alt="sad emoji"
+      width={width}
+      height={height}
+      className={className}
+    />
+  );
+}
+
 export function HeartEyesEmoji({
   width = 16,
   height = 16,
