@@ -88,7 +88,7 @@ export type SessionSchemaType = z.infer<typeof SessionSchema>;
 
 export const clientEventInputValidationScheme = z.object({
   title: z.string().min(1, "Title is required"),
-  description: z.string().optional(),
+  description: z.string().min(1, "Description is required"),
   dateTimeStartAndEnd: z.object({
     start: z.date().default(DateTime.now().toJSDate()),
     end: z.date().default(DateTime.now().plus({ minutes: 30 }).toJSDate()),

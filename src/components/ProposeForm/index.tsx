@@ -154,16 +154,26 @@ const ProposeForm = ({
         <Controller
           name="description"
           control={control}
-          rules={{ required: true }}
-          render={({ field }) => (
-            <RichTextArea
-              handleChange={field.onChange}
-              errors={errors}
-              name={field.name}
-              fieldName="Description"
-              value={defaultValues?.description}
-            />
-          )}
+          rules={{ required: "Description is required" }}
+          render={({ field }) => {
+            return (
+              <RichTextArea
+                handleChange={(content) => {
+                  // Set empty string if content is just empty HTML tags or whitespace
+                  const strippedContent = content
+                    .replace(/<[^>]*>/g, "")
+                    .trim();
+                  field.onChange(strippedContent ? content : "");
+                }}
+                errors={errors}
+                name={field.name}
+                fieldName="Description"
+                required={true}
+                value={defaultValues?.description}
+                infoText="What is your event about? For IRL events, please include the location address. This helps people decide whether to attend before they RSVP."
+              />
+            );
+          }}
         />
 
         {/* component for start datetime */}
@@ -279,6 +289,41 @@ const ProposeForm = ({
             )}
           </div>
         </div>
+
+        {/* Error Summary */}
+        {isSubmitted && Object.keys(errors).length > 0 && (
+          <div className="rounded-md bg-red-50 p-3">
+            <div className="flex">
+              <div className="flex-shrink-0">
+                <svg
+                  className="h-5 w-5 text-red-400"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                  aria-hidden="true"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </div>
+              <div className="ml-3">
+                <h3 className="text-sm font-medium text-red-800">
+                  Please fix the following errors:
+                </h3>
+                <div className="mt-2 text-sm text-red-700">
+                  <ul className="list-disc space-y-1 pl-5">
+                    {errors.description && (
+                      <li>{errors.description.message?.toString()}</li>
+                    )}
+                    {/* Add other specific errors as needed */}
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {!user.isSignedIn ? (
           <LoginButton
