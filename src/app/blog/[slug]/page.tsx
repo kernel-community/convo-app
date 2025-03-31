@@ -23,8 +23,8 @@ export default function BlogPost({ params }: Props) {
   return (
     <Main>
       {/* Background SVG */}
-      <BlogBackground />
-      <article className="container relative py-16">
+      {/* <BlogBackground /> */}
+      <article className="container relative px-24 py-16">
         <Link href={"/blog"}>
           <span className="mb-6 flex flex-row gap-2 font-secondary text-muted-foreground underline decoration-dashed underline-offset-4 hover:text-primary">
             <ArrowLeft />
@@ -61,7 +61,7 @@ export default function BlogPost({ params }: Props) {
             </span>
           </div>
         </header>
-        <div className="hover:prose-a:text-primary/80 prose prose-lg max-w-none font-secondary dark:prose-invert prose-headings:font-primary prose-a:text-primary">
+        <div className="hover:prose-a:text-primary/80 prose-md prose max-w-none font-secondary dark:prose-invert prose-headings:font-primary prose-a:text-primary">
           <ReactMarkdown>{ember.content}</ReactMarkdown>
         </div>
       </article>

@@ -11,8 +11,8 @@ export default function BlogPage() {
   return (
     <Main>
       {/* Background SVG */}
-      <BlogBackground />
-      <div className="container relative py-16">
+      {/* <BlogBackground /> */}
+      <div className="container relative px-24 py-12">
         <div className="mb-16">
           <h1 className="mb-3 inline-flex items-center gap-4 font-primary text-4xl">
             Hearth{" "}
