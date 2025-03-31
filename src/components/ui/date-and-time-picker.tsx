@@ -18,14 +18,18 @@ export function DateAndTimePicker({
   className?: string;
 }) {
   return (
-    <div className={`flex flex-row gap-2 ${className}`}>
-      <DatePicker
-        date={date}
-        setDate={setDate}
-        fromDate={fromDate}
-        disabled={disabled}
-      />
-      <TimePickerDropdown date={date} setDate={setDate} />
+    <div className={`flex flex-row items-center gap-2 ${className}`}>
+      <div className="w-[230px]">
+        <DatePicker
+          date={date}
+          setDate={setDate}
+          fromDate={fromDate}
+          disabled={disabled}
+        />
+      </div>
+      <div className="w-[110px]">
+        <TimePickerDropdown date={date} setDate={setDate} />
+      </div>
     </div>
   );
 }
