@@ -113,7 +113,7 @@ export const DateTimeStartAndEnd = ({
         </div>
       </FieldLabel>
       <div className="space-y-3 rounded-lg bg-muted p-3">
-        <div className="grid grid-cols-[auto,1fr,auto] items-start gap-4">
+        <div className="grid grid-cols-[auto,1fr] items-start gap-4">
           <div className="flex items-center gap-2 pt-2.5">
             <div className="flex h-2 w-2 items-center">
               <div className="h-2 w-2 rounded-full bg-success"></div>
@@ -126,7 +126,7 @@ export const DateTimeStartAndEnd = ({
             fromDate={new Date()}
           />
         </div>
-        <div className="grid grid-cols-[auto,1fr,auto] items-start gap-4">
+        <div className="grid grid-cols-[auto,1fr] items-start gap-4">
           <div className="flex items-center gap-2 pt-2.5">
             <div className="flex h-2 w-2 items-center">
               <div className="h-2 w-2 rounded-full border border-success"></div>

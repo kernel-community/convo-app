@@ -19,7 +19,7 @@ export function DateAndTimePicker({
 }) {
   return (
     <div className={`flex flex-row items-center gap-2 ${className}`}>
-      <div className="w-[130px]">
+      <div className="w-[230px]">
         <DatePicker
           date={date}
           setDate={setDate}
