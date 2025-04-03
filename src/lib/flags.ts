@@ -31,7 +31,7 @@ const identifyUser = dedupe(({ headers, cookies }) => {
 });
 
 // List of beta users who should have beta mode enabled
-const BETA_USERS = [
+export const BETA_USERS = [
   "angela.gilhotra@gmail.com",
   // Add more beta users as needed
 ];
