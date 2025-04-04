@@ -23,7 +23,7 @@ export const KERNEL_SMOLBRAIN_APP_NAME =
   process.env.NEXT_PUBLIC_KERNEL_SMOLBRAIN_APP_NAME;
 
 export const BETA_USERS = [
-  "angelagilhotra@gmail.com",
+  "angela.gilhotra@gmail.com",
   // Add more beta users as needed
 ];
 
