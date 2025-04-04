@@ -655,7 +655,7 @@ const CommunityNetworkGraph = () => {
       <div className="relative mb-4">
         <input
           type="text"
-          placeholder="Search users..."
+          placeholder="Search users. Start typing user's name ... "
           className="rounded w-full border border-gray-300 p-2 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-200"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
