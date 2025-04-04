@@ -1,3 +1,5 @@
+import { quoteProps } from "prettier.config.cjs";
+
 export const DEFAULT_USER_NICKNAME = "Anonymous";
 
 export const CALENDAR_IDS = {
@@ -19,3 +21,49 @@ export const KERNEL_SMOLBRAIN_API =
   process.env.NEXT_PUBLIC_KERNEL_SMOLBRAIN_API;
 export const KERNEL_SMOLBRAIN_APP_NAME =
   process.env.NEXT_PUBLIC_KERNEL_SMOLBRAIN_APP_NAME;
+
+export const BETA_USERS = [
+  "angelagilhotra@gmail.com",
+  // Add more beta users as needed
+];
+
+export const QUOTES = [
+  {
+    quote:
+      "Even the abandoned places have a language. They speak in silence. They bloom with echoes.",
+    by: "Unknown",
+  },
+  {
+    quote:
+      "The art of conversation is the art of hearing as well as of being heard.",
+    by: "William Hazlitt",
+  },
+  {
+    quote:
+      "The most important thing in communication is hearing what isn't said.",
+    by: "Peter Drucker",
+  },
+  {
+    quote:
+      "Conversation about the weather is the last refuge of the unimaginative.",
+    by: "Oscar Wilde",
+  },
+  {
+    quote:
+      "The true spirit of conversation consists in building on another's observation, not overturning it.",
+    by: "Edward G. Bulwer-Lytton",
+  },
+  {
+    quote: "What am I, if not, in relation with you?",
+    by: "Kernel Community",
+  },
+  {
+    quote: "Not all those who wander are lost.",
+    by: "J.R.R. Tolkien",
+  },
+  {
+    quote:
+      "but he who is not afraid of my darkness, will find banks full of roses",
+    by: "Friedrich Nietzsche",
+  },
+];

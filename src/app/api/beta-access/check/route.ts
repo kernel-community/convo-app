@@ -1,12 +1,10 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { prisma } from "src/utils/db";
-import { BETA_USERS } from "src/lib/flags";
+import { BETA_USERS } from "src/utils/constants";
 
 // This tells Next.js this route should be dynamically rendered
 export const dynamic = "force-dynamic";
-
-// We'll use the BETA_USERS array from flags.ts for consistency
 
 // Session cookie name (must match the one used in the auth system)
 const SESSION_COOKIE = "session";
