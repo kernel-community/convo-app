@@ -101,3 +101,19 @@ export function WinkEmoji({ width = 16, height = 16, className }: EmojiProps) {
     />
   );
 }
+
+export function AnotherEmoji({
+  width = 16,
+  height = 16,
+  className,
+}: EmojiProps) {
+  return (
+    <Image
+      src="/images/emojis/another.png"
+      alt="another emoji"
+      width={width}
+      height={height}
+      className={className}
+    />
+  );
+}
