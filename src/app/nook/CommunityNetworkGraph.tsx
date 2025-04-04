@@ -1,27 +1,65 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useCallback } from "react";
 import * as d3 from "d3";
 import { data } from "./utils/mock";
-import type { User } from "./utils/types";
+import type { User, Project, NodeType } from "./utils/types";
 import UserSearch from "./components/UserSearch";
 import Profile from "./components/Profile";
 import GraphLegend from "./components/GraphLegend";
 
-const CommunityNetworkGraph = () => {
+// Color constants using CSS variables from globals.css
+const COLORS = {
+  // Node colors
+  USER_NODE: "var(--primary)", // Green for users
+  PROJECT_NODE: "var(--secondary)", // Blue for projects
+  FELLOW_INDICATOR: "var(--info)", // Purple/blue for fellow indicator
+
+  // Link colors
+  LINK_GRADIENT_START: "var(--secondary)",
+  LINK_GRADIENT_END: "var(--secondary-muted)",
+  LINK_DEFAULT_OPACITY: 0.6,
+  LINK_FADED_OPACITY: 0.1,
+
+  // Selection colors
+  SELECTED_NODE_STROKE: "var(--highlight-active)", // Orange/yellow highlight
+  CONNECTED_NODE_STROKE: "var(--highlight)", // Lighter orange/yellow
+  DEFAULT_NODE_STROKE: "var(--background)", // White/background color
+  NON_SELECTED_NODE_OPACITY: 0.3,
+
+  // UI elements
+  VIEWPORT_BORDER: "var(--border)",
+
+  // Tooltip colors
+  TOOLTIP_TITLE: "var(--foreground)",
+  TOOLTIP_TEXT: "var(--muted-foreground)",
+  TOOLTIP_SECONDARY: "var(--muted-foreground)",
+  TOOLTIP_TAG_BG: "var(--accent)",
+  TOOLTIP_TAG_TEXT: "var(--accent-foreground)",
+  TOOLTIP_STATUS_BG: "var(--info-disabled)",
+  TOOLTIP_STATUS_TEXT: "var(--info-foreground)",
+  TOOLTIP_LINK: "var(--secondary)",
+
+  // Text colors
+  LABEL_PROJECT: "var(--secondary)",
+  LABEL_USER: "var(--foreground)",
+};
+
+const CommunityNetworkGraph: React.FC = () => {
   const svgRef = useRef<SVGSVGElement | null>(null);
-  const [selectedUser, setSelectedUser] = useState<User | null>(null);
-  const [connectionCount, setConnectionCount] = useState<number>(0);
+  const [selectedNode, setSelectedNode] = useState<User | Project | null>(null);
+  const [connectionCount, setConnectionCount] = useState(0);
   const [directConnections, setDirectConnections] = useState<
-    Array<{ id: string; name: string; strength: number }>
+    Array<{ id: string; name: string; strength: number; type: NodeType }>
   >([]);
-  const [searchTerm, setSearchTerm] = useState<string>("");
-  const [searchResults, setSearchResults] = useState<User[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [searchResults, setSearchResults] = useState<(User | Project)[]>([]);
+  // const [showLegend, setShowLegend] = useState(false); // Uncomment when legend feature is implemented
 
   // Function to safely get node or link ID regardless of whether it's a string or object
-  const safeGetId = (item: any) => {
+  const safeGetId = useCallback((item: any) => {
     if (!item) return null;
     return typeof item === "string" ? item : item.id;
-  };
+  }, []);
 
   // Handle search term changes
   useEffect(() => {
@@ -30,68 +68,128 @@ const CommunityNetworkGraph = () => {
       return;
     }
 
-    const filteredUsers = data.nodes.filter((user: User) =>
-      user.name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const filteredNodes = data.nodes.filter((node) =>
+      node.name.toLowerCase().includes(searchTerm.toLowerCase())
+    ) as (User | Project)[];
 
-    setSearchResults(filteredUsers);
-  }, [searchTerm, data.nodes]);
+    setSearchResults(filteredNodes);
+  }, [searchTerm]); // Only need to re-run when search term changes
 
-  // Memoized function to update connections for a user
-  const updateUserConnections = React.useCallback(
-    (userId: string) => {
-      const userData = data.nodes.find((n) => n.id === userId);
-      if (!userData) return;
+  // Memoized function to update connections for a node
+  const updateNodeConnections = useCallback(
+    (nodeId: string | null) => {
+      // If nodeId is null, reset the selection
+      if (nodeId === null) {
+        setSelectedNode(null);
+        setDirectConnections([]);
+        setConnectionCount(0);
 
-      setSelectedUser(userData);
+        // Reset all nodes and links to full opacity
+        d3.selectAll(".node-group")
+          .transition()
+          .duration(300)
+          .style("opacity", 1);
 
-      // Get connections for this user - handling bidirectional links
+        // Reset all links to full opacity
+        d3.selectAll(".links path")
+          .transition()
+          .duration(300)
+          .style("opacity", 0.6);
+
+        return;
+      }
+
+      const nodeData = data.nodes.find((n) => n.id === nodeId) as
+        | User
+        | Project;
+      if (!nodeData) return;
+
+      setSelectedNode(nodeData);
+
+      // Get connections for this node - handling bidirectional links
       // Use a Map for faster lookups
-      const connectionMap = new Map();
+      const connectionMap = new Map<string, any>();
 
       // Process all links in a single pass
-      data.links.forEach((link) => {
+      data.links.forEach((link: any) => {
         const sourceId = safeGetId(link.source);
         const targetId = safeGetId(link.target);
 
-        if (sourceId === userId) {
-          // Update or create connection entry
-          const existingStrength = connectionMap.get(targetId) || 0;
-          connectionMap.set(targetId, Math.max(existingStrength, link.value));
-        } else if (targetId === userId) {
-          // Update or create connection entry
-          const existingStrength = connectionMap.get(sourceId) || 0;
-          connectionMap.set(sourceId, Math.max(existingStrength, link.value));
+        if (sourceId === nodeId) {
+          connectionMap.set(targetId, link);
+        } else if (targetId === nodeId) {
+          connectionMap.set(sourceId, link);
         }
       });
 
-      // Convert map to array and add user data
-      const uniqueConnections: { id: any; name: string; strength: number }[] =
-        [];
+      // Extract unique connected nodes
+      const connections = Array.from(connectionMap.entries()).map(
+        ([connectedId]) => {
+          // Find the connected node
+          const connectedNode = data.nodes.find(
+            (node) => node.id === connectedId
+          );
 
-      connectionMap.forEach((strength, connectedId) => {
-        const connectedUser = data.nodes.find(
-          (node) => node.id === connectedId
-        );
-        if (connectedUser) {
-          uniqueConnections.push({
+          if (!connectedNode) return null;
+
+          return {
             id: connectedId,
-            name: connectedUser.name,
-            strength,
-          });
+            name: connectedNode.name,
+            strength: 1, // We could calculate this based on number of connections
+            type: connectedNode.type as NodeType,
+          };
         }
-      });
-
-      // Sort by strength
-      const sortedConnections = uniqueConnections.sort(
-        (a, b) => b.strength - a.strength
       );
 
-      setConnectionCount(sortedConnections.length);
-      setDirectConnections(sortedConnections);
+      // Filter out nulls and sort by name
+      const validConnections = connections.filter(Boolean) as Array<{
+        id: string;
+        name: string;
+        strength: number;
+        type: NodeType;
+      }>;
+
+      // Sort by name
+      validConnections.sort((a, b) => a.name.localeCompare(b.name));
+
+      setConnectionCount(validConnections.length);
+      setDirectConnections(validConnections);
+
+      // Get array of connected node IDs for easy lookup
+      const connectedNodeIds = validConnections.map((conn) => conn.id);
+
+      // Update visual appearance based on selection
+      // Reduce opacity of non-connected nodes
+      d3.selectAll(".node-group")
+        .transition()
+        .duration(300)
+        .style("opacity", (d: any) => {
+          // Selected node and its connections stay at full opacity
+          return d.id === nodeId || connectedNodeIds.includes(d.id)
+            ? 1
+            : COLORS.NON_SELECTED_NODE_OPACITY;
+        });
+
+      // Hide links that don't involve the selected node
+      d3.selectAll(".links path")
+        .transition()
+        .duration(300)
+        .style("opacity", (d: any) => {
+          const sourceId = safeGetId(d.source);
+          const targetId = safeGetId(d.target);
+          return sourceId === nodeId || targetId === nodeId
+            ? COLORS.LINK_DEFAULT_OPACITY
+            : COLORS.LINK_FADED_OPACITY;
+        });
     },
-    [data.links, data.nodes]
+    [safeGetId]
   );
+
+  // Define simulation reference to use in drag functions
+  const simulationRef = useRef<d3.Simulation<
+    d3.SimulationNodeDatum,
+    undefined
+  > | null>(null);
 
   // Create and update the force-directed graph
   useEffect(() => {
@@ -121,7 +219,7 @@ const CommunityNetworkGraph = () => {
       .attr("cy", height / 2)
       .attr("r", Math.min(width, height) * 0.45)
       .attr("fill", "none")
-      .attr("stroke", "#E5E7EB")
+      .attr("stroke", COLORS.VIEWPORT_BORDER)
       .attr("stroke-width", 1)
       .attr("stroke-dasharray", "5,5");
 
@@ -135,124 +233,27 @@ const CommunityNetworkGraph = () => {
       .attr("pointer-events", "all")
       .lower()
       .on("click", () => {
-        setSelectedUser(null);
-        setConnectionCount(0);
-        setDirectConnections([]);
+        updateNodeConnections(null);
       });
 
     // Function to calculate node radius based on activity
-    const getNodeRadius = (d: any) => {
-      // Total activity = events created + RSVPs
-      const totalActivity = (d.eventsCreated || 0) + (d.rsvps || 0);
-      // Scale radius between 3 and 12 based on activity
-      return 5 + Math.sqrt(totalActivity) * 1.5;
-    };
-
-    // Simplified community detection algorithm for faster initial loading
-    const detectCommunities = (
-      nodes: any[],
-      links: { source: string; target: string; value: number }[]
-    ) => {
-      // Start with each node in its own community
-      interface Community {
-        id: string | number;
-        members: (string | number)[];
+    const getNodeRadius = (node: any): number => {
+      if (node.type === "project") {
+        // Projects have a fixed, larger radius
+        return 10;
+      } else {
+        // For users, calculate based on activity
+        const totalActivity =
+          (node.convo?.eventsCreated || 0) + (node.convo?.rsvps || 0);
+        return 5 + Math.sqrt(totalActivity) * 1.5;
       }
-      const communities: Record<string | number, Community> = {};
-      nodes.forEach((node: { id: string | number }) => {
-        communities[node.id] = { id: node.id, members: [node.id] };
-      });
-
-      // Use a Map for faster lookups
-      const communityLookup = new Map();
-      nodes.forEach((node) => communityLookup.set(node.id, node.id));
-
-      // Process only the strongest connections first (limit to top 75%)
-      const sortedLinks = [...links].sort((a, b) => b.value - a.value);
-      const topLinks = sortedLinks.slice(
-        0,
-        Math.ceil(sortedLinks.length * 0.75)
-      );
-
-      // Merge communities based on strong connections
-      topLinks.forEach((link) => {
-        const sourceId = safeGetId(link.source);
-        const targetId = safeGetId(link.target);
-
-        // Skip if they're already in the same community
-        if (
-          !sourceId ||
-          !targetId ||
-          communityLookup.get(sourceId) === communityLookup.get(targetId)
-        )
-          return;
-
-        // Only merge on strong connections
-        if (link.value >= 3) {
-          const sourceCommunityId = communityLookup.get(sourceId);
-          const targetCommunityId = communityLookup.get(targetId);
-
-          const sourceCommunity = communities[sourceCommunityId];
-          const targetCommunity = communities[targetCommunityId];
-
-          if (!sourceCommunity || !targetCommunity) return;
-
-          // Always merge smaller into larger for efficiency
-          if (
-            sourceCommunity.members.length >= targetCommunity.members.length
-          ) {
-            // Update the lookup map for all members of target community
-            targetCommunity.members.forEach((memberId) => {
-              communityLookup.set(memberId, sourceCommunityId);
-            });
-
-            // Merge members
-            sourceCommunity.members = [
-              ...sourceCommunity.members,
-              ...targetCommunity.members,
-            ];
-            // We don't need to update the communities object for all members
-            // since we're using the lookup map for faster access
-          } else {
-            // Update the lookup map for all members of source community
-            sourceCommunity.members.forEach((memberId) => {
-              communityLookup.set(memberId, targetCommunityId);
-            });
-
-            // Merge members
-            targetCommunity.members = [
-              ...targetCommunity.members,
-              ...sourceCommunity.members,
-            ];
-          }
-        }
-      });
-
-      // Create final community map using the lookup map
-      const uniqueCommunityIds = new Set(communityLookup.values());
-      const communityIdMap = new Map(
-        [...uniqueCommunityIds].map((id, index) => [id, index])
-      );
-
-      const communityMap: Record<string | number, number> = {};
-      nodes.forEach((node) => {
-        const communityId = communityLookup.get(node.id);
-        communityMap[node.id] = communityIdMap.get(communityId) || 0;
-      });
-
-      return {
-        nodeMap: communityMap,
-        count: uniqueCommunityIds.size,
-      };
     };
 
-    // Detect communities
-    const communities = detectCommunities(data.nodes, data.links);
-
-    // Color scale for communities
-    const colorScale = d3
-      .scaleOrdinal<string>(d3.schemeCategory10)
-      .domain(d3.range(communities.count).map(String));
+    // Use color constants for node types
+    const nodeColors = {
+      user: COLORS.USER_NODE,
+      project: COLORS.PROJECT_NODE,
+    };
 
     // Create the force simulation with optimized settings
     // Cast nodes to the required SimulationNodeDatum type for D3
@@ -263,59 +264,94 @@ const CommunityNetworkGraph = () => {
       node.y = height / 2 + (Math.random() - 0.5) * 20;
     });
 
+    // Create force simulation
     const simulation = d3
       .forceSimulation(data.nodes as d3.SimulationNodeDatum[])
-      // Optimize link distance for faster stabilization
       .force(
         "link",
         d3
-          .forceLink(
-            data.links as d3.SimulationLinkDatum<d3.SimulationNodeDatum>[]
-          )
+          .forceLink(data.links)
           .id((d: any) => d.id)
-          .distance(80)
+          .distance(70)
       )
-      // Reduce strength for faster stabilization
-      .force("charge", d3.forceManyBody().strength(-80))
-      // Use center force for initial positioning
-      .force("center", d3.forceCenter(width / 2, height / 2).strength(0.1))
-      // Use positioning forces to keep disjointed graphs in the viewport
-      .force("x", d3.forceX(width / 2).strength(0.1))
-      .force("y", d3.forceY(height / 2).strength(0.1))
+      .force("charge", d3.forceManyBody().strength(-100))
+      .force("center", d3.forceCenter(width / 2, height / 2))
+      .force("x", d3.forceX(width / 2).strength(0.05))
+      .force("y", d3.forceY(height / 2).strength(0.05))
       .force(
         "collision",
-        d3.forceCollide().radius((d) => getNodeRadius(d) + 2)
+        d3.forceCollide().radius((d: any) => getNodeRadius(d) + 2)
       )
       // Set a higher initial alpha and decay rate for faster stabilization
       .alpha(0.5)
       .alphaDecay(0.05);
 
-    // Create links in the bottom layer
+    // Store simulation in ref for potential use outside this effect
+    simulationRef.current = simulation;
+
+    // Set up a gradient for links
+    const defs = svg.append("defs");
+
+    // Create gradient for links
+    const gradient = defs
+      .append("linearGradient")
+      .attr("id", "link-gradient")
+      .attr("gradientUnits", "userSpaceOnUse");
+
+    gradient
+      .append("stop")
+      .attr("offset", "0%")
+      .attr("stop-color", COLORS.LINK_GRADIENT_START);
+
+    gradient
+      .append("stop")
+      .attr("offset", "100%")
+      .attr("stop-color", COLORS.LINK_GRADIENT_END);
+
+    // Add drop shadow filter for nodes
+    const filter = defs
+      .append("filter")
+      .attr("id", "drop-shadow")
+      .attr("height", "130%");
+
+    filter
+      .append("feGaussianBlur")
+      .attr("in", "SourceAlpha")
+      .attr("stdDeviation", 3)
+      .attr("result", "blur");
+
+    filter
+      .append("feOffset")
+      .attr("in", "blur")
+      .attr("dx", 1)
+      .attr("dy", 1)
+      .attr("result", "offsetBlur");
+
+    const feMerge = filter.append("feMerge");
+    feMerge.append("feMergeNode").attr("in", "offsetBlur");
+    feMerge.append("feMergeNode").attr("in", "SourceGraphic");
+
+    // Function to create curved paths between nodes
+    const linkArc = (d: any) => {
+      const dx = d.target.x - d.source.x;
+      const dy = d.target.y - d.source.y;
+      const dr = Math.sqrt(dx * dx + dy * dy) * 1.5; // Curve radius
+      return `M${d.source.x},${d.source.y}A${dr},${dr} 0 0,1 ${d.target.x},${d.target.y}`;
+    };
+
+    // Create links in the bottom layer with curved paths
     const linkGroup = svg.append("g").attr("class", "links");
     const link = linkGroup
-      .selectAll("line")
+      .selectAll("path")
       .data(data.links)
       .enter()
-      .append("line")
-      .attr("stroke-width", (d) => Math.sqrt(d.value) * 1.2)
-      .attr("stroke", (d: any) => {
-        const sourceId = safeGetId(d.source);
-        const targetId = safeGetId(d.target);
-
-        // If source and target are in the same community, use the community color
-        if (communities.nodeMap[sourceId] === communities.nodeMap[targetId]) {
-          const communityId = communities.nodeMap[sourceId];
-          const color = d3.color(
-            colorScale(communityId !== undefined ? String(communityId) : "0")
-          );
-          // Convert the color to a string representation
-          return color ? color.darker(0.5).toString() : "#6366F1";
-        }
-
-        // Otherwise, use a neutral color
-        return "#6366F1";
-      })
-      .attr("stroke-opacity", 0.6);
+      .append("path")
+      .attr("stroke", "url(#link-gradient)")
+      .attr("fill", "none")
+      .attr("stroke-width", () => 1.5)
+      .attr("stroke-linecap", "round")
+      .attr("stroke-opacity", COLORS.LINK_DEFAULT_OPACITY)
+      .style("mix-blend-mode", "multiply");
 
     // Create nodes in the middle layer
     const nodeGroup = svg.append("g").attr("class", "nodes");
@@ -324,7 +360,7 @@ const CommunityNetworkGraph = () => {
       .data(data.nodes)
       .enter()
       .append("g")
-      .attr("class", "node")
+      .attr("class", "node-group")
       .call(
         d3
           .drag<SVGGElement, any>()
@@ -332,31 +368,201 @@ const CommunityNetworkGraph = () => {
           .on("drag", dragged)
           .on("end", dragended)
       )
-      .on("click", (event: MouseEvent, d: any) => {
+      .on("click", (event: any, d: any) => {
         event.stopPropagation();
-        updateUserConnections(d.id);
+        updateNodeConnections(d.id);
       });
 
-    // Add circles to nodes
+    // Project nodes are now identified by their blue color
+
+    // Add visual indicator for fellows
+    node
+      .filter((d: any) => d.type === "user" && d.isFellow === true)
+      .append("circle")
+      .attr("r", 3)
+      .attr("cx", (d: any) => -getNodeRadius(d) - 2)
+      .attr("fill", COLORS.FELLOW_INDICATOR)
+      .attr("stroke", COLORS.DEFAULT_NODE_STROKE)
+      .attr("stroke-width", 1);
+
+    // Add circles to nodes with modern styling
     node
       .append("circle")
       .attr("r", getNodeRadius)
-      .attr("fill", (d) => {
-        const communityId = communities.nodeMap[d.id];
-        return colorScale(
-          communityId !== undefined ? String(communityId) : "0"
-        );
-      }) // Color by community
-      .attr("stroke", "#fff")
-      .attr("stroke-width", 1.5);
+      .attr("fill", (d: any) => {
+        return nodeColors[d.type as keyof typeof nodeColors] || "#9C27B0"; // Fallback color for unknown types
+      })
+      .attr("stroke", "none")
+      .style("filter", "none")
+      .style("cursor", "pointer")
+      .transition()
+      .duration(800)
+      .ease(d3.easeBounceOut)
+      .attr("r", getNodeRadius);
 
-    // Add tooltip for hover info
+    // Create modern tooltip with transitions
+    const tooltip = d3
+      .select("body")
+      .append("div")
+      .attr("class", "tooltip")
+      .style("position", "absolute")
+      .style("opacity", 0)
+      .style("pointer-events", "none")
+      .style("z-index", "1000")
+      .style("font-family", "system-ui, sans-serif")
+      .style("font-size", "12px")
+      .style("background", "white")
+      .style("color", "#333")
+      .style("border-radius", "8px")
+      .style("padding", "0")
+      .style("box-shadow", "0 4px 12px rgba(0, 0, 0, 0.15)")
+      .style("transition", "opacity 0.3s");
+
+    // Add hover behavior with tooltip
     node
-      .append("title")
-      .text(
-        (d) =>
-          `${d.name}\nEvents Created: ${d.eventsCreated}\nRSVPs: ${d.rsvps}`
-      );
+      .on("mouseover", function (event: any, d: any) {
+        d3.select(this)
+          .select("circle")
+          .transition()
+          .duration(300)
+          .attr("r", (d: any) => getNodeRadius(d) * 1.2);
+
+        let tooltipContent = "";
+
+        if (d.type === "project") {
+          // Project node tooltip
+          tooltipContent = `
+            <div style="padding: 12px; width: 250px;">
+              <div style="font-weight: 600; font-size: 14px; color: ${
+                COLORS.TOOLTIP_TITLE
+              };">${d.name}</div>
+              <div style="margin-top: 4px; font-size: 12px; color: ${
+                COLORS.TOOLTIP_TEXT
+              };">Project</div>
+              ${
+                d.description
+                  ? `<div style="margin-top: 6px; font-size: 12px; color: ${
+                      COLORS.TOOLTIP_TEXT
+                    }; overflow: hidden; text-overflow: ellipsis;">${
+                      d.description.length > 120
+                        ? d.description.substring(0, 120) + "..."
+                        : d.description
+                    }</div>`
+                  : ""
+              }
+              ${
+                d.keywords || (d.profile && d.profile.keywords)
+                  ? `<div style="display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px;">
+                ${(d.keywords || (d.profile && d.profile.keywords) || [])
+                  .map(
+                    (keyword: string) =>
+                      `<span style="background: ${COLORS.TOOLTIP_TAG_BG}; color: ${COLORS.TOOLTIP_TAG_TEXT}; font-size: 10px; padding: 2px 8px; border-radius: 12px;">${keyword}</span>`
+                  )
+                  .join("")}
+              </div>`
+                  : ""
+              }
+              ${
+                d.status
+                  ? `<div style="margin-top: 6px; font-size: 11px;"><span style="background: ${COLORS.TOOLTIP_STATUS_BG}; color: ${COLORS.TOOLTIP_STATUS_TEXT}; padding: 2px 8px; border-radius: 12px;">${d.status}</span></div>`
+                  : ""
+              }
+              ${
+                d.url
+                  ? `<div style="margin-top: 6px; font-size: 12px;"><a href="${d.url}" target="_blank" style="color: ${COLORS.TOOLTIP_LINK}; text-decoration: none;">View Project</a></div>`
+                  : ""
+              }
+            </div>
+          `;
+        } else {
+          // User node tooltip
+          tooltipContent = `
+            <div style="padding: 12px; width: 250px;">
+              <div style="font-weight: 600; font-size: 14px; color: ${
+                COLORS.TOOLTIP_TITLE
+              };">${d.name}</div>
+              ${
+                d.bio || (d.profile && d.profile.bio)
+                  ? `<div style="margin-top: 6px; font-size: 12px; color: ${
+                      COLORS.TOOLTIP_TEXT
+                    }; overflow: hidden; text-overflow: ellipsis;">${
+                      (d.bio || (d.profile && d.profile.bio) || "").length > 120
+                        ? (d.bio || (d.profile && d.profile.bio)).substring(
+                            0,
+                            120
+                          ) + "..."
+                        : d.bio || (d.profile && d.profile.bio)
+                    }</div>`
+                  : ""
+              }
+              ${
+                d.keywords || (d.profile && d.profile.keywords)
+                  ? `<div style="display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px;">
+                ${(d.keywords || (d.profile && d.profile.keywords) || [])
+                  .map(
+                    (keyword: string) =>
+                      `<span style="background: ${COLORS.TOOLTIP_TAG_BG}; color: ${COLORS.TOOLTIP_TAG_TEXT}; font-size: 10px; padding: 2px 8px; border-radius: 12px;">${keyword}</span>`
+                  )
+                  .join("")}
+              </div>`
+                  : ""
+              }
+              ${
+                d.city ||
+                d.currentAffiliation ||
+                (d.profile && (d.profile.city || d.profile.currentAffiliation))
+                  ? `<div style="display: flex; align-items: center; margin-top: 6px; font-size: 11px; color: ${
+                      COLORS.TOOLTIP_SECONDARY
+                    };">
+                ${
+                  d.city || (d.profile && d.profile.city)
+                    ? `<span style="display: flex; align-items: center; margin-right: 8px;">
+                  <svg style="width: 12px; height: 12px; margin-right: 4px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                  </svg>
+                  ${d.city || (d.profile && d.profile.city)}
+                </span>`
+                    : ""
+                }
+                ${
+                  d.currentAffiliation ||
+                  (d.profile && d.profile.currentAffiliation)
+                    ? `<span style="display: flex; align-items: center;">
+                  <svg style="width: 12px; height: 12px; margin-right: 4px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                  </svg>
+                  ${
+                    d.currentAffiliation ||
+                    (d.profile && d.profile.currentAffiliation)
+                  }
+                </span>`
+                    : ""
+                }
+              </div>`
+                  : ""
+              }
+            </div>
+          `;
+        }
+
+        tooltip
+          .html(tooltipContent)
+          .style("left", event.pageX + 10 + "px")
+          .style("top", event.pageY - 28 + "px")
+          .transition()
+          .duration(200)
+          .style("opacity", 0.95);
+      })
+      .on("mouseout", function () {
+        d3.select(this)
+          .select("circle")
+          .transition()
+          .duration(300)
+          .attr("r", (d: any) => getNodeRadius(d));
+
+        tooltip.transition().duration(500).style("opacity", 0);
+      });
 
     // Create text labels in the top layer
     const labelGroup = svg.append("g").attr("class", "text-labels");
@@ -365,19 +571,25 @@ const CommunityNetworkGraph = () => {
       .data(data.nodes)
       .enter()
       .append("text")
-      .attr("dx", 15)
-      .attr("dy", 4)
+      .attr("dx", 12)
+      .attr("dy", ".35em")
       .text((d) => d.name)
-      .attr("font-family", "sans-serif")
-      .attr("font-size", 12)
-      .attr("fill", "#333")
-      .style("opacity", 0) // Hidden by default
-      .style("pointer-events", "none") // Don't interfere with mouse events
-      .style("text-shadow", "0px 0px 3px white"); // Add a white halo for better visibility
+      .style("font-family", "system-ui, sans-serif")
+      .style("font-size", (d) => (d.type === "project" ? "11px" : "10px"))
+      .style("font-weight", (d) => (d.type === "project" ? "600" : "normal"))
+      .style("pointer-events", "none")
+      .style("opacity", 0.8)
+      .style(
+        "text-shadow",
+        "0 1px 2px rgba(255,255,255,0.8), 0 -1px 1px rgba(255,255,255,0.8), 1px 0 1px rgba(255,255,255,0.8), -1px 0 1px rgba(255,255,255,0.8)"
+      )
+      .style("fill", (d) =>
+        d.type === "project" ? COLORS.LABEL_PROJECT : COLORS.LABEL_USER
+      );
 
     // Add hover behavior to show/hide names
     node
-      .on("mouseenter", function (event, d) {
+      .on("mouseenter", function (event, d: any) {
         // Find the corresponding text element in the labelGroup
         labelGroup
           .selectAll("text")
@@ -386,7 +598,7 @@ const CommunityNetworkGraph = () => {
           .duration(200)
           .style("opacity", "1");
       })
-      .on("mouseleave", function (event, d) {
+      .on("mouseleave", function (event, d: any) {
         // Find the corresponding text element in the labelGroup
         labelGroup
           .selectAll("text")
@@ -410,12 +622,8 @@ const CommunityNetworkGraph = () => {
     simulation.on("tick", () => {
       // Only update visuals every other tick during initial stabilization
       if (tickCount > maxInitialTicks || tickCount % 2 === 0) {
-        // Update link positions
-        link
-          .attr("x1", (d: any) => d.source.x)
-          .attr("y1", (d: any) => d.source.y)
-          .attr("x2", (d: any) => d.target.x)
-          .attr("y2", (d: any) => d.target.y);
+        // Update link positions with curved paths
+        link.attr("d", linkArc);
 
         // Update node positions
         node.attr("transform", (d: any) => `translate(${d.x},${d.y})`);
@@ -444,14 +652,20 @@ const CommunityNetworkGraph = () => {
       }
     });
 
-    // Drag functions
+    // Enhanced drag functions with visual feedback
     function dragstarted(
-      event: { active: any },
+      event: { active: any; sourceEvent: any },
       d: { fx: any; x: any; fy: any; y: any }
     ) {
       if (!event.active) simulation.alphaTarget(0.3).restart();
       d.fx = d.x;
       d.fy = d.y;
+
+      // Visual feedback when dragging starts
+      d3.select(event.sourceEvent.target)
+        .transition()
+        .duration(200)
+        .style("opacity", 0.8);
     }
 
     function dragged(event: { x: any; y: any }, d: { fx: any; fy: any }) {
@@ -459,8 +673,19 @@ const CommunityNetworkGraph = () => {
       d.fy = event.y;
     }
 
-    function dragended(event: { active: any }, d: { fx: null; fy: null }) {
+    function dragended(
+      event: { active: any; sourceEvent: any },
+      d: { fx: null; fy: null }
+    ) {
       if (!event.active) simulation.alphaTarget(0);
+
+      // Animate node settling after drag
+      d3.select(event.sourceEvent.target)
+        .transition()
+        .duration(500)
+        .style("opacity", 1);
+
+      // Release node after dragging
       d.fx = null;
       d.fy = null;
     }
@@ -469,9 +694,9 @@ const CommunityNetworkGraph = () => {
     return () => {
       simulation.stop();
     };
-  }, []);
+  }, [safeGetId, updateNodeConnections]);
 
-  // Update visual state when selected user changes
+  // Update visual state when selected node changes
   useEffect(() => {
     if (!svgRef.current) return;
 
@@ -481,7 +706,7 @@ const CommunityNetworkGraph = () => {
       const node = svgElement.selectAll(".node");
       const labelGroup = svgElement.select(".text-labels");
 
-      if (selectedUser) {
+      if (selectedNode) {
         // Pre-compute connected users for faster lookups
         const connectedUserSet = new Set();
 
@@ -489,9 +714,9 @@ const CommunityNetworkGraph = () => {
           const sourceId = safeGetId(link.source);
           const targetId = safeGetId(link.target);
 
-          if (sourceId === selectedUser.id) {
+          if (sourceId === selectedNode.id) {
             connectedUserSet.add(targetId);
-          } else if (targetId === selectedUser.id) {
+          } else if (targetId === selectedNode.id) {
             connectedUserSet.add(sourceId);
           }
         });
@@ -506,14 +731,14 @@ const CommunityNetworkGraph = () => {
           .attr("stroke", (d: any) => {
             const sourceId = safeGetId(d.source);
             const targetId = safeGetId(d.target);
-            return sourceId === selectedUser.id || targetId === selectedUser.id
-              ? "#ff6600"
-              : "#6366F1";
+            return sourceId === selectedNode.id || targetId === selectedNode.id
+              ? COLORS.SELECTED_NODE_STROKE
+              : COLORS.LINK_GRADIENT_START;
           })
-          .attr("stroke-opacity", (d: any) => {
+          .style("stroke-opacity", (d: any) => {
             const sourceId = safeGetId(d.source);
             const targetId = safeGetId(d.target);
-            return sourceId === selectedUser.id || targetId === selectedUser.id
+            return sourceId === selectedNode.id || targetId === selectedNode.id
               ? 1
               : 0.2;
           });
@@ -524,11 +749,13 @@ const CommunityNetworkGraph = () => {
           .transition()
           .duration(400) // Shorter duration for faster response
           .attr("stroke", (d: any) => {
-            if (d.id === selectedUser.id) return "#ff6600";
-            return connectedUserSet.has(d.id) ? "#ff9955" : "#fff";
+            if (d.id === selectedNode.id) return COLORS.SELECTED_NODE_STROKE;
+            return connectedUserSet.has(d.id)
+              ? COLORS.CONNECTED_NODE_STROKE
+              : COLORS.DEFAULT_NODE_STROKE;
           })
           .attr("stroke-width", (d: any) => {
-            if (d.id === selectedUser.id) return 3;
+            if (d.id === selectedNode.id) return 3;
             return connectedUserSet.has(d.id) ? 2 : 1.5;
           });
 
@@ -536,15 +763,19 @@ const CommunityNetworkGraph = () => {
         node
           .transition()
           .duration(400) // Shorter duration for faster response
-          .attr("opacity", (d: any) => {
-            if (d.id === selectedUser.id) return 1;
-            return connectedUserSet.has(d.id) ? 1 : 0.3;
+          .style("opacity", (d: any) => {
+            // Always keep the selected node at full opacity
+            if (d.id === selectedNode.id) return 1;
+            // Connected nodes at full opacity, others faded
+            return connectedUserSet.has(d.id)
+              ? 1
+              : COLORS.NON_SELECTED_NODE_OPACITY;
           });
 
         // Show names for selected and connected users, hide others
         labelGroup.selectAll("text").each(function (d: any) {
           const isSelectedOrConnected =
-            d.id === selectedUser.id || connectedUserIds.includes(d.id);
+            d.id === selectedNode.id || connectedUserIds.includes(d.id);
 
           // Get the text element
           const textElement = d3.select(this);
@@ -554,10 +785,10 @@ const CommunityNetworkGraph = () => {
             textElement
               .transition()
               .duration(400)
-              .style("opacity", 1)
+              .style("opacity", "1")
               .style(
                 "font-weight",
-                d.id === selectedUser.id ? "bold" : "normal"
+                d.id === selectedNode.id ? "bold" : "normal"
               );
 
             // Add a data attribute to mark this as a text to keep visible
@@ -575,17 +806,20 @@ const CommunityNetworkGraph = () => {
         link
           .transition()
           .duration(800)
-          .attr("stroke", "#6366F1")
-          .attr("stroke-opacity", 0.6);
+          .attr("stroke", COLORS.LINK_GRADIENT_START)
+          .style("stroke-opacity", COLORS.LINK_DEFAULT_OPACITY);
 
         node
           .select("circle")
           .transition()
           .duration(800)
-          .attr("stroke", "#fff")
+          .attr("stroke", COLORS.DEFAULT_NODE_STROKE)
           .attr("stroke-width", 1.5);
 
-        node.transition().duration(800).attr("opacity", 1);
+        // Reset all node styles
+        node.attr("data-selected", null);
+
+        node.transition().duration(800).style("opacity", 1);
 
         // Hide all names when no user is selected and restore hover behavior
         labelGroup
@@ -595,7 +829,7 @@ const CommunityNetworkGraph = () => {
           .attr("data-keep-visible", null); // Clear the keep-visible flag for all
       }
     }
-  }, [selectedUser]);
+  }, [selectedNode, safeGetId, updateNodeConnections]);
 
   return (
     <div className="w-full rounded-lg bg-white p-4 shadow">
@@ -604,25 +838,31 @@ const CommunityNetworkGraph = () => {
         searchTerm={searchTerm}
         setSearchTerm={setSearchTerm}
         searchResults={searchResults}
+        allUsers={data.nodes as Array<User | Project>}
         onSelectUser={(userId: string) => {
-          updateUserConnections(userId);
+          updateNodeConnections(userId);
+          setSearchTerm("");
           setSearchResults([]);
         }}
       />
-      <div className="flex flex-col gap-4 md:flex-row">
-        {/* Graph */}
-        <div className="rounded flex-grow border p-2">
-          <svg ref={svgRef} className="h-80 w-full"></svg>
+      <div className="grid h-[600px] grid-cols-1 gap-4 md:h-[700px] md:grid-cols-3">
+        {/* Graph - takes 2/3 of the space on desktop */}
+        <div className="rounded h-full overflow-hidden border p-2 md:col-span-2">
+          <svg ref={svgRef} className="h-full w-full"></svg>
         </div>
-        {/* Profile */}
-        {selectedUser && (
+        {/* Profile - takes 1/3 of the space on desktop, always displayed with default state handled inside the component */}
+        <div className="profile-container h-full w-full overflow-y-auto">
           <Profile
-            selectedUser={selectedUser}
+            selectedNode={selectedNode || undefined}
             connectionCount={connectionCount}
             directConnections={directConnections}
-            onSelectConnection={updateUserConnections}
+            onSelectConnection={(nodeId) => {
+              updateNodeConnections(nodeId);
+              // Scroll back to the top
+              window.scrollTo(0, 0);
+            }}
           />
-        )}
+        </div>
       </div>
       {/* Legend */}
       <GraphLegend />
