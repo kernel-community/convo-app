@@ -1,20 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useEffect, useRef, useState } from "react";
 import * as d3 from "d3";
-
-// Define types for our data structures
-interface User {
-  id: string;
-  name: string;
-  eventsCreated: number;
-  rsvps: number;
-}
-
-interface Link {
-  source: string | { id: string };
-  target: string | { id: string };
-  value: number;
-}
+import { data } from "./utils/mock";
+import type { User } from "./utils/types";
+import UserSearch from "./components/UserSearch";
+import Profile from "./components/Profile";
+import GraphLegend from "./components/GraphLegend";
 
 const CommunityNetworkGraph = () => {
   const svgRef = useRef<SVGSVGElement | null>(null);
@@ -25,49 +16,6 @@ const CommunityNetworkGraph = () => {
   >([]);
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [searchResults, setSearchResults] = useState<User[]>([]);
-
-  // Sample data with 10 nodes
-  const data = {
-    nodes: [
-      { id: "user1", name: "Emma", eventsCreated: 5, rsvps: 12 },
-      { id: "user2", name: "Liam", eventsCreated: 2, rsvps: 8 },
-      { id: "user3", name: "Olivia", eventsCreated: 7, rsvps: 15 },
-      { id: "user4", name: "Noah", eventsCreated: 1, rsvps: 6 },
-      { id: "user5", name: "Ava", eventsCreated: 3, rsvps: 9 },
-      { id: "user6", name: "Ethan", eventsCreated: 0, rsvps: 4 },
-      { id: "user7", name: "Sophia", eventsCreated: 4, rsvps: 10 },
-      { id: "user8", name: "Mason", eventsCreated: 2, rsvps: 7 },
-      { id: "user9", name: "Isabella", eventsCreated: 6, rsvps: 14 },
-      { id: "user10", name: "Logan", eventsCreated: 1, rsvps: 5 },
-    ],
-    links: [
-      // Core community 1
-      { source: "user1", target: "user2", value: 5 },
-      { source: "user1", target: "user3", value: 4 },
-      { source: "user1", target: "user9", value: 6 },
-      { source: "user2", target: "user3", value: 3 },
-      { source: "user3", target: "user9", value: 5 },
-
-      // Core community 2
-      { source: "user4", target: "user5", value: 4 },
-      { source: "user4", target: "user10", value: 2 },
-      { source: "user5", target: "user10", value: 3 },
-
-      // Core community 3
-      { source: "user6", target: "user7", value: 4 },
-      { source: "user6", target: "user8", value: 3 },
-      { source: "user7", target: "user8", value: 5 },
-
-      // Cross-community connections
-      { source: "user5", target: "user1", value: 1 },
-      { source: "user8", target: "user4", value: 1 },
-      { source: "user9", target: "user6", value: 2 },
-
-      // Bidirectional connection example
-      { source: "user2", target: "user7", value: 4 },
-      { source: "user7", target: "user2", value: 3 },
-    ],
-  };
 
   // Function to safely get node or link ID regardless of whether it's a string or object
   const safeGetId = (item: any) => {
@@ -651,120 +599,33 @@ const CommunityNetworkGraph = () => {
 
   return (
     <div className="w-full rounded-lg bg-white p-4 shadow">
-      {/* Search Bar */}
-      <div className="relative mb-4">
-        <input
-          type="text"
-          placeholder="Search users. Start typing user's name ... "
-          className="rounded w-full border border-gray-300 p-2 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-200"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-        {searchResults.length > 0 && (
-          <div className="rounded absolute z-10 mt-1 max-h-60 w-full overflow-y-auto border border-gray-300 bg-white shadow-lg">
-            {searchResults.map((user) => (
-              <div
-                key={user.id}
-                className="cursor-pointer p-2 hover:bg-indigo-50"
-                onClick={() => {
-                  updateUserConnections(user.id);
-                  setSearchTerm("");
-                  setSearchResults([]);
-                }}
-              >
-                {user.name}
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-
+      {/* Search bar */}
+      <UserSearch
+        searchTerm={searchTerm}
+        setSearchTerm={setSearchTerm}
+        searchResults={searchResults}
+        onSelectUser={(userId: string) => {
+          updateUserConnections(userId);
+          setSearchResults([]);
+        }}
+      />
       <div className="flex flex-col gap-4 md:flex-row">
+        {/* Graph */}
         <div className="rounded flex-grow border p-2">
           <svg ref={svgRef} className="h-80 w-full"></svg>
         </div>
+        {/* Profile */}
         {selectedUser && (
-          <div className="rounded border bg-gray-50 p-4 md:w-72">
-            <h3 className="mb-3 border-b pb-2 text-lg font-bold">Profile</h3>
-
-            <div className="space-y-4">
-              <div className="rounded bg-indigo-100 p-3">
-                <p className="text-xl font-bold text-indigo-800">
-                  {selectedUser.name}
-                </p>
-              </div>
-
-              <div>
-                <p className="text-sm font-medium text-gray-500">
-                  Activity Metrics
-                </p>
-                <div className="mt-2 grid grid-cols-1 gap-2">
-                  <div className="rounded bg-indigo-50 p-3">
-                    <p className="text-xs text-gray-500">Events Created</p>
-                    <p className="text-xl font-bold text-indigo-600">
-                      {selectedUser.eventsCreated}
-                    </p>
-                  </div>
-                  <div className="rounded bg-indigo-50 p-3">
-                    <p className="text-xs text-gray-500">RSVPs</p>
-                    <p className="text-xl font-bold text-indigo-600">
-                      {selectedUser.rsvps}
-                    </p>
-                  </div>
-                  <div className="rounded bg-indigo-50 p-3">
-                    <p className="text-xs text-gray-500">Direct Connections</p>
-                    <p className="text-xl font-bold text-indigo-600">
-                      {connectionCount}
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {directConnections.length > 0 && (
-                <div>
-                  <p className="text-sm font-medium text-gray-500">
-                    Connections
-                  </p>
-                  <div className="rounded mt-2 overflow-hidden border border-gray-200 bg-white">
-                    <ul className="divide-y divide-gray-200">
-                      {directConnections.map((connection) => (
-                        <li
-                          key={connection.id}
-                          className="p-2 hover:bg-indigo-50"
-                        >
-                          <button
-                            className="flex w-full items-center justify-between text-left text-sm"
-                            onClick={() => updateUserConnections(connection.id)}
-                          >
-                            <span className="font-medium text-indigo-600 underline">
-                              {connection.name}
-                            </span>
-                            <span className="text-xs text-gray-500">
-                              Strength: {connection.strength}
-                            </span>
-                          </button>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
+          <Profile
+            selectedUser={selectedUser}
+            connectionCount={connectionCount}
+            directConnections={directConnections}
+            onSelectConnection={updateUserConnections}
+          />
         )}
       </div>
-      <div className="mt-4 text-sm text-gray-600">
-        <p>• Larger circles = More activity (Events Created + RSVPs)</p>
-        <p>• Different colors = Automatically detected communities</p>
-        <p>• Connections = Co-attendance at events</p>
-        <p>• Hover over a node to see the user&apos;s name</p>
-        <p>
-          • When a user is selected, their name and connections are always
-          visible
-        </p>
-        <p>• Click on a user to view their profile</p>
-        <p>• Use the search bar to find and select specific users</p>
-      </div>
+      {/* Legend */}
+      <GraphLegend />
     </div>
   );
 };
