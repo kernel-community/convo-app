@@ -67,3 +67,78 @@ export const QUOTES = [
     by: "Friedrich Nietzsche",
   },
 ];
+
+export const FRENS = [
+  {
+    name: "Angela",
+    url: "https://x.com/probablyangg",
+    contribution: ["dev", "design", "product"],
+    image: "",
+  },
+  {
+    name: "Kernel",
+    url: "https://kernel.community/",
+    contribution: ["sponsor", "kernel"],
+    image: "",
+  },
+  {
+    name: "Vivek",
+    url: "https://x.com/vsinghdothings",
+    contribution: ["kernel", "product", "dev"],
+    image: "",
+  },
+  {
+    name: "Andy",
+    url: "https://x.com/cryptowanderer",
+    contribution: ["everything", "kernel"],
+    image: "",
+  },
+  {
+    name: "Aliya",
+    url: "https://x.com/aliyajypsy",
+    contribution: ["kernel", "product"],
+    image: "",
+  },
+  {
+    name: "Ricy",
+    url: "",
+    contribution: ["frontend"],
+    image: "",
+  },
+  {
+    name: "Alanah",
+    url: "",
+    contribution: ["design", "logo", "colors"],
+    image: "",
+  },
+  {
+    name: "Ash",
+    url: "",
+    contribution: ["design", "emojis", "logo", "product"],
+    image: "",
+  },
+  {
+    name: "Kanika",
+    url: "",
+    contribution: ["frontend"],
+    image: "",
+  },
+  {
+    name: "Aviraj",
+    url: "",
+    contribution: ["backend"],
+    image: "",
+  },
+  {
+    name: "Abhimanyu",
+    url: "",
+    contribution: ["backend"],
+    image: "",
+  },
+  {
+    name: "Claude",
+    url: "https://claude.ai",
+    contribution: ["everything"],
+    image: "",
+  },
+];
