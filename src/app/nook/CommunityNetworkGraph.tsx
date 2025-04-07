@@ -525,20 +525,84 @@ const CommunityNetworkGraph: React.FC = () => {
                 </span>`
                     : ""
                 }
-                ${
-                  d.currentAffiliation ||
-                  (d.profile && d.profile.currentAffiliation)
-                    ? `<span style="display: flex; align-items: center;">
-                  <svg style="width: 12px; height: 12px; margin-right: 4px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
-                  </svg>
-                  ${
+                ${(() => {
+                  // Find project connections for this user
+                  const projectConnections = data.links
+                    .filter((link) => {
+                      const sourceId =
+                        typeof link.source === "string"
+                          ? link.source
+                          : (link.source as { id: string }).id;
+                      const targetId =
+                        typeof link.target === "string"
+                          ? link.target
+                          : (link.target as { id: string }).id;
+                      return (
+                        (sourceId === d.id && targetId.startsWith("project")) ||
+                        (targetId === d.id && sourceId.startsWith("project"))
+                      );
+                    })
+                    .map((link) => {
+                      const sourceId =
+                        typeof link.source === "string"
+                          ? link.source
+                          : (link.source as { id: string }).id;
+                      const targetId =
+                        typeof link.target === "string"
+                          ? link.target
+                          : (link.target as { id: string }).id;
+                      const projectId = sourceId.startsWith("project")
+                        ? sourceId
+                        : targetId;
+                      const linkType = link.type || "member";
+
+                      // Find the project node
+                      const project = data.nodes.find(
+                        (node) => node.id === projectId
+                      );
+                      if (!project) return null;
+
+                      return {
+                        name: project.name,
+                        type: linkType,
+                        id: projectId,
+                      };
+                    })
+                    .filter(Boolean) as Array<{
+                    name: string;
+                    type: string;
+                    id: string;
+                  }>;
+
+                  if (projectConnections.length > 0) {
+                    return projectConnections
+                      .map(
+                        (projectConn) =>
+                          `<span style="display: flex; align-items: center; margin-bottom: 4px;">
+                        <svg style="width: 12px; height: 12px; margin-right: 4px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                        </svg>
+                        ${projectConn.name} <span style="font-size: 9px; margin-left: 4px; opacity: 0.7;">(${projectConn.type})</span>
+                      </span>`
+                      )
+                      .join("");
+                  } else if (
                     d.currentAffiliation ||
                     (d.profile && d.profile.currentAffiliation)
+                  ) {
+                    return `<span style="display: flex; align-items: center;">
+                      <svg style="width: 12px; height: 12px; margin-right: 4px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                      </svg>
+                      ${
+                        d.currentAffiliation ||
+                        (d.profile && d.profile.currentAffiliation)
+                      }
+                    </span>`;
+                  } else {
+                    return "";
                   }
-                </span>`
-                    : ""
-                }
+                })()}
               </div>`
                   : ""
               }
