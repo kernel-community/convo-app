@@ -71,6 +71,7 @@ model User {
   address     String?      @unique // deprecated
   nickname    String       @default("Anonymous")
   profile     Profile?
+  isBeta      Boolean      @default(false)
   events      Event[]
   rsvps       Rsvp[]
   collections Collection[]
