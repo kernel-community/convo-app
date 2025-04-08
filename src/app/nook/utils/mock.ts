@@ -14,7 +14,13 @@ export const data = {
         keywords: ["blockchain", "defi", "ethereum", "community", "governance"],
         description:
           "Blockchain researcher focused on decentralized governance systems and community building.",
-        city: "San Francisco",
+        location: {
+          id: 1,
+          name: "San Francisco",
+          latitude: 37.7749,
+          longitude: -122.4194,
+          description: "City in Northern California, United States",
+        },
         currentAffiliation: "Ethereum Foundation",
       },
       url: "https://github.com/emma-blockchain",
@@ -38,7 +44,13 @@ export const data = {
         ],
         description:
           "Smart contract developer with expertise in security auditing and optimization techniques.",
-        city: "Berlin",
+        location: {
+          id: 2,
+          name: "Berlin",
+          latitude: 52.52,
+          longitude: 13.405,
+          description: "Capital city of Germany",
+        },
         currentAffiliation: "ConsenSys",
       },
       url: "https://github.com/liam-solidity",
@@ -62,7 +74,13 @@ export const data = {
         ],
         description:
           "DAO designer specializing in tokenomics and sustainable economic models for web3 communities.",
-        city: "New York",
+        location: {
+          id: 3,
+          name: "New York",
+          latitude: 40.7128,
+          longitude: -74.006,
+          description: "Major city in the United States",
+        },
         currentAffiliation: "Gitcoin",
       },
       url: "https://github.com/olivia-dao",
@@ -86,7 +104,13 @@ export const data = {
         ],
         description:
           "Cryptography researcher exploring zero-knowledge proofs and privacy-preserving technologies.",
-        city: "Zurich",
+        location: {
+          id: 4,
+          name: "Zurich",
+          latitude: 47.3769,
+          longitude: 8.5417,
+          description: "Largest city in Switzerland",
+        },
         currentAffiliation: "ETH Zurich",
       },
       url: "https://github.com/noah-zk",
@@ -104,7 +128,13 @@ export const data = {
         keywords: ["frontend", "design", "ux", "web3", "accessibility"],
         description:
           "Frontend developer and designer creating intuitive interfaces for decentralized applications.",
-        city: "London",
+        location: {
+          id: 5,
+          name: "London",
+          latitude: 51.5074,
+          longitude: -0.1278,
+          description: "Capital city of England and the United Kingdom",
+        },
         currentAffiliation: "Aave",
       },
       url: "https://github.com/ava-design",
@@ -128,7 +158,13 @@ export const data = {
         ],
         description:
           "Digital artist exploring the intersection of generative art, NFTs, and on-chain aesthetics.",
-        city: "Paris",
+        location: {
+          id: 6,
+          name: "Paris",
+          latitude: 48.8566,
+          longitude: 2.3522,
+          description: "Capital city of France",
+        },
         currentAffiliation: "Foundation",
       },
       url: "https://github.com/ethan-art",
@@ -152,7 +188,13 @@ export const data = {
         ],
         description:
           "Community builder focused on educational initiatives and meaningful connection through events.",
-        city: "Austin",
+        location: {
+          id: 7,
+          name: "Austin",
+          latitude: 30.2672,
+          longitude: -97.7431,
+          description: "Capital city of Texas, United States",
+        },
         currentAffiliation: "Kernel Community",
       },
       url: "https://github.com/sophia-community",
@@ -170,7 +212,13 @@ export const data = {
         keywords: ["infrastructure", "devops", "scaling", "nodes", "protocols"],
         description:
           "Infrastructure engineer building resilient systems for decentralized protocols and applications.",
-        city: "Singapore",
+        location: {
+          id: 8,
+          name: "Singapore",
+          latitude: 1.3521,
+          longitude: 103.8198,
+          description: "City-state in Southeast Asia",
+        },
         currentAffiliation: "Infura",
       },
       url: "https://github.com/mason-infra",
@@ -194,7 +242,13 @@ export const data = {
         ],
         description:
           "Economic researcher studying incentive mechanisms and market design in decentralized systems.",
-        city: "Toronto",
+        location: {
+          id: 9,
+          name: "Toronto",
+          latitude: 43.6532,
+          longitude: -79.3832,
+          description: "Capital city of Ontario, Canada",
+        },
         currentAffiliation: "Optimism",
       },
       url: "https://github.com/isabella-econ",
@@ -211,7 +265,13 @@ export const data = {
         keywords: ["defi", "trading", "analytics", "data science", "risk"],
         description:
           "DeFi analyst with expertise in risk assessment and data-driven protocol optimization.",
-        city: "Miami",
+        location: {
+          id: 10,
+          name: "Miami",
+          latitude: 25.7617,
+          longitude: -80.1918,
+          description: "City in Florida, United States",
+        },
         currentAffiliation: "Uniswap Labs",
       },
       url: "https://github.com/logan-defi",
@@ -340,3 +400,17 @@ export const data = {
     { source: "user10", target: "project4", type: "contributor" },
   ],
 };
+
+// Define the LocationData type for better type safety
+export interface LocationData {
+  id: number;
+  name: string;
+  latitude: number;
+  longitude: number;
+  description?: string;
+}
+
+// Filter out undefined values and assert the type
+export const locations = data.nodes
+  .map((node) => node?.profile?.location)
+  .filter(Boolean) as LocationData[];

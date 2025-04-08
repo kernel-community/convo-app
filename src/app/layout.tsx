@@ -6,6 +6,7 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import Providers from "./providers";
 import type { Metadata } from "next";
 import { BetaModeWrapper } from "src/components/BetaModeWrapper";
+import "mapbox-gl/dist/mapbox-gl.css"; // Import Mapbox CSS
 
 const inter = Inter({ subsets: ["latin"] });
 
