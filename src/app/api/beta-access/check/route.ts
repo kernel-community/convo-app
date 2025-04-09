@@ -1,7 +1,6 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { prisma } from "src/utils/db";
-import { BETA_USERS } from "src/utils/constants";
 
 // This tells Next.js this route should be dynamically rendered
 export const dynamic = "force-dynamic";
@@ -39,7 +38,7 @@ export async function GET() {
       // Get the user from the database to check their email
       const user = await prisma.user.findUnique({
         where: { id: userId },
-        select: { email: true },
+        select: { email: true, isBeta: true },
       });
 
       // Check if the user's email is in the BETA_USERS list from flags.ts
@@ -47,7 +46,7 @@ export async function GET() {
       if (user?.email) {
         const email = user.email.toLowerCase();
         hasBetaAccess =
-          BETA_USERS.includes(email) ||
+          user.isBeta ||
           email.endsWith("@convo.cafe") ||
           email.endsWith("@kernel.community");
       }

@@ -22,11 +22,6 @@ export const KERNEL_SMOLBRAIN_API =
 export const KERNEL_SMOLBRAIN_APP_NAME =
   process.env.NEXT_PUBLIC_KERNEL_SMOLBRAIN_APP_NAME;
 
-export const BETA_USERS = [
-  "angela.gilhotra@gmail.com",
-  // Add more beta users as needed
-];
-
 export const QUOTES = [
   {
     quote:
