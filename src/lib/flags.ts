@@ -58,6 +58,8 @@ const checkBetaAccessViaApi = cache(async () => {
   }
 });
 
+import { prisma } from "src/utils/db";
+
 // Beta mode flag - enables beta features for specific users
 export const betaMode = flag<boolean, ConvoEntities>({
   key: "beta-mode",
@@ -66,30 +68,51 @@ export const betaMode = flag<boolean, ConvoEntities>({
     const userEmail = entities?.user?.email;
     const userId = entities?.user?.id;
 
-    // If we have a user ID, check via the API
+    // First check the database for the isBeta flag if we have a userId
     if (userId) {
       try {
-        const hasBetaAccess = await checkBetaAccessViaApi();
-
-        console.log("[Flags] Beta mode via API:", {
-          isEnabled: hasBetaAccess,
-          userId,
-          email: userEmail,
+        const user = await prisma.user.findUnique({
+          where: { id: userId },
+          select: { email: true, isBeta: true },
         });
 
-        return hasBetaAccess;
+        if (user?.isBeta) {
+          console.log("[Flags] Beta mode enabled via database isBeta flag:", {
+            userId,
+            email: userEmail,
+          });
+          return true;
+        }
       } catch (error) {
-        console.error("[Flags] Error checking beta access:", error);
+        console.error(
+          "[Flags] Error checking database for beta status:",
+          error
+        );
       }
     }
 
-    // Fallback to simple email check if API fails or no user ID
-    const isEnabled = userEmail?.endsWith("@kernel.community") ?? false;
+    // Then check if email is from a known beta domain
+    let isEnabled = false;
 
-    console.log("[Flags] Beta mode fallback:", {
-      isEnabled,
-      email: userEmail,
-    });
+    if (userEmail) {
+      const email = userEmail.toLowerCase();
+      isEnabled =
+        email.endsWith("@kernel.community") || email.endsWith("@convo.cafe");
+
+      console.log("[Flags] Beta mode domain check:", {
+        isEnabled,
+        userId,
+        email: userEmail,
+      });
+    }
+
+    // If we don't have an email or it's not from a beta domain, log it
+    if (!isEnabled) {
+      console.log("[Flags] Beta mode denied:", {
+        userId,
+        email: userEmail,
+      });
+    }
 
     return isEnabled;
   },
