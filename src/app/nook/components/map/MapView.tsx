@@ -18,6 +18,7 @@ export interface Marker {
   latitude: number;
   title?: string;
   color?: string;
+  nodes?: string[]; // Array of node IDs in this location
 }
 
 const MapView: React.FC<MapViewProps> = ({
@@ -217,6 +218,8 @@ const MapView: React.FC<MapViewProps> = ({
                     description: `${marker.latitude.toFixed(
                       4
                     )}, ${marker.longitude.toFixed(4)}`,
+                    nodes: marker.nodes || [],
+                    nodeCount: marker.nodes ? marker.nodes.length : 0,
                   },
                   geometry: {
                     type: "Point",
@@ -263,10 +266,26 @@ const MapView: React.FC<MapViewProps> = ({
               const description = feature.properties.description as string;
 
               // Create popup HTML
+              const nodes = (feature.properties.nodes as string[]) || [];
+              const nodeCount = (feature.properties.nodeCount as number) || 0;
+
+              // Create popup HTML with node information
               const popupHTML = `
               <div style="padding: 10px; text-align: center; border-radius: 8px;">
                 <h3 style="margin: 0 0 8px 0; color: ${color}; font-weight: bold; font-size: 16px;">${title}</h3>
                 <div style="font-size: 12px; color: #666;">${description}</div>
+                <div style="font-size: 12px; margin-top: 8px; font-weight: bold;">${nodeCount} ${
+                nodeCount === 1 ? "Node" : "Nodes"
+              } at this location</div>
+                ${
+                  nodeCount > 0
+                    ? `<div style="font-size: 11px; color: #888; margin-top: 4px;">${
+                        Array.isArray(nodes) ? nodes.slice(0, 3).join(", ") : ""
+                      }${
+                        nodeCount > 3 ? " and ${nodeCount - 3} more..." : ""
+                      }</div>`
+                    : ""
+                }
               </div>
             `;
 

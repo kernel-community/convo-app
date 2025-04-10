@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 import Main from "src/layouts/Main";
 import CommunityNetworkGraph from "./CommunityNetworkGraph";
 import { checkSessionAuth } from "src/lib/checkSessionAuth";
@@ -12,13 +13,55 @@ import {
   TabsTrigger,
   TabsContent,
 } from "src/components/ui/tabs";
-import MapView from "./map/MapView";
+import MapView from "./components/map/MapView";
 import { motion } from "framer-motion";
+import { locations } from "./utils/mock";
+import type { Marker } from "./components/map/MapView";
+
+// Array of colors for different locations
+const locationColors = [
+  "#FF5733", // Orange-red
+  "#33FF57", // Green
+  "#3357FF", // Blue
+  "#F033FF", // Purple
+  "#FF33F0", // Pink
+  "#33FFF0", // Cyan
+  "#F0FF33", // Yellow
+  "#FF8C33", // Orange
+  "#8C33FF", // Violet
+  "#33FF8C", // Mint
+];
+
+// Function to generate a color based on location ID for consistent coloring
+const getLocationColor = (id: number): string => {
+  // Use modulo to cycle through colors if we have more locations than colors
+  const index = id % locationColors.length;
+  // Ensure we return a valid string
+  return locationColors[index] || "#FF5733";
+};
 
 export default function NookPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState("network");
+  // Get the tab from URL params or default to "network"
+  const tabParam = searchParams.get("tab");
+  const [activeTab, setActiveTab] = useState(
+    tabParam && ["network", "map"].includes(tabParam) ? tabParam : "network"
+  );
+
+  // Effect to sync URL parameters with tab state
+  useEffect(() => {
+    // If URL has tab parameter, update active tab state
+    if (
+      tabParam &&
+      ["network", "map"].includes(tabParam) &&
+      tabParam !== activeTab
+    ) {
+      setActiveTab(tabParam);
+    }
+  }, [tabParam, activeTab]);
 
   useEffect(() => {
     const checkBetaAccess = async () => {
@@ -91,9 +134,17 @@ export default function NookPage() {
         </div>
 
         <Tabs
+          value={activeTab}
           defaultValue="network"
           className="w-full"
-          onValueChange={(value) => setActiveTab(value)}
+          onValueChange={(value) => {
+            setActiveTab(value);
+            // Update URL with the new tab parameter
+            const params = new URLSearchParams(searchParams.toString());
+            params.set("tab", value);
+            // Use router.replace to update URL without full navigation
+            router.replace(`${pathname}?${params.toString()}`);
+          }}
         >
           <div className="mb-4 flex justify-center">
             <div className="relative w-[400px] rounded-lg bg-gray-100 p-1">
@@ -152,43 +203,27 @@ export default function NookPage() {
             }}
           >
             <MapView
-              markers={[
-                {
-                  id: 1,
-                  longitude: -122.4194,
-                  latitude: 37.7749,
-                  title: "San Francisco",
-                  color: "#FF5733",
-                },
-                {
-                  id: 2,
-                  longitude: -0.1278,
-                  latitude: 51.5074,
-                  title: "London",
-                  color: "#33FF57",
-                },
-                {
-                  id: 3,
-                  longitude: 139.6917,
-                  latitude: 35.6895,
-                  title: "Tokyo",
-                  color: "#3357FF",
-                },
-                {
-                  id: 4,
-                  longitude: 2.3522,
-                  latitude: 48.8566,
-                  title: "Paris",
-                  color: "#F033FF",
-                },
-                {
-                  id: 5,
-                  longitude: 77.209,
-                  latitude: 28.6139,
-                  title: "New Delhi",
-                  color: "#FF33F0",
-                },
-              ]}
+              markers={locations.map((location) => {
+                // Ensure we have valid data for each marker
+                const id = typeof location.id === "number" ? location.id : 1;
+                const longitude = location.longitude;
+                const latitude = location.latitude;
+                const title = location.name || "Unknown Location";
+                const color = getLocationColor(id);
+                const nodes = location.nodes || [];
+
+                // Create a properly typed marker object
+                const marker: Marker = {
+                  id,
+                  longitude,
+                  latitude,
+                  title,
+                  color: color as string, // Type assertion to ensure TypeScript sees this as a string
+                  nodes,
+                };
+
+                return marker;
+              })}
             />
             <div className="mt-4 text-center">
               <p className="font-secondary text-muted-foreground">

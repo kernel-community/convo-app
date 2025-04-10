@@ -243,11 +243,11 @@ export const data = {
         description:
           "Economic researcher studying incentive mechanisms and market design in decentralized systems.",
         location: {
-          id: 9,
-          name: "Toronto",
-          latitude: 43.6532,
-          longitude: -79.3832,
-          description: "Capital city of Ontario, Canada",
+          id: 8,
+          name: "Singapore",
+          latitude: 1.3521,
+          longitude: 103.8198,
+          description: "City-state in Southeast Asia",
         },
         currentAffiliation: "Optimism",
       },
@@ -266,11 +266,11 @@ export const data = {
         description:
           "DeFi analyst with expertise in risk assessment and data-driven protocol optimization.",
         location: {
-          id: 10,
-          name: "Miami",
-          latitude: 25.7617,
-          longitude: -80.1918,
-          description: "City in Florida, United States",
+          id: 8,
+          name: "Singapore",
+          latitude: 1.3521,
+          longitude: 103.8198,
+          description: "City-state in Southeast Asia",
         },
         currentAffiliation: "Uniswap Labs",
       },
@@ -408,9 +408,36 @@ export interface LocationData {
   latitude: number;
   longitude: number;
   description?: string;
+  nodes?: string[]; // Array of node IDs that are in this location
 }
 
-// Filter out undefined values and assert the type
-export const locations = data.nodes
-  .map((node) => node?.profile?.location)
-  .filter(Boolean) as LocationData[];
+// Process nodes to create unique locations with associated nodes
+export const locations = (() => {
+  // Create a map to track unique locations by longitude/latitude pair
+  const locationMap = new Map<string, LocationData>();
+
+  // Process each node to extract location data and associate nodes with locations
+  data.nodes.forEach((node) => {
+    if (node?.profile?.location) {
+      const location = node.profile.location;
+      const locationKey = `${location.longitude},${location.latitude}`;
+
+      if (!locationMap.has(locationKey)) {
+        // Create a new location entry with an empty nodes array
+        locationMap.set(locationKey, {
+          ...location,
+          nodes: [],
+        });
+      }
+
+      // Add this node's ID to the location's nodes array
+      const existingLocation = locationMap.get(locationKey);
+      if (existingLocation && existingLocation.nodes) {
+        existingLocation.nodes.push(node.id);
+      }
+    }
+  });
+
+  // Convert the map values to an array
+  return Array.from(locationMap.values());
+})();
