@@ -2,7 +2,7 @@
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import * as d3 from "d3";
 import { data } from "../utils/mock";
-import type { User, Project, NodeType } from "../utils/types";
+import type { User, NodeType } from "../utils/types";
 import UserSearch from "./UserSearch";
 import Profile from "./Profile";
 import GraphLegend from "./GraphLegend";
@@ -12,7 +12,6 @@ import { useSearchParams, useRouter, usePathname } from "next/navigation";
 const COLORS = {
   // Node colors
   USER_NODE: "var(--primary)", // Green for users
-  PROJECT_NODE: "var(--secondary)", // Blue for projects
   FELLOW_INDICATOR: "var(--info)", // Purple/blue for fellow indicator
 
   // Link colors
@@ -41,7 +40,6 @@ const COLORS = {
   TOOLTIP_LINK: "var(--secondary)",
 
   // Text colors
-  LABEL_PROJECT: "var(--secondary)",
   LABEL_USER: "var(--foreground)",
 };
 
@@ -50,14 +48,13 @@ const SELECTED_NODE_SCALE = 3;
 
 const CommunityNetworkGraph: React.FC = () => {
   const svgRef = useRef<SVGSVGElement | null>(null);
-  const [selectedNode, setSelectedNode] = useState<User | Project | null>(null);
+  const [selectedNode, setSelectedNode] = useState<User | null>(null);
   const [connectionCount, setConnectionCount] = useState(0);
   const [directConnections, setDirectConnections] = useState<
     Array<{ id: string; name: string; strength: number; type: NodeType }>
   >([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [searchResults, setSearchResults] = useState<(User | Project)[]>([]);
-  // const [showLegend, setShowLegend] = useState(false); // Uncomment when legend feature is implemented
+  const [searchResults, setSearchResults] = useState<User[]>([]);
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
@@ -77,7 +74,7 @@ const CommunityNetworkGraph: React.FC = () => {
 
     const filteredNodes = data.nodes.filter((node) =>
       node.name.toLowerCase().includes(searchTerm.toLowerCase())
-    ) as (User | Project)[];
+    ) as User[];
 
     setSearchResults(filteredNodes);
   }, [searchTerm]); // Only need to re-run when search term changes
@@ -101,12 +98,6 @@ const CommunityNetworkGraph: React.FC = () => {
     },
     [router, searchParams, pathname]
   );
-
-  // Add this effect to clean up tooltips when URL parameters change
-  useEffect(() => {
-    // Clean up any tooltips when URL changes
-    d3.select(".tooltip").transition().duration(200).style("opacity", 0);
-  }, [searchParams]);
 
   // Memoized function to update connections for a node
   const updateNodeConnections = useCallback(
@@ -132,9 +123,7 @@ const CommunityNetworkGraph: React.FC = () => {
         return;
       }
 
-      const nodeData = data.nodes.find((n) => n.id === nodeId) as
-        | User
-        | Project;
+      const nodeData = data.nodes.find((n) => n.id === nodeId) as User;
       if (!nodeData) return;
 
       setSelectedNode(nodeData);
@@ -217,9 +206,7 @@ const CommunityNetworkGraph: React.FC = () => {
       // Update URL after D3 operations are complete
       setTimeout(() => {
         if (nodeId !== null) {
-          const nodeData = data.nodes.find((n) => n.id === nodeId) as
-            | User
-            | Project;
+          const nodeData = data.nodes.find((n) => n.id === nodeId) as User;
           if (nodeData) {
             setSelectedNode(nodeData);
           }
@@ -237,15 +224,9 @@ const CommunityNetworkGraph: React.FC = () => {
 
   // Function to calculate node radius based on activity
   const getNodeRadius = useCallback((node: any): number => {
-    if (node.type === "project") {
-      // Projects have a fixed, larger radius
-      return 10;
-    } else {
-      // For users, calculate based on activity
-      const totalActivity =
-        (node.convo?.eventsCreated || 0) + (node.convo?.rsvps || 0);
-      return 5 + Math.sqrt(totalActivity) * 1.5;
-    }
+    // Keep all nodes same size for now
+    console.log(node);
+    return 10;
   }, []);
 
   // Create and update the force-directed graph
@@ -284,7 +265,6 @@ const CommunityNetworkGraph: React.FC = () => {
     // Use color constants for node types
     const nodeColors = {
       user: COLORS.USER_NODE,
-      project: COLORS.PROJECT_NODE,
     };
 
     // Create the force simulation with optimized settings
@@ -395,10 +375,7 @@ const CommunityNetworkGraph: React.FC = () => {
       .on("click", (event: any, d: any) => {
         event.stopPropagation();
         updateNodeConnections(d.id);
-        d3.select(".tooltip").transition().duration(200).style("opacity", 0);
       });
-
-    // Project nodes are now identified by their blue color
 
     // Add visual indicator for fellows
     node
@@ -449,7 +426,7 @@ const CommunityNetworkGraph: React.FC = () => {
       .style("position", "absolute")
       .style("opacity", 0)
       .style("pointer-events", "none")
-      .style("z-index", "1000")
+      .style("z-index", "9999")
       .style("font-family", "system-ui, sans-serif")
       .style("font-size", "12px")
       .style("background", "white")
@@ -471,193 +448,80 @@ const CommunityNetworkGraph: React.FC = () => {
             .attr("r", (d: any) => getNodeRadius(d) * 1.2);
         }
 
-        let tooltipContent = "";
+        // Handle label visibility
+        labelGroup
+          .selectAll("text")
+          .filter((textData: any) => textData.id === d.id)
+          .transition()
+          .duration(200)
+          .style("opacity", "1");
 
-        if (d.type === "project") {
-          // Project node tooltip
-          tooltipContent = `
-            <div style="padding: 12px; width: 250px;">
-              <div style="font-weight: 600; font-size: 14px; color: ${
-                COLORS.TOOLTIP_TITLE
-              };">${d.name}</div>
-              <div style="margin-top: 4px; font-size: 12px; color: ${
-                COLORS.TOOLTIP_TEXT
-              };">Project</div>
-              ${
-                d.description
-                  ? `<div style="margin-top: 6px; font-size: 12px; color: ${
-                      COLORS.TOOLTIP_TEXT
-                    }; overflow: hidden; text-overflow: ellipsis;">${
-                      d.description.length > 120
-                        ? d.description.substring(0, 120) + "..."
-                        : d.description
-                    }</div>`
-                  : ""
-              }
-              ${
-                d.keywords || (d.profile && d.profile.keywords)
-                  ? `<div style="display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px;">
-                ${(d.keywords || (d.profile && d.profile.keywords) || [])
-                  .map(
-                    (keyword: string) =>
-                      `<span style="background: ${COLORS.TOOLTIP_TAG_BG}; color: ${COLORS.TOOLTIP_TAG_TEXT}; font-size: 10px; padding: 2px 8px; border-radius: 12px;">${keyword}</span>`
-                  )
-                  .join("")}
-              </div>`
-                  : ""
-              }
-              ${
-                d.status
-                  ? `<div style="margin-top: 6px; font-size: 11px;"><span style="background: ${COLORS.TOOLTIP_STATUS_BG}; color: ${COLORS.TOOLTIP_STATUS_TEXT}; padding: 2px 8px; border-radius: 12px;">${d.status}</span></div>`
-                  : ""
-              }
-              ${
-                d.url
-                  ? `<div style="margin-top: 6px; font-size: 12px;"><a href="${d.url}" target="_blank" style="color: ${COLORS.TOOLTIP_LINK}; text-decoration: none;">View Project</a></div>`
-                  : ""
-              }
-            </div>
-          `;
-        } else {
-          // User node tooltip
-          tooltipContent = `
-            <div style="padding: 12px; width: 250px;">
-              <div style="font-weight: 600; font-size: 14px; color: ${
-                COLORS.TOOLTIP_TITLE
-              };">${d.name}</div>
-              ${
-                d.bio || (d.profile && d.profile.bio)
-                  ? `<div style="margin-top: 6px; font-size: 12px; color: ${
-                      COLORS.TOOLTIP_TEXT
-                    }; overflow: hidden; text-overflow: ellipsis;">${
-                      (d.bio || (d.profile && d.profile.bio) || "").length > 120
-                        ? (d.bio || (d.profile && d.profile.bio)).substring(
-                            0,
-                            120
-                          ) + "..."
-                        : d.bio || (d.profile && d.profile.bio)
-                    }</div>`
-                  : ""
-              }
-              ${
-                d.keywords || (d.profile && d.profile.keywords)
-                  ? `<div style="display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px;">
-                ${(d.keywords || (d.profile && d.profile.keywords) || [])
-                  .map(
-                    (keyword: string) =>
-                      `<span style="background: ${COLORS.TOOLTIP_TAG_BG}; color: ${COLORS.TOOLTIP_TAG_TEXT}; font-size: 10px; padding: 2px 8px; border-radius: 12px;">${keyword}</span>`
-                  )
-                  .join("")}
-              </div>`
-                  : ""
-              }
-              ${
-                d.city ||
-                d.currentAffiliation ||
-                (d.profile && (d.profile.city || d.profile.currentAffiliation))
-                  ? `<div style="display: flex; align-items: center; margin-top: 6px; font-size: 11px; color: ${
-                      COLORS.TOOLTIP_SECONDARY
-                    };">
-                ${
-                  d.city || (d.profile && d.profile.city)
-                    ? `<span style="display: flex; align-items: center; margin-right: 8px;">
-                  <svg style="width: 12px; height: 12px; margin-right: 4px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                  </svg>
-                  ${d.city || (d.profile && d.profile.city)}
-                </span>`
-                    : ""
-                }
-                ${(() => {
-                  // Find project connections for this user
-                  const projectConnections = data.links
-                    .filter((link) => {
-                      const sourceId =
-                        typeof link.source === "string"
-                          ? link.source
-                          : (link.source as { id: string }).id;
-                      const targetId =
-                        typeof link.target === "string"
-                          ? link.target
-                          : (link.target as { id: string }).id;
-                      return (
-                        (sourceId === d.id && targetId.startsWith("project")) ||
-                        (targetId === d.id && sourceId.startsWith("project"))
-                      );
-                    })
-                    .map((link) => {
-                      const sourceId =
-                        typeof link.source === "string"
-                          ? link.source
-                          : (link.source as { id: string }).id;
-                      const targetId =
-                        typeof link.target === "string"
-                          ? link.target
-                          : (link.target as { id: string }).id;
-                      const projectId = sourceId.startsWith("project")
-                        ? sourceId
-                        : targetId;
-                      const linkType = link.type || "member";
-
-                      // Find the project node
-                      const project = data.nodes.find(
-                        (node) => node.id === projectId
-                      );
-                      if (!project) return null;
-
-                      return {
-                        name: project.name,
-                        type: linkType,
-                        id: projectId,
-                      };
-                    })
-                    .filter(Boolean) as Array<{
-                    name: string;
-                    type: string;
-                    id: string;
-                  }>;
-
-                  if (projectConnections.length > 0) {
-                    return projectConnections
-                      .map(
-                        (projectConn) =>
-                          `<span style="display: flex; align-items: center; margin-bottom: 4px;">
+        // Handle tooltip
+        const tooltipContent = `
+          <div style="padding: 12px; width: 250px;">
+            <div style="font-weight: 600; font-size: 14px; color: ${
+              COLORS.TOOLTIP_TITLE
+            };">${d.name}</div>
+            ${
+              d.profile?.description
+                ? `<div style="margin-top: 6px; font-size: 12px; color: ${
+                    COLORS.TOOLTIP_TEXT
+                  }; overflow: hidden; text-overflow: ellipsis;">${
+                    d.profile.description.length > 120
+                      ? d.profile.description.substring(0, 120) + "..."
+                      : d.profile.description
+                  }</div>`
+                : ""
+            }
+            ${
+              d.profile?.keywords && d.profile.keywords.length > 0
+                ? `<div style="display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px;">
+                  ${d.profile.keywords
+                    .map(
+                      (keyword: string) =>
+                        `<span style="background: ${COLORS.TOOLTIP_TAG_BG}; color: ${COLORS.TOOLTIP_TAG_TEXT}; font-size: 10px; padding: 2px 8px; border-radius: 12px;">${keyword}</span>`
+                    )
+                    .join("")}
+                </div>`
+                : ""
+            }
+            ${
+              d.profile?.city || d.profile?.currentAffiliation
+                ? `<div style="display: flex; align-items: center; margin-top: 6px; font-size: 11px; color: ${
+                    COLORS.TOOLTIP_SECONDARY
+                  };">${
+                    d.profile?.city
+                      ? `<span style="display: flex; align-items: center; margin-right: 8px;">
                         <svg style="width: 12px; height: 12px; margin-right: 4px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
                         </svg>
-                        ${projectConn.name} <span style="font-size: 9px; margin-left: 4px; opacity: 0.7;">(${projectConn.type})</span>
+                        ${d.profile.city}
                       </span>`
-                      )
-                      .join("");
-                  } else if (
-                    d.currentAffiliation ||
-                    (d.profile && d.profile.currentAffiliation)
-                  ) {
-                    return `<span style="display: flex; align-items: center;">
+                      : ""
+                  }
+                ${
+                  d.profile?.currentAffiliation
+                    ? `<span style="display: flex; align-items: center;">
                       <svg style="width: 12px; height: 12px; margin-right: 4px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
                       </svg>
-                      ${
-                        d.currentAffiliation ||
-                        (d.profile && d.profile.currentAffiliation)
-                      }
-                    </span>`;
-                  } else {
-                    return "";
-                  }
-                })()}
+                      ${d.profile.currentAffiliation}
+                    </span>`
+                    : ""
+                }
               </div>`
-                  : ""
-              }
-            </div>
-          `;
-        }
+                : ""
+            }
+          </div>
+        `;
 
         tooltip
           .html(tooltipContent)
-          .style("left", event.pageX + 10 + "px")
-          .style("top", event.pageY - 28 + "px")
+          .style("left", event.pageX + 15 + "px")
+          .style("top", event.pageY - 10 + "px")
+          .style("display", "block") // Make sure display is set to block
+          .style("opacity", 0) // Set initial opacity to 0
           .transition()
           .duration(200)
           .style("opacity", 0.95);
@@ -672,7 +536,27 @@ const CommunityNetworkGraph: React.FC = () => {
             .attr("r", (d: any) => getNodeRadius(d));
         }
 
-        tooltip.transition().duration(500).style("opacity", 0);
+        // Handle label visibility - keep labels visible for selected node and its connections
+        const isSelectedOrConnected =
+          selectedNode &&
+          (d.id === selectedNode.id ||
+            directConnections.some((conn) => conn.id === d.id));
+
+        labelGroup
+          .selectAll("text")
+          .filter((textData: any) => textData.id === d.id)
+          .transition()
+          .duration(200)
+          .style("opacity", isSelectedOrConnected ? "1" : "0");
+
+        // Handle tooltip
+        tooltip
+          .transition()
+          .duration(500)
+          .style("opacity", 0)
+          .on("end", function () {
+            tooltip.style("display", "none");
+          });
       });
 
     // Create text labels in the top layer
@@ -686,44 +570,15 @@ const CommunityNetworkGraph: React.FC = () => {
       .attr("dy", ".35em")
       .text((d) => d.name)
       .style("font-family", "system-ui, sans-serif")
-      .style("font-size", (d) => (d.type === "project" ? "11px" : "10px"))
-      .style("font-weight", (d) => (d.type === "project" ? "600" : "normal"))
+      .style("font-size", "10px")
+      .style("font-weight", "normal")
       .style("pointer-events", "none")
       .style("opacity", 0.8)
       .style(
         "text-shadow",
         "0 1px 2px rgba(255,255,255,0.8), 0 -1px 1px rgba(255,255,255,0.8), 1px 0 1px rgba(255,255,255,0.8), -1px 0 1px rgba(255,255,255,0.8)"
       )
-      .style("fill", (d) =>
-        d.type === "project" ? COLORS.LABEL_PROJECT : COLORS.LABEL_USER
-      );
-
-    // Add hover behavior to show/hide names
-    node
-      .on("mouseenter", function (event, d: any) {
-        // Find the corresponding text element in the labelGroup
-        labelGroup
-          .selectAll("text")
-          .filter((textData: any) => textData.id === d.id)
-          .transition()
-          .duration(200)
-          .style("opacity", "1");
-      })
-      .on("mouseleave", function (event, d: any) {
-        // Find the corresponding text element in the labelGroup
-        labelGroup
-          .selectAll("text")
-          .filter((textData: any) => textData.id === d.id)
-          .transition()
-          .duration(200)
-          .style("opacity", function (this: any) {
-            // If the element has the keep-visible data attribute, don't hide it
-            if (d3.select(this).attr("data-keep-visible") === "true") {
-              return "1";
-            }
-            return "0";
-          });
-      });
+      .style("fill", COLORS.LABEL_USER);
 
     // Optimize the tick function to reduce calculations
     // Limit the number of ticks during initial rendering
@@ -931,15 +786,9 @@ const CommunityNetworkGraph: React.FC = () => {
                 "font-weight",
                 d.id === selectedNode.id ? "bold" : "normal"
               );
-
-            // Add a data attribute to mark this as a text to keep visible
-            textElement.attr("data-keep-visible", "true");
           } else {
             // For other nodes, reset to default behavior (hide name, show on hover)
             textElement.style("opacity", 0).style("font-weight", "normal");
-
-            // Remove the keep-visible data attribute
-            textElement.attr("data-keep-visible", null);
           }
         });
       } else {
@@ -967,8 +816,7 @@ const CommunityNetworkGraph: React.FC = () => {
         labelGroup
           .selectAll("text")
           .style("opacity", 0)
-          .style("font-weight", "normal")
-          .attr("data-keep-visible", null); // Clear the keep-visible flag for all
+          .style("font-weight", "normal");
       }
     }
   }, [selectedNode, safeGetId, updateNodeConnections, getNodeRadius]);
@@ -1003,7 +851,7 @@ const CommunityNetworkGraph: React.FC = () => {
         searchTerm={searchTerm}
         setSearchTerm={setSearchTerm}
         searchResults={searchResults}
-        allUsers={data.nodes as Array<User | Project>}
+        allUsers={data.nodes as User[]}
         onSelectUser={(userId: string) => {
           updateNodeConnections(userId);
           setSearchTerm("");

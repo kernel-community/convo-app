@@ -1,12 +1,12 @@
 import React, { useState } from "react";
-import type { Project, User } from "../utils/types";
+import type { User } from "../utils/types";
 
 interface UserSearchProps {
   searchTerm: string;
   setSearchTerm: (term: string) => void;
-  searchResults: (User | Project)[];
+  searchResults: User[];
   onSelectUser: (userId: string) => void;
-  allUsers?: (User | Project)[];
+  allUsers?: User[];
 }
 
 const UserSearch: React.FC<UserSearchProps> = ({
