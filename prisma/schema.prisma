@@ -83,17 +83,17 @@ model User {
 }
 
 model Connections {
-  id              String         @id @default(uuid())
-  description     String
-  weight          Int
-  userId          String
-  user            User           @relation("User", fields: [userId], references: [id], onDelete: Cascade)
-  connectedUserId String
-  connectedUser   User           @relation("ConnectedUser", fields: [connectedUserId], references: [id], onDelete: Cascade)
-  createdAt       DateTime       @default(now())
-  updatedAt       DateTime       @updatedAt
+  id          String   @id @default(uuid())
+  description String
+  weight      Int
+  fromId      String
+  from        User     @relation("User", fields: [fromId], references: [id], onDelete: Cascade)
+  toId        String
+  to          User     @relation("ConnectedUser", fields: [toId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
-  @@unique([connectedUserId, userId])
+  @@unique([fromId, toId])
 }
 
 model Profile {
