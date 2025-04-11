@@ -99,6 +99,34 @@ const CommunityNetworkGraph: React.FC = () => {
     [router, searchParams, pathname]
   );
 
+  // Function to calculate node radius based on activity
+  const getNodeRadius = useCallback((node: any): number => {
+    // Keep all nodes same size for now
+    return 10;
+  }, []);
+
+  // Function to update node sizes based on selection state
+  const updateNodeSizes = useCallback(
+    (selectedNodeId: string | null) => {
+      // Update the reference immediately
+      selectedNodeIdRef.current = selectedNodeId;
+
+      // Update all node sizes based on selection state
+      d3.selectAll(".node-group circle")
+        .transition()
+        .duration(300)
+        .attr("r", (d: any) => {
+          // If there's a selected node and this is it, show it larger
+          if (selectedNodeId && d.id === selectedNodeId) {
+            return getNodeRadius(d) * SELECTED_NODE_SCALE;
+          }
+          // Otherwise show normal size
+          return getNodeRadius(d);
+        });
+    },
+    [getNodeRadius]
+  );
+
   // Memoized function to update connections for a node
   const updateNodeConnections = useCallback(
     (nodeId: string | null) => {
@@ -107,12 +135,17 @@ const CommunityNetworkGraph: React.FC = () => {
         setSelectedNode(null);
         setDirectConnections([]);
         setConnectionCount(0);
+        // Update the reference immediately
+        selectedNodeIdRef.current = null;
 
         // Reset all nodes and links to full opacity
         d3.selectAll(".node-group")
           .transition()
           .duration(300)
           .style("opacity", 1);
+
+        // Reset all node circles to default radius using updateNodeSizes
+        updateNodeSizes(null);
 
         // Reset all links to full opacity
         d3.selectAll(".links path")
@@ -126,6 +159,8 @@ const CommunityNetworkGraph: React.FC = () => {
       const nodeData = data.nodes.find((n) => n.id === nodeId) as User;
       if (!nodeData) return;
 
+      // Update the reference immediately
+      selectedNodeIdRef.current = nodeId;
       setSelectedNode(nodeData);
 
       // Get connections for this node - handling bidirectional links
@@ -192,6 +227,9 @@ const CommunityNetworkGraph: React.FC = () => {
             : COLORS.NON_SELECTED_NODE_OPACITY;
         });
 
+      // Update node sizes using the centralized function
+      updateNodeSizes(nodeId);
+
       // Hide links that don't involve the selected node
       d3.selectAll(".links path")
         .transition()
@@ -213,7 +251,7 @@ const CommunityNetworkGraph: React.FC = () => {
         }
       }, 0);
     },
-    [safeGetId]
+    [safeGetId, getNodeRadius]
   );
 
   // Define simulation reference to use in drag functions
@@ -222,12 +260,8 @@ const CommunityNetworkGraph: React.FC = () => {
     undefined
   > | null>(null);
 
-  // Function to calculate node radius based on activity
-  const getNodeRadius = useCallback((node: any): number => {
-    // Keep all nodes same size for now
-    console.log(node);
-    return 10;
-  }, []);
+  // Reference to track the currently selected node ID (updated immediately)
+  const selectedNodeIdRef = useRef<string | null>(null);
 
   // Create and update the force-directed graph
   useEffect(() => {
@@ -259,6 +293,7 @@ const CommunityNetworkGraph: React.FC = () => {
       .attr("pointer-events", "all")
       .lower()
       .on("click", () => {
+        updateNodeSizes(null); // Reset all nodes to normal size
         updateNodeConnections(null);
       });
 
@@ -374,6 +409,10 @@ const CommunityNetworkGraph: React.FC = () => {
       )
       .on("click", (event: any, d: any) => {
         event.stopPropagation();
+
+        // Immediately adjust the node radius when clicked using updateNodeSizes
+        updateNodeSizes(d.id);
+
         updateNodeConnections(d.id);
       });
 
@@ -394,8 +433,8 @@ const CommunityNetworkGraph: React.FC = () => {
     node
       .append("circle")
       .attr("r", (d: any) => {
-        // Make the selected node scaled in size based on URL parameter
-        return selectedNodeId && d.id === selectedNodeId
+        // Make the selected node scaled in size based on selectedNodeIdRef
+        return selectedNodeIdRef.current === d.id
           ? getNodeRadius(d) * SELECTED_NODE_SCALE
           : getNodeRadius(d);
       })
@@ -410,7 +449,7 @@ const CommunityNetworkGraph: React.FC = () => {
       .ease(d3.easeBounceOut)
       .attr("r", (d: any) => {
         // Maintain the scaled size for selected node after transition
-        return selectedNodeId && d.id === selectedNodeId
+        return selectedNodeIdRef.current === d.id
           ? getNodeRadius(d) * SELECTED_NODE_SCALE
           : getNodeRadius(d);
       });
@@ -439,8 +478,11 @@ const CommunityNetworkGraph: React.FC = () => {
     // Add hover behavior with tooltip
     node
       .on("mouseenter", function (event: any, d: any) {
-        // Don't change the size of the selected node on hover
-        if (!selectedNodeId || d.id !== selectedNodeId) {
+        // Use the reference instead of URL parameter
+        const isSelectedNode = selectedNodeIdRef.current === d.id;
+
+        // Only scale up if this isn't the selected node
+        if (!isSelectedNode) {
           d3.select(this)
             .select("circle")
             .transition()
@@ -527,8 +569,11 @@ const CommunityNetworkGraph: React.FC = () => {
           .style("opacity", 0.95);
       })
       .on("mouseleave", function (event: any, d: any) {
-        // Don't change the size of the selected node on mouseout
-        if (!selectedNodeId || d.id !== selectedNodeId) {
+        // Use the reference instead of URL parameter
+        const isSelectedNode = selectedNodeIdRef.current === d.id;
+
+        // If this is not the selected node, return to normal size
+        if (!isSelectedNode) {
           d3.select(this)
             .select("circle")
             .transition()
@@ -599,11 +644,11 @@ const CommunityNetworkGraph: React.FC = () => {
 
         // Keep nodes within viewport bounds
         data.nodes.forEach((d: any) => {
-          const selectedNodeId = searchParams.get("id");
-          const effectiveRadius =
-            selectedNodeId && d.id === selectedNodeId
-              ? getNodeRadius(d) * 2
-              : getNodeRadius(d);
+          // Use our reference instead of URL parameter
+          const isSelected = selectedNodeIdRef.current === d.id;
+          const effectiveRadius = isSelected
+            ? getNodeRadius(d) * 2
+            : getNodeRadius(d);
 
           d.x = Math.max(
             effectiveRadius,
@@ -629,19 +674,23 @@ const CommunityNetworkGraph: React.FC = () => {
       event: { active: any; sourceEvent: any },
       d: { fx: any; x: any; fy: any; y: any; id?: string }
     ) {
-      if (!event.active) simulation.alphaTarget(0.3).restart();
+      // Only restart simulation if it's not running (alpha < 0.1)
+      if (!event.active && simulation.alpha() < 0.1) {
+        simulation.alphaTarget(0.3).restart();
+      }
+
       d.fx = d.x;
       d.fy = d.y;
 
-      // Visual feedback when dragging starts
+      // Visual feedback when dragging starts - reduce opacity but don't change radius
       d3.select(event.sourceEvent.target)
         .transition()
         .duration(200)
         .style("opacity", 0.8);
 
-      // Ensure we don't change the radius of the selected node
-      const selectedNodeId = searchParams.get("id");
-      if (selectedNodeId && d.id === selectedNodeId) {
+      // Ensure we maintain the correct radius for the selected node
+      // Use our reference instead of URL parameter
+      if (selectedNodeIdRef.current === d.id) {
         d3.select(event.sourceEvent.target).attr(
           "r",
           getNodeRadius(d) * SELECTED_NODE_SCALE
@@ -660,15 +709,15 @@ const CommunityNetworkGraph: React.FC = () => {
     ) {
       if (!event.active) simulation.alphaTarget(0);
 
-      // Animate node settling after drag
+      // Animate node settling after drag - restore opacity only, don't change radius
       d3.select(event.sourceEvent.target)
         .transition()
         .duration(500)
         .style("opacity", 1);
 
-      // Ensure we maintain the 2x size for selected nodes after drag
-      const selectedNodeId = searchParams.get("id");
-      if (selectedNodeId && d.id === selectedNodeId) {
+      // Ensure we maintain the correct radius for the selected node
+      // Use our reference instead of URL parameter
+      if (selectedNodeIdRef.current === d.id) {
         d3.select(event.sourceEvent.target).attr(
           "r",
           getNodeRadius(d) * SELECTED_NODE_SCALE
@@ -684,7 +733,28 @@ const CommunityNetworkGraph: React.FC = () => {
     return () => {
       simulation.stop();
     };
-  }, [safeGetId, getNodeRadius]); // Added getNodeRadius to dependencies
+  }, [safeGetId, getNodeRadius]); // Only depend on stable callback functions
+
+  // Handle initial setup based on URL parameters - runs once after simulation is created
+  useEffect(() => {
+    if (!simulationRef.current) return; // Wait until simulation is created
+
+    // Get the initial selected node ID from URL
+    const initialNodeId = searchParams.get("id");
+    if (initialNodeId) {
+      // Initialize our reference
+      selectedNodeIdRef.current = initialNodeId;
+
+      // Find the node with this ID
+      const nodeData = data.nodes.find((n) => n.id === initialNodeId);
+      if (nodeData) {
+        // Set initial selection without recreating the simulation
+        updateNodeSizes(initialNodeId);
+        updateNodeConnections(initialNodeId);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Only run once when component mounts
 
   // Update visual state when selected node changes
   useEffect(() => {
@@ -739,9 +809,11 @@ const CommunityNetworkGraph: React.FC = () => {
           .transition()
           .duration(400) // Shorter duration for faster response
           .attr("r", (d: any) => {
-            // Make selected node scaled in size
-            if (d.id === selectedNode.id)
+            // Make selected node scaled in size - ensure this is consistent
+            if (d.id === selectedNode.id) {
               return getNodeRadius(d) * SELECTED_NODE_SCALE;
+            }
+            // All other nodes maintain default radius
             return getNodeRadius(d);
           })
           .attr("stroke", (d: any) => {
@@ -799,6 +871,7 @@ const CommunityNetworkGraph: React.FC = () => {
           .attr("stroke", COLORS.LINK_GRADIENT_START)
           .style("stroke-opacity", COLORS.LINK_DEFAULT_OPACITY);
 
+        // Reset all node circles to their default size and style
         node
           .select("circle")
           .transition()
@@ -819,7 +892,15 @@ const CommunityNetworkGraph: React.FC = () => {
           .style("font-weight", "normal");
       }
     }
-  }, [selectedNode, safeGetId, updateNodeConnections, getNodeRadius]);
+  }, [
+    selectedNode,
+    safeGetId,
+    updateNodeConnections,
+    getNodeRadius,
+    directConnections,
+    searchParams,
+    updateNodeSizes,
+  ]);
 
   useEffect(() => {
     // Get the 'id' parameter from the URL
@@ -829,11 +910,15 @@ const CommunityNetworkGraph: React.FC = () => {
       // Find the node with this ID
       const nodeData = data.nodes.find((n) => n.id === userId);
       if (nodeData) {
-        // Update connections using the existing function
+        // Update sizes first, then connections
+        updateNodeSizes(userId);
         updateNodeConnections(userId);
       }
+    } else {
+      // Reset sizes when URL has no selection
+      updateNodeSizes(null);
     }
-  }, [searchParams, updateNodeConnections]);
+  }, [searchParams, updateNodeConnections, updateNodeSizes]);
 
   // Update URL when selected node changes
   useEffect(() => {
