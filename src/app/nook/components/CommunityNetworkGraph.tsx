@@ -123,6 +123,42 @@ const CommunityNetworkGraph: React.FC = () => {
           // Otherwise show normal size
           return getNodeRadius(d);
         });
+
+      // Also update clipPaths and images
+      d3.selectAll(".node-group").each(function (d: any) {
+        const isSelected = selectedNodeId && d.id === selectedNodeId;
+        const newRadius = isSelected
+          ? getNodeRadius(d) * SELECTED_NODE_SCALE
+          : getNodeRadius(d);
+
+        // Update the clip path if it exists
+        d3.select(`#clip-${d.id} circle`)
+          .transition()
+          .duration(300)
+          .attr("r", newRadius);
+
+        // Update the image if it exists
+        if (d.profile?.image) {
+          d3.select(this)
+            .select("image")
+            .transition()
+            .duration(300)
+            .attr("x", -newRadius)
+            .attr("y", -newRadius)
+            .attr("width", newRadius * 2)
+            .attr("height", newRadius * 2);
+        }
+
+        // If this is the selected node, bring it to front
+        if (isSelected) {
+          d3.select(this).raise();
+
+          // Also bring the corresponding label to front
+          d3.selectAll(".text-labels text")
+            .filter((textData: any) => textData.id === d.id)
+            .raise();
+        }
+      });
     },
     [getNodeRadius]
   );
@@ -414,6 +450,15 @@ const CommunityNetworkGraph: React.FC = () => {
         updateNodeSizes(d.id);
 
         updateNodeConnections(d.id);
+
+        // Bring the selected node to front by raising it in the DOM
+        d3.select(event.currentTarget).raise();
+
+        // Also bring the corresponding label to front
+        labelGroup
+          .selectAll("text")
+          .filter((textData: any) => textData.id === d.id)
+          .raise();
       });
 
     // Add visual indicator for fellows
@@ -425,9 +470,6 @@ const CommunityNetworkGraph: React.FC = () => {
       .attr("fill", COLORS.FELLOW_INDICATOR)
       .attr("stroke", COLORS.DEFAULT_NODE_STROKE)
       .attr("stroke-width", 1);
-
-    // Get the currently selected node ID from URL parameter
-    const selectedNodeId = searchParams.get("id");
 
     // Add circles to nodes with modern styling
     node
@@ -453,6 +495,50 @@ const CommunityNetworkGraph: React.FC = () => {
           ? getNodeRadius(d) * SELECTED_NODE_SCALE
           : getNodeRadius(d);
       });
+
+    // Add clipPath for user images
+    const clipPaths = defs
+      .selectAll(".image-clip")
+      .data(data.nodes)
+      .enter()
+      .append("clipPath")
+      .attr("id", (d) => `clip-${d.id}`)
+      .append("circle")
+      .attr("r", (d) => getNodeRadius(d));
+
+    // Add user images to nodes
+    node
+      .append("image")
+      .attr("xlink:href", (d: any) => d.profile?.image || "") // Use the user's image if available
+      .attr("x", (d: any) => -getNodeRadius(d))
+      .attr("y", (d: any) => -getNodeRadius(d))
+      .attr("width", (d: any) => getNodeRadius(d) * 2)
+      .attr("height", (d: any) => getNodeRadius(d) * 2)
+      .attr("clip-path", (d: any) => `url(#clip-${d.id})`)
+      .style("display", (d: any) => (d.profile?.image ? "block" : "none")); // Only show if image exists
+
+    // Update the clip path size when node is selected
+    node.on("click.updateClip", function (event: any, d: any) {
+      const isSelected = selectedNodeIdRef.current === d.id;
+      const newRadius = isSelected
+        ? getNodeRadius(d) * SELECTED_NODE_SCALE
+        : getNodeRadius(d);
+
+      defs
+        .select(`#clip-${d.id} circle`)
+        .transition()
+        .duration(300)
+        .attr("r", newRadius);
+
+      d3.select(this)
+        .select("image")
+        .transition()
+        .duration(300)
+        .attr("x", -newRadius)
+        .attr("y", -newRadius)
+        .attr("width", newRadius * 2)
+        .attr("height", newRadius * 2);
+    });
 
     // Remove any existing tooltips to prevent duplicates
     d3.selectAll("body > .tooltip").remove();
@@ -488,7 +574,35 @@ const CommunityNetworkGraph: React.FC = () => {
             .transition()
             .duration(300)
             .attr("r", (d: any) => getNodeRadius(d) * 1.2);
+
+          // Also scale up the image if it exists
+          if (d.profile?.image) {
+            const newRadius = getNodeRadius(d) * 1.2;
+            defs
+              .select(`#clip-${d.id} circle`)
+              .transition()
+              .duration(300)
+              .attr("r", newRadius);
+
+            d3.select(this)
+              .select("image")
+              .transition()
+              .duration(300)
+              .attr("x", -newRadius)
+              .attr("y", -newRadius)
+              .attr("width", newRadius * 2)
+              .attr("height", newRadius * 2);
+          }
         }
+
+        // Bring hovered node to front
+        d3.select(this).raise();
+
+        // Also bring the corresponding label to front
+        labelGroup
+          .selectAll("text")
+          .filter((textData: any) => textData.id === d.id)
+          .raise();
 
         // Handle label visibility
         labelGroup
@@ -579,6 +693,25 @@ const CommunityNetworkGraph: React.FC = () => {
             .transition()
             .duration(300)
             .attr("r", (d: any) => getNodeRadius(d));
+
+          // Also scale back the image if it exists
+          if (d.profile?.image) {
+            const normalRadius = getNodeRadius(d);
+            defs
+              .select(`#clip-${d.id} circle`)
+              .transition()
+              .duration(300)
+              .attr("r", normalRadius);
+
+            d3.select(this)
+              .select("image")
+              .transition()
+              .duration(300)
+              .attr("x", -normalRadius)
+              .attr("y", -normalRadius)
+              .attr("width", normalRadius * 2)
+              .attr("height", normalRadius * 2);
+          }
         }
 
         // Handle label visibility - keep labels visible for selected node and its connections
@@ -611,14 +744,17 @@ const CommunityNetworkGraph: React.FC = () => {
       .data(data.nodes)
       .enter()
       .append("text")
-      .attr("dx", 12)
-      .attr("dy", ".35em")
+      .attr("dy", (d) => {
+        // Position labels below nodes - adjust based on node radius
+        return getNodeRadius(d) * 1.5;
+      })
       .text((d) => d.name)
       .style("font-family", "system-ui, sans-serif")
       .style("font-size", "10px")
       .style("font-weight", "normal")
       .style("pointer-events", "none")
       .style("opacity", 0.8)
+      .style("text-anchor", "middle") // Center text below node
       .style(
         "text-shadow",
         "0 1px 2px rgba(255,255,255,0.8), 0 -1px 1px rgba(255,255,255,0.8), 1px 0 1px rgba(255,255,255,0.8), -1px 0 1px rgba(255,255,255,0.8)"
@@ -639,8 +775,17 @@ const CommunityNetworkGraph: React.FC = () => {
         // Update node positions
         node.attr("transform", (d: any) => `translate(${d.x},${d.y})`);
 
-        // Update label positions
-        labels.attr("x", (d: any) => d.x).attr("y", (d: any) => d.y);
+        // Update label positions - position below nodes
+        labels
+          .attr("x", (d: any) => d.x)
+          .attr("y", (d: any) => {
+            // Position below the node, accounting for its radius
+            const isSelected = selectedNodeIdRef.current === d.id;
+            const radius = isSelected
+              ? getNodeRadius(d) * SELECTED_NODE_SCALE
+              : getNodeRadius(d);
+            return d.y + radius + 12; // 12px offset below the node
+          });
 
         // Keep nodes within viewport bounds
         data.nodes.forEach((d: any) => {
