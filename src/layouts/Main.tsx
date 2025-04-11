@@ -12,6 +12,7 @@ interface MainProps {
 
 const Main = ({ children, className = "" }: MainProps) => {
   const isBeta = useBetaMode();
+  console.log({ isBeta });
   return (
     <div className="relative flex min-h-screen flex-col overflow-y-auto selection:bg-highlight selection:text-primary">
       <Navbar isBeta={isBeta} />

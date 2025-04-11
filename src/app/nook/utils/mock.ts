@@ -14,13 +14,6 @@ export const data = {
         keywords: ["blockchain", "defi", "ethereum", "community", "governance"],
         description:
           "Blockchain researcher focused on decentralized governance systems and community building.",
-        location: {
-          id: 1,
-          name: "San Francisco",
-          latitude: 37.7749,
-          longitude: -122.4194,
-          description: "City in Northern California, United States",
-        },
         currentAffiliation: "Ethereum Foundation",
       },
       url: "https://github.com/emma-blockchain",
@@ -44,13 +37,6 @@ export const data = {
         ],
         description:
           "Smart contract developer with expertise in security auditing and optimization techniques.",
-        location: {
-          id: 2,
-          name: "Berlin",
-          latitude: 52.52,
-          longitude: 13.405,
-          description: "Capital city of Germany",
-        },
         currentAffiliation: "ConsenSys",
       },
       url: "https://github.com/liam-solidity",
@@ -74,13 +60,6 @@ export const data = {
         ],
         description:
           "DAO designer specializing in tokenomics and sustainable economic models for web3 communities.",
-        location: {
-          id: 3,
-          name: "New York",
-          latitude: 40.7128,
-          longitude: -74.006,
-          description: "Major city in the United States",
-        },
         currentAffiliation: "Gitcoin",
       },
       url: "https://github.com/olivia-dao",
@@ -104,13 +83,6 @@ export const data = {
         ],
         description:
           "Cryptography researcher exploring zero-knowledge proofs and privacy-preserving technologies.",
-        location: {
-          id: 4,
-          name: "Zurich",
-          latitude: 47.3769,
-          longitude: 8.5417,
-          description: "Largest city in Switzerland",
-        },
         currentAffiliation: "ETH Zurich",
       },
       url: "https://github.com/noah-zk",
@@ -128,13 +100,6 @@ export const data = {
         keywords: ["frontend", "design", "ux", "web3", "accessibility"],
         description:
           "Frontend developer and designer creating intuitive interfaces for decentralized applications.",
-        location: {
-          id: 5,
-          name: "London",
-          latitude: 51.5074,
-          longitude: -0.1278,
-          description: "Capital city of England and the United Kingdom",
-        },
         currentAffiliation: "Aave",
       },
       url: "https://github.com/ava-design",
@@ -158,13 +123,6 @@ export const data = {
         ],
         description:
           "Digital artist exploring the intersection of generative art, NFTs, and on-chain aesthetics.",
-        location: {
-          id: 6,
-          name: "Paris",
-          latitude: 48.8566,
-          longitude: 2.3522,
-          description: "Capital city of France",
-        },
         currentAffiliation: "Foundation",
       },
       url: "https://github.com/ethan-art",
@@ -188,13 +146,6 @@ export const data = {
         ],
         description:
           "Community builder focused on educational initiatives and meaningful connection through events.",
-        location: {
-          id: 7,
-          name: "Austin",
-          latitude: 30.2672,
-          longitude: -97.7431,
-          description: "Capital city of Texas, United States",
-        },
         currentAffiliation: "Kernel Community",
       },
       url: "https://github.com/sophia-community",
@@ -212,13 +163,6 @@ export const data = {
         keywords: ["infrastructure", "devops", "scaling", "nodes", "protocols"],
         description:
           "Infrastructure engineer building resilient systems for decentralized protocols and applications.",
-        location: {
-          id: 8,
-          name: "Singapore",
-          latitude: 1.3521,
-          longitude: 103.8198,
-          description: "City-state in Southeast Asia",
-        },
         currentAffiliation: "Infura",
       },
       url: "https://github.com/mason-infra",
@@ -242,13 +186,6 @@ export const data = {
         ],
         description:
           "Economic researcher studying incentive mechanisms and market design in decentralized systems.",
-        location: {
-          id: 8,
-          name: "Singapore",
-          latitude: 1.3521,
-          longitude: 103.8198,
-          description: "City-state in Southeast Asia",
-        },
         currentAffiliation: "Optimism",
       },
       url: "https://github.com/isabella-econ",
@@ -265,13 +202,6 @@ export const data = {
         keywords: ["defi", "trading", "analytics", "data science", "risk"],
         description:
           "DeFi analyst with expertise in risk assessment and data-driven protocol optimization.",
-        location: {
-          id: 8,
-          name: "Singapore",
-          latitude: 1.3521,
-          longitude: 103.8198,
-          description: "City-state in Southeast Asia",
-        },
         currentAffiliation: "Uniswap Labs",
       },
       url: "https://github.com/logan-defi",
@@ -400,44 +330,3 @@ export const data = {
     { source: "user10", target: "project4", type: "contributor" },
   ],
 };
-
-// Define the LocationData type for better type safety
-export interface LocationData {
-  id: number;
-  name: string;
-  latitude: number;
-  longitude: number;
-  description?: string;
-  nodes?: string[]; // Array of node IDs that are in this location
-}
-
-// Process nodes to create unique locations with associated nodes
-export const locations = (() => {
-  // Create a map to track unique locations by longitude/latitude pair
-  const locationMap = new Map<string, LocationData>();
-
-  // Process each node to extract location data and associate nodes with locations
-  data.nodes.forEach((node) => {
-    if (node?.profile?.location) {
-      const location = node.profile.location;
-      const locationKey = `${location.longitude},${location.latitude}`;
-
-      if (!locationMap.has(locationKey)) {
-        // Create a new location entry with an empty nodes array
-        locationMap.set(locationKey, {
-          ...location,
-          nodes: [],
-        });
-      }
-
-      // Add this node's ID to the location's nodes array
-      const existingLocation = locationMap.get(locationKey);
-      if (existingLocation && existingLocation.nodes) {
-        existingLocation.nodes.push(node.id);
-      }
-    }
-  });
-
-  // Convert the map values to an array
-  return Array.from(locationMap.values());
-})();

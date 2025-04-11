@@ -1,11 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import * as d3 from "d3";
-import { data } from "./utils/mock";
-import type { User, Project, NodeType } from "./utils/types";
-import UserSearch from "./components/UserSearch";
-import Profile from "./components/Profile";
-import GraphLegend from "./components/GraphLegend";
+import { data } from "../utils/mock";
+import type { User, Project, NodeType } from "../utils/types";
+import UserSearch from "./UserSearch";
+import Profile from "./Profile";
+import GraphLegend from "./GraphLegend";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
 
 // Color constants using CSS variables from globals.css
 const COLORS = {
@@ -54,6 +55,9 @@ const CommunityNetworkGraph: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState<(User | Project)[]>([]);
   // const [showLegend, setShowLegend] = useState(false); // Uncomment when legend feature is implemented
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
 
   // Function to safely get node or link ID regardless of whether it's a string or object
   const safeGetId = useCallback((item: any) => {
@@ -74,6 +78,32 @@ const CommunityNetworkGraph: React.FC = () => {
 
     setSearchResults(filteredNodes);
   }, [searchTerm]); // Only need to re-run when search term changes
+
+  const updateUrlWithNodeId = useCallback(
+    (nodeId: string | null) => {
+      const params = new URLSearchParams(searchParams.toString());
+      const currentId = params.get("id");
+
+      // Only update URL if the ID actually changed
+      if (nodeId !== currentId) {
+        if (nodeId) {
+          params.set("id", nodeId);
+        } else {
+          params.delete("id");
+        }
+
+        // Use router.replace to update URL without full navigation
+        router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+      }
+    },
+    [router, searchParams, pathname]
+  );
+
+  // Add this effect to clean up tooltips when URL parameters change
+  useEffect(() => {
+    // Clean up any tooltips when URL changes
+    d3.select(".tooltip").transition().duration(200).style("opacity", 0);
+  }, [searchParams]);
 
   // Memoized function to update connections for a node
   const updateNodeConnections = useCallback(
@@ -181,6 +211,17 @@ const CommunityNetworkGraph: React.FC = () => {
             ? COLORS.LINK_DEFAULT_OPACITY
             : COLORS.LINK_FADED_OPACITY;
         });
+      // Update URL after D3 operations are complete
+      setTimeout(() => {
+        if (nodeId !== null) {
+          const nodeData = data.nodes.find((n) => n.id === nodeId) as
+            | User
+            | Project;
+          if (nodeData) {
+            setSelectedNode(nodeData);
+          }
+        }
+      }, 0);
     },
     [safeGetId]
   );
@@ -371,6 +412,7 @@ const CommunityNetworkGraph: React.FC = () => {
       .on("click", (event: any, d: any) => {
         event.stopPropagation();
         updateNodeConnections(d.id);
+        d3.select(".tooltip").transition().duration(200).style("opacity", 0);
       });
 
     // Project nodes are now identified by their blue color
@@ -399,6 +441,9 @@ const CommunityNetworkGraph: React.FC = () => {
       .duration(800)
       .ease(d3.easeBounceOut)
       .attr("r", getNodeRadius);
+
+    // Remove any existing tooltips to prevent duplicates
+    d3.selectAll("body > .tooltip").remove();
 
     // Create modern tooltip with transitions
     const tooltip = d3
@@ -758,7 +803,7 @@ const CommunityNetworkGraph: React.FC = () => {
     return () => {
       simulation.stop();
     };
-  }, [safeGetId, updateNodeConnections]);
+  }, [safeGetId]); // Removed updateNodeConnections from dependencies to prevent re-rendering
 
   // Update visual state when selected node changes
   useEffect(() => {
@@ -895,6 +940,29 @@ const CommunityNetworkGraph: React.FC = () => {
     }
   }, [selectedNode, safeGetId, updateNodeConnections]);
 
+  useEffect(() => {
+    // Get the 'id' parameter from the URL
+    const userId = searchParams.get("id");
+
+    if (userId) {
+      // Find the node with this ID
+      const nodeData = data.nodes.find((n) => n.id === userId);
+      if (nodeData) {
+        // Update connections using the existing function
+        updateNodeConnections(userId);
+      }
+    }
+  }, [searchParams, updateNodeConnections]);
+
+  // Update URL when selected node changes
+  useEffect(() => {
+    if (selectedNode) {
+      updateUrlWithNodeId(selectedNode.id);
+    } else {
+      updateUrlWithNodeId(null);
+    }
+  }, [selectedNode, updateUrlWithNodeId, updateNodeConnections]);
+
   return (
     <div className="w-full rounded-lg bg-white p-4 shadow">
       {/* Search bar */}
@@ -922,8 +990,6 @@ const CommunityNetworkGraph: React.FC = () => {
             directConnections={directConnections}
             onSelectConnection={(nodeId) => {
               updateNodeConnections(nodeId);
-              // Scroll back to the top
-              window.scrollTo(0, 0);
             }}
           />
         </div>

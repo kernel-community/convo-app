@@ -4,19 +4,9 @@ import React, { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { usePathname } from "next/navigation";
 import Main from "src/layouts/Main";
-import CommunityNetworkGraph from "./CommunityNetworkGraph";
+import CommunityNetworkGraph from "./components/CommunityNetworkGraph";
 import { checkSessionAuth } from "src/lib/checkSessionAuth";
 import BetaBadge from "src/components/ui/beta-badge";
-import {
-  Tabs,
-  TabsList,
-  TabsTrigger,
-  TabsContent,
-} from "src/components/ui/tabs";
-import MapView from "./components/map/MapView";
-import { motion } from "framer-motion";
-import { locations } from "./utils/mock";
-import type { Marker } from "./components/map/MapView";
 
 // Array of colors for different locations
 const locationColors = [
@@ -133,106 +123,7 @@ export default function NookPage() {
           </p>
         </div>
 
-        <Tabs
-          value={activeTab}
-          defaultValue="network"
-          className="w-full"
-          onValueChange={(value) => {
-            setActiveTab(value);
-            // Update URL with the new tab parameter
-            const params = new URLSearchParams(searchParams.toString());
-            params.set("tab", value);
-            // Use router.replace to update URL without full navigation
-            router.replace(`${pathname}?${params.toString()}`);
-          }}
-        >
-          <div className="mb-4 flex justify-center">
-            <div className="relative w-[400px] rounded-lg bg-gray-100 p-1">
-              {/* TabsList provides the RovingFocusGroup context */}
-              <TabsList className="relative z-10 grid grid-cols-2 bg-transparent">
-                <TabsTrigger
-                  value="network"
-                  className="relative z-20 rounded-md px-4 py-2 text-gray-600 data-[state=active]:bg-transparent data-[state=active]:text-black"
-                >
-                  Network Graph
-                </TabsTrigger>
-                <TabsTrigger
-                  value="map"
-                  className="relative z-20 rounded-md px-4 py-2 text-gray-600 data-[state=active]:bg-transparent data-[state=active]:text-black"
-                >
-                  Global Map
-                </TabsTrigger>
-              </TabsList>
-
-              {/* Animated background using Framer Motion */}
-              <motion.div
-                className="absolute left-1 top-1 h-[calc(100%-2px)] w-[calc(50%-2px)] rounded-md bg-white shadow-sm"
-                animate={{
-                  x: activeTab === "network" ? 0 : "100%",
-                }}
-                transition={{
-                  type: "spring",
-                  stiffness: 300,
-                  damping: 30,
-                }}
-              />
-            </div>
-          </div>
-
-          <TabsContent
-            value="network"
-            className="rounded-lg bg-white p-6 shadow-sm"
-            style={{
-              animation: "fadeIn 0.5s ease-in-out",
-            }}
-          >
-            <CommunityNetworkGraph />
-            <div className="mt-4 text-center">
-              <p className="font-secondary text-muted-foreground">
-                The network graph visualizes how community members are connected
-                through shared events and conversations.
-              </p>
-            </div>
-          </TabsContent>
-
-          <TabsContent
-            value="map"
-            className="h-[500px] rounded-lg bg-white p-6 shadow-sm"
-            style={{
-              animation: "fadeIn 0.5s ease-in-out",
-            }}
-          >
-            <MapView
-              markers={locations.map((location) => {
-                // Ensure we have valid data for each marker
-                const id = typeof location.id === "number" ? location.id : 1;
-                const longitude = location.longitude;
-                const latitude = location.latitude;
-                const title = location.name || "Unknown Location";
-                const color = getLocationColor(id);
-                const nodes = location.nodes || [];
-
-                // Create a properly typed marker object
-                const marker: Marker = {
-                  id,
-                  longitude,
-                  latitude,
-                  title,
-                  color: color as string, // Type assertion to ensure TypeScript sees this as a string
-                  nodes,
-                };
-
-                return marker;
-              })}
-            />
-            <div className="mt-4 text-center">
-              <p className="font-secondary text-muted-foreground">
-                This map shows the global distribution of our community members
-                across different locations.
-              </p>
-            </div>
-          </TabsContent>
-        </Tabs>
+        <CommunityNetworkGraph />
 
         {/* Add animation keyframes for content transition */}
         <style jsx global>{`
