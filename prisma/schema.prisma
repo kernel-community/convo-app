@@ -76,6 +76,24 @@ model User {
   rsvps       Rsvp[]
   collections Collection[]
   reminders   Email[]
+
+  // connections
+  Connections   Connections[] @relation("User")
+  ConnectedUser Connections[] @relation("ConnectedUser")
+}
+
+model Connections {
+  id              String         @id @default(uuid())
+  description     String
+  weight          Int
+  userId          String
+  user            User           @relation("User", fields: [userId], references: [id], onDelete: Cascade)
+  connectedUserId String
+  connectedUser   User           @relation("ConnectedUser", fields: [connectedUserId], references: [id], onDelete: Cascade)
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  @@unique([connectedUserId, userId])
 }
 
 model Profile {
