@@ -45,6 +45,9 @@ const COLORS = {
   LABEL_USER: "var(--foreground)",
 };
 
+// Scale factor for selected nodes (adjust this value to experiment with different sizes)
+const SELECTED_NODE_SCALE = 3;
+
 const CommunityNetworkGraph: React.FC = () => {
   const svgRef = useRef<SVGSVGElement | null>(null);
   const [selectedNode, setSelectedNode] = useState<User | Project | null>(null);
@@ -232,6 +235,19 @@ const CommunityNetworkGraph: React.FC = () => {
     undefined
   > | null>(null);
 
+  // Function to calculate node radius based on activity
+  const getNodeRadius = useCallback((node: any): number => {
+    if (node.type === "project") {
+      // Projects have a fixed, larger radius
+      return 10;
+    } else {
+      // For users, calculate based on activity
+      const totalActivity =
+        (node.convo?.eventsCreated || 0) + (node.convo?.rsvps || 0);
+      return 5 + Math.sqrt(totalActivity) * 1.5;
+    }
+  }, []);
+
   // Create and update the force-directed graph
   useEffect(() => {
     if (!svgRef.current) return;
@@ -239,35 +255,23 @@ const CommunityNetworkGraph: React.FC = () => {
     // Clear previous SVG content
     d3.select(svgRef.current).selectAll("*").remove();
 
-    // Use memoized dimensions to prevent unnecessary recalculations
-    const width = 600;
-    const height = 400;
+    // Set up the SVG container with responsive dimensions
+    const width = svgRef.current.clientWidth;
+    const height = 600; // Fixed height for better layout control
 
-    // Create SVG container
-    const svgContainer = d3
+    const svg = d3
       .select(svgRef.current)
-      .attr("viewBox", `0 0 ${width} ${height}`)
-      .attr("width", "100%")
-      .attr("height", "100%");
+      .append("svg")
+      .attr("width", width)
+      .attr("height", height)
+      .attr("viewBox", [0, 0, width, height])
+      .attr("style", "max-width: 100%; height: auto;")
+      .attr("font-family", "system-ui, sans-serif")
+      .attr("text-anchor", "middle");
 
-    const svg = svgContainer.append("g");
-
-    // Add a border to better visualize the viewport area
-    svg
-      .append("circle")
-      .attr("class", "viewport-border")
-      .attr("cx", width / 2)
-      .attr("cy", height / 2)
-      .attr("r", Math.min(width, height) * 0.45)
-      .attr("fill", "none")
-      .attr("stroke", COLORS.VIEWPORT_BORDER)
-      .attr("stroke-width", 1)
-      .attr("stroke-dasharray", "5,5");
-
-    // Add click handler to clear selection when clicking on background
+    // Add a background rect for zoom/pan handling
     svg
       .append("rect")
-      .attr("class", "background-click-handler")
       .attr("width", width)
       .attr("height", height)
       .attr("fill", "none")
@@ -276,19 +280,6 @@ const CommunityNetworkGraph: React.FC = () => {
       .on("click", () => {
         updateNodeConnections(null);
       });
-
-    // Function to calculate node radius based on activity
-    const getNodeRadius = (node: any): number => {
-      if (node.type === "project") {
-        // Projects have a fixed, larger radius
-        return 10;
-      } else {
-        // For users, calculate based on activity
-        const totalActivity =
-          (node.convo?.eventsCreated || 0) + (node.convo?.rsvps || 0);
-        return 5 + Math.sqrt(totalActivity) * 1.5;
-      }
-    };
 
     // Use color constants for node types
     const nodeColors = {
@@ -317,14 +308,6 @@ const CommunityNetworkGraph: React.FC = () => {
       )
       .force("charge", d3.forceManyBody().strength(-100))
       .force("center", d3.forceCenter(width / 2, height / 2))
-      .force("x", d3.forceX(width / 2).strength(0.05))
-      .force("y", d3.forceY(height / 2).strength(0.05))
-      .force(
-        "collision",
-        d3.forceCollide().radius((d: any) => getNodeRadius(d) + 2)
-      )
-      // Set a higher initial alpha and decay rate for faster stabilization
-      .alpha(0.5)
       .alphaDecay(0.05);
 
     // Store simulation in ref for potential use outside this effect
@@ -427,10 +410,18 @@ const CommunityNetworkGraph: React.FC = () => {
       .attr("stroke", COLORS.DEFAULT_NODE_STROKE)
       .attr("stroke-width", 1);
 
+    // Get the currently selected node ID from URL parameter
+    const selectedNodeId = searchParams.get("id");
+
     // Add circles to nodes with modern styling
     node
       .append("circle")
-      .attr("r", getNodeRadius)
+      .attr("r", (d: any) => {
+        // Make the selected node scaled in size based on URL parameter
+        return selectedNodeId && d.id === selectedNodeId
+          ? getNodeRadius(d) * SELECTED_NODE_SCALE
+          : getNodeRadius(d);
+      })
       .attr("fill", (d: any) => {
         return nodeColors[d.type as keyof typeof nodeColors] || "#9C27B0"; // Fallback color for unknown types
       })
@@ -440,7 +431,12 @@ const CommunityNetworkGraph: React.FC = () => {
       .transition()
       .duration(800)
       .ease(d3.easeBounceOut)
-      .attr("r", getNodeRadius);
+      .attr("r", (d: any) => {
+        // Maintain the scaled size for selected node after transition
+        return selectedNodeId && d.id === selectedNodeId
+          ? getNodeRadius(d) * SELECTED_NODE_SCALE
+          : getNodeRadius(d);
+      });
 
     // Remove any existing tooltips to prevent duplicates
     d3.selectAll("body > .tooltip").remove();
@@ -465,12 +461,15 @@ const CommunityNetworkGraph: React.FC = () => {
 
     // Add hover behavior with tooltip
     node
-      .on("mouseover", function (event: any, d: any) {
-        d3.select(this)
-          .select("circle")
-          .transition()
-          .duration(300)
-          .attr("r", (d: any) => getNodeRadius(d) * 1.2);
+      .on("mouseenter", function (event: any, d: any) {
+        // Don't change the size of the selected node on hover
+        if (!selectedNodeId || d.id !== selectedNodeId) {
+          d3.select(this)
+            .select("circle")
+            .transition()
+            .duration(300)
+            .attr("r", (d: any) => getNodeRadius(d) * 1.2);
+        }
 
         let tooltipContent = "";
 
@@ -663,12 +662,15 @@ const CommunityNetworkGraph: React.FC = () => {
           .duration(200)
           .style("opacity", 0.95);
       })
-      .on("mouseout", function () {
-        d3.select(this)
-          .select("circle")
-          .transition()
-          .duration(300)
-          .attr("r", (d: any) => getNodeRadius(d));
+      .on("mouseleave", function (event: any, d: any) {
+        // Don't change the size of the selected node on mouseout
+        if (!selectedNodeId || d.id !== selectedNodeId) {
+          d3.select(this)
+            .select("circle")
+            .transition()
+            .duration(300)
+            .attr("r", (d: any) => getNodeRadius(d));
+        }
 
         tooltip.transition().duration(500).style("opacity", 0);
       });
@@ -742,13 +744,19 @@ const CommunityNetworkGraph: React.FC = () => {
 
         // Keep nodes within viewport bounds
         data.nodes.forEach((d: any) => {
+          const selectedNodeId = searchParams.get("id");
+          const effectiveRadius =
+            selectedNodeId && d.id === selectedNodeId
+              ? getNodeRadius(d) * 2
+              : getNodeRadius(d);
+
           d.x = Math.max(
-            getNodeRadius(d),
-            Math.min(width - getNodeRadius(d), d.x)
+            effectiveRadius,
+            Math.min(width - effectiveRadius, d.x)
           );
           d.y = Math.max(
-            getNodeRadius(d),
-            Math.min(height - getNodeRadius(d), d.y)
+            effectiveRadius,
+            Math.min(height - effectiveRadius, d.y)
           );
         });
       }
@@ -764,7 +772,7 @@ const CommunityNetworkGraph: React.FC = () => {
     // Enhanced drag functions with visual feedback
     function dragstarted(
       event: { active: any; sourceEvent: any },
-      d: { fx: any; x: any; fy: any; y: any }
+      d: { fx: any; x: any; fy: any; y: any; id?: string }
     ) {
       if (!event.active) simulation.alphaTarget(0.3).restart();
       d.fx = d.x;
@@ -775,6 +783,15 @@ const CommunityNetworkGraph: React.FC = () => {
         .transition()
         .duration(200)
         .style("opacity", 0.8);
+
+      // Ensure we don't change the radius of the selected node
+      const selectedNodeId = searchParams.get("id");
+      if (selectedNodeId && d.id === selectedNodeId) {
+        d3.select(event.sourceEvent.target).attr(
+          "r",
+          getNodeRadius(d) * SELECTED_NODE_SCALE
+        );
+      }
     }
 
     function dragged(event: { x: any; y: any }, d: { fx: any; fy: any }) {
@@ -784,7 +801,7 @@ const CommunityNetworkGraph: React.FC = () => {
 
     function dragended(
       event: { active: any; sourceEvent: any },
-      d: { fx: null; fy: null }
+      d: { fx: null; fy: null; id?: string }
     ) {
       if (!event.active) simulation.alphaTarget(0);
 
@@ -793,6 +810,15 @@ const CommunityNetworkGraph: React.FC = () => {
         .transition()
         .duration(500)
         .style("opacity", 1);
+
+      // Ensure we maintain the 2x size for selected nodes after drag
+      const selectedNodeId = searchParams.get("id");
+      if (selectedNodeId && d.id === selectedNodeId) {
+        d3.select(event.sourceEvent.target).attr(
+          "r",
+          getNodeRadius(d) * SELECTED_NODE_SCALE
+        );
+      }
 
       // Release node after dragging
       d.fx = null;
@@ -803,7 +829,7 @@ const CommunityNetworkGraph: React.FC = () => {
     return () => {
       simulation.stop();
     };
-  }, [safeGetId]); // Removed updateNodeConnections from dependencies to prevent re-rendering
+  }, [safeGetId, getNodeRadius]); // Added getNodeRadius to dependencies
 
   // Update visual state when selected node changes
   useEffect(() => {
@@ -812,7 +838,7 @@ const CommunityNetworkGraph: React.FC = () => {
     const svgElement = d3.select(svgRef.current);
     if (!svgElement.empty()) {
       const link = svgElement.selectAll("line");
-      const node = svgElement.selectAll(".node");
+      const node = svgElement.selectAll(".node-group");
       const labelGroup = svgElement.select(".text-labels");
 
       if (selectedNode) {
@@ -857,6 +883,12 @@ const CommunityNetworkGraph: React.FC = () => {
           .select("circle")
           .transition()
           .duration(400) // Shorter duration for faster response
+          .attr("r", (d: any) => {
+            // Make selected node scaled in size
+            if (d.id === selectedNode.id)
+              return getNodeRadius(d) * SELECTED_NODE_SCALE;
+            return getNodeRadius(d);
+          })
           .attr("stroke", (d: any) => {
             if (d.id === selectedNode.id) return COLORS.SELECTED_NODE_STROKE;
             return connectedUserSet.has(d.id)
@@ -922,6 +954,7 @@ const CommunityNetworkGraph: React.FC = () => {
           .select("circle")
           .transition()
           .duration(800)
+          .attr("r", (d: any) => getNodeRadius(d)) // Reset radius to original size
           .attr("stroke", COLORS.DEFAULT_NODE_STROKE)
           .attr("stroke-width", 1.5);
 
@@ -938,7 +971,7 @@ const CommunityNetworkGraph: React.FC = () => {
           .attr("data-keep-visible", null); // Clear the keep-visible flag for all
       }
     }
-  }, [selectedNode, safeGetId, updateNodeConnections]);
+  }, [selectedNode, safeGetId, updateNodeConnections, getNodeRadius]);
 
   useEffect(() => {
     // Get the 'id' parameter from the URL
