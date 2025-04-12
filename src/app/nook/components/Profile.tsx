@@ -1,16 +1,11 @@
 /* eslint-disable @next/next/no-img-element */
 import React from "react";
-import type { User, NodeType } from "../utils/types";
+import type { User, Connection } from "../utils/types";
 
 interface ProfileProps {
   selectedNode?: User;
   connectionCount?: number;
-  directConnections?: Array<{
-    id: string;
-    name: string;
-    strength: number;
-    type: NodeType;
-  }>;
+  directConnections?: Connection[];
   onSelectConnection?: (nodeId: string) => void;
 }
 
@@ -162,6 +157,21 @@ const Profile: React.FC<ProfileProps> = ({
                       <span className="font-medium text-indigo-900">
                         {connection.name}
                       </span>
+                      {/* Weight indicator */}
+                      <div className="ml-2 flex items-center">
+                        <div className="mr-1 h-1.5 w-10 rounded-full bg-gray-200">
+                          <div
+                            className="h-1.5 rounded-full bg-indigo-600"
+                            style={{
+                              width: `${(connection.weight / 10) * 100}%`,
+                              opacity: 0.3 + (connection.weight / 10) * 0.7,
+                            }}
+                          ></div>
+                        </div>
+                        <span className="text-xs text-gray-500">
+                          {connection.weight}
+                        </span>
+                      </div>
                     </div>
                     <button
                       onClick={() =>

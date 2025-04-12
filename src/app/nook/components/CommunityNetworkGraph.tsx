@@ -2,7 +2,7 @@
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import * as d3 from "d3";
 import { data } from "../utils/mock";
-import type { User, NodeType } from "../utils/types";
+import type { User, NodeType, Connection } from "../utils/types";
 import UserSearch from "./UserSearch";
 import Profile from "./Profile";
 import GraphLegend from "./GraphLegend";
@@ -50,9 +50,7 @@ const CommunityNetworkGraph: React.FC = () => {
   const svgRef = useRef<SVGSVGElement | null>(null);
   const [selectedNode, setSelectedNode] = useState<User | null>(null);
   const [connectionCount, setConnectionCount] = useState(0);
-  const [directConnections, setDirectConnections] = useState<
-    Array<{ id: string; name: string; strength: number; type: NodeType }>
-  >([]);
+  const [directConnections, setDirectConnections] = useState<Connection[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState<User[]>([]);
   const searchParams = useSearchParams();
@@ -217,7 +215,7 @@ const CommunityNetworkGraph: React.FC = () => {
 
       // Extract unique connected nodes
       const connections = Array.from(connectionMap.entries()).map(
-        ([connectedId]) => {
+        ([connectedId, linkData]) => {
           // Find the connected node
           const connectedNode = data.nodes.find(
             (node) => node.id === connectedId
@@ -228,7 +226,7 @@ const CommunityNetworkGraph: React.FC = () => {
           return {
             id: connectedId,
             name: connectedNode.name,
-            strength: 1, // We could calculate this based on number of connections
+            weight: linkData.weight || 5, // Get weight from link data or default to 5
             type: connectedNode.type as NodeType,
           };
         }
@@ -238,7 +236,7 @@ const CommunityNetworkGraph: React.FC = () => {
       const validConnections = connections.filter(Boolean) as Array<{
         id: string;
         name: string;
-        strength: number;
+        weight: number;
         type: NodeType;
       }>;
 
@@ -276,8 +274,26 @@ const CommunityNetworkGraph: React.FC = () => {
           const isConnectedToSelected =
             sourceId === nodeId || targetId === nodeId;
 
-          // Connected links are fully visible, others faded
-          return isConnectedToSelected ? 1.0 : 0.1;
+          if (isConnectedToSelected) {
+            // For connected links, use enhanced opacity scaling
+            const weight = d.weight || 5;
+            const normalizedWeight = weight / 10;
+            return 0.4 + normalizedWeight * normalizedWeight * 0.6; // 0.4-1.0 with quadratic scaling
+          } else {
+            // For non-connected links, use a very low opacity
+            return 0.02; // More dramatic fade
+          }
+        })
+        // Apply glow effect to high-weight connected links
+        .style("filter", (d: any) => {
+          const sourceId = safeGetId(d.source);
+          const targetId = safeGetId(d.target);
+          const isConnectedToSelected =
+            sourceId === nodeId || targetId === nodeId;
+
+          return isConnectedToSelected && d.weight && d.weight >= 7
+            ? "url(#link-glow)"
+            : "none";
         });
       // Update URL after D3 operations are complete
       setTimeout(() => {
@@ -357,21 +373,12 @@ const CommunityNetworkGraph: React.FC = () => {
         d3
           .forceLink(data.links)
           .id((d: any) => d.id)
-          .distance((d: any) => {
-            // Higher weight = stronger connection = MUCH shorter distance
-            // Scale inversely: weight 10 = distance 30, weight 1 = distance 120
-            if (!d.weight) return 70;
-            return 120 - d.weight * 9; // More dramatic scaling
-          })
-          .strength((d: any) => {
-            // Higher weight = stronger connection = higher strength
-            // Scale directly: weight 10 = strength 0.7, weight 1 = strength 0.1
-            return d.weight ? 0.1 + (d.weight / 10) * 0.6 : 0.15; // Increased strength impact
-          })
+          .distance(70) // Use constant distance instead of weight-based
+          .strength(0.2) // Use consistent strength
       )
-      .force("charge", d3.forceManyBody().strength(-80)) // Slightly reduced repulsion
+      .force("charge", d3.forceManyBody().strength(-100))
       .force("center", d3.forceCenter(width / 2, height / 2))
-      .alphaDecay(0.03); // Slower decay for more movement
+      .alphaDecay(0.05);
 
     // Store simulation in ref for potential use outside this effect
     simulationRef.current = simulation;
@@ -379,21 +386,54 @@ const CommunityNetworkGraph: React.FC = () => {
     // Set up a gradient for links
     const defs = svg.append("defs");
 
-    // Create gradient for links
-    const gradient = defs
-      .append("linearGradient")
-      .attr("id", "link-gradient")
-      .attr("gradientUnits", "userSpaceOnUse");
+    // Create multiple gradients for different weight ranges
+    // Higher weight links will have a more vibrant/saturated color
+    const createWeightGradient = (
+      id: string,
+      startColor: string,
+      endColor: string
+    ) => {
+      const gradient = defs
+        .append("linearGradient")
+        .attr("id", id)
+        .attr("gradientUnits", "userSpaceOnUse");
 
-    gradient
-      .append("stop")
-      .attr("offset", "0%")
-      .attr("stop-color", COLORS.LINK_GRADIENT_START);
+      gradient
+        .append("stop")
+        .attr("offset", "0%")
+        .attr("stop-color", startColor);
 
-    gradient
-      .append("stop")
-      .attr("offset", "100%")
-      .attr("stop-color", COLORS.LINK_GRADIENT_END);
+      gradient
+        .append("stop")
+        .attr("offset", "100%")
+        .attr("stop-color", endColor);
+
+      return gradient;
+    };
+
+    // Create weight-based gradients - from lower to higher weights
+    createWeightGradient(
+      "link-gradient-low",
+      "hsla(210, 60%, 70%, 0.8)",
+      "hsla(210, 50%, 50%, 0.7)"
+    ); // Lower weights: blue
+    createWeightGradient(
+      "link-gradient-medium",
+      "hsla(270, 70%, 60%, 0.9)",
+      "hsla(270, 60%, 40%, 0.8)"
+    ); // Medium weights: purple
+    createWeightGradient(
+      "link-gradient-high",
+      "hsla(330, 90%, 50%, 1.0)",
+      "hsla(330, 80%, 35%, 0.9)"
+    ); // High weights: pink/red
+
+    // Default gradient for links without weight
+    const gradient = createWeightGradient(
+      "link-gradient",
+      COLORS.LINK_GRADIENT_START,
+      COLORS.LINK_GRADIENT_END
+    );
 
     // Add drop shadow filter for nodes
     const filter = defs
@@ -418,17 +458,29 @@ const CommunityNetworkGraph: React.FC = () => {
     feMerge.append("feMergeNode").attr("in", "offsetBlur");
     feMerge.append("feMergeNode").attr("in", "SourceGraphic");
 
+    // Add filter for link glow effect
+    const glowFilter = defs
+      .append("filter")
+      .attr("id", "link-glow")
+      .attr("x", "-50%")
+      .attr("y", "-50%")
+      .attr("width", "200%")
+      .attr("height", "200%");
+
+    glowFilter
+      .append("feGaussianBlur")
+      .attr("stdDeviation", "2")
+      .attr("result", "coloredBlur");
+
+    const glowMerge = glowFilter.append("feMerge");
+    glowMerge.append("feMergeNode").attr("in", "coloredBlur");
+    glowMerge.append("feMergeNode").attr("in", "SourceGraphic");
+
     // Function to create curved paths between nodes
     const linkArc = (d: any) => {
       const dx = d.target.x - d.source.x;
       const dy = d.target.y - d.source.y;
-
-      // Make stronger connections (higher weight) appear more direct
-      // Lower weight = more curved, higher weight = more straight
-      const weight = d.weight || 5; // Default to middle weight if not specified
-      const curveFactor = 3 - (weight / 10) * 2.5; // Scale from 3 to 0.5
-
-      const dr = Math.sqrt(dx * dx + dy * dy) * curveFactor;
+      const dr = Math.sqrt(dx * dx + dy * dy) * 1.5; // Consistent curve radius
       return `M${d.source.x},${d.source.y}A${dr},${dr} 0 0,1 ${d.target.x},${d.target.y}`;
     };
 
@@ -439,14 +491,30 @@ const CommunityNetworkGraph: React.FC = () => {
       .data(data.links)
       .enter()
       .append("path")
-      .attr("stroke", "url(#link-gradient)")
+      .attr("stroke", (d: any) => {
+        // Use different gradient based on weight
+        if (!d.weight) return "url(#link-gradient)";
+        if (d.weight <= 3) return "url(#link-gradient-low)";
+        if (d.weight <= 7) return "url(#link-gradient-medium)";
+        return "url(#link-gradient-high)";
+      })
       .attr("fill", "none")
       .attr("stroke-width", (d: any) => {
         // Scale link width based on weight (if available)
-        return d.weight ? 0.8 + (d.weight / 10) * 2.2 : 1.5; // 0.8-3px based on weight
+        return d.weight ? 1 + (d.weight / 10) * 3 : 1.5; // 1-4px based on weight
       })
       .attr("stroke-linecap", "round")
-      .attr("stroke-opacity", 0.6) // Consistent opacity for all links
+      .attr("stroke-opacity", (d: any) => {
+        // Make opacity more dramatically proportional to weight
+        // Use a quadratic scale for more visual differentiation
+        const weight = d.weight || 5;
+        const normalizedWeight = weight / 10;
+        return 0.3 + normalizedWeight * normalizedWeight * 0.7; // 0.3-1.0 with quadratic scaling
+      })
+      .style("filter", (d: any) => {
+        // Add glow effect for high-weight links
+        return d.weight && d.weight >= 7 ? "url(#link-glow)" : "none";
+      })
       .style("mix-blend-mode", "multiply");
 
     // Create nodes in the middle layer
@@ -967,8 +1035,26 @@ const CommunityNetworkGraph: React.FC = () => {
             const isConnectedToSelected =
               sourceId === selectedNode.id || targetId === selectedNode.id;
 
-            // Connected links are fully visible, others faded
-            return isConnectedToSelected ? 1.0 : 0.1;
+            if (isConnectedToSelected) {
+              // For connected links, use enhanced opacity scaling
+              const weight = d.weight || 5;
+              const normalizedWeight = weight / 10;
+              return 0.4 + normalizedWeight * normalizedWeight * 0.6; // 0.4-1.0 with quadratic scaling
+            } else {
+              // For non-connected links, use a very low opacity
+              return 0.02; // More dramatic fade
+            }
+          })
+          // Apply glow effect to high-weight connected links
+          .style("filter", (d: any) => {
+            const sourceId = safeGetId(d.source);
+            const targetId = safeGetId(d.target);
+            const isConnectedToSelected =
+              sourceId === selectedNode.id || targetId === selectedNode.id;
+
+            return isConnectedToSelected && d.weight && d.weight >= 7
+              ? "url(#link-glow)"
+              : "none";
           });
 
         // Highlight connected nodes - use the pre-computed set for faster lookups
@@ -1037,7 +1123,13 @@ const CommunityNetworkGraph: React.FC = () => {
           .transition()
           .duration(800)
           .attr("stroke", COLORS.LINK_GRADIENT_START)
-          .style("stroke-opacity", COLORS.LINK_DEFAULT_OPACITY);
+          .style("stroke-opacity", (d: any) => {
+            // Return to initial weight-based opacity
+            const weight = d.weight || 5;
+            const normalizedWeight = weight / 10;
+            return 0.3 + normalizedWeight * normalizedWeight * 0.7; // 0.3-1.0 with quadratic scaling
+          })
+          .style("filter", "none"); // Remove glow effect
 
         // Reset all node circles to their default size and style
         node

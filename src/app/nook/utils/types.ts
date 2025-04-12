@@ -27,4 +27,12 @@ export interface Link {
   source: string | { id: string };
   target: string | { id: string };
   type?: string; // Optional type for the link (e.g., "contributor", "creator", etc.)
+  weight?: number; // Connection strength (0-10)
+}
+
+export interface Connection {
+  id: string;
+  name: string;
+  weight: number;
+  type: NodeType;
 }
