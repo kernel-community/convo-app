@@ -1876,6 +1876,8 @@ const CommunityNetworkGraph: React.FC<CommunityNetworkGraphProps> = ({
             onSelectConnection={(nodeId) => {
               updateNodeConnections(nodeId);
             }}
+            currentUserId={currentUserId}
+            currentUser={currentUserId ? dataNodesMap.get(currentUserId) as User : undefined}
           />
         </div>
       </div>

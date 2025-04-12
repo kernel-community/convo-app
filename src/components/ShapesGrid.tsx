@@ -121,7 +121,7 @@ const Petal = ({ className }: { className: string }) => (
 );
 
 // Flower shape
-const Flower = ({ className }: { className: string }) => {
+export const Flower = ({ className }: { className: string }) => {
   return (
     <div
       className={cn(

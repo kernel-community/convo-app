@@ -1,12 +1,16 @@
 /* eslint-disable @next/next/no-img-element */
 import React from "react";
 import type { User, Connection } from "../utils/types";
+import { Flower } from "src/components/ShapesGrid";
+import { motion } from "framer-motion";
 
 interface ProfileProps {
   selectedNode?: User;
   connectionCount?: number;
   directConnections?: Connection[];
   onSelectConnection?: (nodeId: string) => void;
+  currentUserId?: string;
+  currentUser?: User;
 }
 
 const Profile: React.FC<ProfileProps> = ({
@@ -14,7 +18,28 @@ const Profile: React.FC<ProfileProps> = ({
   connectionCount = 0,
   directConnections = [],
   onSelectConnection,
+  currentUserId,
+  currentUser,
 }) => {
+  // Animation variants
+  const hoverAnimation = {
+    scale: 1.05,
+    transition: { duration: 0.2 },
+  };
+
+  const tapAnimation = {
+    scale: 0.95,
+    transition: { duration: 0.1 },
+  };
+
+  // Function to select current user's node
+  const viewCurrentUser = () => {
+    console.log("Selecting current user with ID:", currentUserId);
+    if (currentUserId && onSelectConnection) {
+      onSelectConnection(currentUserId);
+    }
+  };
+
   // If no node is selected, show the default state
   if (!selectedNode) {
     return (
@@ -34,6 +59,18 @@ const Profile: React.FC<ProfileProps> = ({
     );
   }
 
+  // Check if this is a different user than the current user
+  const isCurrentUser = selectedNode.id === currentUserId;
+  const showOverlappingImages =
+    !isCurrentUser &&
+    currentUser?.profile?.image &&
+    selectedNode.profile?.image;
+
+  // Sort connections by weight in descending order
+  const sortedConnections = [...directConnections].sort(
+    (a, b) => b.weight - a.weight
+  );
+
   // Show the profile for the selected node
   return (
     <div className="h-full w-full rounded-lg border border-indigo-100 bg-white p-4 shadow-sm">
@@ -43,16 +80,87 @@ const Profile: React.FC<ProfileProps> = ({
 
       <div className="space-y-5">
         <div className="mb-4 flex flex-col items-center text-center">
-          {selectedNode.profile?.image && (
-            <div className="relative mb-3 h-20 w-20 overflow-hidden rounded-full border border-indigo-100">
-              <img
-                src={selectedNode.profile.image}
-                alt={selectedNode.name}
-                width="80"
-                height="80"
-                className="h-full w-full object-cover"
-              />
+          {showOverlappingImages ? (
+            <div className="relative mb-3 grid w-full max-w-[12rem] grid-cols-2 items-center justify-center gap-0">
+              {/* Current user image (left) - clickable */}
+              <motion.div
+                className="mr-[-1rem] h-28 w-28 cursor-pointer justify-self-end overflow-hidden rounded-full border-2 border-white bg-white shadow-sm hover:z-[1000]"
+                whileHover={hoverAnimation}
+                whileTap={tapAnimation}
+                onClick={viewCurrentUser}
+                title="View your profile"
+              >
+                <img
+                  src={currentUser?.profile?.image}
+                  alt={currentUser?.name || "You"}
+                  width="112"
+                  height="112"
+                  className="h-full w-full object-cover"
+                />
+              </motion.div>
+
+              {/* Selected user image (right) */}
+              <motion.div
+                className="h-30 w-30 ml-[-1rem] justify-self-start overflow-hidden rounded-full border-2 border-white bg-white shadow-sm hover:z-[1000]"
+                whileHover={hoverAnimation}
+                whileTap={tapAnimation}
+              >
+                <img
+                  src={selectedNode.profile?.image}
+                  alt={selectedNode.name}
+                  width="112"
+                  height="112"
+                  className="h-full w-full object-cover"
+                />
+              </motion.div>
+
+              {/* Flower in the middle, above both images */}
+              <motion.div
+                className="absolute left-1/3  z-50 opacity-80"
+                animate={{ rotate: 360 }}
+                transition={{
+                  duration: 20,
+                  repeat: Infinity,
+                  ease: "linear",
+                }}
+                style={{ transform: "translate(-50%, -50%) rotate(0deg)" }}
+              >
+                <Flower className="h-10 w-10 text-yellow-400 opacity-80" />
+              </motion.div>
             </div>
+          ) : (
+            selectedNode.profile?.image &&
+            (isCurrentUser ? (
+              <motion.div
+                className="h-30 w-30 relative mb-3 cursor-pointer overflow-hidden rounded-full border border-indigo-100 hover:z-[1000]"
+                whileHover={hoverAnimation}
+                whileTap={tapAnimation}
+                onClick={viewCurrentUser}
+                title="View your profile"
+              >
+                <img
+                  src={selectedNode.profile.image}
+                  alt={selectedNode.name}
+                  width="112"
+                  height="112"
+                  className="h-full w-full object-cover"
+                />
+              </motion.div>
+            ) : (
+              <motion.div
+                className="relative mb-3 h-28 w-28 overflow-hidden rounded-full border border-indigo-100"
+                whileHover={hoverAnimation}
+                whileTap={tapAnimation}
+              >
+                <img
+                  src={selectedNode.profile.image}
+                  alt={selectedNode.name}
+                  width="112"
+                  height="112"
+                  className="h-full w-full object-cover"
+                />
+              </motion.div>
+            ))
           )}
           <h2 className="text-xl font-bold text-indigo-900">
             {selectedNode.name}
@@ -147,7 +255,7 @@ const Profile: React.FC<ProfileProps> = ({
             </h4>
             <div className="overflow-y-auto">
               <ul className="space-y-2">
-                {directConnections.map((connection) => (
+                {sortedConnections.map((connection) => (
                   <li
                     key={connection.id}
                     className="flex items-center justify-between rounded-md border border-indigo-100 p-2 text-sm hover:bg-indigo-50"
