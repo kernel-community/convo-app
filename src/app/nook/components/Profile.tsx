@@ -62,10 +62,10 @@ const Profile: React.FC<ProfileProps> = ({
           )}
         </div>
 
-        {selectedNode.profile?.description && (
-          <p className="mt-2 max-w-xs text-sm text-gray-600">
-            {selectedNode.profile.description}
-          </p>
+        {selectedNode.profile?.bio && (
+          <div className="mt-2 text-sm text-gray-600">
+            {selectedNode.profile.bio}
+          </div>
         )}
         <div className="flex flex-col gap-2 text-xs text-gray-500">
           {selectedNode.profile?.city && (
@@ -112,10 +112,10 @@ const Profile: React.FC<ProfileProps> = ({
               {selectedNode.profile.currentAffiliation}
             </span>
           )}
-          {selectedNode.url && (
+          {selectedNode.profile?.url && (
             <div className="text-xs">
               <a
-                href={selectedNode.url}
+                href={selectedNode.profile.url}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center text-indigo-600 transition-colors hover:text-indigo-800"
@@ -134,18 +134,18 @@ const Profile: React.FC<ProfileProps> = ({
                     d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
                   />
                 </svg>
-                {selectedNode.url.replace(/^https?:\/\/(www\.)?/i, "")}
+                {selectedNode.profile.url.replace(/^https?:\/\/(www\.)?/i, "")}
               </a>
             </div>
           )}
         </div>
 
         {directConnections.length > 0 && (
-          <div>
+          <div className="h-full">
             <h4 className="mb-2 text-sm font-semibold text-indigo-800">
               Connections ({connectionCount})
             </h4>
-            <div className="max-h-40 overflow-y-auto">
+            <div className="overflow-y-auto">
               <ul className="space-y-2">
                 {directConnections.map((connection) => (
                   <li

@@ -7,6 +7,7 @@ import Main from "src/layouts/Main";
 import CommunityNetworkGraph from "./components/CommunityNetworkGraph";
 import { checkSessionAuth } from "src/lib/checkSessionAuth";
 import BetaBadge from "src/components/ui/beta-badge";
+import { useUser } from "src/context/UserContext";
 
 // Array of colors for different locations
 const locationColors = [
@@ -35,6 +36,10 @@ export default function NookPage() {
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const [loading, setLoading] = useState(true);
+  const { fetchedUser } = useUser();
+  const [currentUserId, setCurrentUserId] = useState<string | undefined>(
+    undefined
+  );
   // Get the tab from URL params or default to "network"
   const tabParam = searchParams.get("tab");
   const [activeTab, setActiveTab] = useState(
@@ -95,6 +100,18 @@ export default function NookPage() {
     checkBetaAccess();
   }, [router]);
 
+  // Set currentUserId from UserContext when fetchedUser is available
+  useEffect(() => {
+    if (fetchedUser && fetchedUser.id) {
+      console.log("Setting user ID from context:", fetchedUser.id);
+      setCurrentUserId(fetchedUser.id);
+    } else if (!loading) {
+      // Fallback to "user1" for testing if user context doesn't have an ID
+      console.log("No user ID in context, using fallback: user1");
+      setCurrentUserId("user1");
+    }
+  }, [fetchedUser, loading]);
+
   // Show loading state while checking beta access
   if (loading) {
     return (
@@ -110,8 +127,7 @@ export default function NookPage() {
 
   return (
     <Main>
-      <div className="container mx-auto px-4">
-        <div className="mb-8 text-center">
+      {/* <div className="mb-8 text-center">
           <div className="mb-2 flex items-center justify-center gap-2">
             <h1 className="font-primary text-4xl font-bold text-primary">
               nook
@@ -121,24 +137,24 @@ export default function NookPage() {
           <p className="mx-auto max-w-2xl font-secondary text-lg text-muted-foreground">
             What am I, if not, in relation with you?
           </p>
-        </div>
+        </div> */}
 
-        <CommunityNetworkGraph />
+      {/* The data prop is optional and defaults to mockData in the component */}
+      <CommunityNetworkGraph currentUserId={currentUserId} />
 
-        {/* Add animation keyframes for content transition */}
-        <style jsx global>{`
-          @keyframes fadeIn {
-            from {
-              opacity: 0;
-              transform: translateY(10px);
-            }
-            to {
-              opacity: 1;
-              transform: translateY(0);
-            }
+      {/* Add animation keyframes for content transition */}
+      <style jsx global>{`
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+            transform: translateY(10px);
           }
-        `}</style>
-      </div>
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+      `}</style>
     </Main>
   );
 }

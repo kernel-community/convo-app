@@ -1,7 +1,7 @@
 // Define types for our data structures
 
 // Define a type for node types
-export type NodeType = "user";
+export type NodeType = "user" | "project";
 
 export interface User {
   id: string;
@@ -14,12 +14,11 @@ export interface User {
   profile?: {
     image?: string;
     keywords?: string[];
-    description?: string;
+    bio?: string;
     currentAffiliation?: string;
     city?: string;
-    bio?: string;
+    url?: string;
   };
-  url?: string;
   isFellow?: boolean;
 }
 

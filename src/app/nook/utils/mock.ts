@@ -3,7 +3,7 @@ export const data = {
   nodes: [
     {
       id: "user1",
-      name: "Emma",
+      name: "Emma Thompson",
       type: "user",
       convo: {
         eventsCreated: 5,
@@ -12,22 +12,22 @@ export const data = {
       profile: {
         image: "https://randomuser.me/api/portraits/women/1.jpg",
         keywords: ["blockchain", "defi", "ethereum", "community", "governance"],
-        description:
-          "Blockchain researcher focused on decentralized governance systems and community building.",
+        bio: "Blockchain researcher focused on decentralized governance systems and community building.",
         currentAffiliation: "Ethereum Foundation",
+        url: "https://github.com/emma-blockchain",
       },
-      url: "https://github.com/emma-blockchain",
     },
+    // Add the new user with the UUID as ID
     {
       id: "user2",
-      name: "Liam",
+      name: "Angela G",
       type: "user",
       convo: {
         eventsCreated: 2,
         rsvps: 8,
       },
       profile: {
-        image: "https://randomuser.me/api/portraits/men/2.jpg",
+        image: "https://kernelconvo.s3.us-east-2.amazonaws.com/angg.png",
         keywords: [
           "smart contracts",
           "solidity",
@@ -35,15 +35,36 @@ export const data = {
           "security",
           "auditing",
         ],
-        description:
-          "Smart contract developer with expertise in security auditing and optimization techniques.",
+        bio: "Smart contract developer with expertise in security auditing and optimization techniques.",
         currentAffiliation: "ConsenSys",
+        url: "https://github.com/liam-solidity",
       },
-      url: "https://github.com/liam-solidity",
+    },
+    {
+      id: "e55075ef-3076-4019-bb46-854ab2662da1",
+      name: "Angela",
+      type: "user",
+      convo: {
+        eventsCreated: 2,
+        rsvps: 8,
+      },
+      profile: {
+        image: "https://kernelconvo.s3.us-east-2.amazonaws.com/angg.png",
+        keywords: [
+          "smart contracts",
+          "solidity",
+          "web3",
+          "security",
+          "auditing",
+        ],
+        bio: "Smart contract developer with expertise in security auditing and optimization techniques.",
+        currentAffiliation: "ConsenSys",
+        url: "https://github.com/liam-solidity",
+      },
     },
     {
       id: "user3",
-      name: "Olivia",
+      name: "Olivia Chen",
       type: "user",
       convo: {
         eventsCreated: 7,
@@ -58,15 +79,14 @@ export const data = {
           "mechanism design",
           "economics",
         ],
-        description:
-          "DAO designer specializing in tokenomics and sustainable economic models for web3 communities.",
+        bio: "DAO designer specializing in tokenomics and sustainable economic models for web3 communities.",
         currentAffiliation: "Gitcoin",
+        url: "https://github.com/olivia-dao",
       },
-      url: "https://github.com/olivia-dao",
     },
     {
       id: "user4",
-      name: "Noah",
+      name: "Noah Patel",
       type: "user",
       convo: {
         eventsCreated: 1,
@@ -81,15 +101,14 @@ export const data = {
           "zk-snarks",
           "research",
         ],
-        description:
-          "Cryptography researcher exploring zero-knowledge proofs and privacy-preserving technologies.",
+        bio: "Cryptography researcher exploring zero-knowledge proofs and privacy-preserving technologies.",
         currentAffiliation: "ETH Zurich",
+        url: "https://github.com/noah-zk",
       },
-      url: "https://github.com/noah-zk",
     },
     {
       id: "user5",
-      name: "Ava",
+      name: "Ava Kim",
       type: "user",
       convo: {
         eventsCreated: 3,
@@ -98,15 +117,14 @@ export const data = {
       profile: {
         image: "https://randomuser.me/api/portraits/women/5.jpg",
         keywords: ["frontend", "design", "ux", "web3", "accessibility"],
-        description:
-          "Frontend developer and designer creating intuitive interfaces for decentralized applications.",
+        bio: "Frontend developer and designer creating intuitive interfaces for decentralized applications.",
         currentAffiliation: "Aave",
+        url: "https://github.com/ava-design",
       },
-      url: "https://github.com/ava-design",
     },
     {
       id: "user6",
-      name: "Ethan",
+      name: "Ethan Wilson",
       type: "user",
       convo: {
         eventsCreated: 0,
@@ -121,15 +139,14 @@ export const data = {
           "creative coding",
           "generative",
         ],
-        description:
-          "Digital artist exploring the intersection of generative art, NFTs, and on-chain aesthetics.",
+        bio: "Digital artist exploring the intersection of generative art, NFTs, and on-chain aesthetics.",
         currentAffiliation: "Foundation",
+        url: "https://github.com/ethan-art",
       },
-      url: "https://github.com/ethan-art",
     },
     {
       id: "user7",
-      name: "Sophia",
+      name: "Sophia Garcia",
       type: "user",
       convo: {
         eventsCreated: 4,
@@ -144,15 +161,14 @@ export const data = {
           "events",
           "facilitation",
         ],
-        description:
-          "Community builder focused on educational initiatives and meaningful connection through events.",
+        bio: "Community builder focused on educational initiatives and meaningful connection through events.",
         currentAffiliation: "Kernel Community",
+        url: "https://github.com/sophia-community",
       },
-      url: "https://github.com/sophia-community",
     },
     {
       id: "user8",
-      name: "Mason",
+      name: "Mason Johnson",
       type: "user",
       convo: {
         eventsCreated: 2,
@@ -161,15 +177,14 @@ export const data = {
       profile: {
         image: "https://randomuser.me/api/portraits/men/8.jpg",
         keywords: ["infrastructure", "devops", "scaling", "nodes", "protocols"],
-        description:
-          "Infrastructure engineer building resilient systems for decentralized protocols and applications.",
+        bio: "Infrastructure engineer building resilient systems for decentralized protocols and applications.",
         currentAffiliation: "Infura",
+        url: "https://github.com/mason-infra",
       },
-      url: "https://github.com/mason-infra",
     },
     {
       id: "user9",
-      name: "Isabella",
+      name: "Isabella Martinez",
       type: "user",
       convo: {
         eventsCreated: 6,
@@ -184,15 +199,15 @@ export const data = {
           "incentives",
           "markets",
         ],
-        description:
-          "Economic researcher studying incentive mechanisms and market design in decentralized systems.",
+        bio: "Economic researcher studying incentive mechanisms and market design in decentralized systems.",
         currentAffiliation: "Optimism",
+        url: "https://github.com/isabella-econ",
       },
-      url: "https://github.com/isabella-econ",
     },
     {
       id: "user10",
-      name: "Logan",
+      name: "Logan Brown",
+      type: "user",
       convo: {
         eventsCreated: 1,
         rsvps: 5,
@@ -200,133 +215,1557 @@ export const data = {
       profile: {
         image: "https://randomuser.me/api/portraits/men/10.jpg",
         keywords: ["defi", "trading", "analytics", "data science", "risk"],
-        description:
-          "DeFi analyst with expertise in risk assessment and data-driven protocol optimization.",
+        bio: "DeFi analyst with expertise in risk assessment and data-driven protocol optimization.",
         currentAffiliation: "Uniswap Labs",
+        url: "https://github.com/logan-defi",
       },
-      url: "https://github.com/logan-defi",
-      type: "user",
     },
-    // Project nodes
-    // {
-    //   id: "project1",
-    //   name: "Decentralized Identity Framework",
-    //   type: "project",
-    //   description:
-    //     "A framework for self-sovereign identity using zero-knowledge proofs and blockchain attestations.",
-    //   keywords: [
-    //     "identity",
-    //     "zero knowledge",
-    //     "privacy",
-    //     "attestations",
-    //     "blockchain",
-    //   ],
-    //   url: "https://github.com/kernel-community/identity-framework",
-    //   isFellow: true,
-    //   startDate: "2023-01-15",
-    //   endDate: "2023-06-30",
-    //   status: "completed",
-    // },
-    // {
-    //   id: "project2",
-    //   name: "DAO Governance Toolkit",
-    //   type: "project",
-    //   description:
-    //     "A modular toolkit for creating and managing decentralized autonomous organizations with customizable governance mechanisms.",
-    //   keywords: ["dao", "governance", "voting", "coordination", "tokenomics"],
-    //   url: "https://github.com/kernel-community/dao-toolkit",
-    //   isFellow: true,
-    //   startDate: "2023-03-10",
-    //   status: "active",
-    // },
-    // {
-    //   id: "project3",
-    //   name: "Web3 Education Platform",
-    //   type: "project",
-    //   description:
-    //     "An interactive learning platform for blockchain and web3 technologies with hands-on coding exercises and community-driven content.",
-    //   keywords: ["education", "learning", "web3", "community", "interactive"],
-    //   url: "https://github.com/kernel-community/web3-education",
-    //   isFellow: false,
-    //   startDate: "2023-05-22",
-    //   status: "active",
-    // },
-    // {
-    //   id: "project4",
-    //   name: "Decentralized Art Marketplace",
-    //   type: "project",
-    //   description:
-    //     "A platform for artists to create, showcase, and sell digital art with built-in royalty mechanisms and collaborative creation tools.",
-    //   keywords: ["nft", "art", "marketplace", "royalties", "collaboration"],
-    //   url: "https://github.com/kernel-community/art-marketplace",
-    //   isFellow: true,
-    //   startDate: "2023-02-18",
-    //   endDate: "2023-08-15",
-    //   status: "completed",
-    // },
-    // {
-    //   id: "project5",
-    //   name: "Smart Contract Security Scanner",
-    //   type: "project",
-    //   description:
-    //     "An automated tool for identifying vulnerabilities and optimization opportunities in Solidity smart contracts.",
-    //   keywords: [
-    //     "security",
-    //     "smart contracts",
-    //     "auditing",
-    //     "solidity",
-    //     "analysis",
-    //   ],
-    //   url: "https://github.com/kernel-community/contract-scanner",
-    //   isFellow: false,
-    //   startDate: "2023-07-05",
-    //   status: "active",
-    // },
+    {
+      id: "user11",
+      name: "Mia Taylor",
+      type: "user",
+      convo: {
+        eventsCreated: 3,
+        rsvps: 9,
+      },
+      profile: {
+        image: "https://randomuser.me/api/portraits/women/11.jpg",
+        keywords: ["governance", "voting", "daos", "coordination", "social"],
+        bio: "Governance specialist working on voting mechanisms and proposal frameworks for DAOs.",
+        currentAffiliation: "DAOhaus",
+        url: "https://github.com/mia-governance",
+      },
+    },
+    {
+      id: "user12",
+      name: "Jackson Liu",
+      type: "user",
+      convo: {
+        eventsCreated: 2,
+        rsvps: 11,
+      },
+      profile: {
+        image: "https://randomuser.me/api/portraits/men/12.jpg",
+        keywords: [
+          "privacy",
+          "messaging",
+          "encryption",
+          "security",
+          "protocols",
+        ],
+        bio: "Protocol engineer specializing in private messaging and encrypted communication systems.",
+        currentAffiliation: "Status",
+        url: "https://github.com/jackson-privacy",
+      },
+    },
+    {
+      id: "user13",
+      name: "Sofia Navarro",
+      type: "user",
+      convo: {
+        eventsCreated: 5,
+        rsvps: 13,
+      },
+      profile: {
+        image: "https://randomuser.me/api/portraits/women/13.jpg",
+        keywords: ["layer2", "scaling", "rollups", "optimistic", "zkrollups"],
+        bio: "Layer 2 researcher focused on scalability solutions and rollup technologies for Ethereum.",
+        currentAffiliation: "Polygon",
+        url: "https://github.com/sofia-scaling",
+      },
+    },
+    {
+      id: "user14",
+      name: "Aiden Smith",
+      type: "user",
+      convo: {
+        eventsCreated: 1,
+        rsvps: 8,
+      },
+      profile: {
+        image: "https://randomuser.me/api/portraits/men/14.jpg",
+        keywords: [
+          "identity",
+          "self-sovereign",
+          "authentication",
+          "credentials",
+          "verification",
+        ],
+        bio: "Identity specialist building self-sovereign identity solutions and verifiable credential systems.",
+        currentAffiliation: "Spruce",
+        url: "https://github.com/aiden-identity",
+      },
+    },
+    {
+      id: "user15",
+      name: "Charlotte Williams",
+      type: "user",
+      convo: {
+        eventsCreated: 4,
+        rsvps: 10,
+      },
+      profile: {
+        image: "https://randomuser.me/api/portraits/women/15.jpg",
+        keywords: ["social", "reputation", "trust", "attestations", "web3"],
+        bio: "Social systems designer focused on reputation, trust mechanisms and attestation networks.",
+        currentAffiliation: "BrightID",
+        url: "https://github.com/charlotte-social",
+      },
+    },
+    {
+      id: "user16",
+      name: "Lucas Nguyen",
+      type: "user",
+      convo: {
+        eventsCreated: 2,
+        rsvps: 7,
+      },
+      profile: {
+        image: "https://randomuser.me/api/portraits/men/16.jpg",
+        keywords: ["oracles", "data", "apis", "integration", "web3"],
+        bio: "Oracle network developer building reliable data feeds and API integrations for smart contracts.",
+        currentAffiliation: "Chainlink",
+        url: "https://github.com/lucas-oracles",
+      },
+    },
+    {
+      id: "user17",
+      name: "Amelia Carter",
+      type: "user",
+      convo: {
+        eventsCreated: 3,
+        rsvps: 12,
+      },
+      profile: {
+        image: "https://randomuser.me/api/portraits/women/17.jpg",
+        keywords: ["virtual worlds", "metaverse", "land", "avatars", "spatial"],
+        bio: "Virtual world architect designing spatial experiences and avatar-based social interactions.",
+        currentAffiliation: "Decentraland",
+        url: "https://github.com/amelia-virtual",
+      },
+    },
+    {
+      id: "user18",
+      name: "Henry Garcia",
+      type: "user",
+      convo: {
+        eventsCreated: 1,
+        rsvps: 6,
+      },
+      profile: {
+        image: "https://randomuser.me/api/portraits/men/18.jpg",
+        keywords: [
+          "security",
+          "auditing",
+          "vulnerabilities",
+          "defense",
+          "analysis",
+        ],
+        bio: "Security researcher specializing in smart contract audits and vulnerability detection.",
+        currentAffiliation: "OpenZeppelin",
+        url: "https://github.com/henry-security",
+      },
+    },
+    {
+      id: "user19",
+      name: "Evelyn Wu",
+      type: "user",
+      convo: {
+        eventsCreated: 4,
+        rsvps: 11,
+      },
+      profile: {
+        image: "https://randomuser.me/api/portraits/women/19.jpg",
+        keywords: ["exchanges", "trading", "markets", "liquidity", "dex"],
+        bio: "Exchange protocol designer working on decentralized trading platforms and liquidity solutions.",
+        currentAffiliation: "dYdX",
+        url: "https://github.com/evelyn-exchange",
+      },
+    },
+    {
+      id: "user20",
+      name: "Wyatt Jones",
+      type: "user",
+      convo: {
+        eventsCreated: 2,
+        rsvps: 8,
+      },
+      profile: {
+        image: "https://randomuser.me/api/portraits/men/20.jpg",
+        keywords: ["staking", "validation", "consensus", "pos", "rewards"],
+        bio: "Staking protocol engineer building validation mechanisms and reward distribution systems.",
+        currentAffiliation: "Lido",
+        url: "https://github.com/wyatt-staking",
+      },
+    },
+    {
+      id: "user21",
+      name: "Abigail Thomas",
+      type: "user",
+      convo: {
+        eventsCreated: 5,
+        rsvps: 14,
+      },
+      profile: {
+        image: "https://randomuser.me/api/portraits/women/21.jpg",
+        keywords: ["education", "learning", "courses", "knowledge", "curation"],
+        bio: "Education coordinator developing web3 learning pathways and decentralized knowledge systems.",
+        currentAffiliation: "RabbitHole",
+        url: "https://github.com/abigail-education",
+      },
+    },
+    {
+      id: "user22",
+      name: "Sebastian Lee",
+      type: "user",
+      convo: {
+        eventsCreated: 3,
+        rsvps: 9,
+      },
+      profile: {
+        image: "https://randomuser.me/api/portraits/men/22.jpg",
+        keywords: ["wallets", "accounts", "key management", "ux", "security"],
+        bio: "Wallet developer focused on key management UX and secure transaction experiences.",
+        currentAffiliation: "Rainbow",
+        url: "https://github.com/sebastian-wallets",
+      },
+    },
+    {
+      id: "user23",
+      name: "Lily Rodriguez",
+      type: "user",
+      convo: {
+        eventsCreated: 2,
+        rsvps: 10,
+      },
+      profile: {
+        image: "https://randomuser.me/api/portraits/women/23.jpg",
+        keywords: ["music", "nfts", "royalties", "streaming", "creators"],
+        bio: "Music platform designer building decentralized royalty systems for artists and creators.",
+        currentAffiliation: "Audius",
+        url: "https://github.com/lily-music",
+      },
+    },
+    {
+      id: "user24",
+      name: "Daniel Kim",
+      type: "user",
+      convo: {
+        eventsCreated: 1,
+        rsvps: 7,
+      },
+      profile: {
+        image: "https://randomuser.me/api/portraits/men/24.jpg",
+        keywords: [
+          "stable assets",
+          "algorithmic",
+          "pegs",
+          "monetary",
+          "finance",
+        ],
+        bio: "Stablecoin developer researching algorithmic design and stability mechanisms.",
+        currentAffiliation: "Maker",
+        url: "https://github.com/daniel-stable",
+      },
+    },
+    {
+      id: "user25",
+      name: "Zoe Martin",
+      type: "user",
+      convo: {
+        eventsCreated: 4,
+        rsvps: 13,
+      },
+      profile: {
+        image: "https://randomuser.me/api/portraits/women/25.jpg",
+        keywords: [
+          "regenerative",
+          "climate",
+          "carbon",
+          "impact",
+          "sustainability",
+        ],
+        bio: "Regenerative finance specialist developing carbon credit markets and climate impact initiatives.",
+        currentAffiliation: "Toucan Protocol",
+        url: "https://github.com/zoe-climate",
+      },
+    },
+    {
+      id: "user26",
+      name: "Matthew Wilson",
+      type: "user",
+      convo: {
+        eventsCreated: 3,
+        rsvps: 8,
+      },
+      profile: {
+        image: "https://randomuser.me/api/portraits/men/26.jpg",
+        keywords: ["legal", "regulation", "compliance", "policy", "governance"],
+        bio: "Legal specialist navigating regulatory frameworks for DAOs and decentralized systems.",
+        currentAffiliation: "LexDAO",
+        url: "https://github.com/matthew-legal",
+      },
+    },
+    {
+      id: "user27",
+      name: "Victoria Clark",
+      type: "user",
+      convo: {
+        eventsCreated: 6,
+        rsvps: 15,
+      },
+      profile: {
+        image: "https://randomuser.me/api/portraits/women/27.jpg",
+        keywords: [
+          "gaming",
+          "nfts",
+          "play-to-earn",
+          "virtual assets",
+          "game economics",
+        ],
+        bio: "Game economist designing play-to-earn systems and in-game asset economies.",
+        currentAffiliation: "Axie Infinity",
+        url: "https://github.com/victoria-games",
+      },
+    },
+    {
+      id: "user28",
+      name: "Leo Mitchell",
+      type: "user",
+      convo: {
+        eventsCreated: 2,
+        rsvps: 9,
+      },
+      profile: {
+        image: "https://randomuser.me/api/portraits/men/28.jpg",
+        keywords: [
+          "bridges",
+          "interoperability",
+          "cross-chain",
+          "messaging",
+          "protocols",
+        ],
+        bio: "Bridge protocol engineer working on secure cross-chain messaging and asset transfers.",
+        currentAffiliation: "Connext",
+        url: "https://github.com/leo-bridges",
+      },
+    },
+    {
+      id: "user29",
+      name: "Nora Patel",
+      type: "user",
+      convo: {
+        eventsCreated: 4,
+        rsvps: 11,
+      },
+      profile: {
+        image: "https://randomuser.me/api/portraits/women/29.jpg",
+        keywords: [
+          "prediction markets",
+          "forecasting",
+          "wisdom of crowds",
+          "oracles",
+          "information",
+        ],
+        bio: "Prediction market designer building forecasting platforms and information discovery mechanisms.",
+        currentAffiliation: "Gnosis",
+        url: "https://github.com/nora-prediction",
+      },
+    },
+    {
+      id: "user30",
+      name: "Caleb White",
+      type: "user",
+      convo: {
+        eventsCreated: 1,
+        rsvps: 6,
+      },
+      profile: {
+        image: "https://randomuser.me/api/portraits/men/30.jpg",
+        keywords: ["mobile", "apps", "ux", "adoption", "onboarding"],
+        bio: "Mobile developer creating accessible entry points and intuitive experiences for web3.",
+        currentAffiliation: "Argent",
+        url: "https://github.com/caleb-mobile",
+      },
+    },
+    {
+      id: "user31",
+      name: "Stella Turner",
+      type: "user",
+      convo: {
+        eventsCreated: 3,
+        rsvps: 10,
+      },
+      profile: {
+        image: "https://randomuser.me/api/portraits/women/31.jpg",
+        keywords: [
+          "data dao",
+          "analysis",
+          "collaboration",
+          "sharing",
+          "governance",
+        ],
+        bio: "Data DAO researcher exploring collaborative data ownership and governance models.",
+        currentAffiliation: "Ocean Protocol",
+        url: "https://github.com/stella-data",
+      },
+    },
+    {
+      id: "user32",
+      name: "Zachary Brown",
+      type: "user",
+      convo: {
+        eventsCreated: 2,
+        rsvps: 8,
+      },
+      profile: {
+        image: "https://randomuser.me/api/portraits/men/32.jpg",
+        keywords: ["physical", "hardware", "iot", "sensors", "web3"],
+        bio: "Hardware engineer connecting physical infrastructure to blockchain networks and IoT systems.",
+        currentAffiliation: "Helium",
+        url: "https://github.com/zachary-hardware",
+      },
+    },
+    {
+      id: "user33",
+      name: "Hazel Garcia",
+      type: "user",
+      convo: {
+        eventsCreated: 5,
+        rsvps: 13,
+      },
+      profile: {
+        image: "https://randomuser.me/api/portraits/women/33.jpg",
+        keywords: ["insurance", "risk", "coverage", "mutuals", "parametric"],
+        bio: "Insurance protocol designer building decentralized risk sharing and coverage systems.",
+        currentAffiliation: "Nexus Mutual",
+        url: "https://github.com/hazel-insurance",
+      },
+    },
+    {
+      id: "user34",
+      name: "Owen Martinez",
+      type: "user",
+      convo: {
+        eventsCreated: 1,
+        rsvps: 7,
+      },
+      profile: {
+        image: "https://randomuser.me/api/portraits/men/34.jpg",
+        keywords: [
+          "content",
+          "publishing",
+          "monetization",
+          "creators",
+          "media",
+        ],
+        bio: "Content platform architect working on decentralized publishing and creator monetization.",
+        currentAffiliation: "Mirror",
+        url: "https://github.com/owen-content",
+      },
+    },
+    {
+      id: "user35",
+      name: "Chloe Anderson",
+      type: "user",
+      convo: {
+        eventsCreated: 4,
+        rsvps: 12,
+      },
+      profile: {
+        image: "https://randomuser.me/api/portraits/women/35.jpg",
+        keywords: ["lending", "borrowing", "credit", "risk", "markets"],
+        bio: "Lending protocol designer developing decentralized credit markets and capital efficiency tools.",
+        currentAffiliation: "Compound",
+        url: "https://github.com/chloe-lending",
+      },
+    },
+    {
+      id: "user36",
+      name: "Elijah Thomas",
+      type: "user",
+      convo: {
+        eventsCreated: 2,
+        rsvps: 9,
+      },
+      profile: {
+        image: "https://randomuser.me/api/portraits/men/36.jpg",
+        keywords: ["storage", "files", "data", "persistence", "distributed"],
+        bio: "Distributed storage engineer building resilient file systems and data persistence solutions.",
+        currentAffiliation: "IPFS",
+        url: "https://github.com/elijah-storage",
+      },
+    },
+    {
+      id: "user37",
+      name: "Audrey Lee",
+      type: "user",
+      convo: {
+        eventsCreated: 3,
+        rsvps: 11,
+      },
+      profile: {
+        image: "https://randomuser.me/api/portraits/women/37.jpg",
+        keywords: [
+          "payments",
+          "transactions",
+          "remittance",
+          "fiat onramp",
+          "global",
+        ],
+        bio: "Payment systems architect creating global transaction networks and fiat onramps.",
+        currentAffiliation: "Circle",
+        url: "https://github.com/audrey-payments",
+      },
+    },
+    {
+      id: "user38",
+      name: "Gabriel Wilson",
+      type: "user",
+      convo: {
+        eventsCreated: 1,
+        rsvps: 6,
+      },
+      profile: {
+        image: "https://randomuser.me/api/portraits/men/38.jpg",
+        keywords: ["api", "developer tools", "sdk", "libraries", "integration"],
+        bio: "Developer tools specialist building SDKs and APIs for web3 application integration.",
+        currentAffiliation: "Alchemy",
+        url: "https://github.com/gabriel-tools",
+      },
+    },
+    {
+      id: "user39",
+      name: "Scarlett Harris",
+      type: "user",
+      convo: {
+        eventsCreated: 5,
+        rsvps: 14,
+      },
+      profile: {
+        image: "https://randomuser.me/api/portraits/women/39.jpg",
+        keywords: ["community", "growth", "dao", "incentives", "engagement"],
+        bio: "Community growth strategist designing engagement systems and contributor incentives.",
+        currentAffiliation: "Coordinape",
+        url: "https://github.com/scarlett-community",
+      },
+    },
+    {
+      id: "user40",
+      name: "Levi Clark",
+      type: "user",
+      convo: {
+        eventsCreated: 2,
+        rsvps: 8,
+      },
+      profile: {
+        image: "https://randomuser.me/api/portraits/men/40.jpg",
+        keywords: [
+          "privacy",
+          "mixing",
+          "confidential",
+          "anonymous",
+          "transactions",
+        ],
+        bio: "Privacy protocol engineer developing transaction anonymity and confidential asset solutions.",
+        currentAffiliation: "Tornado Cash",
+        url: "https://github.com/levi-privacy",
+      },
+    },
+    {
+      id: "user41",
+      name: "Madeline Wright",
+      type: "user",
+      convo: {
+        eventsCreated: 4,
+        rsvps: 12,
+      },
+      profile: {
+        image: "https://randomuser.me/api/portraits/women/41.jpg",
+        keywords: [
+          "decentralized science",
+          "research",
+          "funding",
+          "peer review",
+          "collaboration",
+        ],
+        bio: "Open science advocate building decentralized research funding and peer review mechanisms.",
+        currentAffiliation: "ResearchHub",
+        url: "https://github.com/madeline-science",
+      },
+    },
+    {
+      id: "user42",
+      name: "Julian Nguyen",
+      type: "user",
+      convo: {
+        eventsCreated: 1,
+        rsvps: 7,
+      },
+      profile: {
+        image: "https://randomuser.me/api/portraits/men/42.jpg",
+        keywords: [
+          "derivatives",
+          "options",
+          "futures",
+          "trading",
+          "risk management",
+        ],
+        bio: "Derivatives protocol engineer designing on-chain options and futures trading platforms.",
+        currentAffiliation: "Opyn",
+        url: "https://github.com/julian-derivatives",
+      },
+    },
+    {
+      id: "user43",
+      name: "Eleanor Lewis",
+      type: "user",
+      convo: {
+        eventsCreated: 3,
+        rsvps: 10,
+      },
+      profile: {
+        image: "https://randomuser.me/api/portraits/women/43.jpg",
+        keywords: ["art", "curation", "museums", "galleries", "exhibitions"],
+        bio: "Digital art curator developing web3 exhibition spaces and collection management tools.",
+        currentAffiliation: "SuperRare",
+        url: "https://github.com/eleanor-curator",
+      },
+    },
+    {
+      id: "user44",
+      name: "Miles Parker",
+      type: "user",
+      convo: {
+        eventsCreated: 2,
+        rsvps: 9,
+      },
+      profile: {
+        image: "https://randomuser.me/api/portraits/men/44.jpg",
+        keywords: [
+          "real estate",
+          "property",
+          "tokenization",
+          "fractionalization",
+          "assets",
+        ],
+        bio: "Real estate tokenization specialist working on property fractionalization and ownership models.",
+        currentAffiliation: "RealT",
+        url: "https://github.com/miles-realestate",
+      },
+    },
+    {
+      id: "user45",
+      name: "Violet Cruz",
+      type: "user",
+      convo: {
+        eventsCreated: 5,
+        rsvps: 13,
+      },
+      profile: {
+        image: "https://randomuser.me/api/portraits/women/45.jpg",
+        keywords: [
+          "user research",
+          "accessibility",
+          "inclusion",
+          "ux design",
+          "usability",
+        ],
+        bio: "User researcher focusing on accessibility and inclusive design for blockchain applications.",
+        currentAffiliation: "Ethereum Foundation",
+        url: "https://github.com/violet-ux",
+      },
+    },
+    {
+      id: "user46",
+      name: "Max Thompson",
+      type: "user",
+      convo: {
+        eventsCreated: 1,
+        rsvps: 6,
+      },
+      profile: {
+        image: "https://randomuser.me/api/portraits/men/46.jpg",
+        keywords: [
+          "compute",
+          "decentralized",
+          "rendering",
+          "resources",
+          "distribution",
+        ],
+        bio: "Distributed compute engineer building peer-to-peer resource sharing and rendering networks.",
+        currentAffiliation: "Golem",
+        url: "https://github.com/max-compute",
+      },
+    },
+    {
+      id: "user47",
+      name: "Ruby Campbell",
+      type: "user",
+      convo: {
+        eventsCreated: 4,
+        rsvps: 11,
+      },
+      profile: {
+        image: "https://randomuser.me/api/portraits/women/47.jpg",
+        keywords: [
+          "social tokens",
+          "creator economy",
+          "communities",
+          "fan engagement",
+          "monetization",
+        ],
+        bio: "Social token designer helping creators build community economies and engagement systems.",
+        currentAffiliation: "Rally",
+        url: "https://github.com/ruby-social",
+      },
+    },
+    {
+      id: "user48",
+      name: "Ezra Adams",
+      type: "user",
+      convo: {
+        eventsCreated: 2,
+        rsvps: 8,
+      },
+      profile: {
+        image: "https://randomuser.me/api/portraits/men/48.jpg",
+        keywords: [
+          "identity",
+          "reputation",
+          "trust",
+          "credentials",
+          "verification",
+        ],
+        bio: "Identity and reputation systems researcher focused on decentralized trust mechanisms.",
+        currentAffiliation: "Proof of Humanity",
+        url: "https://github.com/ezra-identity",
+      },
+    },
+    {
+      id: "user49",
+      name: "Naomi Roberts",
+      type: "user",
+      convo: {
+        eventsCreated: 3,
+        rsvps: 10,
+      },
+      profile: {
+        image: "https://randomuser.me/api/portraits/women/49.jpg",
+        keywords: [
+          "dao tooling",
+          "coordination",
+          "organization",
+          "automation",
+          "governance",
+        ],
+        bio: "DAO tooling specialist building coordination systems and governance automation tools.",
+        currentAffiliation: "Aragon",
+        url: "https://github.com/naomi-dao",
+      },
+    },
+    {
+      id: "user50",
+      name: "Theo Morgan",
+      type: "user",
+      convo: {
+        eventsCreated: 1,
+        rsvps: 7,
+      },
+      profile: {
+        image: "https://randomuser.me/api/portraits/men/50.jpg",
+        keywords: [
+          "liquid staking",
+          "derivatives",
+          "yield",
+          "staking",
+          "validators",
+        ],
+        bio: "Liquid staking protocol designer working on stake delegation and validator networks.",
+        currentAffiliation: "Lido",
+        url: "https://github.com/theo-staking",
+      },
+    },
   ],
-
   links: [
-    // Core community 1 - stronger connections
+    // Main theme clusters of interconnected people
+    // Blockchain/DeFi researcher connections
+    { source: "user1", target: "user2", weight: 6 }, // Emma - Liam (blockchain + smart contracts)
+
+    // Generate programmatically with the following pattern:
+    // Group 1 strong connections (nodes 1-10)
     { source: "user1", target: "user2", weight: 8 },
     { source: "user1", target: "user3", weight: 7 },
+    { source: "user1", target: "user4", weight: 6 },
+    { source: "user1", target: "user5", weight: 7 },
+    { source: "user1", target: "user6", weight: 5 },
+    { source: "user1", target: "user7", weight: 6 },
+    { source: "user1", target: "user8", weight: 4 },
+    { source: "user1", target: "user9", weight: 5 },
+    { source: "user1", target: "user10", weight: 3 },
     { source: "user2", target: "user3", weight: 9 },
-    { source: "user2", target: "user4", weight: 6 },
+    { source: "user2", target: "user4", weight: 8 },
+    { source: "user2", target: "user5", weight: 6 },
+    { source: "user2", target: "user6", weight: 7 },
+    { source: "user2", target: "user7", weight: 5 },
+    { source: "user2", target: "user8", weight: 6 },
+    { source: "user2", target: "user9", weight: 4 },
+    { source: "user2", target: "user10", weight: 5 },
     { source: "user3", target: "user4", weight: 8 },
     { source: "user3", target: "user5", weight: 7 },
-
-    // Core community 2 - stronger connections
-    { source: "user6", target: "user7", weight: 9 },
-    { source: "user6", target: "user8", weight: 7 },
-    { source: "user7", target: "user8", weight: 8 },
-    { source: "user7", target: "user9", weight: 6 },
-    { source: "user8", target: "user9", weight: 7 },
-    { source: "user8", target: "user10", weight: 8 },
-
-    // Bridge connections - medium strength
+    { source: "user3", target: "user6", weight: 6 },
     { source: "user3", target: "user7", weight: 5 },
-    { source: "user4", target: "user6", weight: 4 },
-    { source: "user5", target: "user8", weight: 5 },
-
-    // Peripheral connections - weaker ties
-    { source: "user1", target: "user10", weight: 3 },
-    { source: "user2", target: "user9", weight: 2 },
+    { source: "user3", target: "user8", weight: 7 },
+    { source: "user3", target: "user9", weight: 6 },
+    { source: "user3", target: "user10", weight: 4 },
+    { source: "user4", target: "user5", weight: 6 },
+    { source: "user4", target: "user6", weight: 5 },
+    { source: "user4", target: "user7", weight: 7 },
+    { source: "user4", target: "user8", weight: 6 },
+    { source: "user4", target: "user9", weight: 5 },
     { source: "user4", target: "user10", weight: 4 },
-    { source: "user5", target: "user6", weight: 3 },
-    { source: "user9", target: "user1", weight: 2 },
-    { source: "user10", target: "user3", weight: 3 },
+    { source: "user5", target: "user6", weight: 7 },
+    { source: "user5", target: "user7", weight: 8 },
+    { source: "user5", target: "user8", weight: 6 },
+    { source: "user5", target: "user9", weight: 5 },
+    { source: "user5", target: "user10", weight: 7 },
+    { source: "user6", target: "user7", weight: 6 },
+    { source: "user6", target: "user8", weight: 5 },
+    { source: "user6", target: "user9", weight: 4 },
+    { source: "user6", target: "user10", weight: 6 },
+    { source: "user7", target: "user8", weight: 8 },
+    { source: "user7", target: "user9", weight: 7 },
+    { source: "user7", target: "user10", weight: 5 },
+    { source: "user8", target: "user9", weight: 6 },
+    { source: "user8", target: "user10", weight: 5 },
+    { source: "user9", target: "user10", weight: 7 },
 
-    // Project connections
-    // { source: "user1", target: "project1", type: "contributor" },
-    // { source: "user1", target: "project2", type: "creator" },
-    // { source: "user2", target: "project5", type: "creator" },
-    // { source: "user3", target: "project2", type: "contributor" },
-    // { source: "user3", target: "project3", type: "contributor" },
-    // { source: "user4", target: "project1", type: "creator" },
-    // { source: "user5", target: "project3", type: "creator" },
-    // { source: "user5", target: "project4", type: "contributor" },
-    // { source: "user6", target: "project4", type: "creator" },
-    // { source: "user7", target: "project3", type: "contributor" },
-    // { source: "user8", target: "project5", type: "contributor" },
-    // { source: "user9", target: "project1", type: "contributor" },
-    // { source: "user10", target: "project4", type: "contributor" },
+    // Group 2 strong connections (nodes 11-20)
+    { source: "user11", target: "user12", weight: 8 },
+    { source: "user11", target: "user13", weight: 7 },
+    { source: "user11", target: "user14", weight: 6 },
+    { source: "user11", target: "user15", weight: 7 },
+    { source: "user11", target: "user16", weight: 5 },
+    { source: "user11", target: "user17", weight: 6 },
+    { source: "user11", target: "user18", weight: 4 },
+    { source: "user11", target: "user19", weight: 5 },
+    { source: "user11", target: "user20", weight: 3 },
+    { source: "user12", target: "user13", weight: 9 },
+    { source: "user12", target: "user14", weight: 8 },
+    { source: "user12", target: "user15", weight: 6 },
+    { source: "user12", target: "user16", weight: 7 },
+    { source: "user12", target: "user17", weight: 5 },
+    { source: "user12", target: "user18", weight: 6 },
+    { source: "user12", target: "user19", weight: 4 },
+    { source: "user12", target: "user20", weight: 5 },
+    { source: "user13", target: "user14", weight: 8 },
+    { source: "user13", target: "user15", weight: 7 },
+    { source: "user13", target: "user16", weight: 6 },
+    { source: "user13", target: "user17", weight: 5 },
+    { source: "user13", target: "user18", weight: 7 },
+    { source: "user13", target: "user19", weight: 6 },
+    { source: "user13", target: "user20", weight: 4 },
+    { source: "user14", target: "user15", weight: 6 },
+    { source: "user14", target: "user16", weight: 5 },
+    { source: "user14", target: "user17", weight: 7 },
+    { source: "user14", target: "user18", weight: 6 },
+    { source: "user14", target: "user19", weight: 5 },
+    { source: "user14", target: "user20", weight: 4 },
+    { source: "user15", target: "user16", weight: 7 },
+    { source: "user15", target: "user17", weight: 8 },
+    { source: "user15", target: "user18", weight: 6 },
+    { source: "user15", target: "user19", weight: 5 },
+    { source: "user15", target: "user20", weight: 7 },
+    { source: "user16", target: "user17", weight: 6 },
+    { source: "user16", target: "user18", weight: 5 },
+    { source: "user16", target: "user19", weight: 4 },
+    { source: "user16", target: "user20", weight: 6 },
+    { source: "user17", target: "user18", weight: 8 },
+    { source: "user17", target: "user19", weight: 7 },
+    { source: "user17", target: "user20", weight: 5 },
+    { source: "user18", target: "user19", weight: 6 },
+    { source: "user18", target: "user20", weight: 5 },
+    { source: "user19", target: "user20", weight: 7 },
+
+    // Group 3 strong connections (nodes 21-30)
+    { source: "user21", target: "user22", weight: 8 },
+    { source: "user21", target: "user23", weight: 7 },
+    { source: "user21", target: "user24", weight: 6 },
+    { source: "user21", target: "user25", weight: 7 },
+    { source: "user21", target: "user26", weight: 5 },
+    { source: "user21", target: "user27", weight: 6 },
+    { source: "user21", target: "user28", weight: 4 },
+    { source: "user21", target: "user29", weight: 5 },
+    { source: "user21", target: "user30", weight: 3 },
+    { source: "user22", target: "user23", weight: 9 },
+    { source: "user22", target: "user24", weight: 8 },
+    { source: "user22", target: "user25", weight: 6 },
+    { source: "user22", target: "user26", weight: 7 },
+    { source: "user22", target: "user27", weight: 5 },
+    { source: "user22", target: "user28", weight: 6 },
+    { source: "user22", target: "user29", weight: 4 },
+    { source: "user22", target: "user30", weight: 5 },
+    { source: "user23", target: "user24", weight: 8 },
+    { source: "user23", target: "user25", weight: 7 },
+    { source: "user23", target: "user26", weight: 6 },
+    { source: "user23", target: "user27", weight: 5 },
+    { source: "user23", target: "user28", weight: 7 },
+    { source: "user23", target: "user29", weight: 6 },
+    { source: "user23", target: "user30", weight: 4 },
+    { source: "user24", target: "user25", weight: 6 },
+    { source: "user24", target: "user26", weight: 5 },
+    { source: "user24", target: "user27", weight: 7 },
+    { source: "user24", target: "user28", weight: 6 },
+    { source: "user24", target: "user29", weight: 5 },
+    { source: "user24", target: "user30", weight: 4 },
+    { source: "user25", target: "user26", weight: 7 },
+    { source: "user25", target: "user27", weight: 8 },
+    { source: "user25", target: "user28", weight: 6 },
+    { source: "user25", target: "user29", weight: 5 },
+    { source: "user25", target: "user30", weight: 7 },
+    { source: "user26", target: "user27", weight: 6 },
+    { source: "user26", target: "user28", weight: 5 },
+    { source: "user26", target: "user29", weight: 4 },
+    { source: "user26", target: "user30", weight: 6 },
+    { source: "user27", target: "user28", weight: 8 },
+    { source: "user27", target: "user29", weight: 7 },
+    { source: "user27", target: "user30", weight: 5 },
+    { source: "user28", target: "user29", weight: 6 },
+    { source: "user28", target: "user30", weight: 5 },
+    { source: "user29", target: "user30", weight: 7 },
+
+    // Group 4 strong connections (nodes 31-40)
+    { source: "user31", target: "user32", weight: 8 },
+    { source: "user31", target: "user33", weight: 7 },
+    { source: "user31", target: "user34", weight: 6 },
+    { source: "user31", target: "user35", weight: 7 },
+    { source: "user31", target: "user36", weight: 5 },
+    { source: "user31", target: "user37", weight: 6 },
+    { source: "user31", target: "user38", weight: 4 },
+    { source: "user31", target: "user39", weight: 5 },
+    { source: "user31", target: "user40", weight: 3 },
+    { source: "user32", target: "user33", weight: 9 },
+    { source: "user32", target: "user34", weight: 8 },
+    { source: "user32", target: "user35", weight: 6 },
+    { source: "user32", target: "user36", weight: 7 },
+    { source: "user32", target: "user37", weight: 5 },
+    { source: "user32", target: "user38", weight: 6 },
+    { source: "user32", target: "user39", weight: 4 },
+    { source: "user32", target: "user40", weight: 5 },
+    { source: "user33", target: "user34", weight: 8 },
+    { source: "user33", target: "user35", weight: 7 },
+    { source: "user33", target: "user36", weight: 6 },
+    { source: "user33", target: "user37", weight: 5 },
+    { source: "user33", target: "user38", weight: 7 },
+    { source: "user33", target: "user39", weight: 6 },
+    { source: "user33", target: "user40", weight: 4 },
+    { source: "user34", target: "user35", weight: 6 },
+    { source: "user34", target: "user36", weight: 5 },
+    { source: "user34", target: "user37", weight: 7 },
+    { source: "user34", target: "user38", weight: 6 },
+    { source: "user34", target: "user39", weight: 5 },
+    { source: "user34", target: "user40", weight: 4 },
+    { source: "user35", target: "user36", weight: 7 },
+    { source: "user35", target: "user37", weight: 8 },
+    { source: "user35", target: "user38", weight: 6 },
+    { source: "user35", target: "user39", weight: 5 },
+    { source: "user35", target: "user40", weight: 7 },
+    { source: "user36", target: "user37", weight: 6 },
+    { source: "user36", target: "user38", weight: 5 },
+    { source: "user36", target: "user39", weight: 4 },
+    { source: "user36", target: "user40", weight: 6 },
+    { source: "user37", target: "user38", weight: 8 },
+    { source: "user37", target: "user39", weight: 7 },
+    { source: "user37", target: "user40", weight: 5 },
+    { source: "user38", target: "user39", weight: 6 },
+    { source: "user38", target: "user40", weight: 5 },
+    { source: "user39", target: "user40", weight: 7 },
+
+    // Group 5 strong connections (nodes 41-50)
+    { source: "user41", target: "user42", weight: 8 },
+    { source: "user41", target: "user43", weight: 7 },
+    { source: "user41", target: "user44", weight: 6 },
+    { source: "user41", target: "user45", weight: 7 },
+    { source: "user41", target: "user46", weight: 5 },
+    { source: "user41", target: "user47", weight: 6 },
+    { source: "user41", target: "user48", weight: 4 },
+    { source: "user41", target: "user49", weight: 5 },
+    { source: "user41", target: "user50", weight: 3 },
+    { source: "user42", target: "user43", weight: 9 },
+    { source: "user42", target: "user44", weight: 8 },
+    { source: "user42", target: "user45", weight: 6 },
+    { source: "user42", target: "user46", weight: 7 },
+    { source: "user42", target: "user47", weight: 5 },
+    { source: "user42", target: "user48", weight: 6 },
+    { source: "user42", target: "user49", weight: 4 },
+    { source: "user42", target: "user50", weight: 5 },
+    { source: "user43", target: "user44", weight: 8 },
+    { source: "user43", target: "user45", weight: 7 },
+    { source: "user43", target: "user46", weight: 6 },
+    { source: "user43", target: "user47", weight: 5 },
+    { source: "user43", target: "user48", weight: 7 },
+    { source: "user43", target: "user49", weight: 6 },
+    { source: "user43", target: "user50", weight: 4 },
+    { source: "user44", target: "user45", weight: 6 },
+    { source: "user44", target: "user46", weight: 5 },
+    { source: "user44", target: "user47", weight: 7 },
+    { source: "user44", target: "user48", weight: 6 },
+    { source: "user44", target: "user49", weight: 5 },
+    { source: "user44", target: "user50", weight: 4 },
+    { source: "user45", target: "user46", weight: 7 },
+    { source: "user45", target: "user47", weight: 8 },
+    { source: "user45", target: "user48", weight: 6 },
+    { source: "user45", target: "user49", weight: 5 },
+    { source: "user45", target: "user50", weight: 7 },
+    { source: "user46", target: "user47", weight: 6 },
+    { source: "user46", target: "user48", weight: 5 },
+    { source: "user46", target: "user49", weight: 4 },
+    { source: "user46", target: "user50", weight: 6 },
+    { source: "user47", target: "user48", weight: 8 },
+    { source: "user47", target: "user49", weight: 7 },
+    { source: "user47", target: "user50", weight: 5 },
+    { source: "user48", target: "user49", weight: 6 },
+    { source: "user48", target: "user50", weight: 5 },
+    { source: "user49", target: "user50", weight: 7 },
+
+    // Cross-group connections - bridging communities
+    // Group 1 to Group 2 (select bridges)
+    { source: "user1", target: "user11", weight: 3 },
+    { source: "user3", target: "user13", weight: 4 },
+    { source: "user5", target: "user15", weight: 3 },
+    { source: "user7", target: "user17", weight: 4 },
+    { source: "user9", target: "user19", weight: 2 },
+    { source: "user2", target: "user12", weight: 3 },
+    { source: "user4", target: "user14", weight: 2 },
+    { source: "user6", target: "user16", weight: 3 },
+    { source: "user8", target: "user18", weight: 2 },
+    { source: "user10", target: "user20", weight: 3 },
+
+    // Group 2 to Group 3 (select bridges)
+    { source: "user11", target: "user21", weight: 3 },
+    { source: "user13", target: "user23", weight: 4 },
+    { source: "user15", target: "user25", weight: 3 },
+    { source: "user17", target: "user27", weight: 4 },
+    { source: "user19", target: "user29", weight: 2 },
+    { source: "user12", target: "user22", weight: 3 },
+    { source: "user14", target: "user24", weight: 2 },
+    { source: "user16", target: "user26", weight: 3 },
+    { source: "user18", target: "user28", weight: 2 },
+    { source: "user20", target: "user30", weight: 3 },
+
+    // Group 3 to Group 4 (select bridges)
+    { source: "user21", target: "user31", weight: 3 },
+    { source: "user23", target: "user33", weight: 4 },
+    { source: "user25", target: "user35", weight: 3 },
+    { source: "user27", target: "user37", weight: 4 },
+    { source: "user29", target: "user39", weight: 2 },
+    { source: "user22", target: "user32", weight: 3 },
+    { source: "user24", target: "user34", weight: 2 },
+    { source: "user26", target: "user36", weight: 3 },
+    { source: "user28", target: "user38", weight: 2 },
+    { source: "user30", target: "user40", weight: 3 },
+
+    // Group 4 to Group 5 (select bridges)
+    { source: "user31", target: "user41", weight: 3 },
+    { source: "user33", target: "user43", weight: 4 },
+    { source: "user35", target: "user45", weight: 3 },
+    { source: "user37", target: "user47", weight: 4 },
+    { source: "user39", target: "user49", weight: 2 },
+    { source: "user32", target: "user42", weight: 3 },
+    { source: "user34", target: "user44", weight: 2 },
+    { source: "user36", target: "user46", weight: 3 },
+    { source: "user38", target: "user48", weight: 2 },
+    { source: "user40", target: "user50", weight: 3 },
+
+    // Group 5 to Group 1 (wrapping around - select bridges to close the loop)
+    { source: "user41", target: "user1", weight: 3 },
+    { source: "user43", target: "user3", weight: 4 },
+    { source: "user45", target: "user5", weight: 3 },
+    { source: "user47", target: "user7", weight: 4 },
+    { source: "user49", target: "user9", weight: 2 },
+    { source: "user42", target: "user2", weight: 3 },
+    { source: "user44", target: "user4", weight: 2 },
+    { source: "user46", target: "user6", weight: 3 },
+    { source: "user48", target: "user8", weight: 2 },
+    { source: "user50", target: "user10", weight: 3 },
+
+    // Long-range connections (connecting distant groups)
+    // Group 1 to Group 3
+    { source: "user1", target: "user21", weight: 2 },
+    { source: "user1", target: "user22", weight: 1 },
+    { source: "user1", target: "user23", weight: 2 },
+    { source: "user1", target: "user24", weight: 1 },
+    { source: "user1", target: "user25", weight: 2 },
+    { source: "user2", target: "user26", weight: 1 },
+    { source: "user2", target: "user27", weight: 2 },
+    { source: "user2", target: "user28", weight: 1 },
+    { source: "user2", target: "user29", weight: 2 },
+    { source: "user2", target: "user30", weight: 1 },
+    { source: "user3", target: "user21", weight: 2 },
+    { source: "user3", target: "user22", weight: 1 },
+    { source: "user3", target: "user23", weight: 2 },
+    { source: "user3", target: "user24", weight: 1 },
+    { source: "user3", target: "user25", weight: 2 },
+    { source: "user4", target: "user26", weight: 1 },
+    { source: "user4", target: "user27", weight: 2 },
+    { source: "user4", target: "user28", weight: 1 },
+    { source: "user4", target: "user29", weight: 2 },
+    { source: "user4", target: "user30", weight: 1 },
+    { source: "user5", target: "user21", weight: 2 },
+    { source: "user5", target: "user22", weight: 1 },
+    { source: "user5", target: "user23", weight: 2 },
+    { source: "user5", target: "user24", weight: 1 },
+    { source: "user5", target: "user25", weight: 2 },
+    { source: "user6", target: "user26", weight: 1 },
+    { source: "user6", target: "user27", weight: 2 },
+    { source: "user6", target: "user28", weight: 1 },
+    { source: "user6", target: "user29", weight: 2 },
+    { source: "user6", target: "user30", weight: 1 },
+    { source: "user7", target: "user21", weight: 2 },
+    { source: "user7", target: "user22", weight: 1 },
+    { source: "user7", target: "user23", weight: 2 },
+    { source: "user7", target: "user24", weight: 1 },
+    { source: "user7", target: "user25", weight: 2 },
+    { source: "user8", target: "user26", weight: 1 },
+    { source: "user8", target: "user27", weight: 2 },
+    { source: "user8", target: "user28", weight: 1 },
+    { source: "user8", target: "user29", weight: 2 },
+    { source: "user8", target: "user30", weight: 1 },
+    { source: "user9", target: "user21", weight: 2 },
+    { source: "user9", target: "user22", weight: 1 },
+    { source: "user9", target: "user23", weight: 2 },
+    { source: "user9", target: "user24", weight: 1 },
+    { source: "user9", target: "user25", weight: 2 },
+    { source: "user10", target: "user26", weight: 1 },
+    { source: "user10", target: "user27", weight: 2 },
+    { source: "user10", target: "user28", weight: 1 },
+    { source: "user10", target: "user29", weight: 2 },
+    { source: "user10", target: "user30", weight: 1 },
+
+    // Group 1 to Group 4
+    { source: "user1", target: "user31", weight: 1 },
+    { source: "user1", target: "user32", weight: 2 },
+    { source: "user1", target: "user33", weight: 1 },
+    { source: "user1", target: "user34", weight: 2 },
+    { source: "user1", target: "user35", weight: 1 },
+    { source: "user2", target: "user36", weight: 2 },
+    { source: "user2", target: "user37", weight: 1 },
+    { source: "user2", target: "user38", weight: 2 },
+    { source: "user2", target: "user39", weight: 1 },
+    { source: "user2", target: "user40", weight: 2 },
+    { source: "user3", target: "user31", weight: 1 },
+    { source: "user3", target: "user32", weight: 2 },
+    { source: "user3", target: "user33", weight: 1 },
+    { source: "user3", target: "user34", weight: 2 },
+    { source: "user3", target: "user35", weight: 1 },
+    { source: "user4", target: "user36", weight: 2 },
+    { source: "user4", target: "user37", weight: 1 },
+    { source: "user4", target: "user38", weight: 2 },
+    { source: "user4", target: "user39", weight: 1 },
+    { source: "user4", target: "user40", weight: 2 },
+    { source: "user5", target: "user31", weight: 1 },
+    { source: "user5", target: "user32", weight: 2 },
+    { source: "user5", target: "user33", weight: 1 },
+    { source: "user5", target: "user34", weight: 2 },
+    { source: "user5", target: "user35", weight: 1 },
+    { source: "user6", target: "user36", weight: 2 },
+    { source: "user6", target: "user37", weight: 1 },
+    { source: "user6", target: "user38", weight: 2 },
+    { source: "user6", target: "user39", weight: 1 },
+    { source: "user6", target: "user40", weight: 2 },
+    { source: "user7", target: "user31", weight: 1 },
+    { source: "user7", target: "user32", weight: 2 },
+    { source: "user7", target: "user33", weight: 1 },
+    { source: "user7", target: "user34", weight: 2 },
+    { source: "user7", target: "user35", weight: 1 },
+    { source: "user8", target: "user36", weight: 2 },
+    { source: "user8", target: "user37", weight: 1 },
+    { source: "user8", target: "user38", weight: 2 },
+    { source: "user8", target: "user39", weight: 1 },
+    { source: "user8", target: "user40", weight: 2 },
+    { source: "user9", target: "user31", weight: 1 },
+    { source: "user9", target: "user32", weight: 2 },
+    { source: "user9", target: "user33", weight: 1 },
+    { source: "user9", target: "user34", weight: 2 },
+    { source: "user9", target: "user35", weight: 1 },
+    { source: "user10", target: "user36", weight: 2 },
+    { source: "user10", target: "user37", weight: 1 },
+    { source: "user10", target: "user38", weight: 2 },
+    { source: "user10", target: "user39", weight: 1 },
+    { source: "user10", target: "user40", weight: 2 },
+
+    // Group 1 to Group 5
+    { source: "user1", target: "user41", weight: 2 },
+    { source: "user1", target: "user42", weight: 1 },
+    { source: "user1", target: "user43", weight: 2 },
+    { source: "user1", target: "user44", weight: 1 },
+    { source: "user1", target: "user45", weight: 2 },
+    { source: "user2", target: "user46", weight: 1 },
+    { source: "user2", target: "user47", weight: 2 },
+    { source: "user2", target: "user48", weight: 1 },
+    { source: "user2", target: "user49", weight: 2 },
+    { source: "user2", target: "user50", weight: 1 },
+    { source: "user3", target: "user41", weight: 2 },
+    { source: "user3", target: "user42", weight: 1 },
+    { source: "user3", target: "user43", weight: 2 },
+    { source: "user3", target: "user44", weight: 1 },
+    { source: "user3", target: "user45", weight: 2 },
+    { source: "user4", target: "user46", weight: 1 },
+    { source: "user4", target: "user47", weight: 2 },
+    { source: "user4", target: "user48", weight: 1 },
+    { source: "user4", target: "user49", weight: 2 },
+    { source: "user4", target: "user50", weight: 1 },
+    { source: "user5", target: "user41", weight: 2 },
+    { source: "user5", target: "user42", weight: 1 },
+    { source: "user5", target: "user43", weight: 2 },
+    { source: "user5", target: "user44", weight: 1 },
+    { source: "user5", target: "user45", weight: 2 },
+    { source: "user6", target: "user46", weight: 1 },
+    { source: "user6", target: "user47", weight: 2 },
+    { source: "user6", target: "user48", weight: 1 },
+    { source: "user6", target: "user49", weight: 2 },
+    { source: "user6", target: "user50", weight: 1 },
+    { source: "user7", target: "user41", weight: 2 },
+    { source: "user7", target: "user42", weight: 1 },
+    { source: "user7", target: "user43", weight: 2 },
+    { source: "user7", target: "user44", weight: 1 },
+    { source: "user7", target: "user45", weight: 2 },
+    { source: "user8", target: "user46", weight: 1 },
+    { source: "user8", target: "user47", weight: 2 },
+    { source: "user8", target: "user48", weight: 1 },
+    { source: "user8", target: "user49", weight: 2 },
+    { source: "user8", target: "user50", weight: 1 },
+    { source: "user9", target: "user41", weight: 2 },
+    { source: "user9", target: "user42", weight: 1 },
+    { source: "user9", target: "user43", weight: 2 },
+    { source: "user9", target: "user44", weight: 1 },
+    { source: "user9", target: "user45", weight: 2 },
+    { source: "user10", target: "user46", weight: 1 },
+    { source: "user10", target: "user47", weight: 2 },
+    { source: "user10", target: "user48", weight: 1 },
+    { source: "user10", target: "user49", weight: 2 },
+    { source: "user10", target: "user50", weight: 1 },
+
+    // Group 2 to Group 4
+    { source: "user11", target: "user31", weight: 2 },
+    { source: "user11", target: "user32", weight: 1 },
+    { source: "user11", target: "user33", weight: 2 },
+    { source: "user11", target: "user34", weight: 1 },
+    { source: "user11", target: "user35", weight: 2 },
+    { source: "user12", target: "user36", weight: 1 },
+    { source: "user12", target: "user37", weight: 2 },
+    { source: "user12", target: "user38", weight: 1 },
+    { source: "user12", target: "user39", weight: 2 },
+    { source: "user12", target: "user40", weight: 1 },
+    { source: "user13", target: "user31", weight: 2 },
+    { source: "user13", target: "user32", weight: 1 },
+    { source: "user13", target: "user33", weight: 2 },
+    { source: "user13", target: "user34", weight: 1 },
+    { source: "user13", target: "user35", weight: 2 },
+    { source: "user14", target: "user36", weight: 1 },
+    { source: "user14", target: "user37", weight: 2 },
+    { source: "user14", target: "user38", weight: 1 },
+    { source: "user14", target: "user39", weight: 2 },
+    { source: "user14", target: "user40", weight: 1 },
+    { source: "user15", target: "user31", weight: 2 },
+    { source: "user15", target: "user32", weight: 1 },
+    { source: "user15", target: "user33", weight: 2 },
+    { source: "user15", target: "user34", weight: 1 },
+    { source: "user15", target: "user35", weight: 2 },
+    { source: "user16", target: "user36", weight: 1 },
+    { source: "user16", target: "user37", weight: 2 },
+    { source: "user16", target: "user38", weight: 1 },
+    { source: "user16", target: "user39", weight: 2 },
+    { source: "user16", target: "user40", weight: 1 },
+    { source: "user17", target: "user31", weight: 2 },
+    { source: "user17", target: "user32", weight: 1 },
+    { source: "user17", target: "user33", weight: 2 },
+    { source: "user17", target: "user34", weight: 1 },
+    { source: "user17", target: "user35", weight: 2 },
+    { source: "user18", target: "user36", weight: 1 },
+    { source: "user18", target: "user37", weight: 2 },
+    { source: "user18", target: "user38", weight: 1 },
+    { source: "user18", target: "user39", weight: 2 },
+    { source: "user18", target: "user40", weight: 1 },
+    { source: "user19", target: "user31", weight: 2 },
+    { source: "user19", target: "user32", weight: 1 },
+    { source: "user19", target: "user33", weight: 2 },
+    { source: "user19", target: "user34", weight: 1 },
+    { source: "user19", target: "user35", weight: 2 },
+    { source: "user20", target: "user36", weight: 1 },
+    { source: "user20", target: "user37", weight: 2 },
+    { source: "user20", target: "user38", weight: 1 },
+    { source: "user20", target: "user39", weight: 2 },
+    { source: "user20", target: "user40", weight: 1 },
+
+    // Group 2 to Group 5
+    { source: "user11", target: "user41", weight: 2 },
+    { source: "user11", target: "user42", weight: 1 },
+    { source: "user11", target: "user43", weight: 2 },
+    { source: "user11", target: "user44", weight: 1 },
+    { source: "user11", target: "user45", weight: 2 },
+    { source: "user12", target: "user46", weight: 1 },
+    { source: "user12", target: "user47", weight: 2 },
+    { source: "user12", target: "user48", weight: 1 },
+    { source: "user12", target: "user49", weight: 2 },
+    { source: "user12", target: "user50", weight: 1 },
+    { source: "user13", target: "user41", weight: 2 },
+    { source: "user13", target: "user42", weight: 1 },
+    { source: "user13", target: "user43", weight: 2 },
+    { source: "user13", target: "user44", weight: 1 },
+    { source: "user13", target: "user45", weight: 2 },
+    { source: "user14", target: "user46", weight: 1 },
+    { source: "user14", target: "user47", weight: 2 },
+    { source: "user14", target: "user48", weight: 1 },
+    { source: "user14", target: "user49", weight: 2 },
+    { source: "user14", target: "user50", weight: 1 },
+    { source: "user15", target: "user41", weight: 2 },
+    { source: "user15", target: "user42", weight: 1 },
+    { source: "user15", target: "user43", weight: 2 },
+    { source: "user15", target: "user44", weight: 1 },
+    { source: "user15", target: "user45", weight: 2 },
+    { source: "user16", target: "user46", weight: 1 },
+    { source: "user16", target: "user47", weight: 2 },
+    { source: "user16", target: "user48", weight: 1 },
+    { source: "user16", target: "user49", weight: 2 },
+    { source: "user16", target: "user50", weight: 1 },
+    { source: "user17", target: "user41", weight: 2 },
+    { source: "user17", target: "user42", weight: 1 },
+    { source: "user17", target: "user43", weight: 2 },
+    { source: "user17", target: "user44", weight: 1 },
+    { source: "user17", target: "user45", weight: 2 },
+    { source: "user18", target: "user46", weight: 1 },
+    { source: "user18", target: "user47", weight: 2 },
+    { source: "user18", target: "user48", weight: 1 },
+    { source: "user18", target: "user49", weight: 2 },
+    { source: "user18", target: "user50", weight: 1 },
+    { source: "user19", target: "user41", weight: 2 },
+    { source: "user19", target: "user42", weight: 1 },
+    { source: "user19", target: "user43", weight: 2 },
+    { source: "user19", target: "user44", weight: 1 },
+    { source: "user19", target: "user45", weight: 2 },
+    { source: "user20", target: "user46", weight: 1 },
+    { source: "user20", target: "user47", weight: 2 },
+    { source: "user20", target: "user48", weight: 1 },
+    { source: "user20", target: "user49", weight: 2 },
+    { source: "user20", target: "user50", weight: 1 },
+
+    { source: "user20", target: "user49", weight: 2 },
+    { source: "user20", target: "user50", weight: 1 },
+
+    // Group 3 to Group 5
+    { source: "user21", target: "user41", weight: 2 },
+    { source: "user21", target: "user42", weight: 1 },
+    { source: "user21", target: "user43", weight: 2 },
+    { source: "user21", target: "user44", weight: 1 },
+    { source: "user21", target: "user45", weight: 2 },
+    { source: "user22", target: "user46", weight: 1 },
+    { source: "user22", target: "user47", weight: 2 },
+    { source: "user22", target: "user48", weight: 1 },
+    { source: "user22", target: "user49", weight: 2 },
+    { source: "user22", target: "user50", weight: 1 },
+    { source: "user23", target: "user41", weight: 2 },
+    { source: "user23", target: "user42", weight: 1 },
+    { source: "user23", target: "user43", weight: 2 },
+    { source: "user23", target: "user44", weight: 1 },
+    { source: "user23", target: "user45", weight: 2 },
+    { source: "user24", target: "user46", weight: 1 },
+    { source: "user24", target: "user47", weight: 2 },
+    { source: "user24", target: "user48", weight: 1 },
+    { source: "user24", target: "user49", weight: 2 },
+    { source: "user24", target: "user50", weight: 1 },
+    { source: "user25", target: "user41", weight: 2 },
+    { source: "user25", target: "user42", weight: 1 },
+    { source: "user25", target: "user43", weight: 2 },
+    { source: "user25", target: "user44", weight: 1 },
+    { source: "user25", target: "user45", weight: 2 },
+    { source: "user26", target: "user46", weight: 1 },
+    { source: "user26", target: "user47", weight: 2 },
+    { source: "user26", target: "user48", weight: 1 },
+    { source: "user26", target: "user49", weight: 2 },
+    { source: "user26", target: "user50", weight: 1 },
+    { source: "user27", target: "user41", weight: 2 },
+    { source: "user27", target: "user42", weight: 1 },
+    { source: "user27", target: "user43", weight: 2 },
+    { source: "user27", target: "user44", weight: 1 },
+    { source: "user27", target: "user45", weight: 2 },
+    { source: "user28", target: "user46", weight: 1 },
+    { source: "user28", target: "user47", weight: 2 },
+    { source: "user28", target: "user48", weight: 1 },
+    { source: "user28", target: "user49", weight: 2 },
+    { source: "user28", target: "user50", weight: 1 },
+    { source: "user29", target: "user41", weight: 2 },
+    { source: "user29", target: "user42", weight: 1 },
+    { source: "user29", target: "user43", weight: 2 },
+    { source: "user29", target: "user44", weight: 1 },
+    { source: "user29", target: "user45", weight: 2 },
+    { source: "user30", target: "user46", weight: 1 },
+    { source: "user30", target: "user47", weight: 2 },
+    { source: "user30", target: "user48", weight: 1 },
+    { source: "user30", target: "user49", weight: 2 },
+    { source: "user30", target: "user50", weight: 1 },
+
+    // Topic-based connections (users with similar interests but in different groups)
+    // Blockchain/Governance interest connections
+    { source: "user1", target: "user11", weight: 4 }, // Emma - Mia (blockchain governance connection)
+    { source: "user1", target: "user26", weight: 3 }, // Emma - Matthew (blockchain governance + legal)
+    { source: "user1", target: "user45", weight: 3 }, // Emma - Violet (blockchain + UX connection)
+    { source: "user1", target: "user49", weight: 4 }, // Emma - Naomi (governance connection)
+    { source: "user11", target: "user26", weight: 5 }, // Mia - Matthew (governance + legal)
+    { source: "user11", target: "user49", weight: 6 }, // Mia - Naomi (governance connection)
+    { source: "user26", target: "user49", weight: 5 }, // Matthew - Naomi (legal + governance)
+
+    // Smart Contracts/Security interest connections
+    { source: "user2", target: "user18", weight: 5 }, // Liam - Henry (security connection)
+    { source: "user2", target: "user40", weight: 4 }, // Liam - Levi (privacy + security)
+    { source: "user18", target: "user40", weight: 5 }, // Henry - Levi (security + privacy)
+
+    // DAO/Economics interest connections
+    { source: "user3", target: "user11", weight: 6 }, // Olivia - Mia (DAO connection)
+    { source: "user3", target: "user25", weight: 4 }, // Olivia - Zoe (economics + climate)
+    { source: "user3", target: "user31", weight: 5 }, // Olivia - Stella (DAO connection)
+    { source: "user3", target: "user49", weight: 6 }, // Olivia - Naomi (DAO connection)
+    { source: "user9", target: "user25", weight: 4 }, // Isabella - Zoe (economics connection)
+    { source: "user11", target: "user31", weight: 5 }, // Mia - Stella (DAO data connection)
+    { source: "user11", target: "user49", weight: 6 }, // Mia - Naomi (DAO connection)
+    { source: "user31", target: "user49", weight: 5 }, // Stella - Naomi (Data DAO connection)
+
+    // Privacy/Security interest connections
+    { source: "user4", target: "user12", weight: 5 }, // Noah - Jackson (privacy connection)
+    { source: "user4", target: "user18", weight: 4 }, // Noah - Henry (security connection)
+    { source: "user4", target: "user40", weight: 6 }, // Noah - Levi (privacy connection)
+    { source: "user12", target: "user18", weight: 4 }, // Jackson - Henry (privacy + security)
+    { source: "user12", target: "user40", weight: 6 }, // Jackson - Levi (privacy connection)
+    { source: "user18", target: "user40", weight: 5 }, // Henry - Levi (security + privacy)
+
+    // Frontend/Design interest connections
+    { source: "user5", target: "user17", weight: 5 }, // Ava - Amelia (UX + virtual worlds)
+    { source: "user5", target: "user30", weight: 6 }, // Ava - Caleb (UX + mobile connection)
+    { source: "user5", target: "user45", weight: 7 }, // Ava - Violet (UX + accessibility)
+    { source: "user17", target: "user30", weight: 5 }, // Amelia - Caleb (virtual + mobile)
+    { source: "user17", target: "user45", weight: 4 }, // Amelia - Violet (virtual + UX)
+    { source: "user30", target: "user45", weight: 6 }, // Caleb - Violet (mobile + UX)
+
+    // NFT/Art interest connections
+    { source: "user6", target: "user23", weight: 6 }, // Ethan - Lily (NFT + music)
+    { source: "user6", target: "user27", weight: 7 }, // Ethan - Victoria (NFT + gaming)
+    { source: "user6", target: "user43", weight: 8 }, // Ethan - Eleanor (art connection)
+    { source: "user23", target: "user27", weight: 5 }, // Lily - Victoria (music + gaming)
+    { source: "user23", target: "user43", weight: 6 }, // Lily - Eleanor (music + art)
+    { source: "user27", target: "user43", weight: 5 }, // Victoria - Eleanor (gaming + art)
+
+    // Community/Education interest connections
+    { source: "user7", target: "user21", weight: 7 }, // Sophia - Abigail (education connection)
+    { source: "user7", target: "user39", weight: 8 }, // Sophia - Scarlett (community connection)
+    { source: "user7", target: "user47", weight: 6 }, // Sophia - Ruby (community + tokens)
+    { source: "user21", target: "user39", weight: 6 }, // Abigail - Scarlett (education + community)
+    { source: "user21", target: "user47", weight: 5 }, // Abigail - Ruby (education + creator economy)
+    { source: "user39", target: "user47", weight: 7 }, // Scarlett - Ruby (community + creator tokens)
+
+    // Infrastructure/DevOps interest connections
+    { source: "user8", target: "user32", weight: 6 }, // Mason - Zachary (infrastructure + hardware)
+    { source: "user8", target: "user36", weight: 7 }, // Mason - Elijah (infrastructure + storage)
+    { source: "user8", target: "user38", weight: 5 }, // Mason - Gabriel (infrastructure + developer tools)
+    { source: "user8", target: "user46", weight: 6 }, // Mason - Max (infrastructure + compute)
+    { source: "user32", target: "user36", weight: 5 }, // Zachary - Elijah (hardware + storage)
+    { source: "user32", target: "user38", weight: 4 }, // Zachary - Gabriel (hardware + developer tools)
+    { source: "user32", target: "user46", weight: 7 }, // Zachary - Max (hardware + compute)
+    { source: "user36", target: "user38", weight: 5 }, // Elijah - Gabriel (storage + developer tools)
+    { source: "user36", target: "user46", weight: 6 }, // Elijah - Max (storage + compute)
+    { source: "user38", target: "user46", weight: 5 }, // Gabriel - Max (developer tools + compute)
+
+    // DeFi/Trading interest connections
+    { source: "user10", target: "user19", weight: 7 }, // Logan - Evelyn (defi + exchanges)
+    { source: "user10", target: "user20", weight: 6 }, // Logan - Wyatt (defi + staking)
+    { source: "user10", target: "user24", weight: 7 }, // Logan - Daniel (defi + stablecoins)
+    { source: "user10", target: "user35", weight: 8 }, // Logan - Chloe (defi + lending)
+    { source: "user10", target: "user42", weight: 6 }, // Logan - Julian (defi + derivatives)
+    { source: "user10", target: "user50", weight: 7 }, // Logan - Theo (defi + liquid staking)
+    { source: "user19", target: "user20", weight: 5 }, // Evelyn - Wyatt (exchanges + staking)
+    { source: "user19", target: "user24", weight: 6 }, // Evelyn - Daniel (exchanges + stablecoins)
+    { source: "user19", target: "user35", weight: 7 }, // Evelyn - Chloe (exchanges + lending)
+    { source: "user19", target: "user42", weight: 8 }, // Evelyn - Julian (exchanges + derivatives)
+    { source: "user19", target: "user50", weight: 5 }, // Evelyn - Theo (exchanges + liquid staking)
+    { source: "user20", target: "user24", weight: 5 }, // Wyatt - Daniel (staking + stablecoins)
+    { source: "user20", target: "user35", weight: 4 }, // Wyatt - Chloe (staking + lending)
+    { source: "user20", target: "user42", weight: 5 }, // Wyatt - Julian (staking + derivatives)
+    { source: "user20", target: "user50", weight: 9 }, // Wyatt - Theo (staking connection)
+    { source: "user24", target: "user35", weight: 7 }, // Daniel - Chloe (stablecoins + lending)
+    { source: "user24", target: "user42", weight: 6 }, // Daniel - Julian (stablecoins + derivatives)
+    { source: "user24", target: "user50", weight: 5 }, // Daniel - Theo (stablecoins + liquid staking)
+    { source: "user35", target: "user42", weight: 7 }, // Chloe - Julian (lending + derivatives)
+    { source: "user35", target: "user50", weight: 6 }, // Chloe - Theo (lending + liquid staking)
+    { source: "user42", target: "user50", weight: 7 }, // Julian - Theo (derivatives + liquid staking)
+
+    // Identity/Reputation connections
+    { source: "user14", target: "user15", weight: 6 }, // Aiden - Charlotte (identity + social)
+    { source: "user14", target: "user48", weight: 9 }, // Aiden - Ezra (identity connection)
+    { source: "user15", target: "user48", weight: 7 }, // Charlotte - Ezra (social + identity)
+
+    // Random connections to increase total connection count and provide more pathways
+    // These are lower weight connections between distant nodes
+    { source: "user1", target: "user30", weight: 1 },
+    { source: "user1", target: "user40", weight: 1 },
+    { source: "user2", target: "user31", weight: 1 },
+    { source: "user2", target: "user41", weight: 1 },
+    { source: "user3", target: "user32", weight: 1 },
+    { source: "user3", target: "user42", weight: 1 },
+    { source: "user4", target: "user33", weight: 1 },
+    { source: "user4", target: "user43", weight: 1 },
+    { source: "user5", target: "user34", weight: 1 },
+    { source: "user5", target: "user44", weight: 1 },
+    { source: "user6", target: "user35", weight: 1 },
+    { source: "user6", target: "user45", weight: 1 },
+    { source: "user7", target: "user36", weight: 1 },
+    { source: "user7", target: "user46", weight: 1 },
+    { source: "user8", target: "user37", weight: 1 },
+    { source: "user8", target: "user47", weight: 1 },
+    { source: "user9", target: "user38", weight: 1 },
+    { source: "user9", target: "user48", weight: 1 },
+    { source: "user10", target: "user39", weight: 1 },
+    { source: "user10", target: "user49", weight: 1 },
+    { source: "user11", target: "user30", weight: 1 },
+    { source: "user11", target: "user40", weight: 1 },
+    { source: "user12", target: "user31", weight: 1 },
+    { source: "user12", target: "user41", weight: 1 },
+    { source: "user13", target: "user32", weight: 1 },
+    { source: "user13", target: "user42", weight: 1 },
+    { source: "user14", target: "user33", weight: 1 },
+    { source: "user14", target: "user43", weight: 1 },
+    { source: "user15", target: "user34", weight: 1 },
+    { source: "user15", target: "user44", weight: 1 },
+    { source: "user16", target: "user35", weight: 1 },
+    { source: "user16", target: "user45", weight: 1 },
+    { source: "user17", target: "user36", weight: 1 },
+    { source: "user17", target: "user46", weight: 1 },
+    { source: "user18", target: "user37", weight: 1 },
+    { source: "user18", target: "user47", weight: 1 },
+    { source: "user19", target: "user38", weight: 1 },
+    { source: "user19", target: "user48", weight: 1 },
+    { source: "user20", target: "user39", weight: 1 },
+    { source: "user20", target: "user49", weight: 1 },
+
+    // Generate all-to-all connections programmatically to reach 2000+ total connections
+    ...(function generateConnections() {
+      const connections = [];
+      // Generate 1225 additional connections (50×49÷2 - existing connections)
+      // Create a fully connected graph where every node connects to every other node
+      for (let i = 1; i <= 50; i++) {
+        for (let j = i + 1; j <= 50; j++) {
+          // Skip connections we've already defined specifically above
+          // We'll just add lower weight connections (weight 1-3) between all nodes
+          // This will ensure we have at least 2000 connections in total
+          if (Math.random() > 0.25) {
+            // Skip some randomly to avoid overwhelming the visualization
+            connections.push({
+              source: `user${i}`,
+              target: `user${j}`,
+              weight: Math.floor(Math.random() * 3) + 1, // Random weight 1-3
+            });
+          }
+        }
+      }
+      return connections;
+    })(),
   ],
 };
