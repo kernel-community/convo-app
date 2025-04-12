@@ -17,6 +17,243 @@ export const data = {
         url: "https://github.com/emma-blockchain",
       },
     },
+    // Add new users with UUIDs
+    {
+      id: "1be8abfd-604d-4eb0-92a9-eff597c15ed9",
+      name: "Sasha Ivanov",
+      type: "user",
+      convo: {
+        eventsCreated: 8,
+        rsvps: 17,
+      },
+      profile: {
+        image: "https://randomuser.me/api/portraits/women/61.jpg",
+        keywords: [
+          "protocol design",
+          "consensus",
+          "distributed systems",
+          "scaling",
+          "sharding",
+        ],
+        bio: "Protocol designer specializing in scalable consensus mechanisms and sharding solutions.",
+        currentAffiliation: "Near Protocol",
+        url: "https://github.com/sasha-protocol",
+      },
+    },
+    {
+      id: "2ece21f3-bf25-4980-b17b-4dfc5794839d",
+      name: "Raj Patel",
+      type: "user",
+      convo: {
+        eventsCreated: 6,
+        rsvps: 15,
+      },
+      profile: {
+        image: "https://randomuser.me/api/portraits/men/62.jpg",
+        keywords: [
+          "MEV",
+          "block building",
+          "order flow",
+          "auctions",
+          "trading",
+        ],
+        bio: "MEV researcher exploring fair transaction ordering and efficient block space markets.",
+        currentAffiliation: "Flashbots",
+        url: "https://github.com/raj-mev",
+      },
+    },
+    {
+      id: "30f033be-3cb4-42a8-9772-df26583bdc0a",
+      name: "Carmen Diaz",
+      type: "user",
+      convo: {
+        eventsCreated: 9,
+        rsvps: 21,
+      },
+      profile: {
+        image: "https://randomuser.me/api/portraits/women/63.jpg",
+        keywords: ["regulatory tech", "compliance", "KYC", "AML", "policy"],
+        bio: "Regulatory specialist designing compliant on-chain systems and privacy-preserving identity solutions.",
+        currentAffiliation: "Compliance DAO",
+        url: "https://github.com/carmen-regtech",
+      },
+    },
+    {
+      id: "4449d0b5-bb48-4992-9c3c-0dd6b14653cd",
+      name: "Feng Liu",
+      type: "user",
+      convo: {
+        eventsCreated: 5,
+        rsvps: 12,
+      },
+      profile: {
+        image: "https://randomuser.me/api/portraits/men/64.jpg",
+        keywords: [
+          "zkproofs",
+          "cryptography",
+          "scalability",
+          "privacy",
+          "verification",
+        ],
+        bio: "Zero-knowledge proof systems researcher developing efficient verification for blockchain scaling.",
+        currentAffiliation: "StarkWare",
+        url: "https://github.com/feng-zkproofs",
+      },
+    },
+    {
+      id: "586e8237-e741-4656-bd77-b6ab2e7ae4b5",
+      name: "Zainab Omar",
+      type: "user",
+      convo: {
+        eventsCreated: 7,
+        rsvps: 19,
+      },
+      profile: {
+        image: "https://randomuser.me/api/portraits/women/65.jpg",
+        keywords: [
+          "decentralized science",
+          "research funding",
+          "peer review",
+          "academia",
+          "grants",
+        ],
+        bio: "DeSci advocate creating on-chain infrastructure for open science and reproducible research.",
+        currentAffiliation: "DeSci Labs",
+        url: "https://github.com/zainab-desci",
+      },
+    },
+    {
+      id: "741613d6-10dc-4551-b686-39ad00470c95",
+      name: "Marcus Wheeler",
+      type: "user",
+      convo: {
+        eventsCreated: 4,
+        rsvps: 11,
+      },
+      profile: {
+        image: "https://randomuser.me/api/portraits/men/66.jpg",
+        keywords: [
+          "tokenized real estate",
+          "property fractionalization",
+          "REITs",
+          "markets",
+          "investing",
+        ],
+        bio: "Real estate tokenization expert developing liquid markets for property investments.",
+        currentAffiliation: "Token Estates",
+        url: "https://github.com/marcus-realestate",
+      },
+    },
+    {
+      id: "8a96b4a8-1a33-458b-a377-84f598ce65fd",
+      name: "Jin Park",
+      type: "user",
+      convo: {
+        eventsCreated: 6,
+        rsvps: 14,
+      },
+      profile: {
+        image: "https://randomuser.me/api/portraits/men/67.jpg",
+        keywords: [
+          "defi aggregation",
+          "yield optimization",
+          "vaults",
+          "composability",
+          "automation",
+        ],
+        bio: "DeFi architect building cross-chain yield optimization strategies and automated portfolio management.",
+        currentAffiliation: "Yearn Finance",
+        url: "https://github.com/jin-defi",
+      },
+    },
+    {
+      id: "958bac7f-cdad-44f8-bb0d-9eab67cdca86",
+      name: "Eliza Cortez",
+      type: "user",
+      convo: {
+        eventsCreated: 8,
+        rsvps: 20,
+      },
+      profile: {
+        image: "https://randomuser.me/api/portraits/women/68.jpg",
+        keywords: [
+          "climate finance",
+          "carbon credits",
+          "regenerative economics",
+          "impact",
+          "sustainability",
+        ],
+        bio: "Climate finance innovator creating regenerative economic systems and transparent carbon markets.",
+        currentAffiliation: "Regen Network",
+        url: "https://github.com/eliza-climate",
+      },
+    },
+    {
+      id: "c53da3e9-28ad-4c3e-9868-bc8fbd68d8fb",
+      name: "Jamal Edwards",
+      type: "user",
+      convo: {
+        eventsCreated: 5,
+        rsvps: 13,
+      },
+      profile: {
+        image: "https://randomuser.me/api/portraits/men/69.jpg",
+        keywords: [
+          "decentralized identity",
+          "verifiable credentials",
+          "self-sovereign",
+          "authentication",
+          "privacy",
+        ],
+        bio: "Identity systems engineer building self-sovereign identification and credential verification frameworks.",
+        currentAffiliation: "Ceramic Network",
+        url: "https://github.com/jamal-identity",
+      },
+    },
+    {
+      id: "dc9404c9-d399-454a-9e1b-2f69da5c96aa",
+      name: "Amara Okafor",
+      type: "user",
+      convo: {
+        eventsCreated: 7,
+        rsvps: 18,
+      },
+      profile: {
+        image: "https://randomuser.me/api/portraits/women/70.jpg",
+        keywords: [
+          "web3 social",
+          "decentralized media",
+          "creator economy",
+          "monetization",
+          "communities",
+        ],
+        bio: "Social platform architect designing creator-owned media networks and community monetization tools.",
+        currentAffiliation: "Lens Protocol",
+        url: "https://github.com/amara-social",
+      },
+    },
+    {
+      id: "fca6e3ab-4c56-460e-b488-cbab1926e6e3",
+      name: "Hiroshi Tanaka",
+      type: "user",
+      convo: {
+        eventsCreated: 6,
+        rsvps: 16,
+      },
+      profile: {
+        image: "https://randomuser.me/api/portraits/men/71.jpg",
+        keywords: [
+          "cross-chain interoperability",
+          "bridges",
+          "liquidity",
+          "messaging",
+          "oracles",
+        ],
+        bio: "Interoperability specialist developing secure cross-chain bridges and messaging protocols.",
+        currentAffiliation: "Axelar Network",
+        url: "https://github.com/hiroshi-bridge",
+      },
+    },
     // Add the new user with the UUID as ID
     {
       id: "user2",
@@ -991,6 +1228,1183 @@ export const data = {
     // Main theme clusters of interconnected people
     // Blockchain/DeFi researcher connections
     { source: "user1", target: "user2", weight: 6 }, // Emma - Liam (blockchain + smart contracts)
+
+    // Add connections for Angela (UUID user)
+    {
+      source: "e55075ef-3076-4019-bb46-854ab2662da1",
+      target: "user1",
+      weight: 7,
+    }, // Angela - Emma (blockchain connection)
+    {
+      source: "e55075ef-3076-4019-bb46-854ab2662da1",
+      target: "user2",
+      weight: 9,
+    }, // Angela - Liam (smart contracts connection)
+    {
+      source: "e55075ef-3076-4019-bb46-854ab2662da1",
+      target: "user4",
+      weight: 6,
+    }, // Angela - Noah (security & cryptography)
+    {
+      source: "e55075ef-3076-4019-bb46-854ab2662da1",
+      target: "user18",
+      weight: 8,
+    }, // Angela - Henry (security auditing)
+    {
+      source: "e55075ef-3076-4019-bb46-854ab2662da1",
+      target: "user40",
+      weight: 5,
+    }, // Angela - Levi (privacy protocols)
+    {
+      source: "e55075ef-3076-4019-bb46-854ab2662da1",
+      target: "user10",
+      weight: 4,
+    }, // Angela - Logan (DeFi connection)
+    {
+      source: "e55075ef-3076-4019-bb46-854ab2662da1",
+      target: "user24",
+      weight: 3,
+    }, // Angela - Daniel (stablecoins)
+    {
+      source: "e55075ef-3076-4019-bb46-854ab2662da1",
+      target: "user5",
+      weight: 5,
+    }, // Angela - Ava (frontend)
+    {
+      source: "e55075ef-3076-4019-bb46-854ab2662da1",
+      target: "user7",
+      weight: 4,
+    }, // Angela - Sophia (community)
+    {
+      source: "e55075ef-3076-4019-bb46-854ab2662da1",
+      target: "user35",
+      weight: 6,
+    }, // Angela - Chloe (lending protocols)
+    {
+      source: "e55075ef-3076-4019-bb46-854ab2662da1",
+      target: "user22",
+      weight: 7,
+    }, // Angela - Sebastian (wallets)
+    {
+      source: "e55075ef-3076-4019-bb46-854ab2662da1",
+      target: "user50",
+      weight: 2,
+    }, // Angela - Theo (liquid staking)
+
+    // Connections for Sasha Ivanov (Protocol Designer)
+    {
+      source: "1be8abfd-604d-4eb0-92a9-eff597c15ed9",
+      target: "user1",
+      weight: 6,
+    }, // Sasha - Emma (blockchain)
+    {
+      source: "1be8abfd-604d-4eb0-92a9-eff597c15ed9",
+      target: "user3",
+      weight: 7,
+    }, // Sasha - Olivia (mechanism design)
+    {
+      source: "1be8abfd-604d-4eb0-92a9-eff597c15ed9",
+      target: "user4",
+      weight: 8,
+    }, // Sasha - Noah (cryptography)
+    {
+      source: "1be8abfd-604d-4eb0-92a9-eff597c15ed9",
+      target: "user8",
+      weight: 9,
+    }, // Sasha - Mason (infrastructure)
+    {
+      source: "1be8abfd-604d-4eb0-92a9-eff597c15ed9",
+      target: "user13",
+      weight: 9,
+    }, // Sasha - Sofia (layer2 scaling)
+    {
+      source: "1be8abfd-604d-4eb0-92a9-eff597c15ed9",
+      target: "user28",
+      weight: 7,
+    }, // Sasha - Leo (interoperability)
+    {
+      source: "1be8abfd-604d-4eb0-92a9-eff597c15ed9",
+      target: "user32",
+      weight: 5,
+    }, // Sasha - Zachary (hardware)
+    {
+      source: "1be8abfd-604d-4eb0-92a9-eff597c15ed9",
+      target: "user33",
+      weight: 4,
+    }, // Sasha - Hazel (risk)
+    {
+      source: "1be8abfd-604d-4eb0-92a9-eff597c15ed9",
+      target: "user38",
+      weight: 6,
+    }, // Sasha - Gabriel (developer tools)
+    {
+      source: "1be8abfd-604d-4eb0-92a9-eff597c15ed9",
+      target: "user46",
+      weight: 7,
+    }, // Sasha - Max (compute)
+    {
+      source: "1be8abfd-604d-4eb0-92a9-eff597c15ed9",
+      target: "4449d0b5-bb48-4992-9c3c-0dd6b14653cd",
+      weight: 8,
+    }, // Sasha - Feng (zkproofs)
+    {
+      source: "1be8abfd-604d-4eb0-92a9-eff597c15ed9",
+      target: "fca6e3ab-4c56-460e-b488-cbab1926e6e3",
+      weight: 7,
+    }, // Sasha - Hiroshi (bridges)
+
+    // Connections for Raj Patel (MEV Researcher)
+    {
+      source: "2ece21f3-bf25-4980-b17b-4dfc5794839d",
+      target: "user2",
+      weight: 6,
+    }, // Raj - Liam (smart contracts)
+    {
+      source: "2ece21f3-bf25-4980-b17b-4dfc5794839d",
+      target: "user9",
+      weight: 8,
+    }, // Raj - Isabella (economics)
+    {
+      source: "2ece21f3-bf25-4980-b17b-4dfc5794839d",
+      target: "user10",
+      weight: 9,
+    }, // Raj - Logan (trading)
+    {
+      source: "2ece21f3-bf25-4980-b17b-4dfc5794839d",
+      target: "user19",
+      weight: 9,
+    }, // Raj - Evelyn (exchanges)
+    {
+      source: "2ece21f3-bf25-4980-b17b-4dfc5794839d",
+      target: "user29",
+      weight: 7,
+    }, // Raj - Nora (prediction markets)
+    {
+      source: "2ece21f3-bf25-4980-b17b-4dfc5794839d",
+      target: "user35",
+      weight: 7,
+    }, // Raj - Chloe (lending)
+    {
+      source: "2ece21f3-bf25-4980-b17b-4dfc5794839d",
+      target: "user42",
+      weight: 8,
+    }, // Raj - Julian (derivatives)
+    {
+      source: "2ece21f3-bf25-4980-b17b-4dfc5794839d",
+      target: "user1",
+      weight: 4,
+    }, // Raj - Emma (blockchain)
+    {
+      source: "2ece21f3-bf25-4980-b17b-4dfc5794839d",
+      target: "user18",
+      weight: 6,
+    }, // Raj - Henry (security)
+    {
+      source: "2ece21f3-bf25-4980-b17b-4dfc5794839d",
+      target: "user3",
+      weight: 5,
+    }, // Raj - Olivia (mechanism design)
+    {
+      source: "2ece21f3-bf25-4980-b17b-4dfc5794839d",
+      target: "8a96b4a8-1a33-458b-a377-84f598ce65fd",
+      weight: 8,
+    }, // Raj - Jin (DeFi)
+    {
+      source: "2ece21f3-bf25-4980-b17b-4dfc5794839d",
+      target: "e55075ef-3076-4019-bb46-854ab2662da1",
+      weight: 5,
+    }, // Raj - Angela (smart contracts)
+
+    // Connections for Carmen Diaz (Regulatory Tech)
+    {
+      source: "30f033be-3cb4-42a8-9772-df26583bdc0a",
+      target: "user14",
+      weight: 9,
+    }, // Carmen - Aiden (identity)
+    {
+      source: "30f033be-3cb4-42a8-9772-df26583bdc0a",
+      target: "user15",
+      weight: 7,
+    }, // Carmen - Charlotte (social trust)
+    {
+      source: "30f033be-3cb4-42a8-9772-df26583bdc0a",
+      target: "user26",
+      weight: 9,
+    }, // Carmen - Matthew (legal)
+    {
+      source: "30f033be-3cb4-42a8-9772-df26583bdc0a",
+      target: "user33",
+      weight: 8,
+    }, // Carmen - Hazel (insurance)
+    {
+      source: "30f033be-3cb4-42a8-9772-df26583bdc0a",
+      target: "user40",
+      weight: 8,
+    }, // Carmen - Levi (privacy)
+    {
+      source: "30f033be-3cb4-42a8-9772-df26583bdc0a",
+      target: "user48",
+      weight: 7,
+    }, // Carmen - Ezra (identity)
+    {
+      source: "30f033be-3cb4-42a8-9772-df26583bdc0a",
+      target: "user1",
+      weight: 5,
+    }, // Carmen - Emma (governance)
+    {
+      source: "30f033be-3cb4-42a8-9772-df26583bdc0a",
+      target: "user11",
+      weight: 6,
+    }, // Carmen - Mia (governance)
+    {
+      source: "30f033be-3cb4-42a8-9772-df26583bdc0a",
+      target: "user18",
+      weight: 5,
+    }, // Carmen - Henry (security)
+    {
+      source: "30f033be-3cb4-42a8-9772-df26583bdc0a",
+      target: "user2",
+      weight: 4,
+    }, // Carmen - Liam (smart contracts)
+    {
+      source: "30f033be-3cb4-42a8-9772-df26583bdc0a",
+      target: "c53da3e9-28ad-4c3e-9868-bc8fbd68d8fb",
+      weight: 9,
+    }, // Carmen - Jamal (identity)
+    {
+      source: "30f033be-3cb4-42a8-9772-df26583bdc0a",
+      target: "dc9404c9-d399-454a-9e1b-2f69da5c96aa",
+      weight: 4,
+    }, // Carmen - Amara (creator economy)
+
+    // Connections for Feng Liu (ZKProof Researcher)
+    {
+      source: "4449d0b5-bb48-4992-9c3c-0dd6b14653cd",
+      target: "user4",
+      weight: 9,
+    }, // Feng - Noah (cryptography)
+    {
+      source: "4449d0b5-bb48-4992-9c3c-0dd6b14653cd",
+      target: "user12",
+      weight: 7,
+    }, // Feng - Jackson (encryption)
+    {
+      source: "4449d0b5-bb48-4992-9c3c-0dd6b14653cd",
+      target: "user13",
+      weight: 8,
+    }, // Feng - Sofia (layer2)
+    {
+      source: "4449d0b5-bb48-4992-9c3c-0dd6b14653cd",
+      target: "user18",
+      weight: 6,
+    }, // Feng - Henry (security)
+    {
+      source: "4449d0b5-bb48-4992-9c3c-0dd6b14653cd",
+      target: "user28",
+      weight: 7,
+    }, // Feng - Leo (bridges)
+    {
+      source: "4449d0b5-bb48-4992-9c3c-0dd6b14653cd",
+      target: "user40",
+      weight: 9,
+    }, // Feng - Levi (privacy)
+    {
+      source: "4449d0b5-bb48-4992-9c3c-0dd6b14653cd",
+      target: "user45",
+      weight: 4,
+    }, // Feng - Violet (UX)
+    {
+      source: "4449d0b5-bb48-4992-9c3c-0dd6b14653cd",
+      target: "user1",
+      weight: 5,
+    }, // Feng - Emma (blockchain)
+    {
+      source: "4449d0b5-bb48-4992-9c3c-0dd6b14653cd",
+      target: "user2",
+      weight: 5,
+    }, // Feng - Liam (smart contracts)
+    {
+      source: "4449d0b5-bb48-4992-9c3c-0dd6b14653cd",
+      target: "user8",
+      weight: 4,
+    }, // Feng - Mason (infrastructure)
+    {
+      source: "4449d0b5-bb48-4992-9c3c-0dd6b14653cd",
+      target: "c53da3e9-28ad-4c3e-9868-bc8fbd68d8fb",
+      weight: 8,
+    }, // Feng - Jamal (identity)
+    {
+      source: "4449d0b5-bb48-4992-9c3c-0dd6b14653cd",
+      target: "1be8abfd-604d-4eb0-92a9-eff597c15ed9",
+      weight: 8,
+    }, // Feng - Sasha (protocols)
+    {
+      source: "4449d0b5-bb48-4992-9c3c-0dd6b14653cd",
+      target: "e55075ef-3076-4019-bb46-854ab2662da1",
+      weight: 6,
+    }, // Feng - Angela (security)
+
+    // Connections for Zainab Omar (DeSci Advocate)
+    {
+      source: "586e8237-e741-4656-bd77-b6ab2e7ae4b5",
+      target: "user7",
+      weight: 7,
+    }, // Zainab - Sophia (community)
+    {
+      source: "586e8237-e741-4656-bd77-b6ab2e7ae4b5",
+      target: "user21",
+      weight: 9,
+    }, // Zainab - Abigail (education)
+    {
+      source: "586e8237-e741-4656-bd77-b6ab2e7ae4b5",
+      target: "user25",
+      weight: 8,
+    }, // Zainab - Zoe (regenerative)
+    {
+      source: "586e8237-e741-4656-bd77-b6ab2e7ae4b5",
+      target: "user31",
+      weight: 9,
+    }, // Zainab - Stella (data DAO)
+    {
+      source: "586e8237-e741-4656-bd77-b6ab2e7ae4b5",
+      target: "user34",
+      weight: 7,
+    }, // Zainab - Owen (content)
+    {
+      source: "586e8237-e741-4656-bd77-b6ab2e7ae4b5",
+      target: "user39",
+      weight: 6,
+    }, // Zainab - Scarlett (community)
+    {
+      source: "586e8237-e741-4656-bd77-b6ab2e7ae4b5",
+      target: "user41",
+      weight: 9,
+    }, // Zainab - Madeline (science)
+    {
+      source: "586e8237-e741-4656-bd77-b6ab2e7ae4b5",
+      target: "user49",
+      weight: 6,
+    }, // Zainab - Naomi (DAO tooling)
+    {
+      source: "586e8237-e741-4656-bd77-b6ab2e7ae4b5",
+      target: "user1",
+      weight: 5,
+    }, // Zainab - Emma (governance)
+    {
+      source: "586e8237-e741-4656-bd77-b6ab2e7ae4b5",
+      target: "user5",
+      weight: 4,
+    }, // Zainab - Ava (design)
+    {
+      source: "586e8237-e741-4656-bd77-b6ab2e7ae4b5",
+      target: "958bac7f-cdad-44f8-bb0d-9eab67cdca86",
+      weight: 7,
+    }, // Zainab - Eliza (climate)
+    {
+      source: "586e8237-e741-4656-bd77-b6ab2e7ae4b5",
+      target: "dc9404c9-d399-454a-9e1b-2f69da5c96aa",
+      weight: 6,
+    }, // Zainab - Amara (creator economy)
+
+    // Connections for Marcus Wheeler (Real Estate)
+    {
+      source: "741613d6-10dc-4551-b686-39ad00470c95",
+      target: "user3",
+      weight: 6,
+    }, // Marcus - Olivia (tokenomics)
+    {
+      source: "741613d6-10dc-4551-b686-39ad00470c95",
+      target: "user9",
+      weight: 7,
+    }, // Marcus - Isabella (economics)
+    {
+      source: "741613d6-10dc-4551-b686-39ad00470c95",
+      target: "user24",
+      weight: 8,
+    }, // Marcus - Daniel (stable assets)
+    {
+      source: "741613d6-10dc-4551-b686-39ad00470c95",
+      target: "user26",
+      weight: 7,
+    }, // Marcus - Matthew (legal)
+    {
+      source: "741613d6-10dc-4551-b686-39ad00470c95",
+      target: "user33",
+      weight: 6,
+    }, // Marcus - Hazel (insurance)
+    {
+      source: "741613d6-10dc-4551-b686-39ad00470c95",
+      target: "user35",
+      weight: 8,
+    }, // Marcus - Chloe (lending)
+    {
+      source: "741613d6-10dc-4551-b686-39ad00470c95",
+      target: "user44",
+      weight: 9,
+    }, // Marcus - Miles (real estate)
+    {
+      source: "741613d6-10dc-4551-b686-39ad00470c95",
+      target: "user1",
+      weight: 4,
+    }, // Marcus - Emma (governance)
+    {
+      source: "741613d6-10dc-4551-b686-39ad00470c95",
+      target: "user10",
+      weight: 6,
+    }, // Marcus - Logan (defi)
+    {
+      source: "741613d6-10dc-4551-b686-39ad00470c95",
+      target: "user2",
+      weight: 5,
+    }, // Marcus - Liam (smart contracts)
+    {
+      source: "741613d6-10dc-4551-b686-39ad00470c95",
+      target: "8a96b4a8-1a33-458b-a377-84f598ce65fd",
+      weight: 7,
+    }, // Marcus - Jin (DeFi)
+    {
+      source: "741613d6-10dc-4551-b686-39ad00470c95",
+      target: "958bac7f-cdad-44f8-bb0d-9eab67cdca86",
+      weight: 5,
+    }, // Marcus - Eliza (climate finance)
+
+    // Connections for Jin Park (DeFi Architect)
+    {
+      source: "8a96b4a8-1a33-458b-a377-84f598ce65fd",
+      target: "user2",
+      weight: 7,
+    }, // Jin - Liam (smart contracts)
+    {
+      source: "8a96b4a8-1a33-458b-a377-84f598ce65fd",
+      target: "user3",
+      weight: 6,
+    }, // Jin - Olivia (tokenomics)
+    {
+      source: "8a96b4a8-1a33-458b-a377-84f598ce65fd",
+      target: "user10",
+      weight: 9,
+    }, // Jin - Logan (DeFi)
+    {
+      source: "8a96b4a8-1a33-458b-a377-84f598ce65fd",
+      target: "user19",
+      weight: 8,
+    }, // Jin - Evelyn (exchanges)
+    {
+      source: "8a96b4a8-1a33-458b-a377-84f598ce65fd",
+      target: "user24",
+      weight: 7,
+    }, // Jin - Daniel (stablecoins)
+    {
+      source: "8a96b4a8-1a33-458b-a377-84f598ce65fd",
+      target: "user35",
+      weight: 9,
+    }, // Jin - Chloe (lending)
+    {
+      source: "8a96b4a8-1a33-458b-a377-84f598ce65fd",
+      target: "user42",
+      weight: 7,
+    }, // Jin - Julian (derivatives)
+    {
+      source: "8a96b4a8-1a33-458b-a377-84f598ce65fd",
+      target: "user50",
+      weight: 8,
+    }, // Jin - Theo (liquid staking)
+    {
+      source: "8a96b4a8-1a33-458b-a377-84f598ce65fd",
+      target: "user1",
+      weight: 5,
+    }, // Jin - Emma (blockchain)
+    {
+      source: "8a96b4a8-1a33-458b-a377-84f598ce65fd",
+      target: "user18",
+      weight: 6,
+    }, // Jin - Henry (security)
+    {
+      source: "8a96b4a8-1a33-458b-a377-84f598ce65fd",
+      target: "user28",
+      weight: 5,
+    }, // Jin - Leo (bridges)
+    {
+      source: "8a96b4a8-1a33-458b-a377-84f598ce65fd",
+      target: "e55075ef-3076-4019-bb46-854ab2662da1",
+      weight: 6,
+    }, // Jin - Angela (smart contracts)
+    {
+      source: "8a96b4a8-1a33-458b-a377-84f598ce65fd",
+      target: "2ece21f3-bf25-4980-b17b-4dfc5794839d",
+      weight: 8,
+    }, // Jin - Raj (MEV)
+    {
+      source: "8a96b4a8-1a33-458b-a377-84f598ce65fd",
+      target: "fca6e3ab-4c56-460e-b488-cbab1926e6e3",
+      weight: 7,
+    }, // Jin - Hiroshi (bridges)
+
+    // Connections for Eliza Cortez (Climate Finance)
+    {
+      source: "958bac7f-cdad-44f8-bb0d-9eab67cdca86",
+      target: "user25",
+      weight: 9,
+    }, // Eliza - Zoe (climate)
+    {
+      source: "958bac7f-cdad-44f8-bb0d-9eab67cdca86",
+      target: "user31",
+      weight: 6,
+    }, // Eliza - Stella (data)
+    {
+      source: "958bac7f-cdad-44f8-bb0d-9eab67cdca86",
+      target: "user33",
+      weight: 7,
+    }, // Eliza - Hazel (risk)
+    {
+      source: "958bac7f-cdad-44f8-bb0d-9eab67cdca86",
+      target: "user35",
+      weight: 6,
+    }, // Eliza - Chloe (lending)
+    {
+      source: "958bac7f-cdad-44f8-bb0d-9eab67cdca86",
+      target: "user41",
+      weight: 7,
+    }, // Eliza - Madeline (research)
+    {
+      source: "958bac7f-cdad-44f8-bb0d-9eab67cdca86",
+      target: "user3",
+      weight: 5,
+    }, // Eliza - Olivia (mechanism design)
+    {
+      source: "958bac7f-cdad-44f8-bb0d-9eab67cdca86",
+      target: "user9",
+      weight: 6,
+    }, // Eliza - Isabella (economics)
+    {
+      source: "958bac7f-cdad-44f8-bb0d-9eab67cdca86",
+      target: "user1",
+      weight: 4,
+    }, // Eliza - Emma (governance)
+    {
+      source: "958bac7f-cdad-44f8-bb0d-9eab67cdca86",
+      target: "user10",
+      weight: 5,
+    }, // Eliza - Logan (trading)
+    {
+      source: "958bac7f-cdad-44f8-bb0d-9eab67cdca86",
+      target: "user47",
+      weight: 6,
+    }, // Eliza - Ruby (social tokens)
+    {
+      source: "958bac7f-cdad-44f8-bb0d-9eab67cdca86",
+      target: "586e8237-e741-4656-bd77-b6ab2e7ae4b5",
+      weight: 7,
+    }, // Eliza - Zainab (science)
+    {
+      source: "958bac7f-cdad-44f8-bb0d-9eab67cdca86",
+      target: "741613d6-10dc-4551-b686-39ad00470c95",
+      weight: 5,
+    }, // Eliza - Marcus (real estate)
+
+    // Connections for Jamal Edwards (Identity Systems)
+    {
+      source: "c53da3e9-28ad-4c3e-9868-bc8fbd68d8fb",
+      target: "user14",
+      weight: 9,
+    }, // Jamal - Aiden (identity)
+    {
+      source: "c53da3e9-28ad-4c3e-9868-bc8fbd68d8fb",
+      target: "user15",
+      weight: 8,
+    }, // Jamal - Charlotte (social trust)
+    {
+      source: "c53da3e9-28ad-4c3e-9868-bc8fbd68d8fb",
+      target: "user40",
+      weight: 7,
+    }, // Jamal - Levi (privacy)
+    {
+      source: "c53da3e9-28ad-4c3e-9868-bc8fbd68d8fb",
+      target: "user48",
+      weight: 9,
+    }, // Jamal - Ezra (identity)
+    {
+      source: "c53da3e9-28ad-4c3e-9868-bc8fbd68d8fb",
+      target: "user12",
+      weight: 7,
+    }, // Jamal - Jackson (encryption)
+    {
+      source: "c53da3e9-28ad-4c3e-9868-bc8fbd68d8fb",
+      target: "user18",
+      weight: 6,
+    }, // Jamal - Henry (security)
+    {
+      source: "c53da3e9-28ad-4c3e-9868-bc8fbd68d8fb",
+      target: "user26",
+      weight: 7,
+    }, // Jamal - Matthew (legal)
+    {
+      source: "c53da3e9-28ad-4c3e-9868-bc8fbd68d8fb",
+      target: "user1",
+      weight: 4,
+    }, // Jamal - Emma (governance)
+    {
+      source: "c53da3e9-28ad-4c3e-9868-bc8fbd68d8fb",
+      target: "user4",
+      weight: 6,
+    }, // Jamal - Noah (cryptography)
+    {
+      source: "c53da3e9-28ad-4c3e-9868-bc8fbd68d8fb",
+      target: "user22",
+      weight: 6,
+    }, // Jamal - Sebastian (wallets)
+    {
+      source: "c53da3e9-28ad-4c3e-9868-bc8fbd68d8fb",
+      target: "30f033be-3cb4-42a8-9772-df26583bdc0a",
+      weight: 9,
+    }, // Jamal - Carmen (regulatory)
+    {
+      source: "c53da3e9-28ad-4c3e-9868-bc8fbd68d8fb",
+      target: "4449d0b5-bb48-4992-9c3c-0dd6b14653cd",
+      weight: 8,
+    }, // Jamal - Feng (privacy)
+    {
+      source: "c53da3e9-28ad-4c3e-9868-bc8fbd68d8fb",
+      target: "e55075ef-3076-4019-bb46-854ab2662da1",
+      weight: 5,
+    }, // Jamal - Angela (security)
+
+    // Connections for Amara Okafor (Social Platform Architect)
+    {
+      source: "dc9404c9-d399-454a-9e1b-2f69da5c96aa",
+      target: "user7",
+      weight: 8,
+    }, // Amara - Sophia (community)
+    {
+      source: "dc9404c9-d399-454a-9e1b-2f69da5c96aa",
+      target: "user15",
+      weight: 7,
+    }, // Amara - Charlotte (social)
+    {
+      source: "dc9404c9-d399-454a-9e1b-2f69da5c96aa",
+      target: "user17",
+      weight: 7,
+    }, // Amara - Amelia (virtual worlds)
+    {
+      source: "dc9404c9-d399-454a-9e1b-2f69da5c96aa",
+      target: "user21",
+      weight: 6,
+    }, // Amara - Abigail (education)
+    {
+      source: "dc9404c9-d399-454a-9e1b-2f69da5c96aa",
+      target: "user23",
+      weight: 7,
+    }, // Amara - Lily (music)
+    {
+      source: "dc9404c9-d399-454a-9e1b-2f69da5c96aa",
+      target: "user27",
+      weight: 8,
+    }, // Amara - Victoria (gaming)
+    {
+      source: "dc9404c9-d399-454a-9e1b-2f69da5c96aa",
+      target: "user34",
+      weight: 9,
+    }, // Amara - Owen (content)
+    {
+      source: "dc9404c9-d399-454a-9e1b-2f69da5c96aa",
+      target: "user39",
+      weight: 8,
+    }, // Amara - Scarlett (community)
+    {
+      source: "dc9404c9-d399-454a-9e1b-2f69da5c96aa",
+      target: "user43",
+      weight: 7,
+    }, // Amara - Eleanor (curator)
+    {
+      source: "dc9404c9-d399-454a-9e1b-2f69da5c96aa",
+      target: "user47",
+      weight: 9,
+    }, // Amara - Ruby (social tokens)
+    {
+      source: "dc9404c9-d399-454a-9e1b-2f69da5c96aa",
+      target: "user5",
+      weight: 7,
+    }, // Amara - Ava (design)
+    {
+      source: "dc9404c9-d399-454a-9e1b-2f69da5c96aa",
+      target: "user6",
+      weight: 6,
+    }, // Amara - Ethan (digital art)
+    {
+      source: "dc9404c9-d399-454a-9e1b-2f69da5c96aa",
+      target: "586e8237-e741-4656-bd77-b6ab2e7ae4b5",
+      weight: 6,
+    }, // Amara - Zainab (research)
+    {
+      source: "dc9404c9-d399-454a-9e1b-2f69da5c96aa",
+      target: "30f033be-3cb4-42a8-9772-df26583bdc0a",
+      weight: 4,
+    }, // Amara - Carmen (regulatory)
+
+    // Connections for Hiroshi Tanaka (Bridge Protocol Engineer)
+    {
+      source: "fca6e3ab-4c56-460e-b488-cbab1926e6e3",
+      target: "user1",
+      weight: 5,
+    }, // Hiroshi - Emma (blockchain)
+    {
+      source: "fca6e3ab-4c56-460e-b488-cbab1926e6e3",
+      target: "user2",
+      weight: 6,
+    }, // Hiroshi - Liam (smart contracts)
+    {
+      source: "fca6e3ab-4c56-460e-b488-cbab1926e6e3",
+      target: "user4",
+      weight: 7,
+    }, // Hiroshi - Noah (cryptography)
+    {
+      source: "fca6e3ab-4c56-460e-b488-cbab1926e6e3",
+      target: "user8",
+      weight: 8,
+    }, // Hiroshi - Mason (infrastructure)
+    {
+      source: "fca6e3ab-4c56-460e-b488-cbab1926e6e3",
+      target: "user13",
+      weight: 8,
+    }, // Hiroshi - Sofia (layer2)
+    {
+      source: "fca6e3ab-4c56-460e-b488-cbab1926e6e3",
+      target: "user16",
+      weight: 6,
+    }, // Hiroshi - Lucas (oracles)
+    {
+      source: "fca6e3ab-4c56-460e-b488-cbab1926e6e3",
+      target: "user18",
+      weight: 6,
+    }, // Hiroshi - Henry (security)
+    {
+      source: "fca6e3ab-4c56-460e-b488-cbab1926e6e3",
+      target: "user28",
+      weight: 9,
+    }, // Hiroshi - Leo (bridges)
+    {
+      source: "fca6e3ab-4c56-460e-b488-cbab1926e6e3",
+      target: "user32",
+      weight: 7,
+    }, // Hiroshi - Zachary (hardware)
+    {
+      source: "fca6e3ab-4c56-460e-b488-cbab1926e6e3",
+      target: "user38",
+      weight: 7,
+    }, // Hiroshi - Gabriel (APIs)
+    {
+      source: "fca6e3ab-4c56-460e-b488-cbab1926e6e3",
+      target: "user46",
+      weight: 6,
+    }, // Hiroshi - Max (compute)
+    {
+      source: "fca6e3ab-4c56-460e-b488-cbab1926e6e3",
+      target: "1be8abfd-604d-4eb0-92a9-eff597c15ed9",
+      weight: 7,
+    }, // Hiroshi - Sasha (protocols)
+    {
+      source: "fca6e3ab-4c56-460e-b488-cbab1926e6e3",
+      target: "8a96b4a8-1a33-458b-a377-84f598ce65fd",
+      weight: 7,
+    }, // Hiroshi - Jin (DeFi)
+    {
+      source: "fca6e3ab-4c56-460e-b488-cbab1926e6e3",
+      target: "e55075ef-3076-4019-bb46-854ab2662da1",
+      weight: 5,
+    }, // Hiroshi - Angela (smart contracts)
+
+    // Additional connections between UUID nodes that aren't already connected
+    {
+      source: "1be8abfd-604d-4eb0-92a9-eff597c15ed9",
+      target: "30f033be-3cb4-42a8-9772-df26583bdc0a",
+      weight: 5,
+    }, // Sasha - Carmen (protocol compliance)
+    {
+      source: "1be8abfd-604d-4eb0-92a9-eff597c15ed9",
+      target: "586e8237-e741-4656-bd77-b6ab2e7ae4b5",
+      weight: 4,
+    }, // Sasha - Zainab (science infrastructure)
+    {
+      source: "1be8abfd-604d-4eb0-92a9-eff597c15ed9",
+      target: "741613d6-10dc-4551-b686-39ad00470c95",
+      weight: 3,
+    }, // Sasha - Marcus (real estate tokenization)
+    {
+      source: "1be8abfd-604d-4eb0-92a9-eff597c15ed9",
+      target: "958bac7f-cdad-44f8-bb0d-9eab67cdca86",
+      weight: 4,
+    }, // Sasha - Eliza (climate systems)
+    {
+      source: "1be8abfd-604d-4eb0-92a9-eff597c15ed9",
+      target: "c53da3e9-28ad-4c3e-9868-bc8fbd68d8fb",
+      weight: 6,
+    }, // Sasha - Jamal (identity protocols)
+    {
+      source: "1be8abfd-604d-4eb0-92a9-eff597c15ed9",
+      target: "dc9404c9-d399-454a-9e1b-2f69da5c96aa",
+      weight: 5,
+    }, // Sasha - Amara (social platforms)
+
+    {
+      source: "2ece21f3-bf25-4980-b17b-4dfc5794839d",
+      target: "30f033be-3cb4-42a8-9772-df26583bdc0a",
+      weight: 6,
+    }, // Raj - Carmen (regulatory MEV)
+    {
+      source: "2ece21f3-bf25-4980-b17b-4dfc5794839d",
+      target: "4449d0b5-bb48-4992-9c3c-0dd6b14653cd",
+      weight: 7,
+    }, // Raj - Feng (zkproofs for MEV)
+    {
+      source: "2ece21f3-bf25-4980-b17b-4dfc5794839d",
+      target: "586e8237-e741-4656-bd77-b6ab2e7ae4b5",
+      weight: 3,
+    }, // Raj - Zainab (research collaboration)
+    {
+      source: "2ece21f3-bf25-4980-b17b-4dfc5794839d",
+      target: "741613d6-10dc-4551-b686-39ad00470c95",
+      weight: 4,
+    }, // Raj - Marcus (real estate markets)
+    {
+      source: "2ece21f3-bf25-4980-b17b-4dfc5794839d",
+      target: "958bac7f-cdad-44f8-bb0d-9eab67cdca86",
+      weight: 4,
+    }, // Raj - Eliza (carbon markets)
+    {
+      source: "2ece21f3-bf25-4980-b17b-4dfc5794839d",
+      target: "c53da3e9-28ad-4c3e-9868-bc8fbd68d8fb",
+      weight: 5,
+    }, // Raj - Jamal (identity verification)
+    {
+      source: "2ece21f3-bf25-4980-b17b-4dfc5794839d",
+      target: "dc9404c9-d399-454a-9e1b-2f69da5c96aa",
+      weight: 5,
+    }, // Raj - Amara (creator economies)
+    {
+      source: "2ece21f3-bf25-4980-b17b-4dfc5794839d",
+      target: "fca6e3ab-4c56-460e-b488-cbab1926e6e3",
+      weight: 6,
+    }, // Raj - Hiroshi (cross-chain trading)
+
+    {
+      source: "30f033be-3cb4-42a8-9772-df26583bdc0a",
+      target: "4449d0b5-bb48-4992-9c3c-0dd6b14653cd",
+      weight: 7,
+    }, // Carmen - Feng (privacy regulations)
+    {
+      source: "30f033be-3cb4-42a8-9772-df26583bdc0a",
+      target: "586e8237-e741-4656-bd77-b6ab2e7ae4b5",
+      weight: 5,
+    }, // Carmen - Zainab (research compliance)
+    {
+      source: "30f033be-3cb4-42a8-9772-df26583bdc0a",
+      target: "741613d6-10dc-4551-b686-39ad00470c95",
+      weight: 7,
+    }, // Carmen - Marcus (real estate regulations)
+    {
+      source: "30f033be-3cb4-42a8-9772-df26583bdc0a",
+      target: "8a96b4a8-1a33-458b-a377-84f598ce65fd",
+      weight: 6,
+    }, // Carmen - Jin (DeFi compliance)
+    {
+      source: "30f033be-3cb4-42a8-9772-df26583bdc0a",
+      target: "958bac7f-cdad-44f8-bb0d-9eab67cdca86",
+      weight: 5,
+    }, // Carmen - Eliza (carbon credit compliance)
+    {
+      source: "30f033be-3cb4-42a8-9772-df26583bdc0a",
+      target: "fca6e3ab-4c56-460e-b488-cbab1926e6e3",
+      weight: 6,
+    }, // Carmen - Hiroshi (cross-border regulations)
+
+    {
+      source: "4449d0b5-bb48-4992-9c3c-0dd6b14653cd",
+      target: "586e8237-e741-4656-bd77-b6ab2e7ae4b5",
+      weight: 6,
+    }, // Feng - Zainab (science verification)
+    {
+      source: "4449d0b5-bb48-4992-9c3c-0dd6b14653cd",
+      target: "741613d6-10dc-4551-b686-39ad00470c95",
+      weight: 5,
+    }, // Feng - Marcus (property verification)
+    {
+      source: "4449d0b5-bb48-4992-9c3c-0dd6b14653cd",
+      target: "8a96b4a8-1a33-458b-a377-84f598ce65fd",
+      weight: 7,
+    }, // Feng - Jin (DeFi privacy)
+    {
+      source: "4449d0b5-bb48-4992-9c3c-0dd6b14653cd",
+      target: "958bac7f-cdad-44f8-bb0d-9eab67cdca86",
+      weight: 4,
+    }, // Feng - Eliza (climate data verification)
+    {
+      source: "4449d0b5-bb48-4992-9c3c-0dd6b14653cd",
+      target: "dc9404c9-d399-454a-9e1b-2f69da5c96aa",
+      weight: 5,
+    }, // Feng - Amara (private social data)
+
+    {
+      source: "586e8237-e741-4656-bd77-b6ab2e7ae4b5",
+      target: "741613d6-10dc-4551-b686-39ad00470c95",
+      weight: 4,
+    }, // Zainab - Marcus (science funding)
+    {
+      source: "586e8237-e741-4656-bd77-b6ab2e7ae4b5",
+      target: "8a96b4a8-1a33-458b-a377-84f598ce65fd",
+      weight: 5,
+    }, // Zainab - Jin (research funding)
+    {
+      source: "586e8237-e741-4656-bd77-b6ab2e7ae4b5",
+      target: "c53da3e9-28ad-4c3e-9868-bc8fbd68d8fb",
+      weight: 6,
+    }, // Zainab - Jamal (research identity)
+    {
+      source: "586e8237-e741-4656-bd77-b6ab2e7ae4b5",
+      target: "fca6e3ab-4c56-460e-b488-cbab1926e6e3",
+      weight: 4,
+    }, // Zainab - Hiroshi (cross-institution collaboration)
+
+    {
+      source: "741613d6-10dc-4551-b686-39ad00470c95",
+      target: "c53da3e9-28ad-4c3e-9868-bc8fbd68d8fb",
+      weight: 5,
+    }, // Marcus - Jamal (property identity)
+    {
+      source: "741613d6-10dc-4551-b686-39ad00470c95",
+      target: "dc9404c9-d399-454a-9e1b-2f69da5c96aa",
+      weight: 4,
+    }, // Marcus - Amara (property social platforms)
+    {
+      source: "741613d6-10dc-4551-b686-39ad00470c95",
+      target: "fca6e3ab-4c56-460e-b488-cbab1926e6e3",
+      weight: 6,
+    }, // Marcus - Hiroshi (cross-border real estate)
+
+    {
+      source: "8a96b4a8-1a33-458b-a377-84f598ce65fd",
+      target: "958bac7f-cdad-44f8-bb0d-9eab67cdca86",
+      weight: 7,
+    }, // Jin - Eliza (climate finance)
+    {
+      source: "8a96b4a8-1a33-458b-a377-84f598ce65fd",
+      target: "c53da3e9-28ad-4c3e-9868-bc8fbd68d8fb",
+      weight: 6,
+    }, // Jin - Jamal (DeFi identity)
+    {
+      source: "8a96b4a8-1a33-458b-a377-84f598ce65fd",
+      target: "dc9404c9-d399-454a-9e1b-2f69da5c96aa",
+      weight: 5,
+    }, // Jin - Amara (creator finance)
+
+    {
+      source: "958bac7f-cdad-44f8-bb0d-9eab67cdca86",
+      target: "c53da3e9-28ad-4c3e-9868-bc8fbd68d8fb",
+      weight: 4,
+    }, // Eliza - Jamal (climate identity)
+    {
+      source: "958bac7f-cdad-44f8-bb0d-9eab67cdca86",
+      target: "dc9404c9-d399-454a-9e1b-2f69da5c96aa",
+      weight: 6,
+    }, // Eliza - Amara (climate communities)
+    {
+      source: "958bac7f-cdad-44f8-bb0d-9eab67cdca86",
+      target: "fca6e3ab-4c56-460e-b488-cbab1926e6e3",
+      weight: 5,
+    }, // Eliza - Hiroshi (global climate collaboration)
+
+    {
+      source: "c53da3e9-28ad-4c3e-9868-bc8fbd68d8fb",
+      target: "dc9404c9-d399-454a-9e1b-2f69da5c96aa",
+      weight: 8,
+    }, // Jamal - Amara (social identity)
+    {
+      source: "c53da3e9-28ad-4c3e-9868-bc8fbd68d8fb",
+      target: "fca6e3ab-4c56-460e-b488-cbab1926e6e3",
+      weight: 5,
+    }, // Jamal - Hiroshi (cross-chain identity)
+
+    {
+      source: "dc9404c9-d399-454a-9e1b-2f69da5c96aa",
+      target: "fca6e3ab-4c56-460e-b488-cbab1926e6e3",
+      weight: 4,
+    }, // Amara - Hiroshi (cross-platform social)
+
+    // Additional connections to existing nodes
+    {
+      source: "1be8abfd-604d-4eb0-92a9-eff597c15ed9",
+      target: "user36",
+      weight: 6,
+    }, // Sasha - Elijah (storage protocols)
+    {
+      source: "1be8abfd-604d-4eb0-92a9-eff597c15ed9",
+      target: "user19",
+      weight: 5,
+    }, // Sasha - Evelyn (exchange protocols)
+    {
+      source: "1be8abfd-604d-4eb0-92a9-eff597c15ed9",
+      target: "user37",
+      weight: 7,
+    }, // Sasha - Audrey (payment protocols)
+
+    {
+      source: "2ece21f3-bf25-4980-b17b-4dfc5794839d",
+      target: "user16",
+      weight: 6,
+    }, // Raj - Lucas (oracle data)
+    {
+      source: "2ece21f3-bf25-4980-b17b-4dfc5794839d",
+      target: "user20",
+      weight: 7,
+    }, // Raj - Wyatt (staking incentives)
+    {
+      source: "2ece21f3-bf25-4980-b17b-4dfc5794839d",
+      target: "user27",
+      weight: 5,
+    }, // Raj - Victoria (game economies)
+
+    {
+      source: "30f033be-3cb4-42a8-9772-df26583bdc0a",
+      target: "user31",
+      weight: 6,
+    }, // Carmen - Stella (data governance)
+    {
+      source: "30f033be-3cb4-42a8-9772-df26583bdc0a",
+      target: "user37",
+      weight: 8,
+    }, // Carmen - Audrey (payment compliance)
+    {
+      source: "30f033be-3cb4-42a8-9772-df26583bdc0a",
+      target: "user27",
+      weight: 5,
+    }, // Carmen - Victoria (gaming regulation)
+
+    {
+      source: "4449d0b5-bb48-4992-9c3c-0dd6b14653cd",
+      target: "user31",
+      weight: 7,
+    }, // Feng - Stella (data privacy)
+    {
+      source: "4449d0b5-bb48-4992-9c3c-0dd6b14653cd",
+      target: "user19",
+      weight: 6,
+    }, // Feng - Evelyn (private trading)
+    {
+      source: "4449d0b5-bb48-4992-9c3c-0dd6b14653cd",
+      target: "user37",
+      weight: 6,
+    }, // Feng - Audrey (private payments)
+
+    {
+      source: "586e8237-e741-4656-bd77-b6ab2e7ae4b5",
+      target: "user23",
+      weight: 5,
+    }, // Zainab - Lily (research publication)
+    {
+      source: "586e8237-e741-4656-bd77-b6ab2e7ae4b5",
+      target: "user27",
+      weight: 6,
+    }, // Zainab - Victoria (science games)
+    {
+      source: "586e8237-e741-4656-bd77-b6ab2e7ae4b5",
+      target: "user45",
+      weight: 7,
+    }, // Zainab - Violet (accessible science)
+
+    {
+      source: "741613d6-10dc-4551-b686-39ad00470c95",
+      target: "user20",
+      weight: 7,
+    }, // Marcus - Wyatt (real estate staking)
+    {
+      source: "741613d6-10dc-4551-b686-39ad00470c95",
+      target: "user42",
+      weight: 6,
+    }, // Marcus - Julian (property derivatives)
+    {
+      source: "741613d6-10dc-4551-b686-39ad00470c95",
+      target: "user11",
+      weight: 5,
+    }, // Marcus - Mia (property governance)
+
+    {
+      source: "8a96b4a8-1a33-458b-a377-84f598ce65fd",
+      target: "user16",
+      weight: 7,
+    }, // Jin - Lucas (DeFi oracles)
+    {
+      source: "8a96b4a8-1a33-458b-a377-84f598ce65fd",
+      target: "user11",
+      weight: 5,
+    }, // Jin - Mia (DeFi governance)
+    {
+      source: "8a96b4a8-1a33-458b-a377-84f598ce65fd",
+      target: "user37",
+      weight: 8,
+    }, // Jin - Audrey (payment integration)
+
+    {
+      source: "958bac7f-cdad-44f8-bb0d-9eab67cdca86",
+      target: "user11",
+      weight: 5,
+    }, // Eliza - Mia (climate governance)
+    {
+      source: "958bac7f-cdad-44f8-bb0d-9eab67cdca86",
+      target: "user16",
+      weight: 6,
+    }, // Eliza - Lucas (climate oracles)
+    {
+      source: "958bac7f-cdad-44f8-bb0d-9eab67cdca86",
+      target: "user27",
+      weight: 5,
+    }, // Eliza - Victoria (climate gamification)
+
+    {
+      source: "c53da3e9-28ad-4c3e-9868-bc8fbd68d8fb",
+      target: "user30",
+      weight: 7,
+    }, // Jamal - Caleb (mobile identity)
+    {
+      source: "c53da3e9-28ad-4c3e-9868-bc8fbd68d8fb",
+      target: "user11",
+      weight: 6,
+    }, // Jamal - Mia (identity governance)
+    {
+      source: "c53da3e9-28ad-4c3e-9868-bc8fbd68d8fb",
+      target: "user37",
+      weight: 8,
+    }, // Jamal - Audrey (payment identity)
+
+    {
+      source: "dc9404c9-d399-454a-9e1b-2f69da5c96aa",
+      target: "user30",
+      weight: 8,
+    }, // Amara - Caleb (mobile social)
+    {
+      source: "dc9404c9-d399-454a-9e1b-2f69da5c96aa",
+      target: "user11",
+      weight: 6,
+    }, // Amara - Mia (social governance)
+    {
+      source: "dc9404c9-d399-454a-9e1b-2f69da5c96aa",
+      target: "user45",
+      weight: 7,
+    }, // Amara - Violet (accessible social)
+
+    {
+      source: "fca6e3ab-4c56-460e-b488-cbab1926e6e3",
+      target: "user19",
+      weight: 6,
+    }, // Hiroshi - Evelyn (exchange bridges)
+    {
+      source: "fca6e3ab-4c56-460e-b488-cbab1926e6e3",
+      target: "user20",
+      weight: 7,
+    }, // Hiroshi - Wyatt (staking bridges)
+    {
+      source: "fca6e3ab-4c56-460e-b488-cbab1926e6e3",
+      target: "user11",
+      weight: 5,
+    }, // Hiroshi - Mia (bridge governance)
 
     // Generate programmatically with the following pattern:
     // Group 1 strong connections (nodes 1-10)
