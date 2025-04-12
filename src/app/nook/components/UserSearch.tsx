@@ -40,7 +40,7 @@ const UserSearch: React.FC<UserSearchProps> = ({
         }}
       />
       {isDropdownOpen && displayResults.length > 0 && (
-        <div className="rounded absolute z-10 mt-1 max-h-60 w-full overflow-y-auto border border-gray-300 bg-white shadow-lg">
+        <div className="rounded absolute z-[1000] mt-1 max-h-60 w-full overflow-y-auto border border-gray-300 bg-white shadow-lg">
           {displayResults.map((user) => (
             <div
               key={user.id}
