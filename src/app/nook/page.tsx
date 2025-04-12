@@ -127,17 +127,15 @@ export default function NookPage() {
 
   return (
     <Main>
-      {/* <div className="mb-8 text-center">
-          <div className="mb-2 flex items-center justify-center gap-2">
-            <h1 className="font-primary text-4xl font-bold text-primary">
-              nook
-            </h1>
-            <BetaBadge />
-          </div>
-          <p className="mx-auto max-w-2xl font-secondary text-lg text-muted-foreground">
-            What am I, if not, in relation with you?
-          </p>
-        </div> */}
+      <div className="mb-8 text-center">
+        <div className="mb-2 flex items-center justify-center gap-2">
+          <h1 className="font-primary text-4xl font-bold text-primary">nook</h1>
+          <BetaBadge />
+        </div>
+        <p className="mx-auto max-w-2xl font-secondary text-lg text-muted-foreground">
+          What am I, if not, in relation with you?
+        </p>
+      </div>
 
       {/* The data prop is optional and defaults to mockData in the component */}
       <CommunityNetworkGraph currentUserId={currentUserId} />
