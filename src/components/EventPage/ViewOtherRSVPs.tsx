@@ -13,7 +13,7 @@ export default function ViewOtherRSVPs({ event }: { event: ClientEvent }) {
           return (
             <UserImage
               key={key}
-              photo={rsvp.attendee?.profile?.photo}
+              photo={rsvp.attendee?.profile?.image}
               size="sm"
               userId={rsvp.attendee.id}
             />

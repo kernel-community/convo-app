@@ -13,7 +13,7 @@ export async function POST(req: NextRequest) {
   return NextResponse.json({
     data: {
       ...profile,
-      photo: profile?.photo,
+      image: profile?.image,
     } as Profile,
   });
 }

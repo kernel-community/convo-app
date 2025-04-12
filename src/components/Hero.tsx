@@ -221,7 +221,7 @@ export const WhoElseIsGoing = ({
                     className="my-2 flex flex-row items-center gap-3"
                   >
                     <UserImage
-                      photo={rsvp.attendee?.profile?.photo}
+                      photo={rsvp.attendee?.profile?.image}
                       size="md"
                       userId={rsvp.attendee.id}
                     />

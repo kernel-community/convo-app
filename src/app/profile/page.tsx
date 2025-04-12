@@ -106,7 +106,7 @@ const Profile: NextPage = () => {
                 <div className="justify-self-end">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
-                    src={profile?.photo || ""}
+                    src={profile?.image || ""}
                     width={180}
                     height={180}
                     alt="pfp"
