@@ -11,7 +11,7 @@ import { data as mockData } from "../utils/mock";
 import type { User, NodeType, Connection } from "../utils/types";
 import UserSearch from "./UserSearch";
 import Profile from "./Profile";
-import GraphLegend from "./GraphLegend";
+// import GraphLegend from "./GraphLegend";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 
 // Color constants using CSS variables from globals.css
@@ -1877,12 +1877,16 @@ const CommunityNetworkGraph: React.FC<CommunityNetworkGraphProps> = ({
               updateNodeConnections(nodeId);
             }}
             currentUserId={currentUserId}
-            currentUser={currentUserId ? dataNodesMap.get(currentUserId) as User : undefined}
+            currentUser={
+              currentUserId
+                ? (dataNodesMap.get(currentUserId) as User)
+                : undefined
+            }
           />
         </div>
       </div>
       {/* Legend */}
-      <GraphLegend />
+      {/* <GraphLegend /> */}
       <svg className="invisible absolute" width="0" height="0">
         <defs>
           <filter

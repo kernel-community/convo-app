@@ -8,6 +8,7 @@ import CommunityNetworkGraph from "./components/CommunityNetworkGraph";
 import { checkSessionAuth } from "src/lib/checkSessionAuth";
 import BetaBadge from "src/components/ui/beta-badge";
 import { useUser } from "src/context/UserContext";
+import { data as mockData } from "./utils/mock";
 
 // Array of colors for different locations
 const locationColors = [
@@ -45,6 +46,12 @@ export default function NookPage() {
   const [activeTab, setActiveTab] = useState(
     tabParam && ["network", "map"].includes(tabParam) ? tabParam : "network"
   );
+  const [userName, setUserName] = useState<string>("");
+
+  // Array of fun, whimsical greetings
+  const getRandomGreeting = (name: string) => {
+    return name ? `Hi ${name}, welcome to the nook` : `nook`;
+  };
 
   // Effect to sync URL parameters with tab state
   useEffect(() => {
@@ -105,10 +112,30 @@ export default function NookPage() {
     if (fetchedUser && fetchedUser.id) {
       console.log("Setting user ID from context:", fetchedUser.id);
       setCurrentUserId(fetchedUser.id);
+
+      // Try to find the user in mock data to get their name
+      const userNode = mockData.nodes.find(
+        (node) => node.id === fetchedUser.id
+      );
+      if (userNode) {
+        setUserName(userNode.name);
+      } else if (
+        fetchedUser &&
+        typeof fetchedUser === "object" &&
+        "name" in fetchedUser
+      ) {
+        setUserName(fetchedUser.name as string);
+      }
     } else if (!loading) {
       // Fallback to "user1" for testing if user context doesn't have an ID
       console.log("No user ID in context, using fallback: user1");
       setCurrentUserId("user1");
+
+      // Get the name for the fallback user from mock data
+      const fallbackUser = mockData.nodes.find((node) => node.id === "user1");
+      if (fallbackUser) {
+        setUserName(fallbackUser.name);
+      }
     }
   }, [fetchedUser, loading]);
 
@@ -129,12 +156,14 @@ export default function NookPage() {
     <Main>
       <div className="mb-8 text-center">
         <div className="mb-2 flex items-center justify-center gap-2">
-          <h1 className="font-primary text-4xl font-bold text-primary">nook</h1>
+          <h1 className="font-primary text-4xl font-bold text-primary">
+            {getRandomGreeting(userName)}
+          </h1>
           <BetaBadge />
         </div>
-        <p className="mx-auto max-w-2xl font-secondary text-lg text-muted-foreground">
+        {/* <p className="mx-auto max-w-2xl font-secondary text-lg text-muted-foreground">
           What am I, if not, in relation with you?
-        </p>
+        </p> */}
       </div>
 
       {/* The data prop is optional and defaults to mockData in the component */}
