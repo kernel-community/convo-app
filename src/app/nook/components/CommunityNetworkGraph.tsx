@@ -44,7 +44,7 @@ const COLORS = {
 };
 
 // Scale factor for selected nodes (adjust this value to experiment with different sizes)
-const SELECTED_NODE_SCALE = 3;
+const SELECTED_NODE_SCALE = 5;
 
 const CommunityNetworkGraph: React.FC = () => {
   const svgRef = useRef<SVGSVGElement | null>(null);
@@ -273,9 +273,11 @@ const CommunityNetworkGraph: React.FC = () => {
         .style("opacity", (d: any) => {
           const sourceId = safeGetId(d.source);
           const targetId = safeGetId(d.target);
-          return sourceId === nodeId || targetId === nodeId
-            ? COLORS.LINK_DEFAULT_OPACITY
-            : COLORS.LINK_FADED_OPACITY;
+          const isConnectedToSelected =
+            sourceId === nodeId || targetId === nodeId;
+
+          // Connected links are fully visible, others faded
+          return isConnectedToSelected ? 1.0 : 0.1;
         });
       // Update URL after D3 operations are complete
       setTimeout(() => {
@@ -355,11 +357,21 @@ const CommunityNetworkGraph: React.FC = () => {
         d3
           .forceLink(data.links)
           .id((d: any) => d.id)
-          .distance(70)
+          .distance((d: any) => {
+            // Higher weight = stronger connection = MUCH shorter distance
+            // Scale inversely: weight 10 = distance 30, weight 1 = distance 120
+            if (!d.weight) return 70;
+            return 120 - d.weight * 9; // More dramatic scaling
+          })
+          .strength((d: any) => {
+            // Higher weight = stronger connection = higher strength
+            // Scale directly: weight 10 = strength 0.7, weight 1 = strength 0.1
+            return d.weight ? 0.1 + (d.weight / 10) * 0.6 : 0.15; // Increased strength impact
+          })
       )
-      .force("charge", d3.forceManyBody().strength(-100))
+      .force("charge", d3.forceManyBody().strength(-80)) // Slightly reduced repulsion
       .force("center", d3.forceCenter(width / 2, height / 2))
-      .alphaDecay(0.05);
+      .alphaDecay(0.03); // Slower decay for more movement
 
     // Store simulation in ref for potential use outside this effect
     simulationRef.current = simulation;
@@ -410,7 +422,13 @@ const CommunityNetworkGraph: React.FC = () => {
     const linkArc = (d: any) => {
       const dx = d.target.x - d.source.x;
       const dy = d.target.y - d.source.y;
-      const dr = Math.sqrt(dx * dx + dy * dy) * 1.5; // Curve radius
+
+      // Make stronger connections (higher weight) appear more direct
+      // Lower weight = more curved, higher weight = more straight
+      const weight = d.weight || 5; // Default to middle weight if not specified
+      const curveFactor = 3 - (weight / 10) * 2.5; // Scale from 3 to 0.5
+
+      const dr = Math.sqrt(dx * dx + dy * dy) * curveFactor;
       return `M${d.source.x},${d.source.y}A${dr},${dr} 0 0,1 ${d.target.x},${d.target.y}`;
     };
 
@@ -423,9 +441,12 @@ const CommunityNetworkGraph: React.FC = () => {
       .append("path")
       .attr("stroke", "url(#link-gradient)")
       .attr("fill", "none")
-      .attr("stroke-width", () => 1.5)
+      .attr("stroke-width", (d: any) => {
+        // Scale link width based on weight (if available)
+        return d.weight ? 0.8 + (d.weight / 10) * 2.2 : 1.5; // 0.8-3px based on weight
+      })
       .attr("stroke-linecap", "round")
-      .attr("stroke-opacity", COLORS.LINK_DEFAULT_OPACITY)
+      .attr("stroke-opacity", 0.6) // Consistent opacity for all links
       .style("mix-blend-mode", "multiply");
 
     // Create nodes in the middle layer
@@ -943,9 +964,11 @@ const CommunityNetworkGraph: React.FC = () => {
           .style("stroke-opacity", (d: any) => {
             const sourceId = safeGetId(d.source);
             const targetId = safeGetId(d.target);
-            return sourceId === selectedNode.id || targetId === selectedNode.id
-              ? 1
-              : 0.2;
+            const isConnectedToSelected =
+              sourceId === selectedNode.id || targetId === selectedNode.id;
+
+            // Connected links are fully visible, others faded
+            return isConnectedToSelected ? 1.0 : 0.1;
           });
 
         // Highlight connected nodes - use the pre-computed set for faster lookups

@@ -285,34 +285,34 @@ export const data = {
   ],
 
   links: [
-    // Core community 1
-    { source: "user1", target: "user2" },
-    { source: "user1", target: "user3" },
-    { source: "user2", target: "user3" },
-    { source: "user2", target: "user4" },
-    { source: "user3", target: "user4" },
-    { source: "user3", target: "user5" },
+    // Core community 1 - stronger connections
+    { source: "user1", target: "user2", weight: 8 },
+    { source: "user1", target: "user3", weight: 7 },
+    { source: "user2", target: "user3", weight: 9 },
+    { source: "user2", target: "user4", weight: 6 },
+    { source: "user3", target: "user4", weight: 8 },
+    { source: "user3", target: "user5", weight: 7 },
 
-    // Core community 2
-    { source: "user6", target: "user7" },
-    { source: "user6", target: "user8" },
-    { source: "user7", target: "user8" },
-    { source: "user7", target: "user9" },
-    { source: "user8", target: "user9" },
-    { source: "user8", target: "user10" },
+    // Core community 2 - stronger connections
+    { source: "user6", target: "user7", weight: 9 },
+    { source: "user6", target: "user8", weight: 7 },
+    { source: "user7", target: "user8", weight: 8 },
+    { source: "user7", target: "user9", weight: 6 },
+    { source: "user8", target: "user9", weight: 7 },
+    { source: "user8", target: "user10", weight: 8 },
 
-    // Bridge connections
-    { source: "user3", target: "user7" },
-    { source: "user4", target: "user6" },
-    { source: "user5", target: "user8" },
+    // Bridge connections - medium strength
+    { source: "user3", target: "user7", weight: 5 },
+    { source: "user4", target: "user6", weight: 4 },
+    { source: "user5", target: "user8", weight: 5 },
 
-    // Peripheral connections
-    { source: "user1", target: "user10" },
-    { source: "user2", target: "user9" },
-    { source: "user4", target: "user10" },
-    { source: "user5", target: "user6" },
-    { source: "user9", target: "user1" },
-    { source: "user10", target: "user3" },
+    // Peripheral connections - weaker ties
+    { source: "user1", target: "user10", weight: 3 },
+    { source: "user2", target: "user9", weight: 2 },
+    { source: "user4", target: "user10", weight: 4 },
+    { source: "user5", target: "user6", weight: 3 },
+    { source: "user9", target: "user1", weight: 2 },
+    { source: "user10", target: "user3", weight: 3 },
 
     // Project connections
     // { source: "user1", target: "project1", type: "contributor" },
