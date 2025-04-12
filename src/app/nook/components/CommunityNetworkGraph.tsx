@@ -13,7 +13,6 @@ import UserSearch from "./UserSearch";
 import Profile from "./Profile";
 import GraphLegend from "./GraphLegend";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
-import { useDebouncedCallback } from "use-debounce";
 
 // Color constants using CSS variables from globals.css
 const COLORS = {
