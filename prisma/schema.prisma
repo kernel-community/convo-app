@@ -97,13 +97,17 @@ model Connections {
 }
 
 model Profile {
-  id        String   @id @default(uuid())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  userId    String   @unique
-  user      User     @relation(fields: [userId], references: [id])
-  bio       String?
-  photo     String?
+  id                 String   @id @default(uuid())
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+  userId             String   @unique
+  user               User     @relation(fields: [userId], references: [id])
+  // profile data
+  bio                String?
+  image              String?
+  keywords           String[]
+  url                String?
+  currentAffiliation String?
 }
 
 model Collection {
