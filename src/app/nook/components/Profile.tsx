@@ -1,8 +1,9 @@
 /* eslint-disable @next/next/no-img-element */
-import React from "react";
+import React, { useState, useEffect, useRef } from "react";
 import type { User, Connection } from "../utils/types";
 import { Flower } from "src/components/ShapesGrid";
 import { motion } from "framer-motion";
+import { X, Minus, Maximize2 } from "lucide-react";
 
 interface ProfileProps {
   selectedNode?: User;
@@ -11,6 +12,8 @@ interface ProfileProps {
   onSelectConnection?: (nodeId: string) => void;
   currentUserId?: string;
   currentUser?: User;
+  isOpen?: boolean;
+  onClose?: () => void;
 }
 
 const Profile: React.FC<ProfileProps> = ({
@@ -20,7 +23,52 @@ const Profile: React.FC<ProfileProps> = ({
   onSelectConnection,
   currentUserId,
   currentUser,
+  isOpen = false,
+  onClose,
 }) => {
+  // Store minimized state in a ref to persist across selectedNode changes
+  const minimizedStateRef = useRef(false);
+  const [isMinimized, setIsMinimized] = useState(minimizedStateRef.current);
+  const [dragConstraints, setDragConstraints] = useState({
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0,
+  });
+  const profileRef = useRef<HTMLDivElement>(null);
+  const prevNodeIdRef = useRef<string | undefined>(selectedNode?.id);
+
+  // Set up limited drag constraints
+  useEffect(() => {
+    // Updated constraints to allow 100px movement up and to the right
+    setDragConstraints({
+      top: -100, // Allow dragging 100px upward
+      right: 100, // Allow dragging 100px to the right
+      bottom: 0, // Prevent dragging down
+      left: 0, // Prevent dragging left
+    });
+  }, []);
+
+  // Preserve minimized state when selectedNode changes
+  useEffect(() => {
+    // Check if the node changed
+    if (selectedNode?.id !== prevNodeIdRef.current) {
+      // Update the previous node ID reference
+      prevNodeIdRef.current = selectedNode?.id;
+
+      // Use the existing minimized state from the ref
+      setIsMinimized(minimizedStateRef.current);
+    }
+  }, [selectedNode]);
+
+  // Function to toggle minimized state
+  const toggleMinimize = () => {
+    const newMinimizedState = !isMinimized;
+    // Update both the state and the ref
+    setIsMinimized(newMinimizedState);
+    minimizedStateRef.current = newMinimizedState;
+  };
+
   // Animation variants
   const hoverAnimation = {
     scale: 1.05,
@@ -40,24 +88,40 @@ const Profile: React.FC<ProfileProps> = ({
     }
   };
 
-  // If no node is selected, show the default state
-  if (!selectedNode) {
-    return (
-      <div className="h-full w-full rounded-lg border border-indigo-100 bg-white p-4 shadow-sm">
-        <h3 className="mb-4 border-b border-indigo-100 pb-2 text-lg font-bold text-indigo-900">
-          Profile
-        </h3>
-        <div className="flex flex-col items-center justify-center py-8 text-center">
-          <h3 className="mb-2 text-lg font-medium text-indigo-900">
-            No Node Selected
-          </h3>
-          <p className="text-sm text-gray-500">
-            Click on any node in the graph to view its details and connections.
-          </p>
-        </div>
-      </div>
-    );
-  }
+  // Sort connections by weight in descending order
+  const sortedConnections = [...directConnections].sort(
+    (a, b) => b.weight - a.weight
+  );
+
+  // Dialog animation variants
+  const dialogVariants = {
+    hidden: {
+      opacity: 0,
+      y: 50,
+      scale: 0.9,
+    },
+    visible: {
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      transition: {
+        type: "spring",
+        damping: 25,
+        stiffness: 300,
+      },
+    },
+    exit: {
+      opacity: 0,
+      scale: 0.9,
+      y: 50,
+      transition: {
+        duration: 0.2,
+      },
+    },
+  };
+
+  // If no node is selected or dialog is closed, return null
+  if (!selectedNode || !isOpen) return null;
 
   // Check if this is a different user than the current user
   const isCurrentUser = selectedNode.id === currentUserId;
@@ -66,258 +130,316 @@ const Profile: React.FC<ProfileProps> = ({
     currentUser?.profile?.image &&
     selectedNode.profile?.image;
 
-  // Sort connections by weight in descending order
-  const sortedConnections = [...directConnections].sort(
-    (a, b) => b.weight - a.weight
-  );
-
-  // Show the profile for the selected node
   return (
-    <div className="h-full w-full rounded-lg border border-indigo-100 bg-white p-4 shadow-sm">
-      <h3 className="mb-4 border-b border-indigo-100 pb-2 text-lg font-bold text-indigo-900">
-        Profile
-      </h3>
-
-      <div className="space-y-5">
-        <div className="mb-4 flex flex-col items-center text-center">
-          {showOverlappingImages ? (
-            <div className="relative mb-3 grid w-full max-w-[12rem] grid-cols-2 items-center justify-center gap-0">
-              {/* Current user image (left) - clickable */}
-              <motion.div
-                className="mr-[-1rem] h-28 w-28 cursor-pointer justify-self-end overflow-hidden rounded-full border-2 border-white bg-white shadow-sm hover:z-[1000]"
-                whileHover={hoverAnimation}
-                whileTap={tapAnimation}
-                onClick={viewCurrentUser}
-                title="View your profile"
-              >
-                <img
-                  src={currentUser?.profile?.image}
-                  alt={currentUser?.name || "You"}
-                  width="112"
-                  height="112"
-                  className="h-full w-full object-cover"
-                />
-              </motion.div>
-
-              {/* Selected user image (right) */}
-              <motion.div
-                className="h-30 w-30 ml-[-1rem] justify-self-start overflow-hidden rounded-full border-2 border-white bg-white shadow-sm hover:z-[1000]"
-                whileHover={hoverAnimation}
-                whileTap={tapAnimation}
-              >
-                <img
-                  src={selectedNode.profile?.image}
-                  alt={selectedNode.name}
-                  width="112"
-                  height="112"
-                  className="h-full w-full object-cover"
-                />
-              </motion.div>
-
-              {/* Flower in the middle, above both images */}
-              <motion.div
-                className="absolute left-1/3  z-50 opacity-80"
-                animate={{ rotate: 360 }}
-                transition={{
-                  duration: 20,
-                  repeat: Infinity,
-                  ease: "linear",
-                }}
-                style={{ transform: "translate(-50%, -50%) rotate(0deg)" }}
-              >
-                <Flower className="h-10 w-10 text-yellow-400 opacity-80" />
-              </motion.div>
-            </div>
-          ) : (
-            selectedNode.profile?.image &&
-            (isCurrentUser ? (
-              <motion.div
-                className="h-30 w-30 relative mb-3 cursor-pointer overflow-hidden rounded-full border border-indigo-100 hover:z-[1000]"
-                whileHover={hoverAnimation}
-                whileTap={tapAnimation}
-                onClick={viewCurrentUser}
-                title="View your profile"
-              >
-                <img
-                  src={selectedNode.profile.image}
-                  alt={selectedNode.name}
-                  width="112"
-                  height="112"
-                  className="h-full w-full object-cover"
-                />
-              </motion.div>
-            ) : (
-              <motion.div
-                className="relative mb-3 h-28 w-28 overflow-hidden rounded-full border border-indigo-100"
-                whileHover={hoverAnimation}
-                whileTap={tapAnimation}
-              >
-                <img
-                  src={selectedNode.profile.image}
-                  alt={selectedNode.name}
-                  width="112"
-                  height="112"
-                  className="h-full w-full object-cover"
-                />
-              </motion.div>
-            ))
-          )}
-          <h2 className="text-xl font-bold text-indigo-900">
-            {selectedNode.name}
-          </h2>
-          {selectedNode.profile?.city && (
-            <p className="text-sm text-gray-600">{selectedNode.profile.city}</p>
-          )}
-        </div>
-
-        {selectedNode.profile?.bio && (
-          <div className="mt-2 text-sm text-gray-600">
-            {selectedNode.profile.bio}
+    <div className="pointer-events-none absolute inset-0">
+      <motion.div
+        ref={profileRef}
+        drag
+        dragConstraints={dragConstraints}
+        dragElastic={0.1}
+        dragMomentum={false}
+        initial={{ opacity: 0, scale: 0.8, y: 20 }}
+        animate={{
+          opacity: 1,
+          scale: 1,
+          y: 0,
+          transition: {
+            type: "spring",
+            stiffness: 500,
+            damping: 30,
+          },
+        }}
+        exit={{ opacity: 0, scale: 0.8, y: 20 }}
+        className="pointer-events-auto absolute bottom-8 left-8 z-[1002] max-h-[600px] w-[400px] rounded-lg shadow-xl"
+        style={{
+          background: "linear-gradient(135deg, #f0f0f0 0%, #e0e0e0 100%)",
+          border: "1px solid #bbb",
+          boxShadow:
+            "3px 3px 0 rgba(0, 0, 0, 0.2), inset 1px 1px 0 rgba(255, 255, 255, 0.8)",
+          overflow: isMinimized ? "hidden" : "auto",
+        }}
+      >
+        {/* 90s Style Title Bar */}
+        <div
+          className="flex cursor-move items-center justify-between p-3 font-bold"
+          style={{
+            background:
+              "linear-gradient(90deg, var(--secondary) 0%, var(--secondary-muted) 100%)",
+            color: "white",
+            borderBottom: isMinimized ? "none" : "2px solid #999",
+            boxShadow: "0 1px 0 rgba(255, 255, 255, 0.3) inset",
+          }}
+        >
+          <div className="text-lg tracking-tight">
+            {isCurrentUser ? "Your Profile" : selectedNode.name}
           </div>
-        )}
-        <div className="flex flex-col gap-2 text-xs text-gray-500">
-          {selectedNode.profile?.city && (
-            <span className="flex items-center">
-              <svg
-                className="mr-1 h-3 w-3"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                />
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                />
-              </svg>
-              {selectedNode.profile.city}
-            </span>
-          )}
-          {selectedNode.profile?.currentAffiliation && (
-            <span className="flex items-center">
-              <svg
-                className="mr-1 h-3 w-3"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
-                />
-              </svg>
-              {selectedNode.profile.currentAffiliation}
-            </span>
-          )}
-          {selectedNode.profile?.url && (
-            <div className="text-xs">
-              <a
-                href={selectedNode.profile.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center text-indigo-600 transition-colors hover:text-indigo-800"
-              >
-                <svg
-                  className="mr-1 h-3 w-3"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
-                  />
-                </svg>
-                {selectedNode.profile.url.replace(/^https?:\/\/(www\.)?/i, "")}
-              </a>
-            </div>
-          )}
+          <div className="flex items-center space-x-2">
+            <button
+              onClick={toggleMinimize}
+              className="rounded-sm p-1 text-white transition-colors hover:bg-white hover:bg-opacity-20"
+              style={{
+                boxShadow: "1px 1px 1px rgba(0, 0, 0, 0.2)",
+              }}
+              title={isMinimized ? "Maximize" : "Minimize"}
+            >
+              {isMinimized ? <Maximize2 size={20} /> : <Minus size={20} />}
+            </button>
+            <button
+              onClick={onClose}
+              className="rounded-sm p-1 text-white transition-colors hover:bg-white hover:bg-opacity-20"
+              style={{
+                boxShadow: "1px 1px 1px rgba(0, 0, 0, 0.2)",
+              }}
+              title="Close"
+            >
+              <X size={20} />
+            </button>
+          </div>
         </div>
 
-        {directConnections.length > 0 && (
-          <div className="h-full">
-            <h4 className="mb-2 text-sm font-semibold text-indigo-800">
-              Connections ({connectionCount})
-            </h4>
-            <div className="overflow-y-auto">
-              <ul className="space-y-2">
-                {sortedConnections.map((connection) => (
-                  <li
-                    key={connection.id}
-                    className="flex items-center justify-between rounded-md border border-indigo-100 p-2 text-sm hover:bg-indigo-50"
-                  >
-                    <div className="flex items-center">
-                      <span className="mr-2 inline-block h-2 w-2 rounded-full bg-green-600"></span>
-                      <span className="font-medium text-indigo-900">
-                        {connection.name}
+        {/* Profile Content - Only show when not minimized */}
+        {!isMinimized && (
+          <div className="bg-white p-5">
+            {/* Center-aligned profile section */}
+            <div className="mb-4 flex flex-col items-center text-center">
+              {/* Profile Images Container */}
+              <div className="relative mb-4 flex h-24 items-center justify-center">
+                {/* Main Profile Image - Single centered image */}
+                <motion.div
+                  className="h-24 w-24 cursor-pointer overflow-hidden rounded-full border-2"
+                  style={{
+                    borderColor: "var(--secondary)",
+                    boxShadow: "2px 2px 0 rgba(0, 0, 0, 0.1)",
+                  }}
+                  whileHover={{
+                    scale: 1.1,
+                    boxShadow: "0 5px 10px rgba(0,0,0,0.2)",
+                    transition: { duration: 0.2 },
+                  }}
+                  whileTap={{
+                    scale: 0.95,
+                    transition: { duration: 0.1 },
+                  }}
+                >
+                  {selectedNode.profile?.image ? (
+                    <img
+                      src={selectedNode.profile.image}
+                      alt={selectedNode.name}
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center bg-gray-200 text-gray-500">
+                      ?
+                    </div>
+                  )}
+                </motion.div>
+              </div>
+
+              {/* Name and Quick Stats - Below profile image */}
+              <div className="w-full text-center">
+                <h2 className="text-xl font-bold text-gray-800">
+                  {selectedNode.name}
+                </h2>
+                {selectedNode.profile?.currentAffiliation && (
+                  <div className="mt-1 text-gray-500">
+                    {selectedNode.profile.currentAffiliation}
+                  </div>
+                )}
+                <div className="mt-1 text-sm text-gray-500">
+                  {connectionCount} connections
+                </div>
+              </div>
+            </div>
+
+            {/* Profile Bio */}
+            {selectedNode.profile?.bio && (
+              <div
+                className="rounded mt-4 border bg-gray-50 p-3 text-sm text-gray-700"
+                style={{
+                  borderColor: "#ccc",
+                  boxShadow: "inset 1px 1px 0 rgba(0, 0, 0, 0.05)",
+                }}
+              >
+                {selectedNode.profile.bio}
+              </div>
+            )}
+
+            {/* Tags/Keywords */}
+            {selectedNode.profile?.keywords &&
+              selectedNode.profile.keywords.length > 0 && (
+                <div className="mt-4">
+                  <div className="mb-2 text-sm font-semibold text-gray-700">
+                    Interests & Skills
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {selectedNode.profile.keywords.map((keyword, i) => (
+                      <span
+                        key={i}
+                        className="bg-secondary-light rounded-sm px-2 py-1 text-xs text-secondary"
+                        style={{
+                          boxShadow: "1px 1px 0 rgba(0, 0, 0, 0.1)",
+                        }}
+                      >
+                        {keyword}
                       </span>
-                      {/* Weight indicator */}
-                      <div className="ml-2 flex items-center">
-                        <div className="mr-1 h-1.5 w-10 rounded-full bg-gray-200">
-                          <div
-                            className="h-1.5 rounded-full bg-indigo-600"
-                            style={{
-                              width: `${(connection.weight / 10) * 100}%`,
-                              opacity: 0.3 + (connection.weight / 10) * 0.7,
-                            }}
-                          ></div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+            {/* Additional Profile Details */}
+            <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2">
+              {selectedNode.profile?.city && (
+                <div className="text-sm">
+                  <span className="font-medium text-gray-700">Location:</span>{" "}
+                  {selectedNode.profile.city}
+                </div>
+              )}
+              {selectedNode.profile?.url && (
+                <div className="truncate text-sm">
+                  <span className="font-medium text-gray-700">Website:</span>{" "}
+                  <a
+                    href={selectedNode.profile.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-secondary hover:underline"
+                  >
+                    {selectedNode.profile.url.replace(/^https?:\/\//, "")}
+                  </a>
+                </div>
+              )}
+            </div>
+
+            {/* Connections Section */}
+            <div className="mt-6">
+              <div
+                className="mb-3 border-b pb-2 text-base font-bold"
+                style={{
+                  borderColor: "#ddd",
+                  color: "var(--secondary)",
+                }}
+              >
+                Connections ({connectionCount})
+              </div>
+              {connectionCount > 0 ? (
+                <div
+                  className="max-h-64 divide-y overflow-auto pr-2"
+                  style={{ borderColor: "#eee" }}
+                >
+                  {directConnections.map((connection) => (
+                    <div
+                      key={connection.id}
+                      className="rounded flex cursor-pointer items-center justify-between px-2 py-2 transition-colors hover:bg-gray-50"
+                      onClick={() => onSelectConnection?.(connection.id)}
+                    >
+                      <div className="flex-1">
+                        <div className="font-medium text-gray-800">
+                          {connection.name}
                         </div>
-                        <span className="text-xs text-gray-500">
-                          {connection.weight}
-                        </span>
+                        <div className="text-xs text-gray-500">
+                          {connection.type === "user"
+                            ? "Member"
+                            : connection.type}
+                        </div>
+                      </div>
+                      <div
+                        className="rounded px-2 py-1 text-xs"
+                        style={{
+                          background:
+                            connection.weight > 7
+                              ? "var(--highlight-active)"
+                              : connection.weight > 5
+                              ? "var(--highlight)"
+                              : "var(--accent)",
+                          color:
+                            connection.weight > 5
+                              ? "white"
+                              : "var(--accent-foreground)",
+                          boxShadow: "1px 1px 0 rgba(0, 0, 0, 0.1)",
+                        }}
+                      >
+                        {connection.weight > 7
+                          ? "Very Close"
+                          : connection.weight > 5
+                          ? "Close"
+                          : "Connected"}
                       </div>
                     </div>
-                    <button
-                      onClick={() =>
-                        onSelectConnection && onSelectConnection(connection.id)
-                      }
-                      className="rounded-full bg-indigo-100 p-1 text-indigo-700 hover:bg-indigo-200"
-                      aria-label="View connection"
-                    >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-4 w-4"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                        />
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                        />
-                      </svg>
-                    </button>
-                  </li>
-                ))}
-              </ul>
+                  ))}
+                </div>
+              ) : (
+                <div className="py-4 text-center text-sm italic text-gray-500">
+                  No connections found for this profile.
+                </div>
+              )}
             </div>
           </div>
         )}
-      </div>
+      </motion.div>
     </div>
   );
 };
 
 export default Profile;
+
+// UserAvatar component to show current user's profile picture
+export const UserAvatar: React.FC<{
+  currentUser?: User;
+  currentUserId?: string;
+  onSelectUser: (userId: string) => void;
+  size?: number;
+}> = ({ currentUser, currentUserId, onSelectUser, size = 36 }) => {
+  if (!currentUser || !currentUserId) return null;
+
+  return (
+    <motion.div
+      className="relative cursor-pointer overflow-hidden rounded-full border-2"
+      style={{
+        height: size,
+        width: size,
+        borderColor: "var(--info)",
+        boxShadow: "1px 1px 3px rgba(0, 0, 0, 0.2)",
+      }}
+      whileHover={{
+        scale: 1.1,
+        borderColor: "var(--info-foreground)",
+        boxShadow: "0 4px 8px rgba(0,0,0,0.2)",
+        transition: { duration: 0.2 },
+      }}
+      whileTap={{
+        scale: 0.95,
+        transition: { duration: 0.1 },
+      }}
+      onClick={(e) => {
+        e.stopPropagation(); // Prevent event bubbling
+        onSelectUser(currentUserId);
+      }}
+      title="View your profile"
+      initial={{ opacity: 0 }}
+      animate={{
+        opacity: 1,
+        transition: { duration: 0.3 },
+      }}
+    >
+      {currentUser.profile?.image ? (
+        <motion.img
+          src={currentUser.profile.image}
+          alt="Your profile"
+          className="h-full w-full object-cover"
+          whileHover={{ scale: 1.05 }}
+          transition={{ duration: 0.2 }}
+        />
+      ) : (
+        <motion.div
+          className="flex h-full w-full items-center justify-center bg-info text-sm text-white"
+          whileHover={{
+            backgroundColor: "var(--info-foreground)",
+            transition: { duration: 0.2 },
+          }}
+        >
+          {currentUser.name.charAt(0).toUpperCase()}
+        </motion.div>
+      )}
+    </motion.div>
+  );
+};

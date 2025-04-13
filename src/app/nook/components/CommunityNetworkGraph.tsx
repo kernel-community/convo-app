@@ -57,10 +57,13 @@ const SELECTED_NODE_SCALE = 9;
 // Performance optimization constants
 const MAX_VISIBLE_LINKS = 1000; // Only render this many links at once for better performance
 const NODE_CHARGE_FORCE = -300; // Stronger repulsion between nodes for better visualization
+const MOBILE_NODE_CHARGE_FORCE = -150; // Less repulsion on mobile for tighter layout
 const COLLISION_RADIUS = 25; // Prevent nodes from overlapping too much
+const MOBILE_COLLISION_RADIUS = 20; // Smaller collision radius on mobile
 const ALPHA_DECAY = 0.0228; // Default D3 value
 const ALPHA_MIN = 0.001; // Default D3 value
 const ZOOM_EXTENT = [0.2, 6] as [number, number]; // Min/max zoom levels
+const MOBILE_ZOOM_EXTENT = [0.1, 4] as [number, number]; // Adjusted zoom range for mobile
 const ANIMATION_DURATION = 250; // Default animation duration
 const TRANSITION_DELAY = 150; // Default transition delay
 const VELOCITY_DECAY = 0.4; // Default D3 value
@@ -139,6 +142,7 @@ const CommunityNetworkGraph: React.FC<CommunityNetworkGraphProps> = ({
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState<User[]>([]);
   const [isInitialRenderDone, setIsInitialRenderDone] = useState(false);
+  const [isProfileDialogOpen, setIsProfileDialogOpen] = useState(false);
   const [filteredData, setFilteredData] = useState<{
     nodes: User[];
     links: { source: string; target: string; weight?: number }[];
@@ -346,16 +350,17 @@ const CommunityNetworkGraph: React.FC<CommunityNetworkGraphProps> = ({
   // Function to calculate node radius based on connection count
   const getNodeRadius = useCallback(
     (node: any): number => {
-      // Base radius
-      const baseRadius = 6;
+      // Base radius - smaller on mobile
+      const isMobile = window.innerWidth < 768;
+      const baseRadius = isMobile ? 4 : 6;
 
       // Get connections count from our precomputed map
       const connections = nodeConnectionsMap.get(node.id) || 0;
 
       // Scale radius logarithmically based on connections count (capped for visual consistency)
       if (connections === 0) return baseRadius;
-      const scaleFactor = Math.log(connections + 1) / 3;
-      return baseRadius + Math.min(4, scaleFactor);
+      const scaleFactor = Math.log(connections + 1) / (isMobile ? 4 : 3);
+      return baseRadius + Math.min(isMobile ? 3 : 4, scaleFactor);
     },
     [nodeConnectionsMap]
   );
@@ -454,6 +459,7 @@ const CommunityNetworkGraph: React.FC<CommunityNetworkGraphProps> = ({
             setSelectedNode(null);
             setDirectConnections([]);
             setConnectionCount(0);
+            setIsProfileDialogOpen(false);
 
             // Filter data for initial user if available
             if (currentUserId) {
@@ -500,6 +506,7 @@ const CommunityNetworkGraph: React.FC<CommunityNetworkGraphProps> = ({
 
           console.log(`Found node data for ${nodeId}:`, nodeData.name);
           setSelectedNode(nodeData);
+          setIsProfileDialogOpen(true);
 
           // Filter data to only show this node and its connections
           console.log(`Filtering data for node ${nodeId}`);
@@ -616,6 +623,35 @@ const CommunityNetworkGraph: React.FC<CommunityNetworkGraphProps> = ({
     }
   }, [selectedNode, updateUrlWithNodeId]);
 
+  // Add window resize handler
+  useEffect(() => {
+    const handleResize = () => {
+      // Re-render the graph when window size changes
+      if (simulationRef.current) {
+        simulationRef.current.stop();
+      }
+      // Reset the svg
+      if (svgRef.current) {
+        d3.select(svgRef.current).selectAll("*").remove();
+      }
+      // Force re-render by resetting render state
+      setIsInitialRenderDone(false);
+    };
+
+    // Debounce resize handler for better performance
+    let resizeTimer: NodeJS.Timeout;
+    const debouncedResize = () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(handleResize, 250);
+    };
+
+    window.addEventListener("resize", debouncedResize);
+    return () => {
+      window.removeEventListener("resize", debouncedResize);
+      clearTimeout(resizeTimer);
+    };
+  }, []);
+
   // Create and update the force-directed graph
   useEffect(() => {
     console.log("Graph rendering effect triggered with:", {
@@ -632,6 +668,16 @@ const CommunityNetworkGraph: React.FC<CommunityNetworkGraphProps> = ({
       });
       return;
     }
+
+    // Detect if we're on a mobile device
+    const isMobile = window.innerWidth < 768;
+
+    // Apply appropriate parameters based on device type
+    const chargeForce = isMobile ? MOBILE_NODE_CHARGE_FORCE : NODE_CHARGE_FORCE;
+    const collisionRadius = isMobile
+      ? MOBILE_COLLISION_RADIUS
+      : COLLISION_RADIUS;
+    const zoomRange = isMobile ? MOBILE_ZOOM_EXTENT : ZOOM_EXTENT;
 
     // If there are no nodes to render, still mark as rendered so loading state disappears
     if (filteredData.nodes.length === 0) {
@@ -816,7 +862,7 @@ const CommunityNetworkGraph: React.FC<CommunityNetworkGraphProps> = ({
     // Setup zoom behavior
     const zoom = d3
       .zoom<SVGSVGElement, unknown>()
-      .scaleExtent(ZOOM_EXTENT)
+      .scaleExtent(zoomRange)
       .on("zoom", (event) => {
         mainGroup.attr("transform", event.transform);
       });
@@ -865,8 +911,9 @@ const CommunityNetworkGraph: React.FC<CommunityNetworkGraphProps> = ({
       } else {
         // Position other nodes in a circle around the center
         const angle = (i / (filteredData.nodes.length - 1)) * 2 * Math.PI;
-        // Radius increases with more nodes to prevent crowding
-        const radius = Math.min(width, height) * 0.3;
+        // Radius adjusts based on screen size - smaller for mobile
+        const radiusMultiplier = isMobile ? 0.2 : 0.3;
+        const radius = Math.min(width, height) * radiusMultiplier;
         node.x = width / 2 + Math.cos(angle) * radius;
         node.y = height / 2 + Math.sin(angle) * radius;
       }
@@ -904,9 +951,9 @@ const CommunityNetworkGraph: React.FC<CommunityNetworkGraphProps> = ({
               selectedNodeIdRef.current &&
               d.id === selectedNodeIdRef.current
             ) {
-              return NODE_CHARGE_FORCE * 1.8; // Slightly reduced from 2x
+              return chargeForce * 1.8; // Slightly reduced from 2x
             }
-            return NODE_CHARGE_FORCE * 1.3; // Slightly reduced from 1.5x
+            return chargeForce * 1.3; // Slightly reduced from 1.5x
           })
           .distanceMax(300) // Limit the range of repulsive force
           .theta(0.8) // Slightly lower theta for better accuracy
@@ -962,7 +1009,7 @@ const CommunityNetworkGraph: React.FC<CommunityNetworkGraphProps> = ({
           .radius((d: any) => {
             const radius = getNodeRadius(d);
             return d.id === selectedNodeIdRef.current
-              ? radius * SELECTED_NODE_SCALE + 20 // Padding for selected node
+              ? radius * SELECTED_NODE_SCALE + collisionRadius // Padding for selected node
               : radius * 2.5; // Extra spacing between regular nodes
           })
           .strength(0.7)
@@ -1811,26 +1858,49 @@ const CommunityNetworkGraph: React.FC<CommunityNetworkGraphProps> = ({
   }, [filteredData, getNodeRadius, safeGetId, updateNodeConnections]);
 
   return (
-    <div className="w-full rounded-lg bg-white p-4 shadow">
-      {/* Search bar */}
-      <UserSearch
-        searchTerm={searchTerm}
-        setSearchTerm={setSearchTerm}
-        searchResults={searchResults}
-        allUsers={data.nodes as User[]}
-        onSelectUser={(userId: string) => {
-          updateNodeConnections(userId);
-          setSearchTerm("");
-          setSearchResults([]);
-        }}
-      />
-      <div className="grid h-[600px] grid-cols-1 gap-4 md:h-[700px] md:grid-cols-3 lg:h-[800px]">
-        {/* Graph - takes 2/3 of the space on desktop */}
+    <div className="h-[calc(100vh-2rem)] w-full rounded-lg bg-white shadow">
+      <div className="grid h-full grid-cols-1 gap-0">
+        {/* Graph - takes full space now */}
         <div
           ref={containerRef}
-          className="rounded relative h-full overflow-hidden border bg-gray-50 p-2 transition-all md:col-span-2"
+          className="rounded relative h-full w-full overflow-hidden border bg-gray-50 transition-all"
         >
           <svg ref={svgRef} className="h-full w-full"></svg>
+          {/* Search bar positioned inside graph view */}
+          <UserSearch
+            searchTerm={searchTerm}
+            setSearchTerm={setSearchTerm}
+            searchResults={searchResults}
+            allUsers={data.nodes as User[]}
+            onSelectUser={(userId: string) => {
+              updateNodeConnections(userId);
+              setSearchTerm("");
+              setSearchResults([]);
+            }}
+            currentUser={
+              currentUserId
+                ? (dataNodesMap.get(currentUserId) as User)
+                : undefined
+            }
+            currentUserId={currentUserId}
+          />
+          {/* Profile dialog */}
+          <Profile
+            selectedNode={selectedNode || undefined}
+            connectionCount={connectionCount}
+            directConnections={directConnections}
+            onSelectConnection={(nodeId) => {
+              updateNodeConnections(nodeId);
+            }}
+            currentUserId={currentUserId}
+            currentUser={
+              currentUserId
+                ? (dataNodesMap.get(currentUserId) as User)
+                : undefined
+            }
+            isOpen={isProfileDialogOpen}
+            onClose={() => setIsProfileDialogOpen(false)}
+          />
           {!isInitialRenderDone && (
             <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-80">
               <div className="text-lg text-gray-600">
@@ -1866,23 +1936,13 @@ const CommunityNetworkGraph: React.FC<CommunityNetworkGraphProps> = ({
                 </div>
               </div>
             )}
-        </div>
-        {/* Profile - takes 1/3 of the space on desktop */}
-        <div className="profile-container h-full w-full overflow-y-auto">
-          <Profile
-            selectedNode={selectedNode || undefined}
-            connectionCount={connectionCount}
-            directConnections={directConnections}
-            onSelectConnection={(nodeId) => {
-              updateNodeConnections(nodeId);
-            }}
-            currentUserId={currentUserId}
-            currentUser={
-              currentUserId
-                ? (dataNodesMap.get(currentUserId) as User)
-                : undefined
-            }
-          />
+
+          {/* Mobile optimizations */}
+          <div className="absolute left-0 right-0 top-14 mx-auto text-center md:hidden">
+            <div className="inline-block rounded-full bg-white/90 px-3 py-1 text-xs text-gray-600 shadow-sm backdrop-blur-sm">
+              Pinch to zoom, drag to move
+            </div>
+          </div>
         </div>
       </div>
       {/* Legend */}
