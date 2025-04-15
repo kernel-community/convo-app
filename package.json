@@ -28,6 +28,8 @@
     "*.{jsx,js,tsx,ts}": "prettier --write"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.787.0",
+    "@aws-sdk/s3-request-presigner": "^3.787.0",
     "@dynamic-labs/sdk-react": "^0.18.30",
     "@hookform/resolvers": "^2.9.11",
     "@prisma/client": "^5.10.2",
@@ -120,6 +122,7 @@
     "string-strip-html": "^13.4.3",
     "tailwind-merge": "^2.2.1",
     "tailwindcss-animate": "^1.0.7",
+    "uuid": "^11.1.0",
     "vaul": "^1.1.2",
     "y-prosemirror": "^1.2.2",
     "y-websocket": "^1.5.4",
@@ -139,6 +142,7 @@
     "@types/react": "^18.0.26",
     "@types/react-datepicker": "^4.8.0",
     "@types/react-dom": "^18.0.10",
+    "@types/uuid": "^10.0.0",
     "@typescript-eslint/eslint-plugin": "^5.47.1",
     "@typescript-eslint/parser": "^5.47.1",
     "autoprefixer": "^10.4.7",

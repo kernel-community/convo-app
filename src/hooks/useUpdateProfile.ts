@@ -6,6 +6,11 @@ const useUpdateProfile = (profile: Partial<Profile>) => {
     `profile_update`,
     async () => {
       try {
+        // Check if userId is provided
+        if (!profile.userId) {
+          throw new Error("userId is required to update profile");
+        }
+
         const r = (
           await (
             await fetch("/api/update/profile", {
@@ -17,6 +22,7 @@ const useUpdateProfile = (profile: Partial<Profile>) => {
         ).data;
         return r;
       } catch (err) {
+        console.error("Error updating profile:", err);
         throw err;
       }
     },

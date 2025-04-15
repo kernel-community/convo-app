@@ -13,6 +13,9 @@ const config = {
     locales: ["en"],
     defaultLocale: "en",
   },
+  images: {
+    domains: ["kernelconvo.s3.amazonaws.com"],
+  },
   async redirects() {
     return [
       {

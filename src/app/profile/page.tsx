@@ -1,155 +1,484 @@
 "use client";
 
-import type { NextPage } from "next";
-import { useUser } from "src/context/UserContext";
-import Main from "src/layouts/Main";
-import { PenLine } from "lucide-react";
-import useProfile from "src/hooks/useProfile";
 import { useEffect, useState } from "react";
-import { Button } from "src/components/ui/button";
-import type { Profile as ProfileType, User } from "@prisma/client";
+import { useRouter } from "next/navigation";
+import {
+  CheckCircle,
+  PenSquare,
+  User as UserIcon,
+  Globe,
+  Briefcase,
+  Tag,
+  Link as LinkIcon,
+} from "lucide-react";
+import { useDynamicContext } from "@dynamic-labs/sdk-react";
+import { pick } from "lodash";
+
+import Main from "src/layouts/Main";
+import { useUser } from "src/context/UserContext";
+import useProfile from "src/hooks/useProfile";
 import useUpdateProfile from "src/hooks/useUpdateProfile";
 import useUpdateUser from "src/hooks/useUpdateUser";
-import { pick } from "lodash";
-import { useDynamicContext } from "@dynamic-labs/sdk-react";
-import { useRouter } from "next/navigation";
+import { checkSessionAuth } from "src/lib/checkSessionAuth";
+import { Button } from "src/components/ui/button";
+import { Input } from "src/components/ui/input";
+import type { Profile as ProfileType, User } from "@prisma/client";
+import { ImageUpload } from "src/components/ui/image-upload";
 
-const Profile: NextPage = () => {
-  const { fetchedUser } = useUser();
-  const { handleLogOut } = useDynamicContext();
+// Create a simple Textarea component if not available
+const Textarea = ({
+  value,
+  onChange,
+  placeholder,
+  className,
+  rows = 3,
+}: {
+  value?: string;
+  onChange?: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
+  placeholder?: string;
+  className?: string;
+  rows?: number;
+}) => (
+  <textarea
+    value={value}
+    onChange={onChange}
+    placeholder={placeholder}
+    className={`min-h-[60px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ${
+      className || ""
+    }`}
+    rows={rows}
+  />
+);
+
+const ProfilePage = () => {
   const router = useRouter();
-  const { data: profile } = useProfile({ userId: fetchedUser.id });
+  const { handleLogOut } = useDynamicContext();
+  const { fetchedUser } = useUser();
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [isEditing, setIsEditing] = useState<boolean>(false);
-  const [profileAttributes, setProfileAttributes] =
-    useState<Partial<ProfileType>>(profile);
-  const [userAttributes, setUserAttributes] =
-    // only nickname can be updated for 'User' model
-    useState<Partial<User>>(pick(fetchedUser, "nickname", "id"));
+  const [keywordInput, setKeywordInput] = useState<string>("");
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  const { fetch: updateProfile } = useUpdateProfile(profileAttributes);
-  const { fetch: updateUser } = useUpdateUser(userAttributes);
+  // Profile data
+  const { data: profile, isLoading: profileLoading } = useProfile({
+    userId: fetchedUser?.id,
+  });
+  const [profileAttributes, setProfileAttributes] = useState<
+    Partial<ProfileType>
+  >({});
+  const [userAttributes, setUserAttributes] = useState<Partial<User>>({});
 
+  const { fetch: updateProfile, isLoading: isUpdatingProfile } =
+    useUpdateProfile(profileAttributes);
+  const { fetch: updateUser, isLoading: isUpdatingUser } =
+    useUpdateUser(userAttributes);
+
+  // Check authentication and create profile if needed
+  useEffect(() => {
+    const verifyAuthAndInitProfile = async () => {
+      try {
+        const isAuth = await checkSessionAuth();
+        setIsAuthenticated(isAuth);
+
+        if (!isAuth) {
+          // Redirect to home page if not authenticated
+          router.push("/");
+          setIsLoading(false);
+          return;
+        }
+
+        // If authenticated and user is loaded, but no profile exists, we'll let
+        // the backend create it via the useProfile hook
+        if (fetchedUser?.id && !profile) {
+          console.log("Initializing profile for user:", fetchedUser.id);
+        }
+
+        setIsLoading(false);
+      } catch (error) {
+        console.error("Auth check failed:", error);
+        setIsAuthenticated(false);
+        setIsLoading(false);
+        router.push("/");
+      }
+    };
+
+    verifyAuthAndInitProfile();
+  }, [router, fetchedUser, profile]);
+
+  // Set profile data once loaded
   useEffect(() => {
     if (profile) {
       setProfileAttributes(profile);
     }
     if (fetchedUser) {
-      // only nickname can be updated for 'User' model
       setUserAttributes(pick(fetchedUser, ["nickname", "id"]));
+      // Always ensure userId is set in profileAttributes
+      setProfileAttributes((prev) => ({
+        ...prev,
+        userId: fetchedUser.id,
+      }));
     }
-  }, [profile]);
+  }, [profile, fetchedUser]);
 
-  const onSubmit = async () => {
-    await updateUser();
-    await updateProfile();
-    setIsEditing(false);
-  };
-  const onSignOut = async () => {
+  // Handle sign out
+  const handleSignOut = async () => {
     await handleLogOut();
     router.push("/");
   };
-  return (
-    <>
+
+  // Handle profile update
+  const handleSubmit = async () => {
+    setIsLoading(true);
+
+    // Make sure userId is included in the profile data
+    setProfileAttributes((prev) => ({
+      ...prev,
+      userId: fetchedUser?.id,
+    }));
+
+    await updateUser();
+    // Call updateProfile without arguments, as it uses the updated profileAttributes state
+    await updateProfile();
+    setIsEditing(false);
+    setIsLoading(false);
+  };
+
+  // Handle keyword addition
+  const addKeyword = () => {
+    if (
+      keywordInput.trim() &&
+      !profileAttributes.keywords?.includes(keywordInput.trim())
+    ) {
+      setProfileAttributes((prev: Partial<ProfileType>) => ({
+        ...prev,
+        keywords: [...(prev.keywords || []), keywordInput.trim()],
+      }));
+      setKeywordInput("");
+    }
+  };
+
+  // Handle keyword removal
+  const removeKeyword = (keyword: string) => {
+    setProfileAttributes((prev: Partial<ProfileType>) => ({
+      ...prev,
+      keywords: (prev.keywords || []).filter((k: string) => k !== keyword),
+    }));
+  };
+
+  // Loading state
+  if (isLoading || isAuthenticated === null) {
+    return (
       <Main>
-        <div
-          className="
-          pl-6
-          md:px-12
-          lg:px-64
-        "
-        >
-          <div className="grid grid-cols-1 gap-6">
-            <div
-              className="flex w-max cursor-pointer flex-row items-center rounded-md bg-slate-200 p-1 hover:bg-slate-300"
-              onClick={() => setIsEditing(true)}
-            >
-              <div className="text-sm uppercase">Edit</div>
-              <PenLine size={"18"} />
-            </div>
-            <div className="flex w-full flex-col gap-6">
-              <div className="grid grid-cols-2 items-center gap-6">
-                {isEditing ? (
-                  <div>
-                    <input
-                      type="text"
-                      className="
-                      dark:text-primary-dark
-                      bg-background
-                      font-primary
-                      text-5xl
-                      font-bold lowercase
-                      text-primary
-                    "
-                      placeholder={userAttributes.nickname}
-                      onChange={(event) => {
-                        return setUserAttributes((curr) => {
-                          return {
-                            ...curr,
-                            nickname: event.target.value,
-                          };
-                        });
-                      }}
-                    />
-                  </div>
-                ) : (
-                  <div
-                    className="
-                              dark:text-primary-dark
-                              font-primary
-                              text-5xl font-semibold
-                              lowercase text-primary
-                            "
-                  >
-                    {userAttributes.nickname}
-                  </div>
-                )}
-                <div className="justify-self-end">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={profile?.image || ""}
-                    width={180}
-                    height={180}
-                    alt="pfp"
-                    className="rounded-full"
-                  />
-                </div>
-              </div>
-              {isEditing ? (
-                <div>
-                  <textarea
-                    wrap="soft"
-                    className="w-full bg-background"
-                    placeholder={profileAttributes?.bio || ""}
-                    onChange={(event) => {
-                      return setProfileAttributes((curr) => {
-                        return {
-                          ...curr,
-                          bio: event.target.value,
-                        };
-                      });
-                    }}
-                  />
-                </div>
-              ) : (
-                <div>{profileAttributes?.bio}</div>
-              )}
-            </div>
-            <div>Email: {fetchedUser.email}</div>
-            <div className="flex flex-row gap-4">
-              {isEditing && (
-                <Button onClick={() => onSubmit()} disabled={!isEditing}>
-                  Update Profile
-                </Button>
-              )}
-              <Button onClick={() => onSignOut()} variant="outline">
-                Sign out
-              </Button>
-            </div>
+        <div className="flex min-h-[60vh] items-center justify-center">
+          <div className="animate-pulse text-center">
+            <p className="text-lg text-muted-foreground">Loading profile...</p>
           </div>
         </div>
       </Main>
-    </>
+    );
+  }
+
+  // Unauthorized state
+  if (!isAuthenticated) {
+    return (
+      <Main>
+        <div className="flex min-h-[60vh] flex-col items-center justify-center px-4 text-center">
+          <UserIcon className="mb-4 h-16 w-16 text-muted-foreground" />
+          <h1 className="mb-2 text-2xl font-bold">Authentication Required</h1>
+          <p className="mb-6 max-w-md text-muted-foreground">
+            You need to be logged in to view and edit your profile.
+          </p>
+          <Button onClick={() => router.push("/")}>Return to Home</Button>
+        </div>
+      </Main>
+    );
+  }
+
+  return (
+    <Main>
+      <div className="mx-auto max-w-3xl px-4 py-8">
+        <div className="bg-card mb-6 rounded-lg p-6 shadow-sm">
+          <div className="mb-6 flex items-center justify-between">
+            <h1 className="text-2xl font-bold">Your Profile</h1>
+            <Button
+              variant={isEditing ? "outline" : "default"}
+              onClick={() => setIsEditing(!isEditing)}
+              className="flex items-center gap-2"
+            >
+              {isEditing ? (
+                <>
+                  Cancel <CheckCircle className="h-4 w-4" />
+                </>
+              ) : (
+                <>
+                  Edit Profile <PenSquare className="h-4 w-4" />
+                </>
+              )}
+            </Button>
+          </div>
+
+          <div className="grid gap-8 md:grid-cols-[1fr_200px]">
+            {/* Profile details */}
+            <div className="space-y-6">
+              {/* Nickname */}
+              <div>
+                <label className="mb-1 block text-sm font-medium text-muted-foreground">
+                  <UserIcon className="mr-2 inline h-4 w-4" />
+                  Name
+                </label>
+                {isEditing ? (
+                  <Input
+                    value={userAttributes.nickname || ""}
+                    onChange={(e) =>
+                      setUserAttributes({
+                        ...userAttributes,
+                        nickname: e.target.value,
+                      })
+                    }
+                    placeholder="Your name"
+                    className="max-w-md"
+                  />
+                ) : (
+                  <p className="text-lg font-medium">
+                    {userAttributes.nickname || "No name set"}
+                  </p>
+                )}
+              </div>
+
+              {/* Bio */}
+              <div>
+                <label className="mb-1 block text-sm font-medium text-muted-foreground">
+                  <UserIcon className="mr-2 inline h-4 w-4" />
+                  Bio
+                </label>
+                {isEditing ? (
+                  <Textarea
+                    value={profileAttributes.bio || ""}
+                    onChange={(e) =>
+                      setProfileAttributes({
+                        ...profileAttributes,
+                        bio: e.target.value,
+                      })
+                    }
+                    placeholder="Tell us about yourself"
+                    className="max-w-md"
+                    rows={4}
+                  />
+                ) : (
+                  <p className="text-md">
+                    {profileAttributes.bio || "No bio set"}
+                  </p>
+                )}
+              </div>
+
+              {/* Current Affiliation */}
+              <div>
+                <label className="mb-1 block text-sm font-medium text-muted-foreground">
+                  <Briefcase className="mr-2 inline h-4 w-4" />
+                  Current Affiliation
+                </label>
+                {isEditing ? (
+                  <Input
+                    value={profileAttributes.currentAffiliation || ""}
+                    onChange={(e) =>
+                      setProfileAttributes({
+                        ...profileAttributes,
+                        currentAffiliation: e.target.value,
+                      })
+                    }
+                    placeholder="Where do you work or study?"
+                    className="max-w-md"
+                  />
+                ) : (
+                  <p className="text-md">
+                    {profileAttributes.currentAffiliation ||
+                      "No affiliation set"}
+                  </p>
+                )}
+              </div>
+
+              {/* URL */}
+              <div>
+                <label className="mb-1 block text-sm font-medium text-muted-foreground">
+                  <Globe className="mr-2 inline h-4 w-4" />
+                  Website
+                </label>
+                {isEditing ? (
+                  <Input
+                    value={profileAttributes.url || ""}
+                    onChange={(e) =>
+                      setProfileAttributes({
+                        ...profileAttributes,
+                        url: e.target.value,
+                      })
+                    }
+                    placeholder="https://your-website.com"
+                    className="max-w-md"
+                  />
+                ) : (
+                  <p className="text-md">
+                    {profileAttributes.url ? (
+                      <a
+                        href={profileAttributes.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-1 text-primary"
+                      >
+                        {profileAttributes.url} <LinkIcon className="h-3 w-3" />
+                      </a>
+                    ) : (
+                      "No website set"
+                    )}
+                  </p>
+                )}
+              </div>
+
+              {/* Keywords */}
+              <div>
+                <label className="mb-1 block text-sm font-medium text-muted-foreground">
+                  <Tag className="mr-2 inline h-4 w-4" />
+                  Keywords
+                </label>
+
+                {isEditing && (
+                  <div className="mb-3 flex max-w-md gap-2">
+                    <Input
+                      value={keywordInput}
+                      onChange={(e) => setKeywordInput(e.target.value)}
+                      placeholder="Add keyword"
+                      onKeyDown={(e: React.KeyboardEvent) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          addKeyword();
+                        }
+                      }}
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={addKeyword}
+                    >
+                      Add
+                    </Button>
+                  </div>
+                )}
+
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {(profileAttributes.keywords || []).length > 0 ? (
+                    (profileAttributes.keywords || []).map(
+                      (keyword: string, index: number) => (
+                        <div
+                          key={index}
+                          className={`
+                          flex items-center gap-1 rounded-full bg-muted px-3 py-1 text-sm
+                          ${isEditing ? "pr-1" : ""}
+                        `}
+                        >
+                          {keyword}
+                          {isEditing && (
+                            <button
+                              onClick={() => removeKeyword(keyword)}
+                              className="bg-muted-foreground/20 hover:bg-muted-foreground/30 ml-1 flex h-5 w-5 items-center justify-center rounded-full"
+                            >
+                              <span className="sr-only">Remove</span>
+                              <svg
+                                width="10"
+                                height="10"
+                                viewBox="0 0 10 10"
+                                fill="none"
+                              >
+                                <path
+                                  d="M1.5 1.5L8.5 8.5M1.5 8.5L8.5 1.5"
+                                  stroke="currentColor"
+                                  strokeWidth="1.5"
+                                  strokeLinecap="round"
+                                />
+                              </svg>
+                            </button>
+                          )}
+                        </div>
+                      )
+                    )
+                  ) : (
+                    <p className="text-sm text-muted-foreground">
+                      No keywords set
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              {/* Email (display only) */}
+              <div>
+                <label className="mb-1 block text-sm font-medium text-muted-foreground">
+                  Email
+                </label>
+                <p className="text-md">
+                  {fetchedUser?.email || "No email available"}
+                </p>
+              </div>
+
+              {isEditing && (
+                <div className="flex gap-4 pt-4">
+                  <Button
+                    onClick={handleSubmit}
+                    disabled={isUpdatingProfile || isUpdatingUser}
+                  >
+                    {isUpdatingProfile || isUpdatingUser
+                      ? "Updating..."
+                      : "Save Profile"}
+                  </Button>
+                  <Button variant="outline" onClick={() => setIsEditing(false)}>
+                    Cancel
+                  </Button>
+                </div>
+              )}
+            </div>
+
+            {/* Profile image */}
+            <div className="flex flex-col items-center gap-4">
+              {isEditing ? (
+                <ImageUpload
+                  userId={fetchedUser?.id || ""}
+                  currentImageUrl={profileAttributes.image || ""}
+                  onUploadComplete={(imageUrl) => {
+                    setProfileAttributes({
+                      ...profileAttributes,
+                      image: imageUrl,
+                    });
+                  }}
+                  size="lg"
+                />
+              ) : (
+                <div className="aspect-square w-full overflow-hidden rounded-lg bg-muted">
+                  {profileAttributes.image ? (
+                    <img
+                      src={profileAttributes.image}
+                      alt="Profile"
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center bg-muted">
+                      <UserIcon className="h-16 w-16 text-muted-foreground" />
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {!isEditing && (
+                <Button
+                  variant="outline"
+                  className="w-full"
+                  onClick={handleSignOut}
+                >
+                  Sign Out
+                </Button>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    </Main>
   );
 };
 
-export default Profile;
+export default ProfilePage;
