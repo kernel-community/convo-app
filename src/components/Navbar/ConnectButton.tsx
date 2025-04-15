@@ -1,15 +1,27 @@
 "use client";
-// import { useDynamicContext } from "@dynamic-labs/sdk-react";
-import { DynamicWidget, useDynamicContext } from "@dynamic-labs/sdk-react-core";
+
+import { useDynamicContext } from "@dynamic-labs/sdk-react";
+import { DynamicWidget } from "@dynamic-labs/sdk-react-core";
 import { useUser } from "src/context/UserContext";
+import { useEffect, useState } from "react";
+
 export const ConnectButton = () => {
   const { fetchedUser: user } = useUser();
-  const { setShowDynamicUserProfile } = useDynamicContext();
-  const { setShowAuthFlow } = useDynamicContext();
-  if (user.isSignedIn) {
+  const { setShowDynamicUserProfile, setShowAuthFlow } = useDynamicContext();
+  const [isSignedIn, setIsSignedIn] = useState(false);
+
+  // Sync state with user.isSignedIn for more consistent rendering
+  useEffect(() => {
+    setIsSignedIn(user.isSignedIn);
+  }, [user.isSignedIn]);
+
+  if (isSignedIn) {
     // display user profile
     return (
-      <div className="flex flex-col items-end sm:flex-row sm:gap-1 sm:text-xl">
+      <div
+        key="signed-in"
+        className="flex flex-col items-end sm:flex-row sm:gap-1 sm:text-xl"
+      >
         <div className="hidden">
           <DynamicWidget />
         </div>
@@ -25,8 +37,10 @@ export const ConnectButton = () => {
       </div>
     );
   }
+
   return (
     <div
+      key="signed-out"
       onClick={() => {
         setShowAuthFlow(true);
       }}

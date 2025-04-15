@@ -1,16 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
+import { checkSessionAuth } from "src/lib/checkSessionAuth";
 import { prisma } from "src/utils/db";
 import { getPublicS3Url } from "src/utils/s3";
 
-// Session cookie name used in your application
-const SESSION_COOKIE = "session";
-
 export async function POST(req: NextRequest) {
   try {
-    // Check if user is authenticated by verifying session cookie
-    const sessionCookie = req.cookies.get(SESSION_COOKIE);
-    const isAuthenticated = !!sessionCookie?.value;
-
+    // Check if user is authenticated
+    const isAuthenticated = await checkSessionAuth();
     if (!isAuthenticated) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }

@@ -15,6 +15,7 @@ export type UserStatus = Partial<User> & {
 export type FullUser = {
   fetchedUser: UserStatus;
   setFetchedUser: ({ id, nickname, address, isSignedIn }: UserStatus) => void;
+  handleSignOut: () => Promise<void>;
 };
 
 const defaultFullUser: FullUser = {
@@ -27,6 +28,8 @@ const defaultFullUser: FullUser = {
   },
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   setFetchedUser: () => {},
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  handleSignOut: async () => {},
 };
 
 const UserContext = createContext<FullUser>(defaultFullUser);
@@ -146,12 +149,28 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [fetchedUser]);
 
+  // Add a handleSignOut function that immediately updates UI
+  const handleSignOut = async () => {
+    // Immediately set user as signed out for better UI responsiveness
+    setFetchedUser({
+      ...defaultFullUser.fetchedUser, // Reset to default completely
+      isSignedIn: false,
+    });
+
+    // Also immediately set session state
+    setIsSessionAuthenticated(false);
+
+    // Then proceed with normal logout
+    await handleLogOut();
+  };
+
   const value = useMemo(
     () => ({
       fetchedUser,
       setFetchedUser,
+      handleSignOut,
     }),
-    [fetchedUser]
+    [fetchedUser, handleLogOut, setFetchedUser, handleSignOut]
   );
 
   return <UserContext.Provider value={value}>{children}</UserContext.Provider>;

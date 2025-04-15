@@ -13,6 +13,15 @@ import {
 } from "lucide-react";
 import { useDynamicContext } from "@dynamic-labs/sdk-react";
 import { pick } from "lodash";
+import {
+  Credenza,
+  CredenzaContent,
+  CredenzaHeader,
+  CredenzaTitle,
+  CredenzaDescription,
+  CredenzaFooter,
+  CredenzaBody,
+} from "src/components/ui/credenza";
 
 import Main from "src/layouts/Main";
 import { useUser } from "src/context/UserContext";
@@ -52,8 +61,7 @@ const Textarea = ({
 
 const ProfilePage = () => {
   const router = useRouter();
-  const { handleLogOut } = useDynamicContext();
-  const { fetchedUser } = useUser();
+  const { fetchedUser, handleSignOut } = useUser();
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [keywordInput, setKeywordInput] = useState<string>("");
@@ -73,24 +81,30 @@ const ProfilePage = () => {
   const { fetch: updateUser, isLoading: isUpdatingUser } =
     useUpdateUser(userAttributes);
 
-  // Check authentication and create profile if needed
+  // Add a counter state for forcing re-renders
+  const [renderKey, setRenderKey] = useState(0);
+
+  // Force a re-render programmatically
+  const forceUpdate = () => setRenderKey((prev) => prev + 1);
+
+  // Single comprehensive effect for authentication tracking
   useEffect(() => {
-    const verifyAuthAndInitProfile = async () => {
+    const checkAuth = async () => {
       try {
-        const isAuth = await checkSessionAuth();
-        setIsAuthenticated(isAuth);
+        // Only perform the async check if we need to validate server-side
+        if (fetchedUser?.isSignedIn) {
+          const isServerAuthenticated = await checkSessionAuth();
 
-        if (!isAuth) {
-          // Redirect to home page if not authenticated
-          router.push("/");
-          setIsLoading(false);
-          return;
-        }
-
-        // If authenticated and user is loaded, but no profile exists, we'll let
-        // the backend create it via the useProfile hook
-        if (fetchedUser?.id && !profile) {
-          console.log("Initializing profile for user:", fetchedUser.id);
+          // If the server says we're not authenticated but the client thinks we are,
+          // update the client state
+          if (!isServerAuthenticated && fetchedUser.isSignedIn) {
+            setIsAuthenticated(false);
+          } else {
+            setIsAuthenticated(isServerAuthenticated);
+          }
+        } else {
+          // If fetchedUser says we're not signed in, trust that
+          setIsAuthenticated(false);
         }
 
         setIsLoading(false);
@@ -98,12 +112,15 @@ const ProfilePage = () => {
         console.error("Auth check failed:", error);
         setIsAuthenticated(false);
         setIsLoading(false);
-        router.push("/");
       }
     };
 
-    verifyAuthAndInitProfile();
-  }, [router, fetchedUser, profile]);
+    // Always set isAuthenticated based on fetchedUser immediately
+    setIsAuthenticated(!!fetchedUser?.isSignedIn);
+
+    // Then verify with the server
+    checkAuth();
+  }, [fetchedUser]); // Only depend on fetchedUser
 
   // Set profile data once loaded
   useEffect(() => {
@@ -120,10 +137,23 @@ const ProfilePage = () => {
     }
   }, [profile, fetchedUser]);
 
-  // Handle sign out
-  const handleSignOut = async () => {
-    await handleLogOut();
-    router.push("/");
+  // Handle sign out with improved state management
+  const handleProfileSignOut = async () => {
+    // Start loading state
+    setIsSigningOut(true);
+
+    // Force immediate UI update before async operations
+    setIsAuthenticated(false);
+    forceUpdate(); // Force re-render immediately
+
+    try {
+      // Proceed with context logout (async operation)
+      await handleSignOut();
+    } finally {
+      // Ensure we always clean up state even if an error occurs
+      setIsSigningOut(false);
+      setIsSignOutDialogOpen(false);
+    }
   };
 
   // Handle profile update
@@ -165,10 +195,14 @@ const ProfilePage = () => {
     }));
   };
 
+  // Add state for sign out dialog
+  const [isSignOutDialogOpen, setIsSignOutDialogOpen] = useState(false);
+  const [isSigningOut, setIsSigningOut] = useState(false);
+
   // Loading state
   if (isLoading || isAuthenticated === null) {
     return (
-      <Main>
+      <Main key={`loading-${renderKey}`}>
         <div className="flex min-h-[60vh] items-center justify-center">
           <div className="animate-pulse text-center">
             <p className="text-lg text-muted-foreground">Loading profile...</p>
@@ -181,8 +215,11 @@ const ProfilePage = () => {
   // Unauthorized state
   if (!isAuthenticated) {
     return (
-      <Main>
-        <div className="flex min-h-[60vh] flex-col items-center justify-center px-4 text-center">
+      <Main key={`unauthenticated-${renderKey}`}>
+        <div
+          key="unauthenticated"
+          className="flex min-h-[60vh] flex-col items-center justify-center px-4 text-center"
+        >
           <UserIcon className="mb-4 h-16 w-16 text-muted-foreground" />
           <h1 className="mb-2 text-2xl font-bold">Authentication Required</h1>
           <p className="mb-6 max-w-md text-muted-foreground">
@@ -195,8 +232,8 @@ const ProfilePage = () => {
   }
 
   return (
-    <Main>
-      <div className="mx-auto max-w-3xl px-4 py-8">
+    <Main key={`authenticated-${renderKey}`}>
+      <div key="authenticated" className="mx-auto max-w-3xl px-4 py-8">
         <div className="bg-card mb-6 rounded-lg p-6 shadow-sm">
           <div className="mb-6 flex items-center justify-between">
             <h1 className="text-2xl font-bold">Your Profile</h1>
@@ -449,7 +486,7 @@ const ProfilePage = () => {
                   size="lg"
                 />
               ) : (
-                <div className="aspect-square w-full overflow-hidden rounded-lg bg-muted">
+                <div className="w-full overflow-hidden rounded-full bg-muted">
                   {profileAttributes.image ? (
                     <img
                       src={profileAttributes.image}
@@ -465,13 +502,57 @@ const ProfilePage = () => {
               )}
 
               {!isEditing && (
-                <Button
-                  variant="outline"
-                  className="w-full"
-                  onClick={handleSignOut}
-                >
-                  Sign Out
-                </Button>
+                <>
+                  <Button
+                    variant="outline"
+                    className="w-full"
+                    onClick={() => setIsSignOutDialogOpen(true)}
+                  >
+                    Sign Out
+                  </Button>
+
+                  <Credenza
+                    open={isSignOutDialogOpen}
+                    onOpenChange={(open) => {
+                      setIsSignOutDialogOpen(open);
+                      // If the dialog is closing without explicit sign out, update the render key
+                      if (!open && !isSigningOut) {
+                        forceUpdate();
+                      }
+                    }}
+                  >
+                    <CredenzaContent>
+                      <CredenzaHeader>
+                        <CredenzaTitle>Sign out of your account?</CredenzaTitle>
+                        <CredenzaDescription>
+                          You&apos;ll need to sign in again to access your
+                          profile and other authenticated features.
+                        </CredenzaDescription>
+                      </CredenzaHeader>
+                      <CredenzaBody>
+                        <p className="text-sm text-muted-foreground">
+                          Your session will be ended immediately.
+                        </p>
+                      </CredenzaBody>
+                      <CredenzaFooter>
+                        <Button
+                          variant="destructive"
+                          onClick={handleProfileSignOut}
+                          disabled={isSigningOut}
+                          className="mr-2"
+                        >
+                          {isSigningOut ? "Signing out..." : "Sign out"}
+                        </Button>
+                        <Button
+                          variant="outline"
+                          onClick={() => setIsSignOutDialogOpen(false)}
+                        >
+                          Cancel
+                        </Button>
+                      </CredenzaFooter>
+                    </CredenzaContent>
+                  </Credenza>
+                </>
               )}
             </div>
           </div>
