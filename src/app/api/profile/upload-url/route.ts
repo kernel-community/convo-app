@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getPresignedUploadUrl, getMimeTypeExtension } from "src/utils/s3";
-import { checkSessionAuth } from "src/lib/checkSessionAuth";
+import { checkSessionAuth } from "src/lib/serverAuth";
 import { prisma } from "src/utils/db";
 
 export async function POST(req: NextRequest) {

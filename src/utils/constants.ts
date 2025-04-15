@@ -137,3 +137,6 @@ export const FRENS = [
     image: "",
   },
 ];
+
+export const DEAULT_PROFILE_PICTURE =
+  "https://kernelconvo.s3.us-east-2.amazonaws.com/default-profile-picture.jpeg";

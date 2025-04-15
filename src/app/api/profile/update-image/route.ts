@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { checkSessionAuth } from "src/lib/checkSessionAuth";
+import { checkSessionAuth } from "src/lib/serverAuth";
 import { prisma } from "src/utils/db";
 import { getPublicS3Url } from "src/utils/s3";
 

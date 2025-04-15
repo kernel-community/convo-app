@@ -1,31 +1,35 @@
 import type { User } from "@prisma/client";
-import { useQuery } from "react-query";
+import { useMutation } from "react-query";
 
-const useUpdateUser = (user: Partial<User>) => {
-  const { isLoading, isError, refetch } = useQuery(
-    `profile_update`,
-    async () => {
-      try {
-        const r = (
-          await (
-            await fetch("/api/update/user", {
-              body: JSON.stringify({ user }),
-              method: "POST",
-              headers: { "Content-type": "application/json" },
-            })
-          ).json()
-        ).data;
-        return r;
-      } catch (err) {
-        throw err;
-      }
-    },
-    {
-      enabled: false,
+const useUpdateUser = (defaultUser?: Partial<User>) => {
+  const { mutateAsync, isLoading, isError } = useMutation<
+    unknown,
+    Error,
+    Partial<User>
+  >(async (userData) => {
+    const dataToUpdate = userData || defaultUser;
+
+    if (!dataToUpdate) {
+      throw new Error("User data is required");
     }
-  );
+
+    const response = await fetch("/api/update/user", {
+      method: "POST",
+      headers: { "Content-type": "application/json" },
+      body: JSON.stringify({ user: dataToUpdate }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || "Failed to update user");
+    }
+
+    const result = await response.json();
+    return result.data;
+  });
+
   return {
-    fetch: refetch,
+    fetch: mutateAsync,
     isLoading,
     isError,
   };

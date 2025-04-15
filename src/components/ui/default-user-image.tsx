@@ -8,6 +8,7 @@ import {
   TongueStickingOutEmoji,
   WinkEmoji,
 } from "./emojis";
+import { DEAULT_PROFILE_PICTURE } from "src/utils/constants";
 
 interface EmojiProps {
   width?: number;
@@ -94,8 +95,16 @@ export const UserImage = ({
   userId: string;
 }) => {
   if (!photo) {
+    // Use default profile picture instead of emoji avatar
+    const containerClass = cn(
+      "rounded-full border-2 border-white dark:border-gray-800",
+      sizeClasses[size].container,
+      className
+    );
+
+    // eslint-disable-next-line @next/next/no-img-element
     return (
-      <DefaultUserImage size={size} className={className} userId={userId} />
+      <img className={containerClass} src={DEAULT_PROFILE_PICTURE} alt="" />
     );
   }
 

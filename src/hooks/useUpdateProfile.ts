@@ -1,37 +1,36 @@
 import type { Profile } from "@prisma/client";
-import { useQuery } from "react-query";
+import { useMutation } from "react-query";
 
-const useUpdateProfile = (profile: Partial<Profile>) => {
-  const { isLoading, isError, refetch } = useQuery(
-    `profile_update`,
-    async () => {
-      try {
-        // Check if userId is provided
-        if (!profile.userId) {
-          throw new Error("userId is required to update profile");
-        }
+const useUpdateProfile = (defaultProfile?: Partial<Profile>) => {
+  const { mutateAsync, isLoading, isError } = useMutation<
+    unknown,
+    Error,
+    Partial<Profile>
+  >(async (profileData) => {
+    const dataToUpdate = profileData || defaultProfile;
 
-        const r = (
-          await (
-            await fetch("/api/update/profile", {
-              body: JSON.stringify({ profile }),
-              method: "POST",
-              headers: { "Content-type": "application/json" },
-            })
-          ).json()
-        ).data;
-        return r;
-      } catch (err) {
-        console.error("Error updating profile:", err);
-        throw err;
-      }
-    },
-    {
-      enabled: false,
+    // Check if userId is provided
+    if (!dataToUpdate?.userId) {
+      throw new Error("userId is required to update profile");
     }
-  );
+
+    const response = await fetch("/api/update/profile", {
+      method: "POST",
+      headers: { "Content-type": "application/json" },
+      body: JSON.stringify({ profile: dataToUpdate }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || "Failed to update profile");
+    }
+
+    const result = await response.json();
+    return result.data;
+  });
+
   return {
-    fetch: refetch,
+    fetch: mutateAsync,
     isLoading,
     isError,
   };

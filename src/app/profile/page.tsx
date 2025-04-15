@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   CheckCircle,
   PenSquare,
@@ -33,6 +33,7 @@ import { Button } from "src/components/ui/button";
 import { Input } from "src/components/ui/input";
 import type { Profile as ProfileType, User } from "@prisma/client";
 import { ImageUpload } from "src/components/ui/image-upload";
+import { DEAULT_PROFILE_PICTURE } from "src/utils/constants";
 
 // Create a simple Textarea component if not available
 const Textarea = ({
@@ -61,14 +62,19 @@ const Textarea = ({
 
 const ProfilePage = () => {
   const router = useRouter();
-  const { fetchedUser, handleSignOut } = useUser();
+  const searchParams = useSearchParams();
+  const { fetchedUser, handleSignOut, setFetchedUser } = useUser();
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [keywordInput, setKeywordInput] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   // Profile data
-  const { data: profile, isLoading: profileLoading } = useProfile({
+  const {
+    data: profile,
+    isLoading: profileLoading,
+    refetch: refetchProfile,
+  } = useProfile({
     userId: fetchedUser?.id,
   });
   const [profileAttributes, setProfileAttributes] = useState<
@@ -86,6 +92,36 @@ const ProfilePage = () => {
 
   // Force a re-render programmatically
   const forceUpdate = () => setRenderKey((prev) => prev + 1);
+
+  // New form state to track all edits until submission
+  const [formState, setFormState] = useState<{
+    profile: Partial<ProfileType>;
+    user: Partial<User>;
+  }>({
+    profile: {},
+    user: {},
+  });
+
+  // Check if we should enter edit mode from URL params
+  useEffect(() => {
+    const editParam = searchParams.get("edit");
+    if (editParam === "true" && !isEditing && isAuthenticated) {
+      // Initialize form state with current data
+      setFormState({
+        profile: {
+          ...(profile || {}),
+          userId: fetchedUser?.id,
+        },
+        user: fetchedUser ? pick(fetchedUser, ["nickname", "id"]) : {},
+      });
+
+      // Enter edit mode
+      setIsEditing(true);
+    } else if (editParam !== "true" && isEditing) {
+      // If URL param is removed, exit edit mode
+      setIsEditing(false);
+    }
+  }, [searchParams, isAuthenticated, isEditing, profile, fetchedUser]);
 
   // Single comprehensive effect for authentication tracking
   useEffect(() => {
@@ -122,20 +158,31 @@ const ProfilePage = () => {
     checkAuth();
   }, [fetchedUser]); // Only depend on fetchedUser
 
-  // Set profile data once loaded
+  // Set profile data once loaded and initialize form state
   useEffect(() => {
+    // Always update the base profileAttributes and userAttributes
     if (profile) {
       setProfileAttributes(profile);
     }
+
     if (fetchedUser) {
-      setUserAttributes(pick(fetchedUser, ["nickname", "id"]));
-      // Always ensure userId is set in profileAttributes
-      setProfileAttributes((prev) => ({
-        ...prev,
-        userId: fetchedUser.id,
-      }));
+      const userData = pick(fetchedUser, ["nickname", "id"]);
+      setUserAttributes(userData);
     }
-  }, [profile, fetchedUser]);
+
+    // Only initialize form state if we're not in edit mode to avoid resetting during editing
+    if (!isEditing) {
+      if (profile || fetchedUser) {
+        setFormState({
+          profile: {
+            ...(profile || {}),
+            userId: fetchedUser?.id,
+          },
+          user: fetchedUser ? pick(fetchedUser, ["nickname", "id"]) : {},
+        });
+      }
+    }
+  }, [profile, fetchedUser, isEditing]);
 
   // Handle sign out with improved state management
   const handleProfileSignOut = async () => {
@@ -160,28 +207,78 @@ const ProfilePage = () => {
   const handleSubmit = async () => {
     setIsLoading(true);
 
-    // Make sure userId is included in the profile data
-    setProfileAttributes((prev) => ({
-      ...prev,
-      userId: fetchedUser?.id,
-    }));
+    try {
+      console.log("About to update user with data:", formState.user);
 
-    await updateUser();
-    // Call updateProfile without arguments, as it uses the updated profileAttributes state
-    await updateProfile();
-    setIsEditing(false);
-    setIsLoading(false);
+      // Pass form state directly to update functions
+      const userResult = await updateUser(formState.user);
+      console.log("User update result:", userResult);
+
+      // Make sure userId is included in profile data
+      const profileData = {
+        ...formState.profile,
+        userId: fetchedUser?.id,
+      };
+
+      console.log("About to update profile with data:", profileData);
+      const profileResult = await updateProfile(profileData);
+      console.log("Profile update result:", profileResult);
+
+      // After successful update, update the state variables
+      setProfileAttributes(profileData);
+      setUserAttributes(formState.user);
+
+      // Update the UserContext to reflect the changes immediately
+      // This ensures the navbar and other components using UserContext update
+      if (userResult && formState.user.nickname) {
+        setFetchedUser({
+          ...fetchedUser,
+          nickname: formState.user.nickname,
+          // Keep any other fields from the result that might have changed
+          ...userResult,
+        });
+      }
+
+      console.log("Update completed successfully, updating URL");
+
+      // Clear the edit=true parameter from URL
+      if (searchParams.get("edit") === "true") {
+        await router.replace("/profile");
+      }
+
+      // Refetch the profile data to ensure we have the latest data
+      await refetchProfile();
+      console.log("Profile data refetched");
+
+      // Exit edit mode
+      setIsEditing(false);
+
+      // Force a re-render to ensure we see the updated data
+      forceUpdate();
+    } catch (error) {
+      console.error("Failed to update profile:", error);
+      alert(
+        `Update failed: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`
+      );
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   // Handle keyword addition
   const addKeyword = () => {
     if (
       keywordInput.trim() &&
-      !profileAttributes.keywords?.includes(keywordInput.trim())
+      !formState.profile.keywords?.includes(keywordInput.trim())
     ) {
-      setProfileAttributes((prev: Partial<ProfileType>) => ({
+      setFormState((prev) => ({
         ...prev,
-        keywords: [...(prev.keywords || []), keywordInput.trim()],
+        profile: {
+          ...prev.profile,
+          keywords: [...(prev.profile.keywords || []), keywordInput.trim()],
+        },
       }));
       setKeywordInput("");
     }
@@ -189,15 +286,59 @@ const ProfilePage = () => {
 
   // Handle keyword removal
   const removeKeyword = (keyword: string) => {
-    setProfileAttributes((prev: Partial<ProfileType>) => ({
+    setFormState((prev) => ({
       ...prev,
-      keywords: (prev.keywords || []).filter((k: string) => k !== keyword),
+      profile: {
+        ...prev.profile,
+        keywords: (prev.profile.keywords || []).filter((k) => k !== keyword),
+      },
     }));
   };
 
   // Add state for sign out dialog
   const [isSignOutDialogOpen, setIsSignOutDialogOpen] = useState(false);
   const [isSigningOut, setIsSigningOut] = useState(false);
+
+  // Add a function to handle cancel edits
+  const handleCancelEdit = async () => {
+    // First clear the URL parameter
+    await router.replace("/profile");
+
+    // Reset form state to match current profile and user data
+    setFormState({
+      profile: profile || {},
+      user: fetchedUser ? pick(fetchedUser, ["nickname", "id"]) : {},
+    });
+
+    // Reset keyword input
+    setKeywordInput("");
+
+    // Exit edit mode
+    setIsEditing(false);
+
+    // Force a re-render for good measure
+    forceUpdate();
+  };
+
+  // Add a function to handle entering edit mode
+  const handleEnterEditMode = () => {
+    // Initialize form state with current data
+    setFormState({
+      profile: {
+        ...(profile || {}),
+        userId: fetchedUser?.id,
+      },
+      user: fetchedUser ? pick(fetchedUser, ["nickname", "id"]) : {},
+    });
+
+    // Set edit mode
+    setIsEditing(true);
+
+    // Add the edit=true parameter to URL if it's not already there
+    if (searchParams.get("edit") !== "true") {
+      router.replace("/profile?edit=true");
+    }
+  };
 
   // Loading state
   if (isLoading || isAuthenticated === null) {
@@ -236,22 +377,21 @@ const ProfilePage = () => {
       <div key="authenticated" className="mx-auto max-w-3xl px-4 py-8">
         <div className="bg-card mb-6 rounded-lg p-6 shadow-sm">
           <div className="mb-6 flex items-center justify-between">
-            <h1 className="text-2xl font-bold">Your Profile</h1>
-            <Button
-              variant={isEditing ? "outline" : "default"}
-              onClick={() => setIsEditing(!isEditing)}
-              className="flex items-center gap-2"
-            >
-              {isEditing ? (
-                <>
-                  Cancel <CheckCircle className="h-4 w-4" />
-                </>
-              ) : (
-                <>
-                  Edit Profile <PenSquare className="h-4 w-4" />
-                </>
-              )}
-            </Button>
+            <h1 className="font-primary text-2xl">
+              Hello,{" "}
+              {isEditing ? formState.user.nickname : userAttributes.nickname} :)
+            </h1>
+            {!isEditing && (
+              <Button
+                onClick={handleEnterEditMode}
+                variant="outline"
+                size="sm"
+                className="flex items-center gap-2"
+              >
+                <PenSquare className="h-4 w-4" />
+                Edit Profile
+              </Button>
+            )}
           </div>
 
           <div className="grid gap-8 md:grid-cols-[1fr_200px]">
@@ -265,12 +405,15 @@ const ProfilePage = () => {
                 </label>
                 {isEditing ? (
                   <Input
-                    value={userAttributes.nickname || ""}
+                    value={formState.user.nickname || ""}
                     onChange={(e) =>
-                      setUserAttributes({
-                        ...userAttributes,
-                        nickname: e.target.value,
-                      })
+                      setFormState((prev) => ({
+                        ...prev,
+                        user: {
+                          ...prev.user,
+                          nickname: e.target.value,
+                        },
+                      }))
                     }
                     placeholder="Your name"
                     className="max-w-md"
@@ -290,12 +433,15 @@ const ProfilePage = () => {
                 </label>
                 {isEditing ? (
                   <Textarea
-                    value={profileAttributes.bio || ""}
+                    value={formState.profile.bio || ""}
                     onChange={(e) =>
-                      setProfileAttributes({
-                        ...profileAttributes,
-                        bio: e.target.value,
-                      })
+                      setFormState((prev) => ({
+                        ...prev,
+                        profile: {
+                          ...prev.profile,
+                          bio: e.target.value,
+                        },
+                      }))
                     }
                     placeholder="Tell us about yourself"
                     className="max-w-md"
@@ -316,12 +462,15 @@ const ProfilePage = () => {
                 </label>
                 {isEditing ? (
                   <Input
-                    value={profileAttributes.currentAffiliation || ""}
+                    value={formState.profile.currentAffiliation || ""}
                     onChange={(e) =>
-                      setProfileAttributes({
-                        ...profileAttributes,
-                        currentAffiliation: e.target.value,
-                      })
+                      setFormState((prev) => ({
+                        ...prev,
+                        profile: {
+                          ...prev.profile,
+                          currentAffiliation: e.target.value,
+                        },
+                      }))
                     }
                     placeholder="Where do you work or study?"
                     className="max-w-md"
@@ -342,12 +491,15 @@ const ProfilePage = () => {
                 </label>
                 {isEditing ? (
                   <Input
-                    value={profileAttributes.url || ""}
+                    value={formState.profile.url || ""}
                     onChange={(e) =>
-                      setProfileAttributes({
-                        ...profileAttributes,
-                        url: e.target.value,
-                      })
+                      setFormState((prev) => ({
+                        ...prev,
+                        profile: {
+                          ...prev.profile,
+                          url: e.target.value,
+                        },
+                      }))
                     }
                     placeholder="https://your-website.com"
                     className="max-w-md"
@@ -401,38 +553,55 @@ const ProfilePage = () => {
                 )}
 
                 <div className="mt-2 flex flex-wrap gap-2">
-                  {(profileAttributes.keywords || []).length > 0 ? (
+                  {isEditing ? (
+                    (formState.profile.keywords || []).length > 0 ? (
+                      (formState.profile.keywords || []).map(
+                        (keyword: string, index: number) => (
+                          <div
+                            key={index}
+                            className={`
+                              flex items-center gap-1 rounded-full bg-muted px-3 py-1 text-sm
+                              ${isEditing ? "pr-1" : ""}
+                            `}
+                          >
+                            {keyword}
+                            {isEditing && (
+                              <button
+                                onClick={() => removeKeyword(keyword)}
+                                className="bg-muted-foreground/20 hover:bg-muted-foreground/30 ml-1 flex h-5 w-5 items-center justify-center rounded-full"
+                              >
+                                <span className="sr-only">Remove</span>
+                                <svg
+                                  width="10"
+                                  height="10"
+                                  viewBox="0 0 10 10"
+                                  fill="none"
+                                >
+                                  <path
+                                    d="M1.5 1.5L8.5 8.5M1.5 8.5L8.5 1.5"
+                                    stroke="currentColor"
+                                    strokeWidth="1.5"
+                                    strokeLinecap="round"
+                                  />
+                                </svg>
+                              </button>
+                            )}
+                          </div>
+                        )
+                      )
+                    ) : (
+                      <p className="text-sm text-muted-foreground">
+                        No keywords set
+                      </p>
+                    )
+                  ) : (profileAttributes.keywords || []).length > 0 ? (
                     (profileAttributes.keywords || []).map(
                       (keyword: string, index: number) => (
                         <div
                           key={index}
-                          className={`
-                          flex items-center gap-1 rounded-full bg-muted px-3 py-1 text-sm
-                          ${isEditing ? "pr-1" : ""}
-                        `}
+                          className="flex items-center gap-1 rounded-full bg-muted px-3 py-1 text-sm"
                         >
                           {keyword}
-                          {isEditing && (
-                            <button
-                              onClick={() => removeKeyword(keyword)}
-                              className="bg-muted-foreground/20 hover:bg-muted-foreground/30 ml-1 flex h-5 w-5 items-center justify-center rounded-full"
-                            >
-                              <span className="sr-only">Remove</span>
-                              <svg
-                                width="10"
-                                height="10"
-                                viewBox="0 0 10 10"
-                                fill="none"
-                              >
-                                <path
-                                  d="M1.5 1.5L8.5 8.5M1.5 8.5L8.5 1.5"
-                                  stroke="currentColor"
-                                  strokeWidth="1.5"
-                                  strokeLinecap="round"
-                                />
-                              </svg>
-                            </button>
-                          )}
                         </div>
                       )
                     )
@@ -464,7 +633,7 @@ const ProfilePage = () => {
                       ? "Updating..."
                       : "Save Profile"}
                   </Button>
-                  <Button variant="outline" onClick={() => setIsEditing(false)}>
+                  <Button variant="outline" onClick={handleCancelEdit}>
                     Cancel
                   </Button>
                 </div>
@@ -476,12 +645,17 @@ const ProfilePage = () => {
               {isEditing ? (
                 <ImageUpload
                   userId={fetchedUser?.id || ""}
-                  currentImageUrl={profileAttributes.image || ""}
+                  currentImageUrl={
+                    formState.profile.image || profileAttributes.image || ""
+                  }
                   onUploadComplete={(imageUrl) => {
-                    setProfileAttributes({
-                      ...profileAttributes,
-                      image: imageUrl,
-                    });
+                    setFormState((prev) => ({
+                      ...prev,
+                      profile: {
+                        ...prev.profile,
+                        image: imageUrl,
+                      },
+                    }));
                   }}
                   size="lg"
                 />
@@ -494,65 +668,13 @@ const ProfilePage = () => {
                       className="h-full w-full object-cover"
                     />
                   ) : (
-                    <div className="flex h-full w-full items-center justify-center bg-muted">
-                      <UserIcon className="h-16 w-16 text-muted-foreground" />
-                    </div>
+                    <img
+                      src={DEAULT_PROFILE_PICTURE}
+                      alt="Default Profile"
+                      className="h-full w-full object-cover"
+                    />
                   )}
                 </div>
-              )}
-
-              {!isEditing && (
-                <>
-                  <Button
-                    variant="outline"
-                    className="w-full"
-                    onClick={() => setIsSignOutDialogOpen(true)}
-                  >
-                    Sign Out
-                  </Button>
-
-                  <Credenza
-                    open={isSignOutDialogOpen}
-                    onOpenChange={(open) => {
-                      setIsSignOutDialogOpen(open);
-                      // If the dialog is closing without explicit sign out, update the render key
-                      if (!open && !isSigningOut) {
-                        forceUpdate();
-                      }
-                    }}
-                  >
-                    <CredenzaContent>
-                      <CredenzaHeader>
-                        <CredenzaTitle>Sign out of your account?</CredenzaTitle>
-                        <CredenzaDescription>
-                          You&apos;ll need to sign in again to access your
-                          profile and other authenticated features.
-                        </CredenzaDescription>
-                      </CredenzaHeader>
-                      <CredenzaBody>
-                        <p className="text-sm text-muted-foreground">
-                          Your session will be ended immediately.
-                        </p>
-                      </CredenzaBody>
-                      <CredenzaFooter>
-                        <Button
-                          variant="destructive"
-                          onClick={handleProfileSignOut}
-                          disabled={isSigningOut}
-                          className="mr-2"
-                        >
-                          {isSigningOut ? "Signing out..." : "Sign out"}
-                        </Button>
-                        <Button
-                          variant="outline"
-                          onClick={() => setIsSignOutDialogOpen(false)}
-                        >
-                          Cancel
-                        </Button>
-                      </CredenzaFooter>
-                    </CredenzaContent>
-                  </Credenza>
-                </>
               )}
             </div>
           </div>
