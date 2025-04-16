@@ -63,6 +63,7 @@ model Event {
   community          Community?           @relation(fields: [communityId], references: [id])
   isImported         Boolean              @default(false)
   PostedSlackMessage PostedSlackMessage[]
+  waitlist           Waitlist[]
 }
 
 model User {
@@ -80,6 +81,7 @@ model User {
   // connections
   Connections   Connections[] @relation("User")
   ConnectedUser Connections[] @relation("ConnectedUser")
+  Waitlist      Waitlist[]
 }
 
 model Connections {
@@ -136,6 +138,9 @@ enum RSVP_TYPE {
   GOING
   MAYBE
   NOT_GOING
+  REMINDER72HR
+  REMINDER72HRPROPOSER
+  OFF_WAITLIST
 }
 
 //////////////////
@@ -167,6 +172,8 @@ enum EmailType {
   REMINDER1HRPROPOSER
   REMINDER72HR
   REMINDER72HRPROPOSER
+  OFF_WAITLIST
+  WAITLISTED
 }
 
 model Slack {
@@ -189,4 +196,16 @@ model PostedSlackMessage {
   slackId   String
 
   @@unique([eventId, slackId])
+}
+
+model Waitlist {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  eventId   String
+  event     Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([eventId, userId]) // A user can only be on the waitlist for an event once
+  @@index([eventId, createdAt]) // Index for efficient querying of the waitlist order
 }
