@@ -6,7 +6,7 @@ import formatEvent from "src/utils/formatEvent";
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
-  const { hash } = _.pick(body, ["hash"]);
+  const { hash, userId } = _.pick(body, ["hash", "userId"]);
   if (!hash) {
     return NextResponse.json({ error: "Hash is required" }, { status: 400 });
   }
@@ -33,6 +33,14 @@ export async function POST(req: NextRequest) {
           slack: true,
         },
       },
+      _count: {
+        select: { waitlist: true },
+      },
+      waitlist: {
+        where: {
+          userId: userId || undefined,
+        },
+      },
     },
   });
 
@@ -40,6 +48,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Event not found" }, { status: 404 });
   }
 
-  const formattedEvent = formatEvent([event]);
+  const formattedEvent = formatEvent([event], userId);
   return NextResponse.json({ data: formattedEvent });
 }

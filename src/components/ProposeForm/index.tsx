@@ -214,7 +214,7 @@ const ProposeForm = ({
             errors={errors}
             required={false}
             type="number"
-            infoText="Would you like to limit the number of RSVPs to this Convo? (optional - set 0 for No Limit)"
+            infoText="Set the maximum number of attendees (set 0 for No Limit). If a limit is set, attendees trying to RSVP after it's full will be added to a waitlist."
           />
         </div>
 

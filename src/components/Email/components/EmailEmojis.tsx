@@ -1,4 +1,5 @@
 import { DEFAULT_HOST } from "src/utils/constants";
+import { Hourglass } from "lucide-react";
 
 interface EmojiProps {
   width?: number;
@@ -67,5 +68,33 @@ export function TongueStickingOutEmoji({
       className={className}
       style={{ width: `${width}px`, height: `${height}px` }}
     />
+  );
+}
+
+export function PartyPopperEmoji({
+  width = 16,
+  height = 16,
+  className,
+}: EmojiProps) {
+  return (
+    <img
+      src={`https://${BASE_URL}/images/emojis/party-popper.png`}
+      alt="party popper emoji"
+      width={width}
+      height={height}
+      className={className}
+      style={{ width: `${width}px`, height: `${height}px` }}
+    />
+  );
+}
+
+export function HourglassIconEmoji({
+  width = 16,
+  height = 16,
+  className,
+}: EmojiProps) {
+  const size = Math.max(width || 16, height || 16);
+  return (
+    <Hourglass size={size} className={className} aria-label="hourglass icon" />
   );
 }

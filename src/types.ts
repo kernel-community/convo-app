@@ -43,6 +43,8 @@ export type ClientEvent = Omit<ServerEvent, "startDateTime" | "endDateTime"> & {
   nickname: string;
   uniqueRsvps: ServerEvent["rsvps"];
   recurrenceRule: string;
+  waitlistCount: number;
+  isCurrentUserWaitlisted: boolean;
 };
 
 export type EventsRequest = {

@@ -88,24 +88,44 @@ export const SessionsWrapper = ({
     ids: [cancelRsvpEventId ?? ""],
   });
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
+
+  // Call the hook without arguments
+  const { updateRsvp: mutateUpdateRsvp, isLoading: isUpdateRsvpLoading } =
+    useUpdateRsvp();
+
   const onClickCancel = async () => {
-    setIsDeleting(true);
-    try {
-      await updateRsvp();
-    } catch (err) {
-      setIsDeleting(false);
-      console.error("There was an Error", JSON.stringify(err));
+    if (!cancelRsvpEventId) {
+      console.error("No event ID selected for cancellation");
       return;
     }
-    setIsDeleting(false);
-    setOpenModalFlag(false);
+    setIsDeleting(true);
+    try {
+      // Call the mutation function with variables
+      await mutateUpdateRsvp(
+        {
+          eventId: cancelRsvpEventId,
+          type: "NOT_GOING",
+        },
+        {
+          // Optional: onSuccess/onError callbacks specific to this call
+          onSuccess: () => {
+            console.log(`Successfully cancelled RSVP for ${cancelRsvpEventId}`);
+            setOpenModalFlag(false);
+          },
+          onError: (err) => {
+            console.error("Error cancelling RSVP:", JSON.stringify(err));
+          },
+          onSettled: () => {
+            setIsDeleting(false); // Ensure loading state is reset
+          },
+        }
+      );
+    } catch (err) {
+      // This catch might not be necessary if using onError
+      console.error("There was an unexpected Error", JSON.stringify(err));
+      setIsDeleting(false); // Ensure loading state is reset here too
+    }
   };
-
-  const { fetch: updateRsvp } = useUpdateRsvp({
-    userId: user.id,
-    eventId: cancelRsvpEventId,
-    type: "NOT_GOING",
-  });
 
   return (
     <>
@@ -205,10 +225,17 @@ export const SessionsWrapper = ({
                   onClick={onClickCancel}
                   className="w-full"
                   variant="destructive"
+                  disabled={isUpdateRsvpLoading || isDeleting}
                 >
-                  {isLoading || isDeleting ? "Removing RSVP..." : "Remove RSVP"}
+                  {isUpdateRsvpLoading || isDeleting
+                    ? "Removing RSVP..."
+                    : "Remove RSVP"}
                 </Button>
-                <Button onClick={closeModal} className="w-full">
+                <Button
+                  onClick={closeModal}
+                  className="w-full"
+                  disabled={isUpdateRsvpLoading || isDeleting}
+                >
                   Close
                 </Button>
               </div>

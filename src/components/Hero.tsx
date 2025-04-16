@@ -45,6 +45,8 @@ import { rsvpTypeToEmoji } from "src/utils/rsvpTypeToEmoji";
 import { cleanupRruleString } from "src/utils/cleanupRruleString";
 import { rrulestr } from "rrule";
 import { ArrowUpRight } from "lucide-react";
+import { AlertCircle } from "lucide-react";
+
 const When = ({
   event,
   className,
@@ -207,6 +209,13 @@ export const WhoElseIsGoing = ({
     (rsvp) => rsvp.rsvpType !== RSVP_TYPE.NOT_GOING
   );
   const hasRsvps = filteredRsvps.length > 0;
+
+  // Get waitlist info from the event object
+  const isWaitlisted = event.isCurrentUserWaitlisted;
+  const waitlistCount = event.waitlistCount;
+  // Calculate how many others are on the waitlist
+  const othersOnWaitlist = waitlistCount > 0 ? waitlistCount - 1 : 0;
+
   return (
     <>
       {noModal ? null : (
@@ -238,6 +247,23 @@ export const WhoElseIsGoing = ({
                 );
               })}
             </CredenzaBody>
+            {/* Display waitlist status inside the modal if the user is waitlisted */}
+            {isWaitlisted && (
+              <CredenzaFooter className="border-t pt-3 text-sm font-medium text-foreground">
+                <div className="flex items-center justify-center gap-1.5">
+                  <AlertCircle className="h-4 w-4 text-yellow-500" />
+                  <span>
+                    You are currently on the waitlist
+                    {othersOnWaitlist > 0
+                      ? ` along with ${othersOnWaitlist} other${
+                          othersOnWaitlist > 1 ? "s" : ""
+                        }`
+                      : ""}
+                    .
+                  </span>
+                </div>
+              </CredenzaFooter>
+            )}
             <CredenzaFooter>
               <CredenzaClose className="w-full">
                 <Button className="w-full">Close</Button>
@@ -268,6 +294,12 @@ export const WhoElseIsGoing = ({
             <ViewOtherRSVPs event={event} />
           ) : (
             <div className="text-sm text-gray-500">No RSVPs yet</div>
+          )}
+          {isWaitlisted && (
+            <div className="mt-2 flex items-center gap-1.5 rounded-md bg-yellow-100 p-2 text-sm font-medium text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300">
+              <AlertCircle className="h-4 w-4" />
+              <span>You&apos;re on the waitlist ({waitlistCount} total)</span>
+            </div>
           )}
         </CardContent>
       </Card>
@@ -315,7 +347,7 @@ const ConvoSeats = ({
   return (
     <div className="my-2 rounded-md border border-gray-500 p-2">
       {totalAvailableSeats} of {totalSeats} seats available.{" "}
-      {isSignedIn ? `When you RSVP as "Maybe" a seat is reserved` : ""}
+      {isSignedIn ? `When you RSVP as "Maybe" a seat is NOT reserved` : ""}
     </div>
   );
 };
@@ -326,43 +358,43 @@ const RSVP = ({
   totalAvailableSeats,
   totalSeats,
   isOwnerOfConvo,
+  onRsvpAttempt,
+  isRsvpUpdating,
 }: {
   event: ClientEvent;
   className?: string;
   totalAvailableSeats: number;
   totalSeats: number;
   isOwnerOfConvo: boolean;
+  onRsvpAttempt: (type: RSVP_TYPE) => void;
+  isRsvpUpdating: boolean;
 }) => {
   const { rsvp } = useUserRsvpForConvo({ hash: event.hash });
   const { fetchedUser: user } = useUser();
   const [rsvpType, setRsvpType] = useState<RSVP_TYPE>(RSVP_TYPE.GOING);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const { fetchedUser } = useUser();
-  const { fetch: updateRsvp } = useUpdateRsvp({
-    eventId: event.id,
-    userId: fetchedUser?.id,
-    type: rsvpType,
-  });
+
   const onRsvpTypeChange = (rsvpType: RSVP_TYPE) => {
     setRsvpType(rsvpType);
   };
+
   useEffect(() => {
     setRsvpType(rsvp ? rsvp.rsvpType : RSVP_TYPE.GOING);
   }, [rsvp]);
-  const submit = async () => {
-    try {
-      setIsSubmitting(true);
-      await updateRsvp();
-    } catch (error) {
-      console.error("Failed to update RSVP:", error);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+
+  // Reinstate the function to get display text for current RSVP
   const getCurrentRsvpTypeToString = () => {
-    return rsvp?.rsvpType ? (
-      RSVP_TYPE_MESSAGES[rsvp.rsvpType]
-    ) : (
+    const type = rsvp?.rsvpType;
+    // Check if type is one of the expected keys
+    if (
+      type === RSVP_TYPE.GOING ||
+      type === RSVP_TYPE.MAYBE ||
+      type === RSVP_TYPE.NOT_GOING
+    ) {
+      // Now TypeScript knows 'type' is a valid key
+      return RSVP_TYPE_MESSAGES[type];
+    }
+    // Fallback for no RSVP or unexpected rsvpType
+    return (
       <>
         You have not{" "}
         <span className="underline decoration-dotted underline-offset-4">
@@ -372,10 +404,17 @@ const RSVP = ({
       </>
     );
   };
+
+  // Determine if event is full (limited and no seats left)
+  const isFull = totalAvailableSeats <= 0 && totalSeats > 0;
+  console.log("isFull", isFull);
+  // Determine if current user is already waitlisted
+  const isWaitlisted = event.isCurrentUserWaitlisted;
+
   if (isOwnerOfConvo) {
     return null;
   }
-  if (!fetchedUser?.isSignedIn) {
+  if (!user.isSignedIn) {
     return (
       <Card
         className={cn(
@@ -420,72 +459,108 @@ const RSVP = ({
           totalSeats={totalSeats}
           isSignedIn={true}
         />
-        <RadioGroup className="flex flex-col gap-6 text-gray-500 sm:flex-row">
-          <div
-            className={cn(
-              "flex cursor-pointer flex-row items-center gap-2 px-4 py-2",
-              rsvp?.rsvpType === RSVP_TYPE.GOING &&
-                "rounded-full border-2 border-foreground",
-              rsvpType === RSVP_TYPE.GOING && "rounded-full bg-muted"
+
+        {/* Conditional rendering based on event capacity */}
+        {isFull ? (
+          // Event is full - Show Waitlist Button OR Leave Waitlist Button
+          <div className="mt-4 flex flex-col items-center">
+            <Button
+              onClick={() => {
+                onRsvpAttempt(
+                  isWaitlisted ? RSVP_TYPE.NOT_GOING : RSVP_TYPE.GOING
+                );
+              }}
+              className="w-full"
+              disabled={isRsvpUpdating}
+              isLoading={isRsvpUpdating}
+              variant={isWaitlisted ? "destructive" : "default"}
+            >
+              {isWaitlisted ? "Leave Waitlist" : "Join Waitlist"}
+            </Button>
+            <p className="mt-2 text-xs text-muted-foreground">
+              {isWaitlisted
+                ? "You won't be notified if a spot opens up."
+                : "The event is full. Join the waitlist to be notified if a spot opens up."}
+            </p>
+          </div>
+        ) : (
+          // Event has space - Show RSVP options
+          <>
+            {/* MOVE RadioGroup and Signing As INSIDE this fragment */}
+            <RadioGroup className="flex flex-col gap-6 text-gray-500 sm:flex-row">
+              {/* Radio options (Going, Maybe, Not Going) */}
+              <div
+                className={cn(
+                  "flex cursor-pointer flex-row items-center gap-2 px-4 py-2",
+                  rsvp?.rsvpType === RSVP_TYPE.GOING &&
+                    "rounded-full border-2 border-foreground",
+                  rsvpType === RSVP_TYPE.GOING && "rounded-full bg-muted"
+                )}
+              >
+                <RadioGroupItem
+                  value="going"
+                  id="going"
+                  checked={rsvpType === RSVP_TYPE.GOING}
+                  onClick={() => onRsvpTypeChange(RSVP_TYPE.GOING)}
+                />
+                <Label htmlFor="going">Going</Label>
+              </div>
+              {/* ... Maybe option ... */}
+              <div
+                className={cn(
+                  "flex cursor-pointer flex-row items-center gap-2 px-4 py-2",
+                  rsvp?.rsvpType === RSVP_TYPE.MAYBE &&
+                    "rounded-full border-2 border-foreground bg-muted",
+                  rsvpType === RSVP_TYPE.MAYBE && "rounded-full bg-muted"
+                )}
+              >
+                <RadioGroupItem
+                  value="maybe"
+                  id="maybe"
+                  checked={rsvpType === RSVP_TYPE.MAYBE}
+                  onClick={() => onRsvpTypeChange(RSVP_TYPE.MAYBE)}
+                />
+                <Label htmlFor="maybe">Maybe</Label>
+              </div>
+              {/* ... Not Going option ... */}
+              <div
+                className={cn(
+                  "flex cursor-pointer flex-row items-center gap-2 px-4 py-2",
+                  rsvp?.rsvpType === RSVP_TYPE.NOT_GOING &&
+                    "rounded-full border-2 border-foreground bg-muted",
+                  rsvpType === RSVP_TYPE.NOT_GOING && "rounded-full bg-muted"
+                )}
+              >
+                <RadioGroupItem
+                  value="not-going"
+                  id="not-going"
+                  checked={rsvpType === RSVP_TYPE.NOT_GOING}
+                  onClick={() => onRsvpTypeChange(RSVP_TYPE.NOT_GOING)}
+                />
+                <Label htmlFor="not-going">Not going</Label>
+              </div>
+            </RadioGroup>
+            {user.isSignedIn && (
+              <div className="mt-6">
+                <FieldLabel>Signing as</FieldLabel>
+                <div className="flex flex-row gap-3">
+                  <Signature user={user as User} style="fancy" />
+                </div>
+              </div>
             )}
-          >
-            <RadioGroupItem
-              value="going"
-              id="going"
-              checked={rsvpType === RSVP_TYPE.GOING}
-              onClick={() => onRsvpTypeChange(RSVP_TYPE.GOING)}
-            />
-            <Label htmlFor="going">Going</Label>
-          </div>
-          <div
-            className={cn(
-              "flex cursor-pointer flex-row items-center gap-2 px-4 py-2",
-              rsvp?.rsvpType === RSVP_TYPE.MAYBE &&
-                "rounded-full border-2 border-foreground bg-muted",
-              rsvpType === RSVP_TYPE.MAYBE && "rounded-full bg-muted"
-            )}
-          >
-            <RadioGroupItem
-              value="maybe"
-              id="maybe"
-              checked={rsvpType === RSVP_TYPE.MAYBE}
-              onClick={() => onRsvpTypeChange(RSVP_TYPE.MAYBE)}
-            />
-            <Label htmlFor="maybe">Maybe</Label>
-          </div>
-          <div
-            className={cn(
-              "flex cursor-pointer flex-row items-center gap-2 px-4 py-2",
-              rsvp?.rsvpType === RSVP_TYPE.NOT_GOING &&
-                "rounded-full border-2 border-foreground bg-muted",
-              rsvpType === RSVP_TYPE.NOT_GOING && "rounded-full bg-muted"
-            )}
-          >
-            <RadioGroupItem
-              value="not-going"
-              id="not-going"
-              checked={rsvpType === RSVP_TYPE.NOT_GOING}
-              onClick={() => onRsvpTypeChange(RSVP_TYPE.NOT_GOING)}
-            />
-            <Label htmlFor="not-going">Not going</Label>
-          </div>
-        </RadioGroup>
-        {user.isSignedIn && (
-          <div className="mt-6">
-            <FieldLabel>Signing as</FieldLabel>
-            <div className="flex flex-row gap-3">
-              <Signature user={user as User} style="fancy" />
-            </div>
-          </div>
+            {/* Regular RSVP/Update Button */}
+            <Button
+              onClick={() => {
+                onRsvpAttempt(rsvpType);
+              }}
+              className="mt-4 w-full"
+              disabled={isRsvpUpdating}
+              isLoading={isRsvpUpdating}
+            >
+              {rsvp ? "Update RSVP" : "RSVP"}
+            </Button>
+          </>
         )}
-        <Button
-          onClick={submit}
-          className="mt-4 w-full"
-          disabled={isSubmitting}
-          isLoading={isSubmitting}
-        >
-          {rsvp ? "Update RSVP" : "RSVP"}
-        </Button>
       </CardContent>
     </Card>
   );
@@ -495,10 +570,14 @@ const Hero = ({
   isImported,
   isDeleted,
   event,
+  onRsvpAttempt,
+  isRsvpUpdating,
 }: {
   isImported?: boolean;
   isDeleted?: boolean;
   event: ClientEvent;
+  onRsvpAttempt: (type: RSVP_TYPE) => void;
+  isRsvpUpdating: boolean;
 }) => {
   const isPartOfCollection = event.collections.length > 0;
   const collectionHrefs = event.collections.map((c, k) => (
@@ -517,7 +596,7 @@ const Hero = ({
     userRsvp?.rsvpType === RSVP_TYPE.MAYBE;
   const totalAvailableSeats =
     event.limit -
-    event.rsvps.filter((rsvp) => rsvp.rsvpType !== RSVP_TYPE.NOT_GOING).length;
+    event.rsvps.filter((rsvp) => rsvp.rsvpType === RSVP_TYPE.GOING).length;
   const totalSeats = event.limit;
   return (
     <div className="flex w-full flex-col justify-items-start">
@@ -582,6 +661,8 @@ const Hero = ({
           totalAvailableSeats={totalAvailableSeats}
           totalSeats={totalSeats}
           isOwnerOfConvo={isOwnerOfConvo}
+          onRsvpAttempt={onRsvpAttempt}
+          isRsvpUpdating={isRsvpUpdating}
         />
       </div>
 

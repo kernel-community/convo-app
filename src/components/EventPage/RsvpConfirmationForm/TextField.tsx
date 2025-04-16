@@ -1,6 +1,6 @@
 import type { FieldErrorsImpl, UseFormRegister } from "react-hook-form";
 import FieldLabel from "../../StrongText";
-import type { RsvpInput } from "../EventWrapper";
+import type { RsvpInput } from "../types";
 import type { ChangeEvent } from "react";
 
 const TextField = ({
@@ -56,8 +56,8 @@ const TextField = ({
               border-red-300 ring-red-300
               focus:border-red-500 focus:ring-red-500`
                 : `
-              border-gray-300 ring-gray-300
-              focus:border-primary focus:ring-primary dark:border-primary-dark`
+              dark:border-primary-dark border-gray-300
+              ring-gray-300 focus:border-primary focus:ring-primary`
             }
             ${disabled ? `bg-gray-200` : ``}
           `}

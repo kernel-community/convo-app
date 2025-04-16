@@ -1,8 +1,21 @@
+import { RSVP_TYPE } from "@prisma/client";
 import type { ClientEvent, EventsRequest, ServerEvent } from "src/types";
 import totalUniqueRSVPs, { uniqueRSVPs } from "src/utils/totalUniqueRsvps";
 
-// all events in the input array have the same hash
-const formatEvent = (event: Array<ServerEvent>): ClientEvent => {
+// Define an extended ServerEvent type that includes the waitlist fields
+// We expect the caller (getEventByHash) to provide these based on its Prisma query
+type ServerEventWithWaitlist = ServerEvent & {
+  _count?: {
+    waitlist: number;
+  };
+  waitlist?: { userId: string }[]; // Expecting an array with 0 or 1 entry for the specific user
+};
+
+// Update the function signature to accept ServerEventWithWaitlist[] and optional userId
+const formatEvent = (
+  event: Array<ServerEventWithWaitlist>,
+  userId?: string | null
+): ClientEvent => {
   if (event.length === 0 || !event) {
     throw new Error("[utils/formatEvent] input event array empty");
   }
@@ -11,6 +24,14 @@ const formatEvent = (event: Array<ServerEvent>): ClientEvent => {
     throw new Error("firstInSeries undefined");
   }
   const { startDateTime, endDateTime, proposer } = firstInSeries;
+
+  // Extract waitlist info from the first event (should be consistent across series)
+  const waitlistCount = firstInSeries._count?.waitlist ?? 0;
+  // Check if the waitlist array included for the user has an entry
+  const isCurrentUserWaitlisted = firstInSeries.waitlist
+    ? firstInSeries.waitlist.length > 0
+    : false;
+
   return {
     ...firstInSeries,
     id: firstInSeries.id,
@@ -23,6 +44,10 @@ const formatEvent = (event: Array<ServerEvent>): ClientEvent => {
     nickname: proposer.nickname,
     sessions: event.map((e) => {
       const { id, startDateTime, endDateTime, limit, rsvps } = e;
+      // Calculate GOING count specifically for availableSeats logic
+      const goingCount = rsvps.filter(
+        (r) => r.rsvpType === RSVP_TYPE.GOING
+      ).length;
       return {
         id,
         startDateTime: startDateTime.toISOString(),
@@ -30,19 +55,25 @@ const formatEvent = (event: Array<ServerEvent>): ClientEvent => {
         limit,
         rsvps,
         rsvpCount: rsvps.length,
-        availableSeats: limit - rsvps.length > 0 ? limit - rsvps.length : 0,
+        // Correct available seats calculation based on GOING count
+        availableSeats: limit > 0 ? Math.max(0, limit - goingCount) : Infinity,
         noLimit: limit === 0,
       };
     }),
+    // Add the new waitlist fields
+    waitlistCount: waitlistCount,
+    isCurrentUserWaitlisted: !!userId && isCurrentUserWaitlisted, // Ensure only true if userId was provided
   };
 };
 
-// all events in the input array have different hashes
+// Update formatEvents to accept the extended type and pass userId
 export const formatEvents = (
-  events: Array<ServerEvent>,
-  filter?: EventsRequest["filter"]
+  events: Array<ServerEventWithWaitlist>,
+  filter?: EventsRequest["filter"],
+  userId?: string | null
 ): Array<ClientEvent> => {
-  let res = events.map((event) => formatEvent([event]));
+  // Pass userId to the formatEvent call within the map
+  let res = events.map((event) => formatEvent([event], userId));
   if (filter) {
     if (filter.proposerId) {
       // filter by userId

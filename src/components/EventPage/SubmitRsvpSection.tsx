@@ -4,8 +4,8 @@ import LoginButton from "../LoginButton";
 import FieldLabel from "../StrongText";
 import type { SubmitHandler } from "react-hook-form";
 import { useForm } from "react-hook-form";
-import type { RsvpInput } from "./EventWrapper";
-import { rsvpInputSchema } from "./EventWrapper";
+import type { RsvpInput } from "./types";
+import { rsvpInputSchema } from "./types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import useSubmitRsvp from "src/hooks/useSubmitRsvp";
 import { useEffect, useState } from "react";
@@ -13,18 +13,8 @@ import isNicknameSet from "src/utils/isNicknameSet";
 import Signature from "./Signature";
 import type { User } from "@prisma/client";
 import { Button } from "../ui/button";
-import {
-  Credenza,
-  CredenzaBody,
-  CredenzaContent,
-  CredenzaDescription,
-  CredenzaFooter,
-  CredenzaHeader,
-  CredenzaTitle,
-} from "../ui/credenza";
 import { useRsvpIntention } from "src/context/RsvpIntentionContext";
 import useEventsFromId from "src/hooks/useEventsFromId";
-import { getDateTimeString } from "src/utils/dateTime";
 
 const SubmitRsvpSection = ({
   text,

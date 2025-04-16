@@ -64,6 +64,18 @@ import {
   SUBJECT as ProposerMessageTemplateSubject,
 } from "./templates/ProposerMessage";
 
+// Import the new OffWaitlist template and subject
+import {
+  OffWaitlistEmailTemplate,
+  SUBJECT as OffWaitlistEmailTemplateSubject,
+} from "./templates/OffWaitlist";
+
+// Import the new Waitlisted template and subject
+import {
+  WaitlistedEmailTemplate,
+  SUBJECT as WaitlistedEmailTemplateSubject,
+} from "./templates/Waitlisted";
+
 import type { EmailTemplateWithEventProps } from "./types";
 
 type ProposerMessageProps = EmailTemplateWithEventProps & {
@@ -88,7 +100,9 @@ export type EmailType =
   | "invite-not-going"
   | "deleted-proposer"
   | "deleted-attendee"
-  | "proposer-message";
+  | "proposer-message"
+  | "off-waitlist"
+  | "waitlisted";
 
 export const getEmailTemplateFromType = (
   type: EmailType,
@@ -198,7 +212,23 @@ export const getEmailTemplateFromType = (
         subject: ProposerMessageTemplateSubject,
       };
     }
+    case "off-waitlist":
+      return {
+        template: OffWaitlistEmailTemplate({
+          ...(props as EmailTemplateWithEventProps),
+        }),
+        subject: OffWaitlistEmailTemplateSubject,
+      };
+    case "waitlisted":
+      return {
+        template: WaitlistedEmailTemplate({
+          ...(props as EmailTemplateWithEventProps),
+        }),
+        subject: WaitlistedEmailTemplateSubject,
+      };
     default:
-      throw new Error(`Unknown email type: ${type}`);
+      // Ensure exhaustive check - if a new type is added, this will error
+      const exhaustiveCheck: never = type;
+      throw new Error(`Unknown email type: ${exhaustiveCheck}`);
   }
 };
