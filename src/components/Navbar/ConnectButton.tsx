@@ -6,14 +6,14 @@ import { useUser } from "src/context/UserContext";
 import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { UserIcon, User2, LogOut, ChevronDown, PenSquare } from "lucide-react";
+import { User2, LogOut, ChevronDown, PenSquare } from "lucide-react";
 import SignOutCredenza from "../SignOutCredenza";
 import useProfile from "src/hooks/useProfile";
-import { DEAULT_PROFILE_PICTURE } from "src/utils/constants";
+import { getDefaultProfilePicture } from "src/utils/constants";
 
 export const ConnectButton = () => {
   const { fetchedUser: user, handleSignOut: userContextSignOut } = useUser();
-  const { setShowDynamicUserProfile, setShowAuthFlow } = useDynamicContext();
+  const { setShowAuthFlow } = useDynamicContext();
   const [isSignedIn, setIsSignedIn] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isSignOutDialogOpen, setIsSignOutDialogOpen] = useState(false);
@@ -65,8 +65,8 @@ export const ConnectButton = () => {
   };
 
   if (isSignedIn) {
-    // Get profile image URL from the profile data
-    const profileImage = profile?.image || DEAULT_PROFILE_PICTURE;
+    // Get profile image URL from the profile data, using the new function as fallback
+    const profileImage = profile?.image || getDefaultProfilePicture(user?.id);
 
     return (
       <div ref={dropdownRef} className="relative">

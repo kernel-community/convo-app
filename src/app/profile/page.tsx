@@ -1,27 +1,20 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, ChangeEvent, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
-  CheckCircle,
-  PenSquare,
   User as UserIcon,
   Globe,
   Briefcase,
   Tag,
   Link as LinkIcon,
+  Shuffle,
+  Loader2,
+  Check,
+  X,
 } from "lucide-react";
 import { useDynamicContext } from "@dynamic-labs/sdk-react";
 import { pick } from "lodash";
-import {
-  Credenza,
-  CredenzaContent,
-  CredenzaHeader,
-  CredenzaTitle,
-  CredenzaDescription,
-  CredenzaFooter,
-  CredenzaBody,
-} from "src/components/ui/credenza";
 
 import Main from "src/layouts/Main";
 import { useUser } from "src/context/UserContext";
@@ -32,8 +25,11 @@ import { checkSessionAuth } from "src/lib/checkSessionAuth";
 import { Button } from "src/components/ui/button";
 import { Input } from "src/components/ui/input";
 import type { Profile as ProfileType, User } from "@prisma/client";
-import { ImageUpload } from "src/components/ui/image-upload";
-import { DEAULT_PROFILE_PICTURE } from "src/utils/constants";
+import {
+  getDefaultProfilePicture,
+  DEFAULT_PROFILE_PICTURES,
+} from "src/utils/constants";
+import { Separator } from "src/components/ui/separator";
 
 // Create a simple Textarea component if not available
 const Textarea = ({
@@ -101,6 +97,19 @@ const ProfilePage = () => {
     profile: {},
     user: {},
   });
+
+  // State for nickname uniqueness check
+  const [isCheckingNickname, setIsCheckingNickname] = useState(false);
+  const [isNicknameUnique, setIsNicknameUnique] = useState<boolean | null>(
+    null
+  );
+  const [nicknameCheckError, setNicknameCheckError] = useState<string | null>(
+    null
+  );
+  const [lastCheckedNickname, setLastCheckedNickname] = useState<string | null>(
+    null
+  );
+  const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null); // For debouncing
 
   // Check if we should enter edit mode from URL params
   useEffect(() => {
@@ -183,6 +192,93 @@ const ProfilePage = () => {
       }
     }
   }, [profile, fetchedUser, isEditing]);
+
+  // Effect for debounced nickname check
+  useEffect(() => {
+    // Only run when editing and nickname exists
+    if (!isEditing || !formState.user.nickname) {
+      // Reset check state if nickname is cleared or not editing
+      setIsCheckingNickname(false);
+      setIsNicknameUnique(null);
+      setNicknameCheckError(null);
+      setLastCheckedNickname(null);
+      if (debounceTimeoutRef.current) clearTimeout(debounceTimeoutRef.current);
+      return;
+    }
+
+    const currentNickname = formState.user.nickname.trim();
+
+    // Don't check if it's the same as the original nickname or the last checked one
+    if (
+      currentNickname === userAttributes.nickname ||
+      currentNickname === lastCheckedNickname
+    ) {
+      // If it matches the original, it's implicitly 'unique' for this user
+      if (currentNickname === userAttributes.nickname) {
+        setIsNicknameUnique(true);
+        setNicknameCheckError(null);
+        setIsCheckingNickname(false);
+        setLastCheckedNickname(currentNickname);
+        if (debounceTimeoutRef.current)
+          clearTimeout(debounceTimeoutRef.current);
+      } else {
+        // If it's same as last checked, maintain current state
+        // (no need to clear timeout here, let the latest check run if pending)
+      }
+      return;
+    }
+
+    // Clear previous timeout
+    if (debounceTimeoutRef.current) {
+      clearTimeout(debounceTimeoutRef.current);
+    }
+
+    // Set loading state immediately for feedback
+    setIsCheckingNickname(true);
+    setIsNicknameUnique(null); // Reset uniqueness status
+    setNicknameCheckError(null);
+
+    // Debounce the API call
+    debounceTimeoutRef.current = setTimeout(async () => {
+      try {
+        const response = await fetch(
+          `/api/user/check-nickname?nickname=${encodeURIComponent(
+            currentNickname
+          )}&userId=${fetchedUser?.id || ""}`
+        );
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || "Nickname check failed");
+        }
+        const data = await response.json();
+        setIsNicknameUnique(data.isUnique);
+        setNicknameCheckError(null);
+        setLastCheckedNickname(currentNickname); // Store the nickname that was checked
+      } catch (error) {
+        console.error("Nickname check error:", error);
+        setNicknameCheckError(
+          error instanceof Error ? error.message : "Error checking nickname"
+        );
+        setIsNicknameUnique(null); // Ensure uniqueness is null on error
+        setLastCheckedNickname(currentNickname); // Still store it to prevent re-check loop on error
+      } finally {
+        setIsCheckingNickname(false);
+      }
+    }, 200); // Reduced debounce delay to 200ms
+
+    // Cleanup function to clear timeout if component unmounts or nickname changes again
+    return () => {
+      if (debounceTimeoutRef.current) {
+        clearTimeout(debounceTimeoutRef.current);
+      }
+    };
+  }, [
+    formState.user.nickname,
+    userAttributes.nickname,
+    fetchedUser?.id,
+    isEditing,
+    lastCheckedNickname,
+  ]);
 
   // Handle sign out with improved state management
   const handleProfileSignOut = async () => {
@@ -320,25 +416,131 @@ const ProfilePage = () => {
     forceUpdate();
   };
 
-  // Add a function to handle entering edit mode
-  const handleEnterEditMode = () => {
-    // Initialize form state with current data
-    setFormState({
-      profile: {
-        ...(profile || {}),
-        userId: fetchedUser?.id,
-      },
-      user: fetchedUser ? pick(fetchedUser, ["nickname", "id"]) : {},
-    });
+  // State for image upload handling in edit mode
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
 
-    // Set edit mode
-    setIsEditing(true);
-
-    // Add the edit=true parameter to URL if it's not already there
-    if (searchParams.get("edit") !== "true") {
-      router.replace("/profile?edit=true");
+  // Function to handle randomizing profile picture
+  const handleRandomizePicture = useCallback(() => {
+    const randomIndex = Math.floor(
+      Math.random() * DEFAULT_PROFILE_PICTURES.length
+    );
+    const randomImageUrl = DEFAULT_PROFILE_PICTURES[randomIndex];
+    if (randomImageUrl) {
+      setFormState((prev) => ({
+        ...prev,
+        profile: {
+          ...prev.profile,
+          image: randomImageUrl,
+        },
+      }));
+      // Clear any previous upload error when randomizing
+      setUploadError(null);
     }
-  };
+  }, []);
+
+  // Function to trigger file input
+  const triggerFileInput = useCallback(() => {
+    fileInputRef.current?.click();
+  }, []);
+
+  // Function to handle file selection and initiate upload
+  const handleFileSelect = useCallback(
+    async (e: ChangeEvent<HTMLInputElement>) => {
+      const selectedFile = e.target.files?.[0];
+      // Reset file input value to allow re-uploading the same file
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+
+      if (!selectedFile) return;
+
+      // Validate file type
+      const validTypes = [
+        "image/jpeg",
+        "image/jpg",
+        "image/png",
+        "image/gif",
+        "image/webp",
+      ];
+      if (!validTypes.includes(selectedFile.type)) {
+        setUploadError(`Invalid type. Allowed: ${validTypes.join(", ")}`);
+        return;
+      }
+
+      // Validate file size (5MB max)
+      if (selectedFile.size > 5 * 1024 * 1024) {
+        setUploadError("File size must be less than 5MB");
+        return;
+      }
+
+      setUploadError(null);
+      setIsUploadingImage(true);
+
+      try {
+        // 1. Get presigned URL
+        const presignedResponse = await fetch("/api/profile/upload-url", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            contentType: selectedFile.type,
+            userId: fetchedUser?.id,
+          }),
+          credentials: "include",
+        });
+
+        if (!presignedResponse.ok) {
+          const errorData = await presignedResponse.json();
+          throw new Error(errorData.error || "Failed to get upload URL");
+        }
+
+        const { uploadUrl, fileKey } = await presignedResponse.json();
+
+        // 2. Upload to S3
+        const uploadResponse = await fetch(uploadUrl, {
+          method: "PUT",
+          body: selectedFile,
+          headers: { "Content-Type": selectedFile.type },
+        });
+
+        if (!uploadResponse.ok) {
+          throw new Error("Failed to upload file to storage");
+        }
+
+        // 3. Update profile via API
+        const updateResponse = await fetch("/api/profile/update-image", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ userId: fetchedUser?.id, fileKey }),
+          credentials: "include",
+        });
+
+        if (!updateResponse.ok) {
+          const errorData = await updateResponse.json();
+          throw new Error(errorData.error || "Failed to update profile image");
+        }
+
+        const result = await updateResponse.json();
+
+        // 4. Update local form state
+        if (result.profile.image) {
+          setFormState((prev) => ({
+            ...prev,
+            profile: { ...prev.profile, image: result.profile.image },
+          }));
+        }
+      } catch (error) {
+        console.error("Image upload failed:", error);
+        setUploadError(
+          error instanceof Error ? error.message : "Upload failed"
+        );
+      } finally {
+        setIsUploadingImage(false);
+      }
+    },
+    [fetchedUser?.id]
+  );
 
   // Loading state
   if (isLoading || isAuthenticated === null) {
@@ -381,17 +583,6 @@ const ProfilePage = () => {
               Hello,{" "}
               {isEditing ? formState.user.nickname : userAttributes.nickname} :)
             </h1>
-            {!isEditing && (
-              <Button
-                onClick={handleEnterEditMode}
-                variant="outline"
-                size="sm"
-                className="flex items-center gap-2"
-              >
-                <PenSquare className="h-4 w-4" />
-                Edit Profile
-              </Button>
-            )}
           </div>
 
           <div className="grid gap-8 md:grid-cols-[1fr_200px]">
@@ -401,23 +592,64 @@ const ProfilePage = () => {
               <div>
                 <label className="mb-1 block text-sm font-medium text-muted-foreground">
                   <UserIcon className="mr-2 inline h-4 w-4" />
-                  Name
+                  Choose a nickname (we&apos;ll use this to identify you
+                  uniquely)
                 </label>
                 {isEditing ? (
-                  <Input
-                    value={formState.user.nickname || ""}
-                    onChange={(e) =>
-                      setFormState((prev) => ({
-                        ...prev,
-                        user: {
-                          ...prev.user,
-                          nickname: e.target.value,
-                        },
-                      }))
-                    }
-                    placeholder="Your name"
-                    className="max-w-md"
-                  />
+                  <>
+                    <div className="relative max-w-md">
+                      {(() => {
+                        let dynamicClasses = "";
+                        if (isCheckingNickname) {
+                          dynamicClasses = "border-muted-foreground/50";
+                        } else if (isNicknameUnique === true) {
+                          dynamicClasses =
+                            "border-green-500 focus:border-green-500 focus-visible:ring-green-500/20";
+                        } else if (isNicknameUnique === false) {
+                          dynamicClasses =
+                            "border-red-500 focus:border-red-500 focus-visible:ring-red-500/20";
+                        }
+                        return (
+                          <Input
+                            value={formState.user.nickname || ""}
+                            onChange={(e) =>
+                              setFormState((prev) => ({
+                                ...prev,
+                                user: {
+                                  ...prev.user,
+                                  nickname: e.target.value,
+                                },
+                              }))
+                            }
+                            placeholder="Your name"
+                            className={`pr-10 ${dynamicClasses}`}
+                          />
+                        );
+                      })()}
+                      <div className="absolute inset-y-0 right-0 flex items-center pr-3">
+                        {isCheckingNickname ? (
+                          <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                        ) : isNicknameUnique === true ? (
+                          <Check className="h-4 w-4 text-green-500" />
+                        ) : isNicknameUnique === false ? (
+                          <X className="h-4 w-4 text-red-500" />
+                        ) : null}
+                      </div>
+                    </div>
+                    <div className="mt-1 h-4 text-sm">
+                      {isNicknameUnique === false && (
+                        <p className="text-red-500">Nickname already taken</p>
+                      )}
+                      {nicknameCheckError && (
+                        <p className="text-red-500">{nicknameCheckError}</p>
+                      )}
+                      {isCheckingNickname && (
+                        <p className="text-muted-foreground">
+                          Checking availability...
+                        </p>
+                      )}
+                    </div>
+                  </>
                 ) : (
                   <p className="text-lg font-medium">
                     {userAttributes.nickname || "No name set"}
@@ -429,7 +661,7 @@ const ProfilePage = () => {
               <div>
                 <label className="mb-1 block text-sm font-medium text-muted-foreground">
                   <UserIcon className="mr-2 inline h-4 w-4" />
-                  Bio
+                  What have you been up to?
                 </label>
                 {isEditing ? (
                   <Textarea
@@ -458,7 +690,7 @@ const ProfilePage = () => {
               <div>
                 <label className="mb-1 block text-sm font-medium text-muted-foreground">
                   <Briefcase className="mr-2 inline h-4 w-4" />
-                  Current Affiliation
+                  What&apos;s keeping you busy these days?
                 </label>
                 {isEditing ? (
                   <Input
@@ -472,7 +704,7 @@ const ProfilePage = () => {
                         },
                       }))
                     }
-                    placeholder="Where do you work or study?"
+                    placeholder="Current company, school, project or your plant?"
                     className="max-w-md"
                   />
                 ) : (
@@ -627,7 +859,13 @@ const ProfilePage = () => {
                 <div className="flex gap-4 pt-4">
                   <Button
                     onClick={handleSubmit}
-                    disabled={isUpdatingProfile || isUpdatingUser}
+                    disabled={
+                      isUpdatingProfile ||
+                      isUpdatingUser ||
+                      isCheckingNickname ||
+                      isNicknameUnique === false ||
+                      !formState.user.nickname
+                    }
                   >
                     {isUpdatingProfile || isUpdatingUser
                       ? "Updating..."
@@ -643,33 +881,72 @@ const ProfilePage = () => {
             {/* Profile image */}
             <div className="flex flex-col items-center gap-4">
               {isEditing ? (
-                <ImageUpload
-                  userId={fetchedUser?.id || ""}
-                  currentImageUrl={
-                    formState.profile.image || profileAttributes.image || ""
-                  }
-                  onUploadComplete={(imageUrl) => {
-                    setFormState((prev) => ({
-                      ...prev,
-                      profile: {
-                        ...prev.profile,
-                        image: imageUrl,
-                      },
-                    }));
-                  }}
-                  size="lg"
-                />
+                <div className="flex w-[200px] flex-col items-center">
+                  {/* Hidden File Input */}
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
+                    onChange={handleFileSelect}
+                    className="hidden"
+                  />
+                  {/* Image Preview */}
+                  <div className="relative h-[200px] w-[200px] overflow-hidden rounded-full bg-muted">
+                    <img
+                      src={
+                        formState.profile.image ||
+                        getDefaultProfilePicture(fetchedUser?.id)
+                      }
+                      alt="Profile Preview"
+                      className="h-full w-full object-cover"
+                    />
+                    {isUploadingImage && (
+                      <div className="absolute inset-0 flex items-center justify-center bg-black/50">
+                        <Loader2 className="h-8 w-8 animate-spin text-white" />
+                      </div>
+                    )}
+                  </div>
+                  {/* Buttons */}
+                  <div className="mt-3 flex w-full justify-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={triggerFileInput}
+                      disabled={isUploadingImage}
+                    >
+                      {isUploadingImage ? "Uploading..." : "Upload"}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleRandomizePicture}
+                      disabled={isUploadingImage}
+                      className="group transition-transform hover:scale-105"
+                    >
+                      <Shuffle className="mr-1.5 h-4 w-4 transition-transform group-hover:rotate-12" />
+                      Randomize
+                    </Button>
+                  </div>
+                  {/* Upload Error Message */}
+                  {uploadError && (
+                    <p className="mt-2 text-center text-sm text-red-500">
+                      {uploadError}
+                    </p>
+                  )}
+                </div>
               ) : (
                 <div className="w-full overflow-hidden rounded-full bg-muted">
-                  {profileAttributes.image ? (
+                  {profileAttributes.image || formState.profile.image ? (
                     <img
-                      src={profileAttributes.image}
+                      src={
+                        profileAttributes.image || formState.profile.image || ""
+                      }
                       alt="Profile"
                       className="h-full w-full object-cover"
                     />
                   ) : (
                     <img
-                      src={DEAULT_PROFILE_PICTURE}
+                      src={getDefaultProfilePicture(fetchedUser?.id)}
                       alt="Default Profile"
                       className="h-full w-full object-cover"
                     />

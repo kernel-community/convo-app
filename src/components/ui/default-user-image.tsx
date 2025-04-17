@@ -8,7 +8,7 @@ import {
   TongueStickingOutEmoji,
   WinkEmoji,
 } from "./emojis";
-import { DEAULT_PROFILE_PICTURE } from "src/utils/constants";
+import { getDefaultProfilePicture } from "src/utils/constants";
 
 interface EmojiProps {
   width?: number;
@@ -102,10 +102,11 @@ export const UserImage = ({
       className
     );
 
+    // Get the deterministic default picture for the user
+    const defaultImage = getDefaultProfilePicture(userId);
+
     // eslint-disable-next-line @next/next/no-img-element
-    return (
-      <img className={containerClass} src={DEAULT_PROFILE_PICTURE} alt="" />
-    );
+    return <img className={containerClass} src={defaultImage} alt="" />;
   }
 
   const containerClass = cn(
