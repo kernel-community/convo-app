@@ -12,6 +12,7 @@ import {
   Loader2,
   Check,
   X,
+  PenSquare,
 } from "lucide-react";
 import { useDynamicContext } from "@dynamic-labs/sdk-react";
 import { pick } from "lodash";
@@ -576,24 +577,117 @@ const ProfilePage = () => {
 
   return (
     <Main key={`authenticated-${renderKey}`}>
-      <div key="authenticated" className="mx-auto max-w-3xl px-4 py-8">
+      <div
+        key="authenticated"
+        className="mx-auto max-w-3xl px-4 py-8 md:px-6 lg:px-8"
+      >
         <div className="bg-card mb-6 rounded-lg p-6 shadow-sm">
           <div className="mb-6 flex items-center justify-between">
-            <h1 className="font-primary text-2xl">
+            <h1 className="font-primary text-2xl md:text-3xl">
               Hello,{" "}
               {isEditing ? formState.user.nickname : userAttributes.nickname} :)
             </h1>
           </div>
 
-          <div className="grid gap-8 md:grid-cols-[1fr_200px]">
-            {/* Profile details */}
-            <div className="space-y-6">
+          {/* Grid layout: Image on left (md+), Details on right (md+) / Stacked on mobile */}
+          <div className="grid gap-8 md:grid-cols-[200px_1fr]">
+            {/* Profile image section (Now first) */}
+            <div className="flex flex-col items-center gap-4 md:order-1">
+              {" "}
+              {/* Explicit order for clarity */}
+              {isEditing ? (
+                <div className="flex w-full flex-col items-center sm:w-auto md:w-[200px]">
+                  {" "}
+                  {/* Adjusted width constraints */}
+                  {/* Hidden File Input */}
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
+                    onChange={handleFileSelect}
+                    className="hidden"
+                  />
+                  {/* Image Preview */}
+                  <div className="relative h-40 w-40 overflow-hidden rounded-full bg-muted md:h-[200px] md:w-[200px]">
+                    {" "}
+                    {/* Responsive size */}
+                    <img
+                      src={
+                        formState.profile.image ||
+                        getDefaultProfilePicture(fetchedUser?.id)
+                      }
+                      alt="Profile Preview"
+                      className="h-full w-full object-cover"
+                    />
+                    {isUploadingImage && (
+                      <div className="absolute inset-0 flex items-center justify-center bg-black/50">
+                        <Loader2 className="h-8 w-8 animate-spin text-white" />
+                      </div>
+                    )}
+                  </div>
+                  {/* Buttons */}
+                  <div className="mt-3 flex w-full flex-col justify-center gap-2 sm:w-auto sm:flex-row">
+                    {" "}
+                    {/* Stack buttons on mobile */}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={triggerFileInput}
+                      disabled={isUploadingImage}
+                      className="flex-grow sm:flex-grow-0"
+                    >
+                      {isUploadingImage ? "Uploading..." : "Upload"}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleRandomizePicture}
+                      disabled={isUploadingImage}
+                      className="group flex-grow transition-transform hover:scale-105 sm:flex-grow-0"
+                    >
+                      <Shuffle className="mr-1.5 h-4 w-4 transition-transform group-hover:rotate-12" />
+                      Randomize
+                    </Button>
+                  </div>
+                  {/* Upload Error Message */}
+                  {uploadError && (
+                    <p className="mt-2 text-center text-sm text-red-500">
+                      {uploadError}
+                    </p>
+                  )}
+                </div>
+              ) : (
+                <div className="h-40 w-40 overflow-hidden rounded-full bg-muted md:h-[200px] md:w-[200px]">
+                  {" "}
+                  {/* Consistent sizing */}
+                  {profileAttributes.image || formState.profile.image ? (
+                    <img
+                      src={
+                        profileAttributes.image || formState.profile.image || ""
+                      }
+                      alt="Profile"
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <img
+                      src={getDefaultProfilePicture(fetchedUser?.id)}
+                      alt="Default Profile"
+                      className="h-full w-full object-cover"
+                    />
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Profile details (Now second) */}
+            <div className="space-y-6 md:order-2">
+              {" "}
+              {/* Explicit order for clarity */}
               {/* Nickname */}
               <div>
                 <label className="mb-1 block text-sm font-medium text-muted-foreground">
                   <UserIcon className="mr-2 inline h-4 w-4" />
-                  Choose a nickname (we&apos;ll use this to identify you
-                  uniquely)
+                  Nickname
                 </label>
                 {isEditing ? (
                   <>
@@ -656,12 +750,11 @@ const ProfilePage = () => {
                   </p>
                 )}
               </div>
-
               {/* Bio */}
               <div>
                 <label className="mb-1 block text-sm font-medium text-muted-foreground">
-                  <UserIcon className="mr-2 inline h-4 w-4" />
-                  What have you been up to?
+                  <PenSquare className="mr-2 inline h-4 w-4" />
+                  Bio
                 </label>
                 {isEditing ? (
                   <Textarea
@@ -685,12 +778,11 @@ const ProfilePage = () => {
                   </p>
                 )}
               </div>
-
               {/* Current Affiliation */}
               <div>
                 <label className="mb-1 block text-sm font-medium text-muted-foreground">
                   <Briefcase className="mr-2 inline h-4 w-4" />
-                  What&apos;s keeping you busy these days?
+                  Current Focus
                 </label>
                 {isEditing ? (
                   <Input
@@ -714,7 +806,6 @@ const ProfilePage = () => {
                   </p>
                 )}
               </div>
-
               {/* URL */}
               <div>
                 <label className="mb-1 block text-sm font-medium text-muted-foreground">
@@ -753,7 +844,6 @@ const ProfilePage = () => {
                   </p>
                 )}
               </div>
-
               {/* Keywords */}
               <div>
                 <label className="mb-1 block text-sm font-medium text-muted-foreground">
@@ -762,11 +852,12 @@ const ProfilePage = () => {
                 </label>
 
                 {isEditing && (
-                  <div className="mb-3 flex max-w-md gap-2">
+                  <div className="mb-3 flex flex-col gap-2 sm:max-w-md sm:flex-row">
                     <Input
                       value={keywordInput}
                       onChange={(e) => setKeywordInput(e.target.value)}
                       placeholder="Add keyword"
+                      className="flex-grow"
                       onKeyDown={(e: React.KeyboardEvent) => {
                         if (e.key === "Enter") {
                           e.preventDefault();
@@ -844,7 +935,6 @@ const ProfilePage = () => {
                   )}
                 </div>
               </div>
-
               {/* Email (display only) */}
               <div>
                 <label className="mb-1 block text-sm font-medium text-muted-foreground">
@@ -854,7 +944,6 @@ const ProfilePage = () => {
                   {fetchedUser?.email || "No email available"}
                 </p>
               </div>
-
               {isEditing && (
                 <div className="flex gap-4 pt-4">
                   <Button
@@ -874,83 +963,6 @@ const ProfilePage = () => {
                   <Button variant="outline" onClick={handleCancelEdit}>
                     Cancel
                   </Button>
-                </div>
-              )}
-            </div>
-
-            {/* Profile image */}
-            <div className="flex flex-col items-center gap-4">
-              {isEditing ? (
-                <div className="flex w-[200px] flex-col items-center">
-                  {/* Hidden File Input */}
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
-                    onChange={handleFileSelect}
-                    className="hidden"
-                  />
-                  {/* Image Preview */}
-                  <div className="relative h-[200px] w-[200px] overflow-hidden rounded-full bg-muted">
-                    <img
-                      src={
-                        formState.profile.image ||
-                        getDefaultProfilePicture(fetchedUser?.id)
-                      }
-                      alt="Profile Preview"
-                      className="h-full w-full object-cover"
-                    />
-                    {isUploadingImage && (
-                      <div className="absolute inset-0 flex items-center justify-center bg-black/50">
-                        <Loader2 className="h-8 w-8 animate-spin text-white" />
-                      </div>
-                    )}
-                  </div>
-                  {/* Buttons */}
-                  <div className="mt-3 flex w-full justify-center gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={triggerFileInput}
-                      disabled={isUploadingImage}
-                    >
-                      {isUploadingImage ? "Uploading..." : "Upload"}
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={handleRandomizePicture}
-                      disabled={isUploadingImage}
-                      className="group transition-transform hover:scale-105"
-                    >
-                      <Shuffle className="mr-1.5 h-4 w-4 transition-transform group-hover:rotate-12" />
-                      Randomize
-                    </Button>
-                  </div>
-                  {/* Upload Error Message */}
-                  {uploadError && (
-                    <p className="mt-2 text-center text-sm text-red-500">
-                      {uploadError}
-                    </p>
-                  )}
-                </div>
-              ) : (
-                <div className="w-full overflow-hidden rounded-full bg-muted">
-                  {profileAttributes.image || formState.profile.image ? (
-                    <img
-                      src={
-                        profileAttributes.image || formState.profile.image || ""
-                      }
-                      alt="Profile"
-                      className="h-full w-full object-cover"
-                    />
-                  ) : (
-                    <img
-                      src={getDefaultProfilePicture(fetchedUser?.id)}
-                      alt="Default Profile"
-                      className="h-full w-full object-cover"
-                    />
-                  )}
                 </div>
               )}
             </div>
