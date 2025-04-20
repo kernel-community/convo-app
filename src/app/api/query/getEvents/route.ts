@@ -17,14 +17,16 @@ function cleanupRruleString(rruleString: string): string {
 }
 
 // Helper function to check if a recurring event has future occurrences
-function hasUpcomingOccurrences(
+// Renamed from hasUpcomingOccurrences to getNextOccurrenceDetails
+// Returns the Date of the next occurrence or null
+function getNextOccurrenceDetails(
   rruleString: string,
   startDateTime: Date,
   now: Date,
   lookAheadMonths = 6
-): boolean {
+): Date | null {
   try {
-    if (!rruleString) return false;
+    if (!rruleString) return null;
 
     // Parse the recurrence rule
     const rruleSetObject = rrulestr(cleanupRruleString(rruleString), {
@@ -32,18 +34,25 @@ function hasUpcomingOccurrences(
     });
 
     // Set a reasonable future date to check for occurrences
-    // Default to 6 months in the future to limit computation
     const futureDate = new Date(now);
     futureDate.setMonth(futureDate.getMonth() + lookAheadMonths);
 
     // Get the next occurrence after now
+    // The rrule library's between method returns an array of dates
+    // We limit the search by setting inc: true and take: 1 implicitly by checking the first element
     const nextOccurrences = rruleSetObject.between(now, futureDate, true);
 
-    // If there's at least one occurrence in the future, return true
-    return nextOccurrences.length > 0;
+    // Return the first occurrence if found
+    // Explicitly check the type to satisfy TypeScript
+    const firstOccurrence = nextOccurrences[0];
+    return firstOccurrence instanceof Date ? firstOccurrence : null;
   } catch (error) {
-    console.error("Error checking recurrence rule:", error);
-    return false;
+    // It's better to log the specific event causing the error if possible
+    console.error(
+      `Error getting next recurrence date for rule "${rruleString}" starting ${startDateTime}:`,
+      error
+    );
+    return null; // Return null on error to avoid breaking the entire request
   }
 }
 
@@ -157,7 +166,8 @@ export async function POST(request: NextRequest) {
 
         // First, get all regular upcoming events (non-recurring or recurring with future start dates)
         const upcomingEvents = await prisma.event.findMany({
-          ...defaultIncludes,
+          // Use default includes but apply pagination later
+          include: defaultIncludes.include,
           where: {
             startDateTime: {
               gt: Now,
@@ -167,11 +177,16 @@ export async function POST(request: NextRequest) {
           orderBy: {
             startDateTime: "asc",
           },
+          // Remove pagination here, apply after merging and sorting
+          // take: defaultIncludes.take,
+          // skip: defaultIncludes.skip,
+          // cursor: defaultIncludes.cursor,
         });
 
         // Then, get past recurring events that might have future occurrences
         const pastRecurringEvents = await prisma.event.findMany({
-          ...defaultIncludes,
+          // Keep includes, but remove pagination as we need to check all potential recurring events
+          include: defaultIncludes.include,
           where: {
             startDateTime: {
               lte: Now,
@@ -181,9 +196,11 @@ export async function POST(request: NextRequest) {
             },
             ...defaultWheres,
           },
+          // Order doesn't strictly matter here anymore for finding occurrences, but keep for consistency
           orderBy: {
             startDateTime: "asc",
           },
+          // Remove pagination here as well
         });
 
         console.log(`Found ${upcomingEvents.length} regular upcoming events`);
@@ -191,41 +208,70 @@ export async function POST(request: NextRequest) {
           `Found ${pastRecurringEvents.length} past recurring events to check`
         );
 
-        // Filter past recurring events to only those with future occurrences
-        const recurringEventsWithFutureOccurrences = [];
+        // Array to hold the adjusted future occurrences of past recurring events
+        const adjustedRecurringEvents: ServerEvent[] = [];
 
         for (const event of pastRecurringEvents) {
           if (!event.rrule) continue;
 
-          const hasUpcoming = hasUpcomingOccurrences(
+          // Get the date of the *next* occurrence after Now
+          const nextOccurrenceDate = getNextOccurrenceDetails(
             event.rrule,
             new Date(event.startDateTime),
             Now,
             lookAheadMonths
           );
 
-          if (hasUpcoming) {
-            recurringEventsWithFutureOccurrences.push(event);
+          if (nextOccurrenceDate) {
+            // If a future occurrence exists, create a modified event object for it
+            // Clone the original event to avoid mutating the queried data
+            const adjustedEvent = _.cloneDeep(event);
+
+            // Calculate original event duration
+            const originalStartTime = new Date(event.startDateTime).getTime();
+            // Ensure endDateTime is valid before calculating duration
+            const originalEndTime = event.endDateTime
+              ? new Date(event.endDateTime).getTime()
+              : originalStartTime; // Default to 0 duration if endDateTime is null
+            const duration = originalEndTime - originalStartTime; // Duration in milliseconds
+
+            // Update start and end times for the next occurrence
+            adjustedEvent.startDateTime = nextOccurrenceDate;
+            adjustedEvent.endDateTime =
+              duration >= 0
+                ? new Date(nextOccurrenceDate.getTime() + duration)
+                : nextOccurrenceDate; // Handle potential zero or negative duration
+
+            // Add the adjusted event representing the next occurrence
+            adjustedRecurringEvents.push(adjustedEvent);
           }
         }
 
         console.log(
-          `Found ${recurringEventsWithFutureOccurrences.length} past recurring events with future occurrences`
+          `Found ${adjustedRecurringEvents.length} future occurrences from past recurring events`
         );
 
-        // Combine regular upcoming events with recurring events that have future occurrences
+        // Combine regular upcoming events with the *adjusted* future occurrences
         serverEvents = [
           ...upcomingEvents,
-          ...recurringEventsWithFutureOccurrences,
+          ...adjustedRecurringEvents, // Use the list of adjusted events
         ];
 
-        // Sort all events by start date
+        // Sort all combined events by their effective start date
         serverEvents.sort((a, b) => {
-          return (
-            new Date(a.startDateTime).getTime() -
-            new Date(b.startDateTime).getTime()
-          );
+          // Ensure comparison is done on Date objects
+          const aStart = new Date(a.startDateTime);
+          const bStart = new Date(b.startDateTime);
+          return aStart.getTime() - bStart.getTime();
         });
+
+        // Apply pagination *after* combining and sorting all potential upcoming events
+        const startIndex = skip ?? 0;
+        const effectiveTake = take ?? 6; // Use the requested take value or default
+        serverEvents = serverEvents.slice(
+          startIndex,
+          startIndex + effectiveTake
+        );
       }
       break;
     case "today":
