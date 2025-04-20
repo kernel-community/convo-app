@@ -131,7 +131,9 @@ export const Card = ({ event }: { event: ClientEvent }) => {
 
             {/* Display recurring event info */}
             {isSeries && (
-              <div className="text-xxs font-thin">Is a recurring event</div>
+              <span className="inline-block rounded-full bg-primary-muted px-2 py-0.5 text-xxs font-medium text-foreground">
+                recurring event
+              </span>
             )}
           </div>
         </div>
