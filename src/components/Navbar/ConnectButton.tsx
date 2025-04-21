@@ -76,7 +76,7 @@ export const ConnectButton = () => {
 
         {/* Pill-shaped button */}
         <motion.div
-          className="flex cursor-pointer items-center gap-2 rounded-full border border-primary bg-muted px-3 py-1.5 hover:bg-primary-muted"
+          className="flex cursor-pointer items-center gap-2 rounded-full border bg-muted px-3 py-1.5 hover:bg-primary-muted"
           whileHover={{ scale: 1.03 }}
           whileTap={{ scale: 0.98 }}
           onClick={() => setIsDropdownOpen(!isDropdownOpen)}
