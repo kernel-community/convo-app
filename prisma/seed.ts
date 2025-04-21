@@ -144,7 +144,7 @@ async function main() {
   );
 
   // Create events
-  const events = await Promise.all(
+  const eventsData = await Promise.all(
     Array(10)
       .fill(null)
       .map(async (_, i) => {
@@ -164,7 +164,9 @@ async function main() {
             ? "https://meet.kernel.community/junto" // Default online location
             : "Kernel House, San Francisco"; // Default physical location
 
-        return prisma.event.create({
+        const proposerId = getRandomItem(users).id; // STORE proposer ID
+
+        const createdEvent = await prisma.event.create({
           data: {
             title: getRandomItem(eventTitles),
             descriptionHtml: getRandomItem(eventDescriptions),
@@ -174,20 +176,32 @@ async function main() {
             locationType: isOnline ? LocationType.ONLINE : LocationType.MAP,
             limit: Math.floor(Math.random() * 50) + 20, // 20 to 70 people
             type: EventType.JUNTO,
-            proposerId: getRandomItem(users).id,
+            proposers: {
+              // ADDED new way
+              create: [
+                // ADDED
+                { userId: proposerId }, // Use stored ID // ADDED
+              ], // ADDED
+            }, // ADDED
             hash: generateHash(10),
             series: Math.random() > 0.8, // 20% chance of being a series
           },
         });
+        return { event: createdEvent, proposerId }; // Return event and proposerId
       })
   );
 
+  // Extract just the events for potential later use if needed
+  const events = eventsData.map((data) => data.event);
+
   // Create RSVPs - Generate multiple RSVPs for each event
   const rsvps = await Promise.all(
-    events.flatMap((event) => {
+    // Use eventsData which includes proposerId
+    eventsData.flatMap(({ event, proposerId }) => {
+      // Destructure event and proposerId
       // Get available attendees (excluding proposer)
       const availableAttendees = users.filter(
-        (user) => user.id !== event.proposerId
+        (user) => user.id !== proposerId // Use the stored proposerId
       );
 
       // Randomly select 2-5 unique attendees
