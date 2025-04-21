@@ -116,6 +116,7 @@ export const clientEventInputValidationScheme = z.object({
   id: z.string().optional(),
   type: z.enum(["JUNTO", "UNLISTED", "INTERVIEW", "TEST"]).default("JUNTO"),
   creationTimezone: z.string().optional(),
+  proposers: z.array(z.object({ userId: z.string() })).optional(),
 });
 
 export type ClientEventInput = z.infer<typeof clientEventInputValidationScheme>;
