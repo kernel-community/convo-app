@@ -37,8 +37,11 @@ export async function POST(req: NextRequest) {
       prisma.event.findUniqueOrThrow({
         where: { id: rsvp.eventId },
         include: {
-          proposer: true,
-          // Include all RSVPs to calculate current counts accurately
+          proposers: {
+            include: {
+              user: true,
+            },
+          },
           rsvps: { include: { attendee: true } },
         },
       }),
@@ -216,7 +219,7 @@ export async function POST(req: NextRequest) {
           scheduleReminderEmails({
             event: event,
             recipient: user,
-            isProposer: event.proposerId === user.id,
+            isProposer: event.proposers.some((p) => p.userId === user.id),
             isMaybe: finalRsvpTypeForUser === RSVP_TYPE.MAYBE,
           }).catch((error) =>
             console.error(
@@ -247,7 +250,7 @@ export async function POST(req: NextRequest) {
         scheduleReminderEmails({
           event: event,
           recipient: promotedUser,
-          isProposer: event.proposerId === promotedUserId, // Use variable
+          isProposer: event.proposers.some((p) => p.userId === promotedUserId),
           isMaybe: false, // They are now GOING
         }).catch((error) =>
           console.error(

@@ -19,7 +19,11 @@ export async function GET(req: NextRequest) {
     include: {
       events: {
         include: {
-          proposer: true,
+          proposers: {
+            include: {
+              user: true,
+            },
+          },
           rsvps: {
             include: {
               attendee: true,
@@ -46,7 +50,7 @@ export async function GET(req: NextRequest) {
       start: `${sdt.toFormat("yyyyLLdd")}T${sdt.toFormat("HHmmss")}Z`,
       end: `${edt.toFormat("yyyyLLdd")}T${edt.toFormat("HHmmss")}Z`,
       organizer: {
-        name: event.proposer.nickname,
+        name: event.proposers[0]?.user?.nickname ?? "Convo Proposer",
         email: EVENT_ORGANIZER_EMAIL,
       },
       status: event.isDeleted ? "CANCELLED" : "CONFIRMED",

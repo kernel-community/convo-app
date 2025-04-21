@@ -17,7 +17,15 @@ export async function POST(req: NextRequest) {
       isDeleted: false,
     },
     include: {
-      proposer: true,
+      proposers: {
+        include: {
+          user: {
+            include: {
+              profile: true,
+            },
+          },
+        },
+      },
       rsvps: {
         include: {
           attendee: {

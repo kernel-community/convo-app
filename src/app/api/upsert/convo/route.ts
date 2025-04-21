@@ -18,18 +18,20 @@ import {
 // Helper function to send emails asynchronously without blocking the response
 const sendEmailsAsync = async (
   event: ServerEvent,
-  proposer: User,
   goingAttendees: (Rsvp & { attendee: User })[] = [],
   maybeAttendees: (Rsvp & { attendee: User })[] = [],
   isUpdate = false
 ) => {
   try {
-    // Send email to proposer
-    await sendEventEmail({
-      event,
-      type: isUpdate ? "update-proposer" : "create",
-      receiver: proposer,
-    });
+    // Send email to all proposers
+    const proposerEmailPromises = event.proposers.map((proposerEntry) =>
+      sendEventEmail({
+        event,
+        type: isUpdate ? "update-proposer" : "create",
+        receiver: proposerEntry.user,
+      })
+    );
+    await Promise.all(proposerEmailPromises); // Process proposer emails
 
     // Send emails to attendees who RSVP'd as Going
     if (goingAttendees.length > 0) {
@@ -144,7 +146,11 @@ export async function POST(req: NextRequest) {
     const eventToUpdate = await prisma.event.findUniqueOrThrow({
       where: { id: event.id },
       include: {
-        proposer: true,
+        proposers: {
+          include: {
+            user: { include: { profile: true } },
+          },
+        },
         rsvps: {
           include: {
             attendee: true,
@@ -169,7 +175,11 @@ export async function POST(req: NextRequest) {
         // We'll only add a UI for changing timezone later if needed
       },
       include: {
-        proposer: true,
+        proposers: {
+          include: {
+            user: { include: { profile: true } },
+          },
+        },
         rsvps: {
           include: {
             attendee: {
@@ -198,15 +208,11 @@ export async function POST(req: NextRequest) {
     );
 
     // Start sending emails asynchronously without awaiting
-    sendEmailsAsync(
-      updated,
-      updated.proposer,
-      goingAttendees,
-      maybeAttendees,
-      true
-    ).catch((error) => {
-      console.error("Background email sending failed:", error);
-    });
+    sendEmailsAsync(updated, goingAttendees, maybeAttendees, true).catch(
+      (error) => {
+        console.error("Background email sending failed:", error);
+      }
+    );
 
     // Cancel existing reminder emails and schedule new ones
     // We do this in the background to avoid blocking the response
@@ -215,9 +221,10 @@ export async function POST(req: NextRequest) {
         // Cancel existing reminder emails
         await cancelReminderEmails(updated.id);
 
-        // Schedule new reminder emails for the proposer and attendees
+        // Schedule new reminder emails for all proposers and attendees
+        const proposerUsers = updated.proposers.map((p) => p.user); // Get all proposer users
         const allRecipients = [
-          updated.proposer,
+          ...proposerUsers, // Use all proposer users
           ...goingAttendees.map((rsvp) => rsvp.attendee),
           ...maybeAttendees.map((rsvp) => rsvp.attendee),
         ];
@@ -232,10 +239,15 @@ export async function POST(req: NextRequest) {
               (rsvp) => rsvp.attendee.id === recipient.id
             );
 
+            // Check if the recipient is one of the proposers
+            const isProposer = updated.proposers.some(
+              (p) => p.userId === recipient.id
+            );
+
             return scheduleReminderEmails({
               event: updated,
               recipient,
-              isProposer: recipient.id === updated.proposerId,
+              isProposer: isProposer, // Use the calculated value
               isMaybe: isMaybeAttendee,
             });
           })
@@ -296,7 +308,9 @@ export async function POST(req: NextRequest) {
       startDateTime: new Date(event.dateTimeStartAndEnd.start),
       endDateTime: new Date(event.dateTimeStartAndEnd.end),
       hash,
-      proposerId: userId,
+      proposers: {
+        create: [{ userId: userId }],
+      },
       communityId: community.id,
       series: event.recurrenceRule ? true : false,
       isDeleted: false,
@@ -305,7 +319,11 @@ export async function POST(req: NextRequest) {
       creationTimezone: event.creationTimezone, // Store the timezone the event was created in
     },
     include: {
-      proposer: true,
+      proposers: {
+        include: {
+          user: { include: { profile: true } },
+        },
+      },
       rsvps: {
         include: {
           attendee: {
@@ -325,7 +343,7 @@ export async function POST(req: NextRequest) {
   });
 
   // Start sending emails asynchronously without awaiting
-  sendEmailsAsync(created, user).catch((error) => {
+  sendEmailsAsync(created).catch((error) => {
     console.error("Background email sending failed:", error);
   });
 

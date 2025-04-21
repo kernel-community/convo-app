@@ -33,7 +33,11 @@ export async function POST(request: Request) {
         sequence: event.sequence + 1,
       },
       include: {
-        proposer: true,
+        proposers: {
+          include: {
+            user: true,
+          },
+        },
         rsvps: {
           include: {
             attendee: true,
@@ -42,13 +46,16 @@ export async function POST(request: Request) {
       },
     });
 
-    console.log(`Sending email to the proposer`);
-    // send email to the proposer
-    await sendEventEmail({
-      receiver: updated.proposer,
-      type: "deleted-proposer",
-      event: updated,
-    });
+    console.log(`Sending email to the proposer(s)`);
+    // Send email to all proposers
+    const proposerEmailPromises = updated.proposers.map((proposerEntry) =>
+      sendEventEmail({
+        receiver: proposerEntry.user,
+        type: "deleted-proposer",
+        event: updated,
+      })
+    );
+    await Promise.all(proposerEmailPromises);
 
     console.log(`Sending email to the rsvps`);
     // send event deleted emails to all attendees marked as "going" or "maybe"
