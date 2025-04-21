@@ -46,6 +46,14 @@ import { cleanupRruleString } from "src/utils/cleanupRruleString";
 import { rrulestr } from "rrule";
 import { ArrowUpRight } from "lucide-react";
 import { AlertCircle } from "lucide-react";
+// import { toast } from "sonner";
+import { XIcon } from "lucide-react";
+import { ProposerSearchCombobox } from "./ProposerSearchCombobox";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "src/components/ui/popover";
 
 const When = ({
   event,
@@ -370,7 +378,7 @@ const RSVP = ({
   isRsvpUpdating: boolean;
 }) => {
   const { rsvp } = useUserRsvpForConvo({ hash: event.hash });
-  const { fetchedUser: user } = useUser();
+  const { fetchedUser } = useUser();
   const [rsvpType, setRsvpType] = useState<RSVP_TYPE>(RSVP_TYPE.GOING);
 
   const onRsvpTypeChange = (rsvpType: RSVP_TYPE) => {
@@ -407,14 +415,13 @@ const RSVP = ({
 
   // Determine if event is full (limited and no seats left)
   const isFull = totalAvailableSeats <= 0 && totalSeats > 0;
-  console.log("isFull", isFull);
   // Determine if current user is already waitlisted
   const isWaitlisted = event.isCurrentUserWaitlisted;
 
   if (isOwnerOfConvo) {
     return null;
   }
-  if (!user.isSignedIn) {
+  if (!fetchedUser.isSignedIn) {
     return (
       <Card
         className={cn(
@@ -540,11 +547,11 @@ const RSVP = ({
                 <Label htmlFor="not-going">Not going</Label>
               </div>
             </RadioGroup>
-            {user.isSignedIn && (
+            {fetchedUser.isSignedIn && (
               <div className="mt-6">
                 <FieldLabel>Signing as</FieldLabel>
                 <div className="flex flex-row gap-3">
-                  <Signature user={user as User} style="fancy" />
+                  <Signature user={fetchedUser as User} style="fancy" />
                 </div>
               </div>
             )}
@@ -588,7 +595,11 @@ const Hero = ({
     </Link>
   ));
   const { fetchedUser } = useUser();
-  const isOwnerOfConvo = fetchedUser?.id === event.proposerId;
+  // const isOwnerOfConvo = fetchedUser?.id === event.proposerId; // REMOVED
+  // Check if the fetched user is present in the event's proposers array
+  const isOwnerOfConvo = event.proposers.some(
+    (p) => p.userId === fetchedUser?.id
+  ); // ADDED
   const isKernelCommunityMember = fetchedUser?.isKernelCommunityMember;
   const { rsvp: userRsvp } = useUserRsvpForConvo({ hash: event.hash });
   const isUserGoing =
@@ -686,6 +697,13 @@ const RSVP_STATUS_MAP = {
   MAYBE: "Maybe",
 } as const;
 
+// Define type for fetched users in dropdown
+type DropdownUser = {
+  id: string;
+  nickname: string;
+  image: string | null;
+};
+
 const AdminMetricsAccordion = ({ event }: { event: ClientEvent }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [showScrollIndicator, setShowScrollIndicator] = useState(false);
@@ -696,42 +714,145 @@ const AdminMetricsAccordion = ({ event }: { event: ClientEvent }) => {
   const [showAddRsvp, setShowAddRsvp] = useState(false);
   const [showMessageConfirm, setShowMessageConfirm] = useState(false);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [isAddingProposer, setIsAddingProposer] = useState(false);
+  const [isRemovingProposer, setIsRemovingProposer] = useState<string | null>(
+    null
+  );
+  const { fetchedUser } = useUser();
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
 
+  // Calculate existing proposer IDs set to pass to combobox
+  const existingProposerIds = new Set(event.proposers.map((p) => p.userId));
+
+  const handleAddProposer = async () => {
+    if (!selectedUserId) {
+      console.error("Please select a user to add.");
+      return;
+    }
+    setIsAddingProposer(true);
+    try {
+      const response = await fetch("/api/manage/proposers", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          eventId: event.id,
+          newProposerUserId: selectedUserId,
+        }),
+      });
+      const result = await response.json();
+      if (!response.ok)
+        throw new Error(result.error || "Failed to add proposer");
+      console.log(result.message || "Co-proposer added!");
+      setSelectedUserId(null);
+    } catch (error) {
+      console.error("Error adding co-proposer:", error);
+      console.error(
+        error instanceof Error ? error.message : "An unexpected error occurred"
+      );
+    } finally {
+      setIsAddingProposer(false);
+    }
+  };
+
+  const handleRemoveProposer = async (proposerUserIdToRemove: string) => {
+    setIsRemovingProposer(proposerUserIdToRemove);
+    try {
+      const response = await fetch("/api/manage/proposers", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ eventId: event.id, proposerUserIdToRemove }),
+      });
+      const result = await response.json();
+      if (!response.ok)
+        throw new Error(result.error || "Failed to remove proposer");
+      console.log(result.message || "Co-proposer removed!");
+    } catch (error) {
+      console.error("Error removing co-proposer:", error);
+      console.error(
+        error instanceof Error ? error.message : "An unexpected error occurred"
+      );
+    } finally {
+      setIsRemovingProposer(null);
+    }
+  };
+
+  const handleSendMessage = async () => {
+    try {
+      setIsSending(true);
+      const response = await fetch("/api/send-message", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          recipients:
+            fetchedUser && // CORRECTED: Use fetchedUser from context
+            !filteredRsvps.some(
+              (rsvp: (typeof event.rsvps)[number]) =>
+                rsvp.attendee.id === fetchedUser.id // CORRECTED: Use fetchedUser from context
+            )
+              ? [
+                  ...filteredRsvps,
+                  { attendee: fetchedUser }, // CORRECTED: Use fetchedUser from context
+                ]
+              : filteredRsvps,
+          event,
+          message,
+        }),
+      });
+      if (!response.ok) throw new Error("Failed to send");
+      setShowMessageConfirm(false);
+      setShowMessageInput(false);
+      setMessage("");
+      console.log("Message sent!");
+    } catch (err) {
+      console.error(err);
+      console.error("Failed to send message.");
+    } finally {
+      setIsSending(false);
+    }
+  };
+
+  // Calculate filteredRsvps immediately after dependencies are available
   const filteredRsvps = event.rsvps.filter((rsvp) =>
     rsvpFilter === "all" ? true : rsvp.rsvpType === rsvpFilter
   );
 
+  // useEffect for resetting message input (Depends on filteredRsvps)
   useEffect(() => {
-    // Reset message input if there are no RSVPs after filtering
+    // Now filteredRsvps is guaranteed to be initialized here
     if (filteredRsvps.length === 0) {
       setShowMessageInput(false);
       setMessage("");
     }
   }, [filteredRsvps.length]);
 
+  // useEffect for scroll indicator (Depends on isOpen, rsvpFilter)
   useEffect(() => {
     const container = scrollContainerRef.current;
     if (!container) return;
-
     const checkScroll = () => {
       const hasOverflow = container.scrollHeight > container.clientHeight;
       const isScrolled = container.scrollTop > 0;
       setShowScrollIndicator(hasOverflow && !isScrolled);
     };
-
     checkScroll();
     container.addEventListener("scroll", checkScroll);
-
-    // Re-check when content changes
     const observer = new ResizeObserver(checkScroll);
-    observer.observe(container);
-
+    if (container) observer.observe(container);
     return () => {
-      container.removeEventListener("scroll", checkScroll);
+      if (container) container.removeEventListener("scroll", checkScroll);
       observer.disconnect();
     };
   }, [isOpen, rsvpFilter]);
-  const { fetchedUser } = useUser();
+
+  // Find the selected user object based on selectedUserId (ADDED HELPER)
+  const selectedUser =
+    filteredRsvps.find((u) => u.attendee.id === selectedUserId) || null;
+
+  // Log state and key prop just before render
+  console.log(
+    `[AdminMetricsAccordion Render] Event ID: ${event.id}, Selected User ID: ${selectedUserId}`
+  );
+
   return (
     <motion.div
       className="group rounded-md border-2 border-secondary bg-background p-4 text-foreground"
@@ -798,7 +919,6 @@ const AdminMetricsAccordion = ({ event }: { event: ClientEvent }) => {
                 Edit <ArrowUpRight className="h-4" />
               </a>
             </div>
-            {/* RSVP Stats */}
             <div className="border-foreground/20 space-y-2 border-t-2 pt-6">
               <h3 className="text-primary-foreground/90 font-secondary text-sm font-semibold">
                 RSVP Statistics
@@ -860,46 +980,8 @@ const AdminMetricsAccordion = ({ event }: { event: ClientEvent }) => {
                         recipients={filteredRsvps}
                         message={message}
                         isLoading={isSending}
-                        onSend={async () => {
-                          try {
-                            setIsSending(true);
-                            const response = await fetch("/api/send-message", {
-                              method: "POST",
-                              headers: {
-                                "Content-Type": "application/json",
-                              },
-                              body: JSON.stringify({
-                                recipients:
-                                  fetchedUser &&
-                                  !filteredRsvps.some(
-                                    (rsvp) =>
-                                      rsvp.attendee.id === fetchedUser.id
-                                  )
-                                    ? [
-                                        ...filteredRsvps,
-                                        { attendee: fetchedUser },
-                                      ]
-                                    : filteredRsvps,
-                                event,
-                                message,
-                              }),
-                            });
-
-                            if (!response.ok) {
-                              throw new Error("Failed to send messages");
-                            }
-
-                            setShowMessageConfirm(false);
-                            setShowMessageInput(false);
-                            setMessage("");
-                          } catch (error) {
-                            console.error("Error sending messages:", error);
-                          } finally {
-                            setIsSending(false);
-                          }
-                        }}
+                        onSend={handleSendMessage}
                       />
-                      <AnimatePresence></AnimatePresence>
                     </div>
                   )}
                 </div>
@@ -926,7 +1008,6 @@ const AdminMetricsAccordion = ({ event }: { event: ClientEvent }) => {
                   />
                 </div>
               </div>
-              {/* Message input section with animation */}
               <motion.div
                 initial={{ height: 0, opacity: 0 }}
                 animate={{
@@ -969,7 +1050,6 @@ const AdminMetricsAccordion = ({ event }: { event: ClientEvent }) => {
                 ref={scrollContainerRef}
                 className="scrollbar-thin scrollbar-track-muted/5 scrollbar-thumb-muted/20 relative h-48 overflow-y-auto rounded-lg bg-muted p-3 text-sm backdrop-blur-sm"
               >
-                {/* Scroll indicator */}
                 <div
                   className={`text-primary-foreground/50 absolute bottom-2 right-2 z-10 ${
                     !showScrollIndicator && "hidden"
@@ -977,7 +1057,6 @@ const AdminMetricsAccordion = ({ event }: { event: ClientEvent }) => {
                 >
                   <ChevronDown className="h-5 w-5 animate-bounce" />
                 </div>
-                {/* Table view (desktop) */}
                 <table className="hidden w-full md:table">
                   <thead className="sticky top-0 bg-highlight-disabled text-left">
                     <tr>
@@ -1012,11 +1091,10 @@ const AdminMetricsAccordion = ({ event }: { event: ClientEvent }) => {
                           </td>
                         </tr>
                       ))
-                    )}{" "}
+                    )}
                   </tbody>
                 </table>
 
-                {/* Card view (mobile) */}
                 <div className="space-y-3 md:hidden">
                   {filteredRsvps.length === 0 ? (
                     <div className="text-primary-foreground/60 py-8 text-center">
@@ -1047,7 +1125,6 @@ const AdminMetricsAccordion = ({ event }: { event: ClientEvent }) => {
                   )}
                 </div>
               </div>
-              {/* Scroll indicator */}
               <div
                 className={`absolute bottom-2 right-2 transition-opacity duration-200 ${
                   showScrollIndicator ? "opacity-100" : "opacity-0"
@@ -1059,30 +1136,71 @@ const AdminMetricsAccordion = ({ event }: { event: ClientEvent }) => {
               </div>
             </div>
 
-            {/* Proposer Info */}
-            <div className="border-foreground/20 space-y-2 border-t-2 pt-6">
+            <div className="border-foreground/20 space-y-4 border-t-2 pt-6">
               <h3 className="text-primary-foreground/90 font-secondary text-sm font-semibold">
-                Proposer Information
+                Manage Proposers
               </h3>
-              <div className="rounded-lg bg-white/10 p-3 text-sm backdrop-blur-sm">
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                  <div>
-                    <p className="text-primary-foreground/60">Proposer ID</p>
-                    <p className="font-mono">{event.proposerId}</p>
+              <div className="space-y-3 rounded-lg bg-white/10 p-3 text-sm backdrop-blur-sm">
+                {event.proposers.map((proposer) => (
+                  <div
+                    key={proposer.userId}
+                    className="rounded bg-muted/30 flex items-center justify-between p-2"
+                  >
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <UserImage
+                          userId={proposer.userId}
+                          size="sm"
+                          photo={proposer.user?.profile?.image ?? null}
+                        />
+                        <div>
+                          <p className="font-medium">
+                            {proposer.user.nickname}
+                          </p>
+                          <p className="font-mono text-xs text-muted-foreground">
+                            {proposer.userId}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => handleRemoveProposer(proposer.userId)}
+                      disabled={
+                        proposer.userId === fetchedUser?.id ||
+                        event.proposers.length <= 1 ||
+                        isRemovingProposer === proposer.userId
+                      }
+                      isLoading={isRemovingProposer === proposer.userId}
+                      className="h-auto gap-1 px-2 py-1 text-xs"
+                    >
+                      <XIcon className="h-3 w-3" /> Remove
+                    </Button>
                   </div>
-                  <div>
-                    <p className="text-primary-foreground/60">Nickname</p>
-                    <p>{event.proposer.nickname}</p>
-                  </div>
-                  <div>
-                    <p className="text-primary-foreground/60">Email</p>
-                    <p>{event.proposer.email || "Not provided"}</p>
-                  </div>
+                ))}
+                <div className="flex items-center gap-2 border-t border-white/10 pt-3">
+                  <ProposerSearchCombobox
+                    selectedUserId={selectedUserId}
+                    onSelectUserId={setSelectedUserId}
+                    existingProposerIds={existingProposerIds}
+                    disabled={isAddingProposer || !!isRemovingProposer}
+                  />
+                  <Button
+                    onClick={handleAddProposer}
+                    disabled={
+                      !selectedUserId ||
+                      isAddingProposer ||
+                      !!isRemovingProposer
+                    }
+                    isLoading={isAddingProposer}
+                  >
+                    Add Proposer
+                  </Button>
                 </div>
               </div>
             </div>
 
-            {/* Additional Metadata */}
             <div className="border-foreground/20 space-y-2 border-t-2 pt-6">
               <h3 className="text-primary-foreground/90 font-secondary text-sm font-semibold">
                 Additional Metadata

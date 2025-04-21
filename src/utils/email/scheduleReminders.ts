@@ -2,9 +2,14 @@ import type { EmailType } from "src/components/Email";
 import { resend } from "src/utils/email/resend";
 import { getEmailTemplateFromType } from "src/components/Email";
 import { EVENT_ORGANIZER_EMAIL, EVENT_ORGANIZER_NAME } from "../constants";
-import type { User, Event, Email } from "@prisma/client";
+import type { User, Event, Email, EventProposer } from "@prisma/client";
 import type { ConvoEvent } from "src/components/Email/types";
 import { prisma } from "src/utils/db";
+
+// Define a type for Event that includes proposers with users
+type EventWithProposers = Event & {
+  proposers: (EventProposer & { user: User })[];
+};
 
 /**
  * Schedules reminder emails for a single recipient of a convo
@@ -20,7 +25,7 @@ export const scheduleReminderEmails = async ({
   isProposer = false,
   isMaybe = false,
 }: {
-  event: Event;
+  event: EventWithProposers;
   recipient: User;
   isProposer?: boolean;
   isMaybe?: boolean;
@@ -95,22 +100,11 @@ export const scheduleReminderEmails = async ({
     isDeleted: event.isDeleted,
     gCalEventId: event.gCalEventId ?? undefined,
     type: event.type,
-    proposerId: event.proposerId,
-    proposerName: "", // Will be filled in when we have the proposer
+    proposers: event.proposers.map((p) => ({
+      userId: p.userId,
+      nickname: p.user.nickname,
+    })),
   };
-
-  // Get the proposer's name if not already available
-  if (isProposer) {
-    convoEvent.proposerName = recipient.nickname;
-  } else {
-    const proposer = await prisma.user.findUnique({
-      where: { id: event.proposerId },
-    });
-
-    if (proposer) {
-      convoEvent.proposerName = proposer.nickname;
-    }
-  }
 
   // Create emails for the recipient
   const createdEmails: Email[] = [];
@@ -239,7 +233,7 @@ export const scheduleReminderEmailsForMultipleRecipients = async ({
   event,
   attendees,
 }: {
-  event: Event;
+  event: EventWithProposers;
   attendees: User[];
 }): Promise<Email[]> => {
   const createdEmails: Email[] = [];
@@ -253,7 +247,7 @@ export const scheduleReminderEmailsForMultipleRecipients = async ({
     const emails = await scheduleReminderEmails({
       event,
       recipient: attendee,
-      isProposer: attendee.id === event.proposerId,
+      isProposer: event.proposers.some((p) => p.userId === attendee.id),
     });
 
     createdEmails.push(...emails);

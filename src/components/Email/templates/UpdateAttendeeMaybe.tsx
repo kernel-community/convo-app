@@ -1,8 +1,21 @@
 import type { EmailTemplateWithEventProps } from "../types";
 import { EmailWrapper } from "../components/EmailWrapper";
 import { EventDetails } from "../components/EventDetails";
+import { Section, Row, Text } from "@react-email/components";
 
 export const SUBJECT = "{{event.title}} has been updated";
+
+// Define basic styles to resolve linter errors
+const contentStyle = {
+  backgroundColor: "#ffffff",
+  // Add other base styles if needed
+};
+
+const paragraphStyle = {
+  margin: "0",
+  color: "#000000",
+  // Add other base paragraph styles if needed
+};
 
 export const UpdateAttendeeMaybeEmailTemplate: React.FC<
   Readonly<EmailTemplateWithEventProps>
@@ -21,10 +34,22 @@ export const UpdateAttendeeMaybeEmailTemplate: React.FC<
       </h1>
 
       <div style={{ marginTop: "16px" }}>
-        <p style={{ margin: "0 0 16px 0" }}>
-          Hi {firstName}, {event.proposerName} has updated the details for a
-          Convo you&apos;re marked as maybe attending:
-        </p>
+        <Section style={{ ...contentStyle, padding: "24px" }}>
+          <Row>
+            <Text style={paragraphStyle}>
+              Hi {firstName},{" "}
+              {event.proposers && event.proposers.length > 0
+                ? event.proposers.length === 1
+                  ? `${event.proposers[0]?.nickname ?? "The proposer"} has`
+                  : `${event.proposers[0]?.nickname ?? "A proposer"} and ${
+                      event.proposers.length - 1
+                    } other${event.proposers.length - 1 > 1 ? "s" : ""} have`
+                : "The proposer has" // Fallback if proposers array is empty/missing
+              }{" "}
+              updated the details for a convo you RSVP&apos;d maybe to:
+            </Text>
+          </Row>
+        </Section>
 
         <div
           style={{

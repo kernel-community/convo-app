@@ -12,6 +12,25 @@ const truncateText = (text: string, maxLength: number): string => {
   return text.substring(0, maxLength).trim() + "...";
 };
 
+// Helper function to format proposer names
+const formatProposers = (proposers: ConvoEvent["proposers"]): string => {
+  if (!proposers || proposers.length === 0) {
+    return "Host"; // Fallback if no proposers
+  }
+  if (proposers.length === 1) {
+    return proposers[0]?.nickname ?? "Host";
+  } else if (proposers.length === 2) {
+    return `${proposers[0]?.nickname ?? "Host"} and ${
+      proposers[1]?.nickname ?? "Host"
+    }`;
+  } else {
+    const remaining = proposers.length - 2;
+    return `${proposers[0]?.nickname ?? "Host"}, ${
+      proposers[1]?.nickname ?? "Host"
+    } and ${remaining} other${remaining > 1 ? "s" : ""}`;
+  }
+};
+
 export const EventDetails: React.FC<EventDetailsProps> = ({
   event,
   showDescription = true,
@@ -43,9 +62,9 @@ export const EventDetails: React.FC<EventDetailsProps> = ({
       </div>
     )}
 
-    {showHost && (
+    {showHost && event.proposers && event.proposers.length > 0 && (
       <div>
-        <strong>Host:</strong> {event.proposerName}
+        <strong>Host:</strong> {formatProposers(event.proposers)}
       </div>
     )}
     {showLocation && (

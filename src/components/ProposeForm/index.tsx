@@ -1,4 +1,8 @@
-import type { FieldErrorsImpl, SubmitHandler } from "react-hook-form";
+import type {
+  FieldErrorsImpl,
+  SubmitHandler,
+  FieldErrors,
+} from "react-hook-form";
 import { useForm, Controller } from "react-hook-form";
 import TextField from "./FormFields/TextField";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -99,7 +103,7 @@ const ProposeForm = ({
 
   // @help better handling required here
   // display on the ui
-  const onInvalid = (errors: Partial<FieldErrorsImpl<ClientEventInput>>) => {
+  const onInvalid = (errors: FieldErrors<ClientEventInput>) => {
     console.log("INVALID submission");
     console.error(errors);
   };

@@ -40,7 +40,7 @@ export const prepareSlackMessage = ({
   reqHost: string;
   type: MessageType;
 }): SlackEventMessage => {
-  const { title, descriptionHtml, hash, proposer } = event;
+  const { title, descriptionHtml, hash, proposers } = event;
   const protocol = reqHost.includes("localhost") ? "http" : "https";
   const url = `${protocol}://${reqHost}/rsvp/${hash}`;
   const parsedDescription = stripHtml(descriptionHtml ?? "").result;
@@ -50,12 +50,29 @@ export const prepareSlackMessage = ({
 
   const { text, icon } = getUsernameAndText(type);
 
+  // Format proposer string based on the number of proposers
+  let proposerString = "";
+  if (proposers.length === 1) {
+    proposerString = `Convo by *${proposers[0]?.user.nickname ?? "Host"}*`;
+  } else if (proposers.length === 2) {
+    proposerString = `Convo by *${
+      proposers[0]?.user.nickname ?? "Host"
+    }* and *${proposers[1]?.user.nickname ?? "Host"}*`;
+  } else if (proposers.length > 2) {
+    const remaining = proposers.length - 2;
+    proposerString = `Convo by *${proposers[0]?.user.nickname ?? "Host"}*, *${
+      proposers[1]?.user.nickname ?? "Host"
+    }* and ${remaining} other${remaining > 1 ? "s" : ""}`;
+  } else {
+    proposerString = "Convo by *Host*"; // Fallback if no proposers
+  }
+
   const blocks: SlackMessageBlocks[] = [];
   blocks.push({
     type: "section",
     text: {
       type: "mrkdwn",
-      text: `Convo by *${proposer.nickname}*`,
+      text: proposerString, // Use the dynamically generated string
     },
   });
   blocks.push({

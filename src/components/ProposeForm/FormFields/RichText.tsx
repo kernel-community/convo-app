@@ -13,7 +13,7 @@ import ListItem from "@tiptap/extension-list-item";
 import Placeholder from "@tiptap/extension-placeholder";
 import type { ReactNode } from "react";
 import { Fragment, useCallback } from "react";
-import type { FieldErrorsImpl } from "react-hook-form";
+import type { FieldErrorsImpl, FieldErrors } from "react-hook-form";
 import FieldLabel from "../../StrongText";
 import type { Editor } from "@tiptap/core";
 import Collaboration from "@tiptap/extension-collaboration";
@@ -50,7 +50,7 @@ export const RichTextArea = ({
   fieldName?: string;
   infoText?: string;
   handleChange: handleChangeType;
-  errors?: Partial<FieldErrorsImpl<ClientEventInput>>;
+  errors?: FieldErrors<ClientEventInput> | undefined;
   value?: string;
   className?: string;
   required?: boolean;

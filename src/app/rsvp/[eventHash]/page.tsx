@@ -54,8 +54,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     if (event.recurrenceRule) {
       imageUrl.searchParams.set("recurrenceRule", event.recurrenceRule);
     }
-    if (event.proposer?.nickname) {
-      imageUrl.searchParams.set("proposerNickname", event.proposer.nickname);
+    if (event.proposers?.[0]?.user?.nickname) {
+      imageUrl.searchParams.set(
+        "proposerNickname",
+        event.proposers[0].user.nickname
+      );
     }
     // Pass the creation timezone if available
     if (event.creationTimezone) {

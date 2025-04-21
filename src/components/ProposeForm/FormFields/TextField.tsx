@@ -1,4 +1,8 @@
-import type { FieldErrorsImpl, UseFormRegister } from "react-hook-form";
+import type {
+  FieldErrorsImpl,
+  UseFormRegister,
+  FieldErrors,
+} from "react-hook-form";
 import FieldLabel from "../../StrongText";
 import type { ClientEventInput } from "src/types";
 
@@ -19,7 +23,7 @@ const TextField = ({
   fieldName?: string;
   register: UseFormRegister<ClientEventInput>;
   infoText?: string;
-  errors?: Partial<FieldErrorsImpl<ClientEventInput>>;
+  errors?: FieldErrors<ClientEventInput> | undefined;
   placeholder?: string;
   autoFocus?: boolean;
   className?: string;

@@ -99,7 +99,8 @@ export const Card = ({ event }: { event: ClientEvent }) => {
               : event.title.substring(0, 40) + "..."}
           </div>
           <div className="text-xxs sm:text-xs">
-            {event.nickname || "anonymous"}
+            {event.proposers.map((p) => p.user.nickname).join(", ") ||
+              "anonymous"}
           </div>
         </div>
         <div className="my-4 flex grow flex-row items-center text-sm">

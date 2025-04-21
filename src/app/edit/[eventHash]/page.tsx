@@ -39,7 +39,13 @@ const Edit = ({ params }: { params: { eventHash: string } }) => {
   console.log({ clientEventInput });
 
   useEffect(() => {
-    if (data && user && user.id !== data.proposerId && !isBetaMode) {
+    // Check if the user is NOT one of the proposers
+    if (
+      data &&
+      user &&
+      !data.proposers.some((p) => p.userId === user.id) &&
+      !isBetaMode
+    ) {
       setInvalidRequest(true);
     }
   }, [user, data, isBetaMode]);
@@ -66,7 +72,9 @@ const Edit = ({ params }: { params: { eventHash: string } }) => {
   if (isInvalidRequest) {
     return (
       <NotAllowedPage
-        message={`Event ${data.hash} is owned by ${data.proposer.nickname}. Connected account is ${user.id} (${user.nickname})`}
+        message={`Event ${data.hash} is owned by ${data.proposers
+          .map((p) => p.user.nickname)
+          .join(", ")}. Connected account is ${user.id} (${user.nickname})`}
       />
     );
   }

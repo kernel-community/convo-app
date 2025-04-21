@@ -11,9 +11,9 @@ const parse = (event: ClientEvent): ClientEventInput => {
     sessions,
     limit,
     location,
-    nickname,
     hash,
     id,
+    proposers,
   } = event;
   const parsedSessions: ClientEventInput["sessions"] = sessions.map(
     (session, key) => {
@@ -34,7 +34,7 @@ const parse = (event: ClientEvent): ClientEventInput => {
     sessions: parsedSessions,
     limit: limit.toString(),
     location,
-    nickname,
+    proposers: proposers.map((p) => ({ userId: p.user.id })),
     hash,
     gCalEvent: true,
     // temp, fix this

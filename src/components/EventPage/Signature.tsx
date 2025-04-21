@@ -39,7 +39,7 @@ const Signature = ({
   style = "fancy",
   className,
 }: {
-  user: User;
+  user: { id: string; nickname: string };
   style?: SignatureStyle;
   className?: string;
 }) => {
