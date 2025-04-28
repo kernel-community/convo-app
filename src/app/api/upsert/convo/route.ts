@@ -14,6 +14,8 @@ import {
   scheduleReminderEmails,
   cancelReminderEmails,
 } from "src/utils/email/scheduleReminders";
+import { rrulestr } from "rrule";
+import { cleanupRruleString } from "src/utils/rrule";
 
 // Helper function to send emails asynchronously without blocking the response
 const sendEmailsAsync = async (
@@ -132,11 +134,44 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  if (startDateTime < now || endDateTime < now) {
-    return NextResponse.json(
-      { error: "Event cannot be scheduled in the past" },
-      { status: 400 }
-    );
+  // For series events, we only need to validate that there are future occurrences
+  if (event.recurrenceRule) {
+    try {
+      const rruleSetObject = rrulestr(
+        cleanupRruleString(event.recurrenceRule),
+        {
+          dtstart: startDateTime.toJSDate(),
+        }
+      );
+
+      // Get the next occurrence after now
+      const futureDate = DateTime.now().plus({ months: 6 }).toJSDate();
+      const nextOccurrences = rruleSetObject.between(
+        now.toJSDate(),
+        futureDate,
+        true
+      );
+
+      if (nextOccurrences.length === 0) {
+        return NextResponse.json(
+          { error: "Series has no future occurrences" },
+          { status: 400 }
+        );
+      }
+    } catch (error) {
+      return NextResponse.json(
+        { error: "Invalid recurrence rule" },
+        { status: 400 }
+      );
+    }
+  } else {
+    // For non-series events, validate that the event is not in the past
+    if (startDateTime < now || endDateTime < now) {
+      return NextResponse.json(
+        { error: "Event cannot be scheduled in the past" },
+        { status: 400 }
+      );
+    }
   }
 
   // If event.id exists, it's an update operation
