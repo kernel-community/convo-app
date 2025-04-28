@@ -1,7 +1,13 @@
 import type { ClientEvent } from "src/types";
 import { InfoBox } from "./InfoBox";
 import { useRef } from "react";
-import { ChevronDown, MessageCircle, Plus, WrenchIcon } from "lucide-react";
+import {
+  ChevronDown,
+  MessageCircle,
+  Plus,
+  WrenchIcon,
+  Copy,
+} from "lucide-react";
 import { AddRsvpCredenza } from "./AddRsvpCredenza";
 import { MessageCredenza } from "./MessageCredenza";
 import {
@@ -46,6 +52,7 @@ import { cleanupRruleString } from "src/utils/cleanupRruleString";
 import { rrulestr } from "rrule";
 import { ArrowUpRight } from "lucide-react";
 import { AlertCircle } from "lucide-react";
+import { toast } from "react-hot-toast";
 
 const When = ({
   event,
@@ -848,13 +855,30 @@ const AdminMetricsAccordion = ({ event }: { event: ClientEvent }) => {
                     </select>
                   </div>
                   {filteredRsvps.length > 0 && (
-                    <div className="relative">
+                    <div className="flex items-center gap-2">
                       <button
                         onClick={() => setShowMessageInput(!showMessageInput)}
                         className="bg-primary/10 hover:bg-primary/20 flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1 text-primary-foreground transition-colors"
                       >
                         <MessageCircle className="h-4 w-4" />
                         Message?
+                      </button>
+                      <button
+                        onClick={() => {
+                          const emails = filteredRsvps
+                            .map((rsvp) => rsvp.attendee.email)
+                            .join(", ");
+                          navigator.clipboard.writeText(emails);
+                          toast.success(
+                            `${filteredRsvps.length} email${
+                              filteredRsvps.length === 1 ? "" : "s"
+                            } copied to clipboard`
+                          );
+                        }}
+                        className="bg-primary/10 hover:bg-primary/20 flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1 text-primary-foreground transition-colors"
+                      >
+                        <Copy className="h-4 w-4" />
+                        Copy Emails
                       </button>
                       <MessageCredenza
                         isOpen={showMessageConfirm}
@@ -901,7 +925,6 @@ const AdminMetricsAccordion = ({ event }: { event: ClientEvent }) => {
                           }
                         }}
                       />
-                      <AnimatePresence></AnimatePresence>
                     </div>
                   )}
                 </div>
