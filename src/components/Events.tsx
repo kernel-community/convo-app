@@ -205,14 +205,17 @@ export const Events = ({
       // Group events by day
       const groupedEvents = _.groupBy(eventsWithProcessedDates, "dayKey");
 
-      // Sort the dates chronologically
+      // Sort the dates chronologically, respecting the type (past events should be newest first)
       return Object.entries(groupedEvents).sort(
         ([dateA], [dateB]) =>
-          DateTime.fromISO(dateA).toMillis() -
-          DateTime.fromISO(dateB).toMillis()
+          type === "past"
+            ? DateTime.fromISO(dateB).toMillis() -
+              DateTime.fromISO(dateA).toMillis() // newest first for past events
+            : DateTime.fromISO(dateA).toMillis() -
+              DateTime.fromISO(dateB).toMillis() // oldest first for other types
       );
     };
-  }, []);
+  }, [type]); // Add type to dependencies since we're using it in the sort
 
   return (
     <>

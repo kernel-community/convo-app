@@ -27,6 +27,15 @@ function getRandomFutureDate(minDays = 1, maxDays = 30) {
     .set({ hour: hoursToAdd, minute: 0 });
 }
 
+function getRandomPastDate(minDays = 1, maxDays = 30) {
+  const daysToSubtract =
+    Math.floor(Math.random() * (maxDays - minDays + 1)) + minDays;
+  const hoursToAdd = Math.floor(Math.random() * 12) + 8; // 8 AM to 8 PM
+  return DateTime.now()
+    .minus({ days: daysToSubtract })
+    .set({ hour: hoursToAdd, minute: 0 });
+}
+
 function getRandomDuration() {
   return Math.floor(Math.random() * 2) + 1; // 1 to 2 hours
 }
@@ -144,7 +153,7 @@ async function main() {
   );
 
   // Create events
-  const events = await Promise.all(
+  const futureEvents = await Promise.all(
     Array(10)
       .fill(null)
       .map(async (_, i) => {
@@ -181,6 +190,46 @@ async function main() {
         });
       })
   );
+
+  // Create past events
+  const pastEvents = await Promise.all(
+    Array(3)
+      .fill(null)
+      .map(async (_, i) => {
+        const startDate = getRandomPastDate(1, 30); // Past events from last 30 days
+        const duration = getRandomDuration();
+        const endDate = startDate.plus({ hours: duration });
+        const isOnline = Math.random() > 0.5;
+
+        const filteredLocations = locations.filter((loc) =>
+          isOnline ? loc.startsWith("http") : !loc.startsWith("http")
+        );
+        const location =
+          filteredLocations.length > 0
+            ? getRandomItem(filteredLocations)
+            : isOnline
+            ? "https://meet.kernel.community/junto"
+            : "Kernel House, San Francisco";
+
+        return prisma.event.create({
+          data: {
+            title: getRandomItem(eventTitles),
+            descriptionHtml: getRandomItem(eventDescriptions),
+            startDateTime: startDate.toJSDate(),
+            endDateTime: endDate.toJSDate(),
+            location,
+            locationType: isOnline ? LocationType.ONLINE : LocationType.MAP,
+            limit: Math.floor(Math.random() * 50) + 20,
+            type: EventType.JUNTO,
+            proposerId: getRandomItem(users).id,
+            hash: generateHash(10),
+            series: false, // Past events don't need to be series
+          },
+        });
+      })
+  );
+
+  const events = [...futureEvents, ...pastEvents];
 
   // Create RSVPs - Generate multiple RSVPs for each event
   const rsvps = await Promise.all(

@@ -154,7 +154,7 @@ export async function POST(request: NextRequest) {
             ...defaultWheres,
           },
           orderBy: {
-            startDateTime: "desc",
+            startDateTime: "desc", // Most recent first
           },
         });
       }
