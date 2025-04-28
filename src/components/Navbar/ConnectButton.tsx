@@ -76,7 +76,7 @@ export const ConnectButton = () => {
 
         {/* Pill-shaped button */}
         <motion.div
-          className="bg-primary/10 border-primary/20 hover:bg-primary/15 flex cursor-pointer items-center gap-2 rounded-full border px-3 py-1.5"
+          className="flex cursor-pointer items-center gap-2 rounded-full border bg-muted px-3 py-1.5 hover:bg-primary-muted"
           whileHover={{ scale: 1.03 }}
           whileTap={{ scale: 0.98 }}
           onClick={() => setIsDropdownOpen(!isDropdownOpen)}
@@ -104,13 +104,18 @@ export const ConnectButton = () => {
         <AnimatePresence>
           {isDropdownOpen && (
             <motion.div
-              className="bg-card absolute right-0 z-10 mt-2 w-48 rounded-md border border-border shadow-lg"
+              className="absolute right-0 mt-2 w-48 rounded-md border border-border bg-popover shadow-lg"
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.15 }}
             >
               <ul className="py-1">
+                <li className="px-4 py-1">
+                  <p className="truncate text-xs text-muted-foreground">
+                    {user?.email}
+                  </p>
+                </li>
                 <li>
                   <motion.button
                     className="hover:bg-muted/50 flex w-full items-center gap-2 px-4 py-2 text-sm"

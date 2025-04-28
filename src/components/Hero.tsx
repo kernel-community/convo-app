@@ -605,9 +605,11 @@ const Hero = ({
   const isUserGoing =
     userRsvp?.rsvpType === RSVP_TYPE.GOING ||
     userRsvp?.rsvpType === RSVP_TYPE.MAYBE;
-  const totalAvailableSeats =
+  const totalAvailableSeats = Math.max(
+    0,
     event.limit -
-    event.rsvps.filter((rsvp) => rsvp.rsvpType === RSVP_TYPE.GOING).length;
+      event.rsvps.filter((rsvp) => rsvp.rsvpType === RSVP_TYPE.GOING).length
+  );
   const totalSeats = event.limit;
   return (
     <div className="flex w-full flex-col justify-items-start">

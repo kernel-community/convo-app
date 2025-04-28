@@ -142,58 +142,14 @@ export const FRENS = [
 const DEFAULT_PROFILE_PICTURE_BASE_PATH =
   "https://kernelconvo.s3.us-east-2.amazonaws.com/characters/";
 
-// List of filenames for default profile pictures
-const DEFAULT_PROFILE_PICTURE_FILENAMES: string[] = [
-  "4v1rhy4v1rhy4v1r.jpeg",
-  "7r2t1l7r2t1l7r2t.jpeg",
-  "8e99yu8e99yu8e99.jpeg",
-  "9dorof9dorof9dor.jpeg",
-  "a8aww4a8aww4a8aw.jpeg",
-  "bwbmy3bwbmy3bwbm.jpeg",
-  "de79gqde79gqde79.jpeg",
-  "dvlklkdvlklkdvlk.jpeg",
-  "fhh1y0fhh1y0fhh1.jpeg",
-  "i24m68i24m68i24m.jpeg",
-  "n0oyuon0oyuon0oy.jpeg",
-  "sgvqphsgvqphsgvq.jpeg",
-  "ywt6wdywt6wdywt6.jpeg",
-  "bc09unbc09unbc09.jpeg",
-  "g03m0sg03m0sg03m.jpeg",
-  "8b8mem8b8mem8b8m.jpeg",
-  "e4s9qbe4s9qbe4s9.jpeg",
-  "yxe6xmyxe6xmyxe6.jpeg",
-  "no8bdfno8bdfno8b.jpeg",
-  "ivc8vjivc8vjivc8.jpeg",
-  "ht5a2dht5a2dht5a.jpeg",
-  "6vt7vx6vt7vx6vt7.jpeg",
-  "6j4wxl6j4wxl6j4w.jpeg",
-  "rq7m18rq7m18rq7m.jpeg",
-  "y41w1ky41w1ky41w.jpeg",
-  "kznjsfkznjsfkznj.jpeg",
-  "66bowkr6bowkr6bow.jpeg",
-  "esmfg2esmfg2esmf.jpeg",
-  "lurz99lurz99lurz.jpeg",
-  "g5gr80g5gr80g5gr.jpeg",
-  "172kgw172kgw172k.jpeg",
-  "43o9j043o9j043o9.jpeg",
-  "dzroj9dzroj9dzro.jpeg",
-  "eo38jaeo38jaeo38.jpeg",
-  "maptk7maptk7mapt.jpeg",
-  "ldo4z9ldo4z9ldo4.jpeg",
-  "y4ne8gy4ne8gy4ne.jpeg",
-  "nli2iinli2iinli2.jpeg",
-  "i9iy5ei9iy5ei9iy.jpeg",
-  "5vz0k05vz0k05vz0.jpeg",
-  "fjx9gvfjx9gvfjx9.jpeg",
-  "dqdcltdqdcltdqd.jpeg",
-  "pdb65cpdb65cpdb6.jpeg",
-  "1x2nl61x2nl61x2n.jpeg",
-  "md4yi3md4yi3md4y.jpeg",
-  "w59qgfw59qgfw59q.jpeg",
-  "dkgztodkgztodkgz.jpeg",
-  "jr7li5jr7li5jr7l.jpeg",
-  "igyel1igyel1igye.jpeg",
-];
+// Define the number of default profile pictures
+const NUM_DEFAULT_PROFILE_PICTURES = 86;
+
+// Generate filenames like 'char1.jpeg', 'char2.jpeg', ...
+const DEFAULT_PROFILE_PICTURE_FILENAMES: string[] = Array.from(
+  { length: NUM_DEFAULT_PROFILE_PICTURES },
+  (_, i) => `char${i + 1}.jpeg`
+);
 
 // Array of default profile pictures
 export const DEFAULT_PROFILE_PICTURES: string[] =
