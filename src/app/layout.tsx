@@ -7,6 +7,7 @@ import Providers from "./providers";
 import type { Metadata } from "next";
 import { BetaModeWrapper } from "src/components/BetaModeWrapper";
 import "mapbox-gl/dist/mapbox-gl.css"; // Import Mapbox CSS
+import { Toaster } from "react-hot-toast";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -150,6 +151,27 @@ export default function RootLayout({
             <Providers isBetaMode={isBetaMode}>
               <ScrambleProvider>
                 <div vaul-drawer-wrapper="">{children}</div>
+                <Toaster
+                  position="bottom-right"
+                  toastOptions={{
+                    style: {
+                      background: "var(--background)",
+                      color: "var(--foreground)",
+                      border: "1px solid var(--border)",
+                      fontSize: "0.875rem",
+                      maxWidth: "320px",
+                      padding: "0.75rem 1rem",
+                      fontFamily: "var(--font-inter)",
+                    },
+                    success: {
+                      duration: 3000,
+                      iconTheme: {
+                        primary: "var(--primary)",
+                        secondary: "var(--primary-foreground)",
+                      },
+                    },
+                  }}
+                />
               </ScrambleProvider>
             </Providers>
           )}
