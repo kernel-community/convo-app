@@ -23,7 +23,7 @@ const formatEvent = (
   if (!firstInSeries) {
     throw new Error("firstInSeries undefined");
   }
-  const { startDateTime, endDateTime, proposer } = firstInSeries;
+  const { startDateTime, endDateTime, proposers } = firstInSeries;
 
   // Extract waitlist info from the first event (should be consistent across series)
   const waitlistCount = firstInSeries._count?.waitlist ?? 0;
@@ -41,7 +41,13 @@ const formatEvent = (
     endDateTime: endDateTime.toISOString(),
     totalUniqueRsvps: totalUniqueRSVPs(event),
     uniqueRsvps: uniqueRSVPs(event),
-    nickname: proposer.nickname,
+    proposers: firstInSeries.proposers.map((p) => ({
+      ...p,
+      user: {
+        ...p.user,
+        profile: p.user.profile ?? null,
+      },
+    })),
     sessions: event.map((e) => {
       const { id, startDateTime, endDateTime, limit, rsvps } = e;
       // Calculate GOING count specifically for availableSeats logic
@@ -77,7 +83,9 @@ export const formatEvents = (
   if (filter) {
     if (filter.proposerId) {
       // filter by userId
-      res = res.filter((event) => event.proposerId === filter.proposerId);
+      res = res.filter((event) =>
+        event.proposers.some((p) => p.userId === filter.proposerId)
+      );
     }
     if (filter.rsvpUserId) {
       const rsvpId: string = filter.rsvpUserId;

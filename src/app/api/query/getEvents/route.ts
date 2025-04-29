@@ -91,7 +91,15 @@ export async function POST(request: NextRequest) {
     skip,
     cursor: cursorObj,
     include: {
-      proposer: true,
+      proposers: {
+        include: {
+          user: {
+            include: {
+              profile: true,
+            },
+          },
+        },
+      },
       rsvps: {
         include: {
           attendee: {

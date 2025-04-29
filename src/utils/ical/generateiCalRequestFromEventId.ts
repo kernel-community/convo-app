@@ -1,11 +1,12 @@
 import { DateTime } from "luxon";
 import type { ICalRequestParams } from "./generateiCalString";
-import type { Event, Rsvp, User } from "@prisma/client";
+import type { Event, Rsvp, User, EventProposer } from "@prisma/client";
 import { RSVP_TYPE } from "@prisma/client";
 import { sandwichDescriptionForCalendar } from "../sandwichDescriptionForCalendar";
+import { EVENT_ORGANIZER_NAME, EVENT_ORGANIZER_EMAIL } from "../constants";
 
 export type EventWithProposerAndRsvps = Event & {
-  proposer: User;
+  proposers: (EventProposer & { user: User })[];
   rsvps: (Rsvp & {
     attendee: User;
   })[];
@@ -28,15 +29,23 @@ export const generateiCalRequestFromEvent = ({
   const edt = DateTime.fromISO(event.endDateTime.toISOString(), {
     zone: "utc",
   });
-  if (!event.proposer.email) {
-    throw new Error(`Proposer: ${event.proposer.id} email is required`);
+  if (
+    !event.proposers ||
+    event.proposers.length === 0 ||
+    !event.proposers[0]?.user?.email
+  ) {
+    throw new Error(
+      `Event ${event.id} must have at least one proposer with an email for iCal generation.`
+    );
   }
+  const firstProposer = event.proposers[0].user;
+
   return {
     start: `${sdt.toFormat("yyyyLLdd")}T${sdt.toFormat("HHmmss")}Z`,
     end: `${edt.toFormat("yyyyLLdd")}T${edt.toFormat("HHmmss")}Z`,
     organizer: {
-      name: event.proposer.nickname,
-      email: event.proposer.email,
+      name: EVENT_ORGANIZER_NAME,
+      email: EVENT_ORGANIZER_EMAIL,
     },
     uid: event.id,
     title: event.title,
@@ -44,7 +53,7 @@ export const generateiCalRequestFromEvent = ({
       ? sandwichDescriptionForCalendar(
           event.descriptionHtml,
           event.hash,
-          event.proposer.nickname,
+          firstProposer.nickname,
           recipientEmail,
           recipientName
         )

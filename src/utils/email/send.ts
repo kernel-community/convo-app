@@ -28,22 +28,14 @@ export const sendEventEmail = async ({
   if (!receiver.email) {
     throw new Error(`receiver ${receiver.id} has no email`);
   }
-  const hedwig: Partial<EventWithProposerAndRsvps["proposer"]> = {
-    email: EVENT_ORGANIZER_EMAIL,
-    nickname: EVENT_ORGANIZER_NAME,
-  };
   // @todo @note @dev
   // modifying proposer to be hedwig, only for calendar invites
   // the only problem is that when the recipient marks themselves as No, the recipient might receive a bounced email (since hedwig@convo.cafe does not exist)
   // ideally we'd like the recipients to not mark anything via their calendar
   // so in a way that bounced email might actually be a good reminder for them to go to the app and update their RSVP
-  const modifiedTempEvent = {
-    ...event,
-    proposer: hedwig as User,
-  };
   const iCal = await generateiCalString([
     await generateiCalRequestFromEvent({
-      event: modifiedTempEvent,
+      event: event,
       recipientEmail: receiver.email,
       recipientName: receiver.nickname,
       rsvpType: emailTypeToRsvpType(type),
@@ -77,8 +69,10 @@ export const sendEventEmail = async ({
     isDeleted: event.isDeleted,
     gCalEventId: event.gCalEventId ?? undefined,
     type: event.type,
-    proposerId: event.proposerId,
-    proposerName: event.proposer.nickname,
+    proposers: event.proposers.map((p) => ({
+      userId: p.userId,
+      nickname: p.user.nickname,
+    })),
   };
 
   // Create basic template props without event for non-event templates

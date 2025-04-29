@@ -20,18 +20,20 @@ import { cleanupRruleString } from "src/utils/rrule";
 // Helper function to send emails asynchronously without blocking the response
 const sendEmailsAsync = async (
   event: ServerEvent,
-  proposer: User,
   goingAttendees: (Rsvp & { attendee: User })[] = [],
   maybeAttendees: (Rsvp & { attendee: User })[] = [],
   isUpdate = false
 ) => {
   try {
-    // Send email to proposer
-    await sendEventEmail({
-      event,
-      type: isUpdate ? "update-proposer" : "create",
-      receiver: proposer,
-    });
+    // Send email to all proposers
+    const proposerEmailPromises = event.proposers.map((proposerEntry) =>
+      sendEventEmail({
+        event,
+        type: isUpdate ? "update-proposer" : "create",
+        receiver: proposerEntry.user,
+      })
+    );
+    await Promise.all(proposerEmailPromises); // Process proposer emails
 
     // Send emails to attendees who RSVP'd as Going
     if (goingAttendees.length > 0) {
@@ -179,7 +181,11 @@ export async function POST(req: NextRequest) {
     const eventToUpdate = await prisma.event.findUniqueOrThrow({
       where: { id: event.id },
       include: {
-        proposer: true,
+        proposers: {
+          include: {
+            user: { include: { profile: true } },
+          },
+        },
         rsvps: {
           include: {
             attendee: true,
@@ -187,6 +193,48 @@ export async function POST(req: NextRequest) {
         },
       },
     });
+
+    // --- Proposer Update Logic ---
+    // Check if the user making the request is one of the current proposers
+    const isUserAProposer = eventToUpdate.proposers.some(
+      (p) => p.userId === userId
+    );
+
+    if (!isUserAProposer) {
+      return NextResponse.json(
+        {
+          error:
+            "Permission denied: Only current proposers can update the event.",
+        },
+        { status: 403 }
+      );
+    }
+
+    // Get current proposer IDs
+    const currentProposerIds = new Set(
+      eventToUpdate.proposers.map((p) => p.userId)
+    );
+
+    // Get incoming proposer IDs from the request
+    const incomingProposerIds = new Set(
+      event.proposers?.map((p) => p.userId) ?? []
+    );
+
+    // Ensure the requesting user remains a proposer (cannot remove self implicitly)
+    if (!incomingProposerIds.has(userId)) {
+      incomingProposerIds.add(userId);
+    }
+
+    // Calculate differences
+    const proposersToAdd = [...incomingProposerIds]
+      .filter((id) => !currentProposerIds.has(id))
+      .map((id) => ({ userId: id }));
+
+    const proposerIdsToRemove = [...currentProposerIds].filter(
+      (id) => !incomingProposerIds.has(id)
+    );
+
+    // --- End Proposer Update Logic ---
 
     const updated = await prisma.event.update({
       where: { id: event.id },
@@ -200,11 +248,24 @@ export async function POST(req: NextRequest) {
         endDateTime: new Date(event.dateTimeStartAndEnd.end),
         sequence: eventToUpdate.sequence + 1,
         type: event.type,
+        // Update proposers
+        proposers: {
+          // Create new proposer entries for those added
+          create: proposersToAdd,
+          // Delete proposer entries for those removed
+          deleteMany: {
+            userId: { in: proposerIdsToRemove },
+          },
+        },
         // Preserve the original creation timezone - don't update it
         // We'll only add a UI for changing timezone later if needed
       },
       include: {
-        proposer: true,
+        proposers: {
+          include: {
+            user: { include: { profile: true } },
+          },
+        },
         rsvps: {
           include: {
             attendee: {
@@ -233,15 +294,11 @@ export async function POST(req: NextRequest) {
     );
 
     // Start sending emails asynchronously without awaiting
-    sendEmailsAsync(
-      updated,
-      updated.proposer,
-      goingAttendees,
-      maybeAttendees,
-      true
-    ).catch((error) => {
-      console.error("Background email sending failed:", error);
-    });
+    sendEmailsAsync(updated, goingAttendees, maybeAttendees, true).catch(
+      (error) => {
+        console.error("Background email sending failed:", error);
+      }
+    );
 
     // Cancel existing reminder emails and schedule new ones
     // We do this in the background to avoid blocking the response
@@ -250,9 +307,10 @@ export async function POST(req: NextRequest) {
         // Cancel existing reminder emails
         await cancelReminderEmails(updated.id);
 
-        // Schedule new reminder emails for the proposer and attendees
+        // Schedule new reminder emails for all proposers and attendees
+        const proposerUsers = updated.proposers.map((p) => p.user); // Get all proposer users
         const allRecipients = [
-          updated.proposer,
+          ...proposerUsers, // Use all proposer users
           ...goingAttendees.map((rsvp) => rsvp.attendee),
           ...maybeAttendees.map((rsvp) => rsvp.attendee),
         ];
@@ -267,10 +325,15 @@ export async function POST(req: NextRequest) {
               (rsvp) => rsvp.attendee.id === recipient.id
             );
 
+            // Check if the recipient is one of the proposers
+            const isProposer = updated.proposers.some(
+              (p) => p.userId === recipient.id
+            );
+
             return scheduleReminderEmails({
               event: updated,
               recipient,
-              isProposer: recipient.id === updated.proposerId,
+              isProposer: isProposer, // Use the calculated value
               isMaybe: isMaybeAttendee,
             });
           })
@@ -319,6 +382,18 @@ export async function POST(req: NextRequest) {
     console.log("Created new kernel community:", community.id);
   }
 
+  // --- Proposer Create Logic ---
+  // Prepare the list of proposers to create
+  // Start with the user making the request
+  const proposerCreateList = new Set<string>([userId]);
+  // Add proposers from the input, if any
+  event.proposers?.forEach((p) => proposerCreateList.add(p.userId));
+
+  const proposersToCreate = [...proposerCreateList].map((id) => ({
+    userId: id,
+  }));
+  // --- End Proposer Create Logic ---
+
   // The creationTimezone is now part of the event object
   // It was captured on the client side to ensure we're using the user's actual timezone
   const created = await prisma.event.create({
@@ -331,7 +406,10 @@ export async function POST(req: NextRequest) {
       startDateTime: new Date(event.dateTimeStartAndEnd.start),
       endDateTime: new Date(event.dateTimeStartAndEnd.end),
       hash,
-      proposerId: userId,
+      proposers: {
+        // Use the prepared list
+        create: proposersToCreate,
+      },
       communityId: community.id,
       series: event.recurrenceRule ? true : false,
       isDeleted: false,
@@ -340,7 +418,11 @@ export async function POST(req: NextRequest) {
       creationTimezone: event.creationTimezone, // Store the timezone the event was created in
     },
     include: {
-      proposer: true,
+      proposers: {
+        include: {
+          user: { include: { profile: true } },
+        },
+      },
       rsvps: {
         include: {
           attendee: {
@@ -360,7 +442,7 @@ export async function POST(req: NextRequest) {
   });
 
   // Start sending emails asynchronously without awaiting
-  sendEmailsAsync(created, user).catch((error) => {
+  sendEmailsAsync(created).catch((error) => {
     console.error("Background email sending failed:", error);
   });
 

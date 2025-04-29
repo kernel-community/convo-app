@@ -24,8 +24,10 @@ export async function GET(request: Request) {
     sequence: 0,
     isDeleted: false,
     type: "JUNTO",
-    proposerId: "test-proposer-id",
-    proposerName: "Test Proposer",
+    proposers: [
+      { userId: "test-proposer-id-1", nickname: "Test Proposer 1" },
+      { userId: "test-proposer-id-2", nickname: "Test Co-Proposer 2" },
+    ],
   };
 
   // Create the event URL

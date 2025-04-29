@@ -84,6 +84,34 @@ export const Card = ({ event }: { event: ClientEvent }) => {
     });
   }, [event.limit, event.totalUniqueRsvps]);
   const isSeries = !!event.recurrenceRule;
+
+  const formatProposers = (proposers: ClientEvent["proposers"]): string => {
+    const nicknames = proposers.map(
+      (p) => p.user.nickname || "unknown"
+    ) as string[];
+    const numProposers = nicknames.length;
+
+    if (numProposers === 0) {
+      return "anonymous";
+    }
+    if (numProposers === 1) {
+      return `${nicknames[0]}`;
+    }
+    if (numProposers === 2) {
+      return `${nicknames[0]} & ${nicknames[1]}`;
+    }
+    // Join all but the last with ", ", then add " & " before the last one.
+    if (numProposers === 3) {
+      return `${nicknames.slice(0, -1).join(", ")} & ${
+        nicknames[numProposers - 1]
+      }`;
+    }
+    // More than 3: show first two and count the rest
+    return `${nicknames[0]}, ${nicknames[1]} & ${
+      numProposers - 2
+    } other proposers`;
+  };
+
   return (
     <CardTemplate>
       <div className="flex h-full w-full grow flex-col justify-between rounded-[1rem] border-2 border-transparent bg-secondary-muted p-4 font-secondary text-secondary-foreground transition-all duration-200 ease-in-out hover:border-2 hover:border-secondary">
@@ -99,7 +127,7 @@ export const Card = ({ event }: { event: ClientEvent }) => {
               : event.title.substring(0, 40) + "..."}
           </div>
           <div className="text-xxs sm:text-xs">
-            {event.nickname || "anonymous"}
+            {formatProposers(event.proposers)}
           </div>
         </div>
         <div className="my-4 flex grow flex-row items-center text-sm">

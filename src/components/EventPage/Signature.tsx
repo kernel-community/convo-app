@@ -1,4 +1,5 @@
 import type { User } from "@prisma/client";
+import { UserImage } from "../ui/default-user-image";
 
 type SignatureStyle = "fancy" | "handwritten";
 
@@ -39,16 +40,17 @@ const Signature = ({
   style = "fancy",
   className,
 }: {
-  user: User;
+  user: { id: string; nickname: string | null; image?: string | null };
   style?: SignatureStyle;
   className?: string;
 }) => {
-  const sign = user.nickname;
-  // signature displayed is of the currently signed in user
+  const sign = user.nickname ?? "User";
   const { font, textSizeDefault, textSizeSmall } = getStyles(style);
 
   return (
-    <div className="flex flex-row items-center gap-3">
+    <div className="flex flex-row items-center gap-2">
+      <UserImage userId={user.id} photo={user.image} size="sm" />
+
       <div
         className={`${font} ${textSizeSmall} md:${textSizeDefault} ${className}`}
       >

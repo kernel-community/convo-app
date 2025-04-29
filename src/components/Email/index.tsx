@@ -121,17 +121,32 @@ export const getEmailTemplateFromType = (
         template: CreateEmailTemplate({ ...props }),
         subject: CreateEmailTemplateSubject,
       };
-    case "reminder72hr":
+    case "reminder72hr": {
+      const eventProps = props as EmailTemplateWithEventProps;
+      const proposers = eventProps.event?.proposers;
+      let proposerName = "Your Host"; // Default fallback
+
+      if (proposers && proposers.length === 1) {
+        proposerName = proposers[0]?.nickname ?? "Your Host";
+      } else if (proposers && proposers.length === 2) {
+        proposerName = `${proposers[0]?.nickname ?? "Host"} and ${
+          proposers[1]?.nickname ?? "Host"
+        }`;
+      } else if (proposers && proposers.length > 2) {
+        const remaining = proposers.length - 2;
+        proposerName = `${proposers[0]?.nickname ?? "Host"}, ${
+          proposers[1]?.nickname ?? "Host"
+        } and ${remaining} other${remaining > 1 ? "s" : ""}`;
+      }
+
       return {
-        template: Reminder72hrEmailTemplate({
-          ...(props as EmailTemplateWithEventProps),
-        }),
+        template: Reminder72hrEmailTemplate(eventProps),
         subject: Reminder72hrEmailTemplateSubject.replace(
           "{proposerName}",
-          (props as EmailTemplateWithEventProps).event.proposerName ||
-            "Your Host"
+          proposerName
         ),
       };
+    }
     case "reminder72hrProposer":
       return {
         template: Reminder72hrProposerEmailTemplate({

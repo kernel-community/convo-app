@@ -54,8 +54,6 @@ model Event {
   isDeleted          Boolean              @default(false)
   gCalEventId        String? // KEEP, DONT REMOVE
   type               EventType            @default(JUNTO)
-  proposerId         String
-  proposer           User                 @relation(fields: [proposerId], references: [id], onDelete: Cascade)
   rsvps              Rsvp[]
   collections        Collection[]
   reminders          Email[]
@@ -64,6 +62,7 @@ model Event {
   isImported         Boolean              @default(false)
   PostedSlackMessage PostedSlackMessage[]
   waitlist           Waitlist[]
+  proposers          EventProposer[]
 }
 
 model User {
@@ -73,15 +72,15 @@ model User {
   nickname    String       @default("Anonymous")
   profile     Profile?
   isBeta      Boolean      @default(false)
-  events      Event[]
   rsvps       Rsvp[]
   collections Collection[]
   reminders   Email[]
 
   // connections
-  Connections   Connections[] @relation("User")
-  ConnectedUser Connections[] @relation("ConnectedUser")
-  Waitlist      Waitlist[]
+  Connections    Connections[]   @relation("User")
+  ConnectedUser  Connections[]   @relation("ConnectedUser")
+  Waitlist       Waitlist[]
+  proposedEvents EventProposer[]
 }
 
 model Connections {
@@ -208,4 +207,15 @@ model Waitlist {
 
   @@unique([eventId, userId]) // A user can only be on the waitlist for an event once
   @@index([eventId, createdAt]) // Index for efficient querying of the waitlist order
+}
+
+model EventProposer {
+  id        String   @id @default(uuid())
+  event     Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  eventId   String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  createdAt DateTime @default(now())
+
+  @@unique([eventId, userId]) // Ensure a user can only be linked once per event
 }

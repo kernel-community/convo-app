@@ -8,11 +8,12 @@ import type {
   Rsvp,
   Slack,
   User,
+  EventProposer,
 } from "@prisma/client";
 import { DateTime } from "luxon";
 
 export type ServerEvent = Event & {
-  proposer: User;
+  proposers: (EventProposer & { user: User & { profile: Profile | null } })[];
   rsvps: Array<
     Rsvp & {
       attendee: User & {
@@ -40,7 +41,9 @@ export type ClientEvent = Omit<ServerEvent, "startDateTime" | "endDateTime"> & {
   totalUniqueRsvps: number;
   startDateTime: string;
   endDateTime: string;
-  nickname: string;
+  proposers: Array<
+    EventProposer & { user: User & { profile: Profile | null } }
+  >;
   uniqueRsvps: ServerEvent["rsvps"];
   recurrenceRule: string;
   waitlistCount: number;
@@ -113,12 +116,13 @@ export const clientEventInputValidationScheme = z.object({
   id: z.string().optional(),
   type: z.enum(["JUNTO", "UNLISTED", "INTERVIEW", "TEST"]).default("JUNTO"),
   creationTimezone: z.string().optional(),
+  proposers: z.array(z.object({ userId: z.string() })).optional(),
 });
 
 export type ClientEventInput = z.infer<typeof clientEventInputValidationScheme>;
 
 export type FullEvent = Event & {
-  proposer: User;
+  proposers: (EventProposer & { user: User })[];
   community: Community & {
     slack: Slack;
   };

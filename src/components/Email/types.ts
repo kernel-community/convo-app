@@ -14,8 +14,7 @@ export interface ConvoEvent {
   isDeleted: boolean;
   gCalEventId?: string;
   type: EventType;
-  proposerId: string;
-  proposerName: string; // From User relation
+  proposers: Array<{ userId: string; nickname: string }>;
   creationTimezone?: string;
   startTime?: Date; // For date formatting
 }

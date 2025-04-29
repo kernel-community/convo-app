@@ -1,4 +1,4 @@
-import { EmailTemplateWithEventProps } from "../types";
+import type { EmailTemplateWithEventProps } from "../types";
 import { EmailWrapper } from "../components/EmailWrapper";
 
 export const SUBJECT = "{{event.title}} has been cancelled";
@@ -59,7 +59,15 @@ export const DeletedAttendeeEmailTemplate: React.FC<
               <strong>Where:</strong> {event.location}
             </p>
             <p style={{ margin: "0" }}>
-              <strong>Host:</strong> {event.proposerName}
+              <strong>Host:</strong>{" "}
+              {event.proposers && event.proposers.length > 0
+                ? event.proposers.length === 1
+                  ? `${event.proposers[0]?.nickname ?? "Convo Cafe"}`
+                  : `${event.proposers[0]?.nickname ?? "Convo Cafe"} and ${
+                      event.proposers.length - 1
+                    } other${event.proposers.length - 1 > 1 ? "s" : ""}`
+                : "Convo Cafe" // Fallback if proposers array is empty/missing
+              }
             </p>
           </div>
         </div>

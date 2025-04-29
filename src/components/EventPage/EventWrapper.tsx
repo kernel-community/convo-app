@@ -37,7 +37,7 @@ const EventWrapper = ({
     id: eventId,
     descriptionHtml,
     title,
-    proposer,
+    proposers,
     isDeleted,
     isImported,
   } = event;
@@ -148,7 +148,7 @@ const EventWrapper = ({
             onRsvpAttempt={handleRsvpAttempt}
             isRsvpUpdating={isRsvpUpdating}
           />
-          <EventDetails html={descriptionHtml} proposer={proposer} />
+          <EventDetails html={descriptionHtml} proposers={proposers} />
 
           <Credenza
             open={isConfirmCredenzaOpen}
@@ -221,7 +221,9 @@ const EventWrapperWrapper = ({ eventHash }: { eventHash: string }) => {
     return null;
   }
 
-  const isEditable = user.id === fetchedEventData.proposerId;
+  const isEditable = fetchedEventData.proposers.some(
+    (p) => p.userId === user.id
+  );
 
   return (
     <EventWrapper

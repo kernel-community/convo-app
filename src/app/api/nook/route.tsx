@@ -9,12 +9,26 @@ export async function GET() {
       select: {
         id: true,
         nickname: true,
-        events: {
+        _count: {
+          select: { proposedEvents: true },
+        },
+        proposedEvents: {
           select: {
             id: true,
+            event: {
+              select: {
+                id: true,
+                title: true,
+                startDateTime: true,
+                endDateTime: true,
+                isDeleted: true,
+              },
+            },
           },
           where: {
-            isDeleted: false,
+            event: {
+              isDeleted: false,
+            },
           },
         },
         rsvps: {
@@ -34,8 +48,8 @@ export async function GET() {
     const nodes = users.map((user) => ({
       id: user.id,
       name: user.nickname,
-      eventsCreated: user.events.length,
-      rsvps: user.rsvps.length,
+      eventsCreated: user._count.proposedEvents,
+      rsvps: user.rsvps?.length ?? 0,
     }));
 
     // Step 3: Create an efficient map of users attending each event
