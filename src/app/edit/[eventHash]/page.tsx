@@ -39,16 +39,43 @@ const Edit = ({ params }: { params: { eventHash: string } }) => {
   console.log({ clientEventInput });
 
   useEffect(() => {
-    // Check if the user is NOT one of the proposers
-    if (
-      data &&
-      user &&
-      !data.proposers.some((p) => p.userId === user.id) &&
-      !isBetaMode
-    ) {
-      setInvalidRequest(true);
+    console.log(
+      "[Edit Page Check Effect] Running. Data loaded:",
+      !!data,
+      "User loaded:",
+      !!user
+    );
+    // 1. Wait until both user and event data are loaded
+    if (!data || !user) {
+      console.log("[Edit Page Check Effect] Waiting for data/user...");
+      return;
     }
-  }, [user, data, isBetaMode]);
+
+    // 2. Perform the check now that data is available
+    const isUserAProposer = data.proposers.some((p) => p.userId === user.id);
+    console.log(
+      "[Edit Page Check Effect] Is user a proposer?",
+      isUserAProposer,
+      "Is beta?",
+      isBetaMode
+    );
+
+    // 3. Set invalid state based on the check (and beta mode)
+    if (!isUserAProposer && !isBetaMode) {
+      console.log(
+        "[Edit Page Check Effect] Setting invalid request: User not proposer and not beta."
+      );
+      setInvalidRequest(true);
+    } else {
+      // 4. Explicitly set back to false if conditions aren't met
+      console.log(
+        "[Edit Page Check Effect] Setting valid request: User is proposer or is beta."
+      );
+      setInvalidRequest(false);
+    }
+    // Added setInvalidRequest to dependency array as it's used inside
+    // Also ensure other dependencies are correct
+  }, [user, data, isBetaMode, setInvalidRequest]);
 
   if (isEventLoading || !user) {
     return (
@@ -73,7 +100,9 @@ const Edit = ({ params }: { params: { eventHash: string } }) => {
     return (
       <NotAllowedPage
         message={`Event ${data.hash} is owned by ${data.proposers
-          .map((p) => p.user.nickname)
+          .map((p) => {
+            return `${p.user.nickname} (${p.user.id})`;
+          })
           .join(", ")}. Connected account is ${user.id} (${user.nickname})`}
       />
     );
