@@ -1,6 +1,4 @@
-import type { Dispatch, SetStateAction } from "react";
-import { useState } from "react";
-import { getDateTimeString } from "src/utils/dateTime";
+import { Dispatch, SetStateAction, useState } from "react";
 import {
   Credenza,
   CredenzaBody,
@@ -10,16 +8,18 @@ import {
   CredenzaHeader,
   CredenzaTitle,
 } from "src/components/ui/credenza";
-import FieldLabel from "src/components/StrongText";
-import { Button } from "src/components/ui/button";
-import Signature from "src/components/EventPage/Signature";
-import { Article } from "src/components/Article";
-import type { User } from "@prisma/client";
-import type { UserStatus } from "src/context/UserContext";
-import { Skeleton } from "src/components/ui/skeleton";
 import type { ClientEventInput } from "src/types";
+import type { UserStatus } from "src/context/UserContext";
+import type { User } from "@prisma/client";
+import { Button } from "src/components/ui/button";
+import { Article } from "src/components/Article";
+import FieldLabel from "../StrongText";
+import { getDateTimeString } from "src/utils/dateTime";
 import { RRule } from "rrule";
+import { Skeleton } from "../ui/skeleton";
 import { FancyHighlight } from "src/components/FancyHighlight";
+import Signature from "../EventPage/Signature";
+import { DateTime } from "luxon";
 
 // Use ProposerInfo type from ProposeForm (assuming it's exported or redefined here)
 // If not exported, copy the definition here
@@ -28,6 +28,17 @@ type ProposerInfo = {
   nickname: string | null;
   image?: string | null;
   email?: string | null;
+};
+
+// Helper function to format timezone with offset
+const formatTimezoneDisplay = (timezone: string): string => {
+  try {
+    const now = DateTime.now().setZone(timezone);
+    const offset = now.toFormat("ZZZZ"); // e.g., GMT-04:00
+    return `${timezone.replace("_", " ")} (${offset})`;
+  } catch (e) {
+    return timezone;
+  }
 };
 
 export const ConfirmConvoCredenza = ({
@@ -97,6 +108,24 @@ export const ConfirmConvoCredenza = ({
                 </div>
               )}
             </div>
+
+            {/* Timezone Information */}
+            <FieldLabel>Timezone</FieldLabel>
+            <div>
+              {convoToCreateData?.creationTimezone ? (
+                <FancyHighlight>
+                  {formatTimezoneDisplay(convoToCreateData.creationTimezone)}
+                </FancyHighlight>
+              ) : (
+                <span className="text-muted-foreground">
+                  {formatTimezoneDisplay(
+                    Intl.DateTimeFormat().resolvedOptions().timeZone
+                  )}{" "}
+                  (local)
+                </span>
+              )}
+            </div>
+
             {convoToCreateData?.recurrenceRule && (
               <>
                 <FieldLabel>Recurrence</FieldLabel>

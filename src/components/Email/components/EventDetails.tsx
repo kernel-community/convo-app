@@ -31,6 +31,31 @@ const formatProposers = (proposers: ConvoEvent["proposers"]): string => {
   }
 };
 
+// Helper function to format date with timezone info for email
+const formatDateWithTimezone = (
+  dateTime: string,
+  timezone?: string
+): string => {
+  try {
+    // Create Date object from the dateTime string
+    const dateObj = new Date(dateTime);
+
+    // Format in UTC
+    const utcFormatted = dateObj.toUTCString();
+
+    // Mention the creation timezone if available
+    if (timezone) {
+      return `${utcFormatted} (UTC, originally created in ${timezone})`;
+    }
+
+    return `${utcFormatted} (UTC)`;
+  } catch (e) {
+    // Fallback to default formatting
+    const dateObj = new Date(dateTime);
+    return dateObj.toLocaleString();
+  }
+};
+
 export const EventDetails: React.FC<EventDetailsProps> = ({
   event,
   showDescription = true,
@@ -48,7 +73,8 @@ export const EventDetails: React.FC<EventDetailsProps> = ({
     }}
   >
     <div>
-      <strong>When:</strong> {new Date(event.startDateTime).toLocaleString()}
+      <strong>When:</strong>{" "}
+      {formatDateWithTimezone(event.startDateTime, event.creationTimezone)}
     </div>
 
     {showDescription && event.descriptionHtml && (
