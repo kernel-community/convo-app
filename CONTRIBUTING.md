@@ -36,7 +36,7 @@ Convo is a Next.js application built by the Kernel Community that helps plant th
 We use Prisma with PgBouncer for connection pooling. Important configuration:
 
 ```env
-DATABASE_URL="postgresql://user:pass@host:6543/db?pgbouncer=true&connection_limit=1&pool_timeout=20&statement_cache_size=0"
+DATABASE_DATABASE_URL="postgresql://user:pass@host:6543/db?pgbouncer=true&connection_limit=1&pool_timeout=20&statement_cache_size=0"
 DIRECT_URL="postgresql://user:pass@host:5432/db"
 ```
 
