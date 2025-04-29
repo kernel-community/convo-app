@@ -4,9 +4,6 @@
   - You are about to drop the column `proposerId` on the `Event` table. All the data in the column will be lost.
 
 */
--- AlterEnum
-ALTER TYPE "EmailType" ADD VALUE 'WAITLISTED';
-
 -- DropForeignKey
 ALTER TABLE "Event" DROP CONSTRAINT "Event_proposerId_fkey";
 
