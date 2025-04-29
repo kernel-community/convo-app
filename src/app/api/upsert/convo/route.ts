@@ -159,6 +159,48 @@ export async function POST(req: NextRequest) {
       },
     });
 
+    // --- Proposer Update Logic ---
+    // Check if the user making the request is one of the current proposers
+    const isUserAProposer = eventToUpdate.proposers.some(
+      (p) => p.userId === userId
+    );
+
+    if (!isUserAProposer) {
+      return NextResponse.json(
+        {
+          error:
+            "Permission denied: Only current proposers can update the event.",
+        },
+        { status: 403 }
+      );
+    }
+
+    // Get current proposer IDs
+    const currentProposerIds = new Set(
+      eventToUpdate.proposers.map((p) => p.userId)
+    );
+
+    // Get incoming proposer IDs from the request
+    const incomingProposerIds = new Set(
+      event.proposers?.map((p) => p.userId) ?? []
+    );
+
+    // Ensure the requesting user remains a proposer (cannot remove self implicitly)
+    if (!incomingProposerIds.has(userId)) {
+      incomingProposerIds.add(userId);
+    }
+
+    // Calculate differences
+    const proposersToAdd = [...incomingProposerIds]
+      .filter((id) => !currentProposerIds.has(id))
+      .map((id) => ({ userId: id }));
+
+    const proposerIdsToRemove = [...currentProposerIds].filter(
+      (id) => !incomingProposerIds.has(id)
+    );
+
+    // --- End Proposer Update Logic ---
+
     const updated = await prisma.event.update({
       where: { id: event.id },
       data: {
@@ -171,6 +213,15 @@ export async function POST(req: NextRequest) {
         endDateTime: new Date(event.dateTimeStartAndEnd.end),
         sequence: eventToUpdate.sequence + 1,
         type: event.type,
+        // Update proposers
+        proposers: {
+          // Create new proposer entries for those added
+          create: proposersToAdd,
+          // Delete proposer entries for those removed
+          deleteMany: {
+            userId: { in: proposerIdsToRemove },
+          },
+        },
         // Preserve the original creation timezone - don't update it
         // We'll only add a UI for changing timezone later if needed
       },
@@ -296,6 +347,18 @@ export async function POST(req: NextRequest) {
     console.log("Created new kernel community:", community.id);
   }
 
+  // --- Proposer Create Logic ---
+  // Prepare the list of proposers to create
+  // Start with the user making the request
+  const proposerCreateList = new Set<string>([userId]);
+  // Add proposers from the input, if any
+  event.proposers?.forEach((p) => proposerCreateList.add(p.userId));
+
+  const proposersToCreate = [...proposerCreateList].map((id) => ({
+    userId: id,
+  }));
+  // --- End Proposer Create Logic ---
+
   // The creationTimezone is now part of the event object
   // It was captured on the client side to ensure we're using the user's actual timezone
   const created = await prisma.event.create({
@@ -309,7 +372,8 @@ export async function POST(req: NextRequest) {
       endDateTime: new Date(event.dateTimeStartAndEnd.end),
       hash,
       proposers: {
-        create: [{ userId: userId }],
+        // Use the prepared list
+        create: proposersToCreate,
       },
       communityId: community.id,
       series: event.recurrenceRule ? true : false,
