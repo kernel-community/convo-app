@@ -6,7 +6,7 @@ import Link from "next/link";
 
 export function DataLossBanner() {
   const [isVisible, setIsVisible] = useState(false);
-  const bannerKey = `data-loss-banner-new`;
+  const bannerKey = `data-loss-banner-1`;
 
   useEffect(() => {
     // Check if the banner has been dismissed before
