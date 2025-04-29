@@ -1184,7 +1184,9 @@ const AdminMetricsAccordion = ({ event }: { event: ClientEvent }) => {
                 <div className="flex items-center gap-2 border-t border-white/10 pt-3">
                   <ProposerSearchCombobox
                     selectedUserId={selectedUserId}
-                    onSelectUserId={setSelectedUserId}
+                    onSelectUser={(user: DropdownUser | null) => {
+                      setSelectedUserId(user?.id ?? null);
+                    }}
                     existingProposerIds={existingProposerIds}
                     disabled={isAddingProposer || !!isRemovingProposer}
                   />
