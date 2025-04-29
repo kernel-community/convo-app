@@ -7,7 +7,7 @@ import { z } from "zod";
  */
 export const serverSchema = z.object({
   DATABASE_URL: z.string().url(),
-  DIRECT_URL: z.string().url(),
+  // DIRECT_URL: z.string().url(),
   NODE_ENV: z.enum(["development", "test", "production"]),
   RESEND_API_KEY: z.string().min(1),
   OPENAI_API_KEY: z.string().min(1),
@@ -20,7 +20,7 @@ export const serverSchema = z.object({
  */
 export const serverEnv = {
   DATABASE_URL: process.env.DATABASE_URL,
-  DIRECT_URL: process.env.DIRECT_URL,
+  // DIRECT_URL: process.env.DIRECT_URL,
   NODE_ENV: process.env.NODE_ENV,
   RESEND_API_KEY: process.env.RESEND_API_KEY,
   OPENAI_API_KEY: process.env.OPENAI_API_KEY,
