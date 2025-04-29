@@ -8,6 +8,7 @@ import type { Metadata } from "next";
 import { BetaModeWrapper } from "src/components/BetaModeWrapper";
 import "mapbox-gl/dist/mapbox-gl.css"; // Import Mapbox CSS
 import { Toaster } from "react-hot-toast";
+import { DataLossBanner } from "src/components/DataLossBanner";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -150,6 +151,7 @@ export default function RootLayout({
           {(isBetaMode) => (
             <Providers isBetaMode={isBetaMode}>
               <ScrambleProvider>
+                <DataLossBanner />
                 <div vaul-drawer-wrapper="">{children}</div>
                 <Toaster
                   position="bottom-right"
