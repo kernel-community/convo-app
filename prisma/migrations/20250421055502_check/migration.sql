@@ -1,2 +1,0 @@
--- AlterEnum
-ALTER TYPE "EmailType" ADD VALUE 'WAITLISTED';
