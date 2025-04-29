@@ -1,11 +1,12 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { X } from "lucide-react";
+import { ArrowRight, X } from "lucide-react";
+import Link from "next/link";
 
 export function DataLossBanner() {
   const [isVisible, setIsVisible] = useState(false);
-  const bannerKey = `data-loss-banner`;
+  const bannerKey = `data-loss-banner-new`;
 
   useEffect(() => {
     // Check if the banner has been dismissed before
@@ -32,7 +33,15 @@ export function DataLossBanner() {
               Due to a critical error on April 29, 2025, some data has been
               lost. We are working to recover and rebuild as much as possible.
               You may notice missing or incomplete entries. Thank you for your
-              understanding.
+              understanding.{" "}
+              <Link
+                href="/blog/critical-error-april29"
+                className="font-medium text-amber-700 underline hover:text-amber-900"
+              >
+                <span className="inline-flex items-center gap-1">
+                  Read more <ArrowRight size={16} />
+                </span>
+              </Link>
             </p>
           </div>
           <button
