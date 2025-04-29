@@ -1,4 +1,5 @@
 import type { Dispatch, SetStateAction } from "react";
+import { useState } from "react";
 import { getDateTimeString } from "src/utils/dateTime";
 import {
   Credenza,
@@ -20,6 +21,15 @@ import type { ClientEventInput } from "src/types";
 import { RRule } from "rrule";
 import { FancyHighlight } from "src/components/FancyHighlight";
 
+// Use ProposerInfo type from ProposeForm (assuming it's exported or redefined here)
+// If not exported, copy the definition here
+type ProposerInfo = {
+  id: string;
+  nickname: string | null;
+  image?: string | null;
+  email?: string | null;
+};
+
 export const ConfirmConvoCredenza = ({
   openModalFlag,
   setOpenModalFlag,
@@ -27,6 +37,7 @@ export const ConfirmConvoCredenza = ({
   user,
   action,
   isLoading,
+  fullProposersList, // Add new prop
 }: {
   openModalFlag: boolean;
   setOpenModalFlag: Dispatch<SetStateAction<boolean>>;
@@ -34,7 +45,24 @@ export const ConfirmConvoCredenza = ({
   user: UserStatus;
   action: () => Promise<void>;
   isLoading: boolean;
+  fullProposersList?: ProposerInfo[]; // Make it optional for safety
 }) => {
+  // State to control showing all hosts
+  const [showAllHosts, setShowAllHosts] = useState(false);
+
+  // Determine the list to display
+  const displayLimit = 3;
+  const hostsToShow =
+    fullProposersList && fullProposersList.length > 0
+      ? showAllHosts
+        ? fullProposersList
+        : fullProposersList.slice(0, displayLimit)
+      : []; // Start with empty if no list provided
+
+  const totalHosts = fullProposersList?.length ?? 0;
+  const hasMoreHosts = totalHosts > displayLimit;
+  const remainingHosts = totalHosts - displayLimit;
+
   return (
     <Credenza open={openModalFlag} onOpenChange={setOpenModalFlag}>
       <CredenzaContent className="flex h-[34rem] flex-col">
@@ -89,8 +117,37 @@ export const ConfirmConvoCredenza = ({
             )}
             <FieldLabel>Location</FieldLabel>
             <div>{convoToCreateData?.location}</div>
-            <FieldLabel>Signed by</FieldLabel>
-            <Signature user={user as User} />
+            <FieldLabel>Host(s)</FieldLabel>
+            <div className="flex flex-col gap-2">
+              {hostsToShow.length > 0 ? (
+                hostsToShow.map((proposer) => (
+                  <Signature key={proposer.id} user={proposer as User} />
+                ))
+              ) : (
+                // Fallback if list is empty or user is not signed in initially
+                <Signature user={user as User} />
+              )}
+
+              {/* Show More/Less Links */}
+              {hasMoreHosts && !showAllHosts && (
+                <button
+                  type="button"
+                  onClick={() => setShowAllHosts(true)}
+                  className="cursor-pointer text-left text-sm text-primary hover:underline"
+                >
+                  + {remainingHosts} more
+                </button>
+              )}
+              {hasMoreHosts && showAllHosts && (
+                <button
+                  type="button"
+                  onClick={() => setShowAllHosts(false)}
+                  className="cursor-pointer text-left text-sm text-primary hover:underline"
+                >
+                  show less
+                </button>
+              )}
+            </div>
           </div>
         </CredenzaBody>
         <CredenzaFooter>

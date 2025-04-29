@@ -44,14 +44,14 @@ type DropdownUser = {
 
 interface ProposerSearchComboboxProps {
   selectedUserId: string | null;
-  onSelectUserId: (id: string | null) => void;
+  onSelectUser: (user: DropdownUser | null) => void;
   existingProposerIds: Set<string>;
   disabled?: boolean;
 }
 
 export const ProposerSearchCombobox: React.FC<ProposerSearchComboboxProps> = ({
   selectedUserId,
-  onSelectUserId,
+  onSelectUser,
   existingProposerIds,
   disabled = false,
 }) => {
@@ -60,7 +60,7 @@ export const ProposerSearchCombobox: React.FC<ProposerSearchComboboxProps> = ({
   const [fetchedUsers, setFetchedUsers] = useState<DropdownUser[]>([]);
   const [isSearching, setIsSearching] = useState(false);
 
-  // Store the complete selected user details rather than just the name
+  // Store the complete selected user details locally for display purposes
   const [selectedUserData, setSelectedUserData] = useState<DropdownUser | null>(
     null
   );
@@ -71,6 +71,10 @@ export const ProposerSearchCombobox: React.FC<ProposerSearchComboboxProps> = ({
   // Effect to fetch users based on search query
   useEffect(() => {
     const searchUsers = async () => {
+      console.log(
+        "[Combobox useEffect search] Running. Query:",
+        debouncedSearchQuery
+      );
       if (debouncedSearchQuery.length < 2) {
         setFetchedUsers([]);
         setIsSearching(false);
@@ -81,67 +85,110 @@ export const ProposerSearchCombobox: React.FC<ProposerSearchComboboxProps> = ({
         const response = await fetch(
           `/api/query/users?search=${encodeURIComponent(debouncedSearchQuery)}`
         );
+        console.log(
+          "[Combobox useEffect search] API Response Status:",
+          response.status
+        );
         if (!response.ok) throw new Error("Failed to fetch users");
         const data = await response.json();
+        console.log("[Combobox useEffect search] API Data:", data);
         // Filter out users who are already proposers
-        setFetchedUsers(
-          data.users.filter(
-            (user: DropdownUser) => !existingProposerIds.has(user.id)
-          )
+        const filteredUsers = data.users.filter(
+          (user: DropdownUser) => !existingProposerIds.has(user.id)
         );
+        console.log(
+          "[Combobox useEffect search] Filtered Users:",
+          filteredUsers
+        );
+        setFetchedUsers(filteredUsers);
       } catch (error) {
-        console.error("Error fetching users:", error);
+        console.error(
+          "[Combobox useEffect search] Error fetching users:",
+          error
+        );
         setFetchedUsers([]);
       } finally {
+        console.log(
+          "[Combobox useEffect search] Setting isSearching to false."
+        );
         setIsSearching(false);
       }
     };
     searchUsers();
   }, [debouncedSearchQuery, existingProposerIds]);
 
-  // Effect to update the selected user data when id changes or when discovered in search results
+  // Effect to update the *local* selected user data for display
   useEffect(() => {
+    console.log(
+      "[Combobox useEffect sync] Running. selectedUserId Prop:",
+      selectedUserId
+    );
     if (selectedUserId) {
-      // First, check if the user is in our current search results
-      const userInSearchResults = fetchedUsers.find(
-        (u) => u.id === selectedUserId
-      );
-
-      if (userInSearchResults) {
-        // If found in search results, update our cached data
-        setSelectedUserData(userInSearchResults);
+      const userInFetched = fetchedUsers.find((u) => u.id === selectedUserId);
+      if (userInFetched) {
+        console.log(
+          "[Combobox useEffect sync] Found user in fetched results:",
+          userInFetched
+        );
+        setSelectedUserData(userInFetched);
       } else if (!selectedUserData || selectedUserData.id !== selectedUserId) {
-        // If not found and we don't have cached data for this id, fetch the user data
+        console.log(
+          "[Combobox useEffect sync] User not in fetched or cached. Attempting individual fetch..."
+        );
         const fetchUserData = async () => {
           try {
             const response = await fetch(`/api/query/users/${selectedUserId}`);
+            console.log(
+              "[Combobox useEffect sync] Individual Fetch Status:",
+              response.status
+            );
             if (response.ok) {
               const userData = await response.json();
-              setSelectedUserData(userData.user);
+              console.log(
+                "[Combobox useEffect sync] Individual Fetch Data:",
+                userData
+              );
+              setSelectedUserData(userData.user || userData);
             } else {
-              console.error("Failed to fetch user data");
+              console.log(
+                "[Combobox useEffect sync] Individual Fetch failed. Setting local data to null."
+              );
               setSelectedUserData(null);
             }
           } catch (error) {
-            console.error("Error fetching user data:", error);
+            console.error(
+              "[Combobox useEffect sync] Error fetching selected user data:",
+              error
+            );
             setSelectedUserData(null);
           }
         };
-
         fetchUserData();
       }
     } else {
-      // If no user is selected, clear the cached data
+      console.log(
+        "[Combobox useEffect sync] selectedUserId prop is null. Clearing local data."
+      );
       setSelectedUserData(null);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedUserId, fetchedUsers]);
 
   // Only clear search when opening the popover, not on close
   useEffect(() => {
+    console.log("[Combobox useEffect open] Running. Open state:", comboboxOpen);
     if (comboboxOpen) {
+      console.log("[Combobox useEffect open] Clearing search query.");
       setSearchQuery("");
     }
   }, [comboboxOpen]);
+
+  console.log(
+    "[Combobox Render] selectedUserId (prop):",
+    selectedUserId,
+    "selectedUserData (local):",
+    selectedUserData
+  );
 
   return (
     <Popover open={comboboxOpen} onOpenChange={setComboboxOpen}>
@@ -164,7 +211,7 @@ export const ProposerSearchCombobox: React.FC<ProposerSearchComboboxProps> = ({
               {selectedUserData.nickname}
             </span>
           ) : (
-            "Select user by nickname..."
+            "Search user by nickname..."
           )}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
@@ -198,19 +245,18 @@ export const ProposerSearchCombobox: React.FC<ProposerSearchComboboxProps> = ({
                   className="pointer-events-auto cursor-pointer opacity-100 hover:bg-accent"
                   onSelect={(currentValue) => {
                     console.log(
-                      "[Combobox CommandItem onSelect] Fired! Value:",
+                      "[Combobox CommandItem onSelect] Selected ID:",
                       currentValue
                     );
                     const selected = fetchedUsers.find(
                       (u) => u.id === currentValue
                     );
-                    if (selected) {
-                      // Store the complete user data when selected
-                      setSelectedUserData(selected);
-                      onSelectUserId(currentValue);
-                    } else {
-                      onSelectUserId(null);
-                    }
+                    console.log(
+                      "[Combobox CommandItem onSelect] Found user object:",
+                      selected
+                    );
+                    onSelectUser(selected || null);
+                    setSelectedUserData(selected || null);
                     setComboboxOpen(false);
                   }}
                 >
