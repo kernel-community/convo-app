@@ -515,13 +515,7 @@ const ProposeForm = ({
     console.error(errors);
   };
 
-  // Function to convert date objects to UTC based on the selected timezone
-  const convertLocalToUTC = (dateObj: Date, timezone: string): Date => {
-    // Create a DateTime object with the date and specified timezone
-    const dt = DateTime.fromJSDate(dateObj, { zone: timezone });
-    // Convert to UTC and return as JavaScript Date
-    return dt.toUTC().toJSDate();
-  };
+  // We handle timezone conversion in the onSubmit handler
 
   const onSubmit: SubmitHandler<ClientEventInput> = async (data) => {
     console.log("Form data before timezone conversion:", data);
@@ -529,17 +523,147 @@ const ProposeForm = ({
     // Create a copy of the data to modify
     const processedData = { ...data };
 
+    // Ensure we have a valid timezone
+    const timezone =
+      processedData.creationTimezone ||
+      Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+    // Store the timezone in IANA format
+    processedData.creationTimezone = timezone;
+
     // Convert dateTimeStartAndEnd dates to UTC based on selected timezone
-    if (processedData.dateTimeStartAndEnd && processedData.creationTimezone) {
+    if (processedData.dateTimeStartAndEnd && timezone) {
+      // Enhanced timezone diagnostics
+      console.log(`Converting dates from timezone: ${timezone} to UTC`);
+      console.log(`Timezone details:`);
+      console.log(`- IANA name: ${timezone}`);
+
+      // Check if timezone is in DST
+      const now = DateTime.now().setZone(timezone);
+      console.log(`- Current time in this zone: ${now.toString()}`);
+      console.log(`- Is this timezone in DST? ${now.isInDST}`);
+      console.log(`- UTC offset: ${now.offset / 60} hours`);
+
+      // Get the exact offset for the selected dates
+      const selectedDateStart = DateTime.fromJSDate(
+        processedData.dateTimeStartAndEnd.start
+      ).setZone(timezone);
+      console.log(`- Selected date DST status: ${selectedDateStart.isInDST}`);
+      console.log(
+        `- Selected date UTC offset: ${selectedDateStart.offset / 60} hours`
+      );
+
+      // The issue is that the Date objects don't have timezone info, so we need to interpret them correctly
+      // First, get the raw date values without timezone interpretation
+      const rawStart = processedData.dateTimeStartAndEnd.start;
+      const rawEnd = processedData.dateTimeStartAndEnd.end;
+
+      // Create DateTime objects in the local timezone first
+      const localTZ = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      console.log(`Browser's local timezone: ${localTZ}`);
+
+      // Extract the date components in local time
+      const startYear = rawStart.getFullYear();
+      const startMonth = rawStart.getMonth() + 1; // Month is 0-indexed
+      const startDay = rawStart.getDate();
+      const startHour = rawStart.getHours();
+      const startMinute = rawStart.getMinutes();
+
+      const endYear = rawEnd.getFullYear();
+      const endMonth = rawEnd.getMonth() + 1; // Month is 0-indexed
+      const endDay = rawEnd.getDate();
+      const endHour = rawEnd.getHours();
+      const endMinute = rawEnd.getMinutes();
+
+      console.log(
+        `Raw date components: ${startYear}-${startMonth}-${startDay} ${startHour}:${startMinute}`
+      );
+
+      // Create DateTime objects with the correct timezone interpretation
+      const startLocal = DateTime.fromObject(
+        {
+          year: startYear,
+          month: startMonth,
+          day: startDay,
+          hour: startHour,
+          minute: startMinute,
+        },
+        { zone: timezone }
+      );
+
+      const endLocal = DateTime.fromObject(
+        {
+          year: endYear,
+          month: endMonth,
+          day: endDay,
+          hour: endHour,
+          minute: endMinute,
+        },
+        { zone: timezone }
+      );
+
+      console.log(
+        `Original start: ${startLocal.toISO()} (${startLocal.toFormat(
+          "yyyy-MM-dd hh:mm a"
+        )})`
+      );
+      console.log(
+        `Original timezone: ${startLocal.zoneName}, Offset: ${
+          startLocal.offset / 60
+        } hours`
+      );
+      console.log(
+        `Original end: ${endLocal.toISO()} (${endLocal.toFormat(
+          "yyyy-MM-dd hh:mm a"
+        )})`
+      );
+      console.log(
+        `Original timezone: ${endLocal.zoneName}, Offset: ${
+          endLocal.offset / 60
+        } hours`
+      );
+
+      // Convert to UTC
+      const startUTC = startLocal.toUTC();
+      const endUTC = endLocal.toUTC();
+
+      // Log the UTC conversion results
+      console.log(
+        `UTC start: ${startUTC.toISO()} (${startUTC.toFormat(
+          "yyyy-MM-dd HH:mm:ss"
+        )})`
+      );
+      console.log(
+        `UTC end: ${endUTC.toISO()} (${endUTC.toFormat("yyyy-MM-dd HH:mm:ss")})`
+      );
+      console.log(`UTC offset: ${startUTC.offset / 60} hours (should be 0)`);
+
+      // Calculate and log the actual time difference
+      const hoursDiff =
+        (startUTC.toMillis() - startLocal.toMillis()) / (1000 * 60 * 60);
+      console.log(`Hours difference from local to UTC: ${hoursDiff}`);
+      console.log(
+        `Expected hours difference based on offset: ${-startLocal.offset / 60}`
+      );
+      console.log(
+        `Conversion matches expected? ${
+          Math.abs(hoursDiff + startLocal.offset / 60) < 0.01 ? "Yes" : "No"
+        }`
+      );
+
+      console.log(
+        `Converted start: ${startUTC.toString()}, UTC timezone: ${
+          startUTC.zoneName
+        }`
+      );
+      console.log(
+        `Converted end: ${endUTC.toString()}, UTC timezone: ${endUTC.zoneName}`
+      );
+
+      // Update the data with UTC dates
       processedData.dateTimeStartAndEnd = {
-        start: convertLocalToUTC(
-          processedData.dateTimeStartAndEnd.start,
-          processedData.creationTimezone
-        ),
-        end: convertLocalToUTC(
-          processedData.dateTimeStartAndEnd.end,
-          processedData.creationTimezone
-        ),
+        start: startUTC.toJSDate(),
+        end: endUTC.toJSDate(),
       };
     }
 
