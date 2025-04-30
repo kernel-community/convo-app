@@ -6,8 +6,8 @@ generator client {
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_DATABASE_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_DATABASE_URL")
 }
 
 enum EventType {
@@ -18,14 +18,17 @@ enum EventType {
 }
 
 model Community {
-  id          String   @id @default(uuid())
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  displayName String
-  description String
-  subdomain   String   @unique
-  events      Event[]
-  slack       Slack?
+  id             String   @id @default(uuid())
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  displayName    String
+  description    String
+  subdomain      String   @unique
+  url            String?
+  features       Json? // Store feature flags and community-specific settings
+  templateConfig Json? // Store community-specific template configurations
+  events         Event[]
+  slack          Slack?
 }
 
 enum LocationType {
