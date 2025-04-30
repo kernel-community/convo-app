@@ -446,6 +446,7 @@ const ProposeForm = ({
     useState<ClientEventInput>();
 
   const [loading, setLoading] = useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState<string | undefined>();
 
   // Function to handle selection from the combobox
   const handleSelectProposerFromCombobox = (
@@ -674,22 +675,42 @@ const ProposeForm = ({
 
   const createConvo = async () => {
     setLoading(true);
+    setErrorMessage(undefined); // Clear any previous errors
+
     if (!convoToCreateData) {
-      console.error("convo to create data not found");
+      setErrorMessage("Event data not found. Please try again.");
+      setLoading(false);
       return;
     }
+
+    // Check if the event date is in the past
+    if (new Date(convoToCreateData.dateTimeStartAndEnd.start) < new Date()) {
+      setErrorMessage("Events cannot be scheduled in the past.");
+      setLoading(false);
+      return;
+    }
+
     // Ensure proposers are included in the data sent
     const dataToSend = {
       ...convoToCreateData,
       proposers: proposersList.map((p) => ({ userId: p.id })), // Use the state list
     };
     console.log("Data being sent to upsertConvo:", dataToSend); // Debug log
+
     try {
       const result = await upsertConvo(dataToSend, user?.id); // Pass updated data
-      if (!result) throw "No response returned from upsert operation";
+      if (!result)
+        throw new Error("No response returned from upsert operation");
       push(`/rsvp/${result.hash}`);
     } catch (err) {
-      console.log(err);
+      console.error("Error creating event:", err);
+      setErrorMessage(
+        err instanceof Error
+          ? err.message
+          : typeof err === "string"
+          ? err
+          : "An unexpected error occurred. Please try again."
+      );
       setLoading(false);
     }
   };
@@ -711,6 +732,7 @@ const ProposeForm = ({
         action={createConvo}
         isLoading={loading}
         fullProposersList={proposersList}
+        errorMessage={errorMessage}
       />
       <form
         onSubmit={handleSubmit(onSubmit, onInvalid)}

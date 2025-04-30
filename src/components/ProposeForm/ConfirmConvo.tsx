@@ -1,4 +1,5 @@
 import { Dispatch, SetStateAction, useState } from "react";
+import { AlertCircle, XCircle } from "lucide-react";
 import {
   Credenza,
   CredenzaBody,
@@ -49,6 +50,7 @@ export const ConfirmConvoCredenza = ({
   action,
   isLoading,
   fullProposersList, // Add new prop
+  errorMessage, // Add error message prop
 }: {
   openModalFlag: boolean;
   setOpenModalFlag: Dispatch<SetStateAction<boolean>>;
@@ -57,6 +59,7 @@ export const ConfirmConvoCredenza = ({
   action: () => Promise<void>;
   isLoading: boolean;
   fullProposersList?: ProposerInfo[]; // Make it optional for safety
+  errorMessage?: string; // Optional error message from form validation or API
 }) => {
   // State to control showing all hosts
   const [showAllHosts, setShowAllHosts] = useState(false);
@@ -181,11 +184,63 @@ export const ConfirmConvoCredenza = ({
             </div>
           </div>
         </CredenzaBody>
+        {/* Error message display */}
+        {errorMessage && (
+          <div className="mx-4 mb-4 rounded-md border border-red-200 bg-red-50 p-4">
+            <div className="flex">
+              <div className="flex-shrink-0">
+                <XCircle className="h-5 w-5 text-red-400" aria-hidden="true" />
+              </div>
+              <div className="ml-3">
+                <h3 className="text-sm font-medium text-red-800">Error</h3>
+                <div className="mt-2 text-sm text-red-700">
+                  <p>{errorMessage}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Past date warning */}
+        {convoToCreateData &&
+          new Date(convoToCreateData.dateTimeStartAndEnd.start) <
+            new Date() && (
+            <div className="mx-4 mb-4 rounded-md border border-yellow-200 bg-yellow-50 p-4">
+              <div className="flex">
+                <div className="flex-shrink-0">
+                  <AlertCircle
+                    className="h-5 w-5 text-yellow-400"
+                    aria-hidden="true"
+                  />
+                </div>
+                <div className="ml-3">
+                  <h3 className="text-sm font-medium text-yellow-800">
+                    Warning
+                  </h3>
+                  <div className="mt-2 text-sm text-yellow-700">
+                    <p>
+                      The event date and time you selected is in the past.
+                      Events cannot be scheduled in the past.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
         <CredenzaFooter>
           {convoToCreateData && !isLoading && (
-            <Button onClick={() => action()} className="w-full">
-              {" "}
-              Submit{" "}
+            <Button
+              onClick={() => action()}
+              className="w-full"
+              disabled={
+                errorMessage !== undefined ||
+                (convoToCreateData &&
+                  new Date(convoToCreateData.dateTimeStartAndEnd.start) <
+                    new Date())
+              }
+            >
+              Submit
             </Button>
           )}
           {isLoading && (
