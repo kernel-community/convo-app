@@ -1,32 +1,16 @@
-import { isNil } from "lodash";
-import { headers } from "next/headers";
 import { NextResponse } from "next/server";
-import { prisma } from "src/utils/db";
-import isProd from "src/utils/isProd";
+import { getCommunityFromSubdomain } from "src/utils/getCommunityFromSubdomain";
 
 export async function POST() {
-  const headersList = headers();
-  const host = headersList.get("host");
-
-  const subdomain = host?.split(".")[0];
-
-  if (!subdomain) {
-    throw new Error("subdomain undefined");
-  }
-  let community = await prisma.community.findUnique({
-    where: { subdomain },
-  });
-  if (!community) {
-    // @note
-    // fallback on kernel community if subdomain not found
-    community = await prisma.community.findUnique({
-      where: { subdomain: isProd(host) ? "kernel" : "staging" },
-    });
-  }
-  if (!community || isNil(community)) {
-    throw new Error(
-      "Community is undefined. Every event should belong to a community"
+  try {
+    // Use the centralized utility to get community from subdomain
+    const community = await getCommunityFromSubdomain();
+    return NextResponse.json({ data: community });
+  } catch (error) {
+    console.error("Error resolving community:", error);
+    return NextResponse.json(
+      { error: "Failed to resolve community" },
+      { status: 500 }
     );
   }
-  return NextResponse.json({ data: community });
 }
