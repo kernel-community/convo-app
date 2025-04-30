@@ -51,29 +51,58 @@ export const scheduleReminderEmails = async ({
     event.startDateTime.getTime() - 72 * 60 * 60 * 1000
   );
 
+  // Calculate all reminder times
+  const twentyFourHoursBefore = new Date(
+    event.startDateTime.getTime() - 24 * 60 * 60 * 1000
+  );
+
   // Don't schedule reminders that are in the past
   const remindersToSchedule: {
     type: EmailType;
     scheduledTime: Date;
   }[] = [];
 
-  if (oneMinuteBefore > now) {
-    remindersToSchedule.push({
-      type: "reminder1min",
-      scheduledTime: oneMinuteBefore,
-    });
-  }
+  // For proposers: 72hr, 24hr, and 1min reminders
+  if (isProposer) {
+    // 1 minute reminder for proposers
+    if (oneMinuteBefore > now) {
+      remindersToSchedule.push({
+        type: "reminder1min",
+        scheduledTime: oneMinuteBefore,
+      });
+    }
 
-  if (seventyTwoHoursBefore > now) {
-    if (isProposer) {
+    // 24 hour reminder for proposers
+    if (twentyFourHoursBefore > now) {
+      remindersToSchedule.push({
+        type: "reminder24hr",
+        scheduledTime: twentyFourHoursBefore,
+      });
+    }
+
+    // 72 hour reminder for proposers
+    if (seventyTwoHoursBefore > now) {
       remindersToSchedule.push({
         type: "reminder72hrProposer",
         scheduledTime: seventyTwoHoursBefore,
       });
-    } else {
+    }
+  }
+  // For attendees: 24hr and 1min reminders
+  else {
+    // 1 minute reminder for attendees
+    if (oneMinuteBefore > now) {
       remindersToSchedule.push({
-        type: "reminder72hr",
-        scheduledTime: seventyTwoHoursBefore,
+        type: "reminder1min",
+        scheduledTime: oneMinuteBefore,
+      });
+    }
+
+    // 24 hour reminder for attendees
+    if (twentyFourHoursBefore > now) {
+      remindersToSchedule.push({
+        type: "reminder24hr",
+        scheduledTime: twentyFourHoursBefore,
       });
     }
   }

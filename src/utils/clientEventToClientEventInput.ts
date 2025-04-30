@@ -14,6 +14,7 @@ const parse = (event: ClientEvent): ClientEventInput => {
     hash,
     id,
     proposers,
+    creationTimezone,
   } = event;
   const parsedSessions: ClientEventInput["sessions"] = sessions.map(
     (session, key) => {
@@ -44,6 +45,7 @@ const parse = (event: ClientEvent): ClientEventInput => {
     },
     recurrenceRule: event.rrule || "",
     type: event.type,
+    creationTimezone: creationTimezone || undefined,
   };
 };
 
