@@ -22,9 +22,11 @@ export const isPast = (date: string): boolean => {
 
 export const getDateTimeString = (
   date: string, // iso string with offset
-  option: "date" | "time"
+  option: "date" | "time",
+  timezone?: string // Optional timezone parameter
 ): string => {
-  const zone = DateTime.local().zoneName ?? DateTime.utc().zone;
+  // Use provided timezone if available, otherwise use local timezone
+  const zone = timezone || DateTime.local().zoneName || DateTime.utc().zone;
   const time = DateTime.fromISO(date, { zone });
   switch (option) {
     case "date":

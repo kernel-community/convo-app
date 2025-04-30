@@ -19,11 +19,12 @@ export const upsertConvo = async (event: ClientEventInput, userId?: string) => {
     let eventToSend = event;
 
     if (!event.id) {
-      // This is a new event, so include the timezone
-      const creationTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      // This is a new event, so use the timezone from the form
+      // If no timezone is provided in the form, use the browser's timezone as fallback
+      const defaultTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
       eventToSend = {
         ...event,
-        creationTimezone,
+        creationTimezone: event.creationTimezone || defaultTimezone,
       };
     }
 

@@ -62,6 +62,15 @@ import { AlertCircle } from "lucide-react";
 import { XIcon } from "lucide-react";
 import { ProposerSearchCombobox } from "./ProposerSearchCombobox";
 import { toast } from "react-hot-toast";
+import { FancyHighlight } from "./FancyHighlight";
+import { DateTime } from "luxon";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "./ui/tooltip";
+// Dialog components removed as we're now using a tooltip
 
 const When = ({
   event,
@@ -71,6 +80,13 @@ const When = ({
   className?: string;
 }) => {
   const [isOpen, setIsOpen] = useState(false);
+  // Determine if event timezone is different from user's local timezone
+  const localTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  const eventTimezone = event.creationTimezone || localTimezone;
+  console.log({ eventTimezone, localTimezone });
+  const isDifferentTimezone = eventTimezone !== localTimezone;
+  console.log({ isDifferentTimezone });
+
   return (
     <>
       <Credenza open={isOpen} onOpenChange={setIsOpen}>
@@ -89,6 +105,7 @@ const When = ({
                 <EventsView
                   rruleStr={event.recurrenceRule}
                   startDateTime={event.startDateTime}
+                  creationTimezone={event.creationTimezone ?? undefined}
                 />
               ) : (
                 <EventCard date={new Date(event.startDateTime)} />
@@ -111,18 +128,64 @@ const When = ({
       >
         <CardHeader>
           <CardTitle className="text-base">when</CardTitle>
-          <CardDescription>
-            <span className="text-xs text-foreground">
-              timezone: {Intl.DateTimeFormat().resolvedOptions().timeZone}
-            </span>
-          </CardDescription>
         </CardHeader>
         <CardContent>
-          <div>
-            {getDateTimeString(event.startDateTime, "date")}
-            {", "}
-            {getDateTimeString(event.startDateTime, "time")}
-          </div>
+          {isDifferentTimezone ? (
+            <div className="group relative inline-block">
+              {/* The trigger element with dotted underline */}
+              <div
+                className="cursor-pointer underline decoration-dotted underline-offset-4"
+                tabIndex={0} // Make it focusable for accessibility
+                role="button"
+                aria-label="Show timezone information"
+              >
+                {getFormattedDateOrTime(event.startDateTime, "date")}
+                {", "}
+                {getFormattedDateOrTime(event.startDateTime, "time")}{" "}
+                <span className="text-sm">({localTimezone})</span>
+              </div>
+              <span className="text-xs text-muted-foreground">
+                (original time proposed in {event.creationTimezone})
+              </span>
+
+              {/* Tooltip content */}
+              <div className="invisible absolute left-0 top-full z-10 mt-2 w-72 rounded-md border border-border bg-background p-4 shadow-lg transition-opacity duration-300 group-focus-within:visible group-hover:visible md:w-80">
+                <div className="space-y-4">
+                  <h3 className="text-sm font-semibold">
+                    Time Zone Information
+                  </h3>
+
+                  <div>
+                    <h4 className="mb-1 text-xs font-bold">
+                      Original time in {event.creationTimezone}:
+                    </h4>
+                    <p className="text-sm text-primary">
+                      {event.creationTimezone &&
+                        formatTimeInTimezone(
+                          event.startDateTime,
+                          event.creationTimezone
+                        )}
+                    </p>
+                  </div>
+
+                  <div>
+                    <h4 className="mb-1 text-xs font-bold">
+                      Your local time ({localTimezone}):
+                    </h4>
+                    <p className="text-sm">
+                      {formatTimeInTimezone(event.startDateTime, localTimezone)}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div>
+              {getFormattedDateOrTime(event.startDateTime, "date")}
+              {", "}
+              {getFormattedDateOrTime(event.startDateTime, "time")}
+            </div>
+          )}
           {event.recurrenceRule && (
             <div>
               <span className="text-sm font-semibold text-gray-500">
@@ -1416,6 +1479,79 @@ const AdminMetricsAccordion = ({ event }: { event: ClientEvent }) => {
       </AnimatePresence>
     </motion.div>
   );
+};
+
+// Format timezone name with offset for display
+const formatTimezoneDisplay = (tzName: string): string => {
+  try {
+    const now = DateTime.now().setZone(tzName);
+    const offset = now.toFormat("ZZZZ");
+    return `${tzName.replace("_", " ")} (${offset})`;
+  } catch (e) {
+    return tzName;
+  }
+};
+
+// Function to show the event time in the creation timezone
+const formatLocalTimeDisplay = (
+  dateTimeStr: string,
+  creationTimezone?: string | null
+): string => {
+  try {
+    if (!creationTimezone) {
+      // If no creation timezone, show time in local timezone
+      return new Date(dateTimeStr).toLocaleString();
+    }
+
+    // Parse the date with Luxon for better timezone handling
+    // Format the date in the creation timezone
+    const creationDate = DateTime.fromISO(dateTimeStr, {
+      zone: creationTimezone,
+    });
+    return creationDate.toFormat("EEEE, MMMM d, yyyy 'at' h:mm a");
+  } catch (e) {
+    // Fallback if conversion fails
+    return new Date(dateTimeStr).toLocaleString();
+  }
+};
+
+// Function to properly convert and display event time in different timezones
+const formatTimeInTimezone = (
+  utcDateTimeStr: string,
+  targetTimezone: string
+): string => {
+  try {
+    // Parse the date in UTC
+    const utcDateTime = DateTime.fromISO(utcDateTimeStr, { zone: "utc" });
+
+    // Convert to target timezone
+    const localDateTime = utcDateTime.setZone(targetTimezone);
+
+    // Format with full details
+    return localDateTime.toFormat("EEEE, MMMM d, yyyy 'at' h:mm a");
+  } catch (e) {
+    // Fallback if conversion fails
+    console.error("Time conversion error:", e);
+    return new Date(utcDateTimeStr).toLocaleString();
+  }
+};
+
+// Helper function to get formatted date or time in user's local timezone
+const getFormattedDateOrTime = (
+  dateTimeStr: string,
+  format: "date" | "time" | "both"
+) => {
+  const localDateTime = DateTime.fromISO(dateTimeStr, {
+    zone: "utc",
+  }).toLocal();
+
+  if (format === "date") {
+    return localDateTime.toFormat("EEEE, MMMM d, yyyy");
+  } else if (format === "time") {
+    return localDateTime.toFormat("h:mm a");
+  } else {
+    return localDateTime.toFormat("EEEE, MMMM d, yyyy 'at' h:mm a");
+  }
 };
 
 export default Hero;
