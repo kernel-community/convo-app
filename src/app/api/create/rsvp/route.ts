@@ -3,7 +3,7 @@ import { prisma } from "src/utils/db";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { sendEventEmail } from "src/utils/email/send";
-import { RSVP_TYPE, type User, type Event } from "@prisma/client";
+import { RSVP_TYPE, type User } from "@prisma/client";
 import { rsvpTypeToEmailType } from "src/utils/rsvpTypetoEmailType";
 import {
   scheduleReminderEmails,
@@ -15,6 +15,7 @@ type RsvpRequest = {
   userId: string;
   eventId: string;
   type: RSVP_TYPE;
+  adminOverride?: boolean; // Flag to indicate if this is an admin action
 };
 
 /**
@@ -69,6 +70,7 @@ export async function POST(req: NextRequest) {
     const isNowGoing = rsvp.type === RSVP_TYPE.GOING;
     const isChangingToMaybeOrNotGoing =
       rsvp.type === RSVP_TYPE.MAYBE || rsvp.type === RSVP_TYPE.NOT_GOING;
+    const isAdminOverride = !!rsvp.adminOverride; // Check if this is an admin override action
 
     let promotedUser: User | null = null;
     let finalRsvpTypeForUser = rsvp.type; // What the user's RSVP will be set to
@@ -103,8 +105,12 @@ export async function POST(req: NextRequest) {
         (r) => r.rsvpType === RSVP_TYPE.GOING && r.attendeeId !== user.id // Exclude self if updating from Maybe->Going
       ).length;
 
-      // Check if event is full
-      if (eventLimit > 0 && currentGoingCount >= eventLimit) {
+      // Check if event is full (bypass check if this is an admin override)
+      if (
+        !isAdminOverride &&
+        eventLimit > 0 &&
+        currentGoingCount >= eventLimit
+      ) {
         console.log(
           `Event ${event.id} is full. Adding ${user.id} to waitlist.`
         );
@@ -176,8 +182,16 @@ export async function POST(req: NextRequest) {
       finalRsvpTypeForUser = existingRsvp?.rsvpType ?? rsvp.type; // Keep old type if possible
     }
 
-    // 4. --- Post-Logic Actions: Send Emails ---
-    if (emailTypeForUser) {
+    // Log admin override actions
+    if (isAdminOverride) {
+      console.log(
+        `Admin override: User ${user.id} RSVP changed to ${rsvp.type} for event ${event.id}`
+      );
+    }
+
+    // 4. --- Send emails and schedule reminders ---
+    if (emailTypeForUser && !isAdminOverride) {
+      // Don't send emails for admin overrides
       sendEventEmail({
         receiver: user,
         type: emailTypeForUser,
