@@ -27,7 +27,6 @@ export function Branding({ isBeta }: BrandingProps) {
           {isBeta && <BetaBadge className="ml-0" />}
         </div>
       </div>
-
       <LogoAnimation />
     </div>
   );

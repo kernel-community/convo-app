@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { MoveUpRight } from "lucide-react";
 import Image from "next/image";
 import ConvoLogo from "public/images/logo.png";
+import { useCommunity } from "src/context/CommunityContext";
 
 export function LogoAnimation() {
   const [isMounted, setIsMounted] = useState(false);
@@ -30,7 +31,7 @@ export function LogoAnimation() {
   };
 
   const isActive = isHovered || isTapped;
-
+  const { community, isLoading } = useCommunity();
   return (
     <motion.div
       onHoverStart={() => handleInteraction(true)}
@@ -66,13 +67,13 @@ export function LogoAnimation() {
         <span className="font-primary text-sm italic sm:text-base">for</span>
         <div className="relative inline-flex font-primary">
           <motion.a
-            href="https://kernel.community/"
+            href={isLoading || !community?.url ? "#" : community?.url}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center text-sm italic underline decoration-dotted underline-offset-4 sm:text-base"
             whileHover="hover"
           >
-            Kernel
+            {isLoading ? "loading..." : community?.displayName}
             {isMounted && (
               <>
                 {/* Desktop arrow - appears on hover */}
