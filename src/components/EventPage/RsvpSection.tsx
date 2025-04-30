@@ -287,9 +287,11 @@ export const SessionsWrapper = ({
           </>
         )}
         <div className="font-secondary text-sm font-light lowercase">
-          in your local timezone&nbsp;
+          in {data.creationTimezone ? "event timezone" : "your local timezone"}
+          &nbsp;
           <span className="font-semibold">
-            {Intl.DateTimeFormat().resolvedOptions().timeZone}
+            {data.creationTimezone ||
+              Intl.DateTimeFormat().resolvedOptions().timeZone}
           </span>
         </div>
       </div>

@@ -65,6 +65,7 @@ export async function GET(req: NextRequest) {
         name: rsvp.attendee.nickname,
         email: rsvp.attendee.email || "",
       })),
+      creationTimezone: event.creationTimezone || null,
     };
   });
   const iCal = generateiCalString(iCalRequests);

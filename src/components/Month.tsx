@@ -381,6 +381,7 @@ const EventDescription = ({ event }: { event: ClientEvent }) => {
             recurrenceText={rruleString}
             startDateTime={event.startDateTime}
             rruleSet={rruleSetObject}
+            creationTimezone={event.creationTimezone ?? undefined}
           />
         </div>
       </Link>

@@ -32,9 +32,11 @@ interface SharedProps {
 export const EventsView = ({
   rruleStr,
   startDateTime,
+  creationTimezone,
 }: {
   rruleStr: string;
   startDateTime: string;
+  creationTimezone?: string;
 }) => {
   const isDesktop = useMediaQuery(DESKTOP);
   const NUMBER_OF_MONTHS_TO_SHOW = isDesktop ? 1 : 1; // @todo
@@ -108,6 +110,7 @@ export const EventsView = ({
         recurrenceText={recurrenceText}
         startDateTime={startDateTime}
         rruleSet={rruleSet}
+        creationTimezone={creationTimezone}
       />
     </Tabs>
   );
@@ -117,10 +120,12 @@ export const RecurringEventText = ({
   recurrenceText,
   startDateTime,
   rruleSet,
+  creationTimezone,
 }: {
   recurrenceText: string;
   startDateTime: string;
   rruleSet: RRuleSet | RRule | null;
+  creationTimezone?: string;
 }) => {
   return (
     <>
@@ -141,8 +146,10 @@ export const RecurringEventText = ({
         </BasicHighlight>
       </div>
       <div className="text-sm">
-        in your local timezone:&nbsp;
-        <span>{Intl.DateTimeFormat().resolvedOptions().timeZone}</span>
+        in {creationTimezone ? "event timezone" : "your local timezone"}:&nbsp;
+        <span>
+          {creationTimezone || Intl.DateTimeFormat().resolvedOptions().timeZone}
+        </span>
       </div>
     </>
   );
