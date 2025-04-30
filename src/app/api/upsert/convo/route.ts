@@ -1,9 +1,10 @@
-import _, { isNil } from "lodash";
+import _ from "lodash";
 import { prisma } from "src/utils/db";
 import { nanoid } from "nanoid";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { headers } from "next/headers";
+import { getCommunityFromSubdomain } from "src/utils/getCommunityFromSubdomain";
 import type { ClientEventInput, ServerEvent } from "src/types";
 import { sendEventEmail } from "src/utils/email/send";
 import type { Rsvp, User } from "@prisma/client";
@@ -364,23 +365,8 @@ export async function POST(req: NextRequest) {
 
   const hash = event.hash || nanoid(10);
 
-  // Find or create the kernel community
-  let community = await prisma.community.findUnique({
-    where: { subdomain: "kernel" },
-  });
-
-  // If community doesn't exist, create it
-  if (!community || isNil(community)) {
-    console.log("Kernel community not found, creating it now");
-    community = await prisma.community.create({
-      data: {
-        subdomain: "kernel",
-        displayName: "Kernel",
-        description: "Kernel Community",
-      },
-    });
-    console.log("Created new kernel community:", community.id);
-  }
+  // Use the centralized utility to get or create the appropriate community
+  const community = await getCommunityFromSubdomain();
 
   // --- Proposer Create Logic ---
   // Prepare the list of proposers to create

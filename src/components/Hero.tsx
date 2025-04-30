@@ -694,6 +694,7 @@ const Hero = ({
       event.rsvps.filter((rsvp) => rsvp.rsvpType === RSVP_TYPE.GOING).length
   );
   const totalSeats = event.limit;
+  console.log({ event });
   return (
     <div className="flex w-full flex-col justify-items-start">
       <div
@@ -706,6 +707,19 @@ const Hero = ({
       >
         {event?.title}
       </div>
+
+      {event.community && (
+        <div className="text-md mt-1 font-primary italic text-muted-foreground">
+          created for the{" "}
+          <a
+            className="cursor-pointer font-semibold underline decoration-dotted underline-offset-4"
+            href={`/community/${event.community.subdomain}`}
+          >
+            {event.community.displayName}
+          </a>{" "}
+          community.
+        </div>
+      )}
 
       {(isKernelCommunityMember || isOwnerOfConvo) && (
         <motion.div
@@ -1070,7 +1084,7 @@ const AdminMetricsAccordion = ({ event }: { event: ClientEvent }) => {
             </div>
             <div className="relative">
               <div className="flex items-center justify-between gap-2 border-t-2 py-3 text-sm">
-                <div className="flex items-center gap-4">
+                <div className="flex flex-col items-center gap-4">
                   <div className="flex items-center gap-2">
                     <span className="text-primary-foreground/60">
                       Filter / Message RSVPs:{" "}

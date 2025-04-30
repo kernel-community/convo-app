@@ -8,7 +8,10 @@ import { DEFAULT_USER_NICKNAME } from "src/utils/constants";
 import { TooltipProvider } from "src/components/ui/tooltip";
 import { RsvpIntentionProvider } from "src/context/RsvpIntentionContext";
 import { createContext, useContext } from "react";
-
+import { CommunityProvider } from "src/context/CommunityContext";
+import { Toaster } from "react-hot-toast";
+import { DataLossBanner } from "src/components/DataLossBanner";
+import { ScrambleProvider } from "src/context/ScrambleContext";
 const queryClient = new QueryClient();
 
 // Create a context for beta mode
@@ -68,9 +71,37 @@ export default function Providers({
       >
         <QueryClientProvider client={queryClient}>
           <UserProvider>
-            <RsvpIntentionProvider>
-              <TooltipProvider>{children}</TooltipProvider>
-            </RsvpIntentionProvider>
+            <CommunityProvider>
+              <RsvpIntentionProvider>
+                <TooltipProvider>
+                  <DataLossBanner />
+                  <ScrambleProvider>
+                    <div vaul-drawer-wrapper="">{children}</div>
+                  </ScrambleProvider>
+                  <Toaster
+                    position="bottom-right"
+                    toastOptions={{
+                      style: {
+                        background: "var(--background)",
+                        color: "var(--foreground)",
+                        border: "1px solid var(--border)",
+                        fontSize: "0.875rem",
+                        maxWidth: "320px",
+                        padding: "0.75rem 1rem",
+                        fontFamily: "var(--font-inter)",
+                      },
+                      success: {
+                        duration: 3000,
+                        iconTheme: {
+                          primary: "var(--primary)",
+                          secondary: "var(--primary-foreground)",
+                        },
+                      },
+                    }}
+                  />
+                </TooltipProvider>
+              </RsvpIntentionProvider>
+            </CommunityProvider>
           </UserProvider>
         </QueryClientProvider>
       </DynamicContextProvider>
