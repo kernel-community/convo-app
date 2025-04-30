@@ -69,13 +69,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "./ui/tooltip";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "./ui/dialog";
+// Dialog components removed as we're now using a tooltip
 
 const When = ({
   event,
@@ -136,24 +130,35 @@ const When = ({
         </CardHeader>
         <CardContent>
           {isDifferentTimezone ? (
-            <Dialog>
-              <DialogTrigger asChild>
-                <div className="cursor-pointer underline decoration-dotted underline-offset-4">
-                  {getFormattedDateOrTime(event.startDateTime, "date")}
-                  {", "}
-                  {getFormattedDateOrTime(event.startDateTime, "time")}
-                </div>
-              </DialogTrigger>
-              <DialogContent className="max-w-md">
-                <DialogHeader>
-                  <DialogTitle>Time Zone Information</DialogTitle>
-                </DialogHeader>
-                <div className="mt-4 space-y-4">
+            <div className="group relative inline-block">
+              {/* The trigger element with dotted underline */}
+              <div
+                className="cursor-pointer underline decoration-dotted underline-offset-4"
+                tabIndex={0} // Make it focusable for accessibility
+                role="button"
+                aria-label="Show timezone information"
+              >
+                {getFormattedDateOrTime(event.startDateTime, "date")}
+                {", "}
+                {getFormattedDateOrTime(event.startDateTime, "time")}{" "}
+                <span className="text-sm">({localTimezone})</span>
+              </div>
+              <span className="text-xs text-muted-foreground">
+                (original time proposed in {event.creationTimezone})
+              </span>
+
+              {/* Tooltip content */}
+              <div className="invisible absolute left-0 top-full z-10 mt-2 w-72 rounded-md border border-border bg-background p-4 shadow-lg transition-opacity duration-300 group-focus-within:visible group-hover:visible md:w-80">
+                <div className="space-y-4">
+                  <h3 className="text-sm font-semibold">
+                    Time Zone Information
+                  </h3>
+
                   <div>
-                    <h3 className="mb-1 font-bold">
+                    <h4 className="mb-1 text-xs font-bold">
                       Original time in {event.creationTimezone}:
-                    </h3>
-                    <p className="text-primary">
+                    </h4>
+                    <p className="text-sm text-primary">
                       {event.creationTimezone &&
                         formatTimeInTimezone(
                           event.startDateTime,
@@ -161,17 +166,18 @@ const When = ({
                         )}
                     </p>
                   </div>
+
                   <div>
-                    <h3 className="mb-1 font-bold">
+                    <h4 className="mb-1 text-xs font-bold">
                       Your local time ({localTimezone}):
-                    </h3>
-                    <p>
+                    </h4>
+                    <p className="text-sm">
                       {formatTimeInTimezone(event.startDateTime, localTimezone)}
                     </p>
                   </div>
                 </div>
-              </DialogContent>
-            </Dialog>
+              </div>
+            </div>
           ) : (
             <div>
               {getFormattedDateOrTime(event.startDateTime, "date")}
