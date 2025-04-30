@@ -1,6 +1,5 @@
-import type { Dispatch, SetStateAction } from "react";
-import { useState } from "react";
-import { getDateTimeString } from "src/utils/dateTime";
+import { Dispatch, SetStateAction, useState } from "react";
+import { AlertCircle, XCircle } from "lucide-react";
 import {
   Credenza,
   CredenzaBody,
@@ -10,16 +9,18 @@ import {
   CredenzaHeader,
   CredenzaTitle,
 } from "src/components/ui/credenza";
-import FieldLabel from "src/components/StrongText";
-import { Button } from "src/components/ui/button";
-import Signature from "src/components/EventPage/Signature";
-import { Article } from "src/components/Article";
-import type { User } from "@prisma/client";
-import type { UserStatus } from "src/context/UserContext";
-import { Skeleton } from "src/components/ui/skeleton";
 import type { ClientEventInput } from "src/types";
+import type { UserStatus } from "src/context/UserContext";
+import type { User } from "@prisma/client";
+import { Button } from "src/components/ui/button";
+import { Article } from "src/components/Article";
+import FieldLabel from "../StrongText";
+import { getDateTimeString } from "src/utils/dateTime";
 import { RRule } from "rrule";
+import { Skeleton } from "../ui/skeleton";
 import { FancyHighlight } from "src/components/FancyHighlight";
+import Signature from "../EventPage/Signature";
+import { DateTime } from "luxon";
 
 // Use ProposerInfo type from ProposeForm (assuming it's exported or redefined here)
 // If not exported, copy the definition here
@@ -30,6 +31,17 @@ type ProposerInfo = {
   email?: string | null;
 };
 
+// Helper function to format timezone with offset
+const formatTimezoneDisplay = (timezone: string): string => {
+  try {
+    const now = DateTime.now().setZone(timezone);
+    const offset = now.toFormat("ZZZZ"); // e.g., GMT-04:00
+    return `${timezone.replace("_", " ")} (${offset})`;
+  } catch (e) {
+    return timezone;
+  }
+};
+
 export const ConfirmConvoCredenza = ({
   openModalFlag,
   setOpenModalFlag,
@@ -38,6 +50,7 @@ export const ConfirmConvoCredenza = ({
   action,
   isLoading,
   fullProposersList, // Add new prop
+  errorMessage, // Add error message prop
 }: {
   openModalFlag: boolean;
   setOpenModalFlag: Dispatch<SetStateAction<boolean>>;
@@ -46,6 +59,7 @@ export const ConfirmConvoCredenza = ({
   action: () => Promise<void>;
   isLoading: boolean;
   fullProposersList?: ProposerInfo[]; // Make it optional for safety
+  errorMessage?: string; // Optional error message from form validation or API
 }) => {
   // State to control showing all hosts
   const [showAllHosts, setShowAllHosts] = useState(false);
@@ -87,16 +101,36 @@ export const ConfirmConvoCredenza = ({
                   <FancyHighlight>
                     {getDateTimeString(
                       convoToCreateData.dateTimeStartAndEnd.start.toISOString(),
-                      "date"
+                      "date",
+                      convoToCreateData.creationTimezone
                     )}{" "}
                     {getDateTimeString(
                       convoToCreateData.dateTimeStartAndEnd.start.toISOString(),
-                      "time"
+                      "time",
+                      convoToCreateData.creationTimezone
                     )}
                   </FancyHighlight>
                 </div>
               )}
             </div>
+
+            {/* Timezone Information */}
+            <FieldLabel>Timezone</FieldLabel>
+            <div>
+              {convoToCreateData?.creationTimezone ? (
+                <FancyHighlight>
+                  {formatTimezoneDisplay(convoToCreateData.creationTimezone)}
+                </FancyHighlight>
+              ) : (
+                <span className="text-muted-foreground">
+                  {formatTimezoneDisplay(
+                    Intl.DateTimeFormat().resolvedOptions().timeZone
+                  )}{" "}
+                  (local)
+                </span>
+              )}
+            </div>
+
             {convoToCreateData?.recurrenceRule && (
               <>
                 <FieldLabel>Recurrence</FieldLabel>
@@ -150,11 +184,63 @@ export const ConfirmConvoCredenza = ({
             </div>
           </div>
         </CredenzaBody>
+        {/* Error message display */}
+        {errorMessage && (
+          <div className="mx-4 mb-4 rounded-md border border-red-200 bg-red-50 p-4">
+            <div className="flex">
+              <div className="flex-shrink-0">
+                <XCircle className="h-5 w-5 text-red-400" aria-hidden="true" />
+              </div>
+              <div className="ml-3">
+                <h3 className="text-sm font-medium text-red-800">Error</h3>
+                <div className="mt-2 text-sm text-red-700">
+                  <p>{errorMessage}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Past date warning */}
+        {convoToCreateData &&
+          new Date(convoToCreateData.dateTimeStartAndEnd.start) <
+            new Date() && (
+            <div className="mx-4 mb-4 rounded-md border border-yellow-200 bg-yellow-50 p-4">
+              <div className="flex">
+                <div className="flex-shrink-0">
+                  <AlertCircle
+                    className="h-5 w-5 text-yellow-400"
+                    aria-hidden="true"
+                  />
+                </div>
+                <div className="ml-3">
+                  <h3 className="text-sm font-medium text-yellow-800">
+                    Warning
+                  </h3>
+                  <div className="mt-2 text-sm text-yellow-700">
+                    <p>
+                      The event date and time you selected is in the past.
+                      Events cannot be scheduled in the past.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
         <CredenzaFooter>
           {convoToCreateData && !isLoading && (
-            <Button onClick={() => action()} className="w-full">
-              {" "}
-              Submit{" "}
+            <Button
+              onClick={() => action()}
+              className="w-full"
+              disabled={
+                errorMessage !== undefined ||
+                (convoToCreateData &&
+                  new Date(convoToCreateData.dateTimeStartAndEnd.start) <
+                    new Date())
+              }
+            >
+              Submit
             </Button>
           )}
           {isLoading && (
