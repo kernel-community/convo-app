@@ -84,6 +84,13 @@ export async function POST(req: NextRequest) {
       console.log(
         `User ${user.id} changing from GOING to ${rsvp.type} for event ${event.id}`
       );
+
+      // Increment the event sequence to ensure calendar clients recognize the update
+      await prisma.event.update({
+        where: { id: event.id },
+        data: { sequence: event.sequence + 1 },
+      });
+
       await prisma.rsvp.update({
         where: { id: existingRsvp.id }, // Use existingRsvp.id which is guaranteed
         data: { rsvpType: rsvp.type },
@@ -132,6 +139,13 @@ export async function POST(req: NextRequest) {
         console.log(
           `Event ${event.id} has space. Upserting RSVP for ${user.id} as GOING.`
         );
+
+        // Increment the event sequence to ensure calendar clients recognize the update
+        await prisma.event.update({
+          where: { id: event.id },
+          data: { sequence: event.sequence + 1 },
+        });
+
         await prisma.rsvp.upsert({
           where: {
             eventId_attendeeId: { eventId: event.id, attendeeId: user.id },
@@ -157,6 +171,13 @@ export async function POST(req: NextRequest) {
       console.log(
         `User ${user.id} RSVPing as ${rsvp.type} for event ${event.id}`
       );
+
+      // Increment the event sequence to ensure calendar clients recognize the update
+      await prisma.event.update({
+        where: { id: event.id },
+        data: { sequence: event.sequence + 1 },
+      });
+
       await prisma.rsvp.upsert({
         where: {
           eventId_attendeeId: { eventId: event.id, attendeeId: user.id },

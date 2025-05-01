@@ -33,14 +33,24 @@ export const sendEventEmail = async ({
   // the only problem is that when the recipient marks themselves as No, the recipient might receive a bounced email (since hedwig@convo.cafe does not exist)
   // ideally we'd like the recipients to not mark anything via their calendar
   // so in a way that bounced email might actually be a good reminder for them to go to the app and update their RSVP
-  const iCal = await generateiCalString([
-    await generateiCalRequestFromEvent({
-      event: event,
-      recipientEmail: receiver.email,
-      recipientName: receiver.nickname,
-      rsvpType: emailTypeToRsvpType(type),
-    }),
-  ]);
+
+  // Determine the method based on RSVP type
+  const method =
+    emailTypeToRsvpType(type) === "NOT_GOING" || event.isDeleted === true
+      ? "CANCEL"
+      : "REQUEST";
+
+  const iCal = await generateiCalString(
+    [
+      await generateiCalRequestFromEvent({
+        event: event,
+        recipientEmail: receiver.email,
+        recipientName: receiver.nickname,
+        rsvpType: emailTypeToRsvpType(type),
+      }),
+    ],
+    method
+  );
   console.log({ iCal });
   // Process subject template variables
   const processSubject = (subject: string, data: { event: ConvoEvent }) => {
@@ -88,10 +98,7 @@ export const sendEventEmail = async ({
   );
 
   const subject = processSubject(rawSubject, { event: convoEvent });
-  const method =
-    emailTypeToRsvpType(type) === "NOT_GOING" || event.isDeleted === true
-      ? "CANCEL"
-      : "REQUEST";
+  // Method already determined above, reuse it for the content type
   const opts: CreateEmailOptions = {
     from: `${EVENT_ORGANIZER_NAME} <${EVENT_ORGANIZER_EMAIL}>`,
     to: [receiver.email],

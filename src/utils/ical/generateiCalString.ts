@@ -43,7 +43,7 @@ DTSTAMP:${start}` +
     `${rrule ? `\n${rrule}\n` : `\n`}` +
     `ORGANIZER;CN="${organizer.name}":mailto:${organizer.email}
 UID:${uid}@evts.convo.cafe
-ATTENDEE;CUTYPE=INDIVIDUAL;ROLE=REQ-PARTICIPANT;PARTSTAT=${partstat};CN=${recipient.email};X-NUM-GUESTS=0:mailto:${recipient.email}
+ATTENDEE;CUTYPE=INDIVIDUAL;ROLE=REQ-PARTICIPANT;PARTSTAT=${partstat};RSVP=TRUE;CN=${recipient.email};X-NUM-GUESTS=0:mailto:${recipient.email}
 SUMMARY:${title}
 DESCRIPTION:${enhancedDescription}
 LOCATION:${location}
@@ -74,16 +74,20 @@ export type ICalRequestParams = {
   status: "TENTATIVE" | "CONFIRMED" | "CANCELLED";
   creationTimezone?: string | null;
 };
-export const generateiCalString = (events: Array<ICalRequestParams>) => {
-  // Use REQUEST as default method, individual event statuses will handle cancellations
+export const generateiCalString = (
+  events: Array<ICalRequestParams>,
+  method: "REQUEST" | "CANCEL" = "REQUEST"
+) => {
+  // Allow method to be passed in, defaulting to REQUEST if not specified
   const iCal = `BEGIN:VCALENDAR
 VERSION:2.0
 CALSCALE:GREGORIAN
 NAME:convo-cafe
 PRODID:-//convo.cafe//NONSGML convo.cafe//EN
 X-WR-CALNAME:convo-cafe
-METHOD:REQUEST
-${events.map((evt) => generateEventString(evt)).join(`\n`)}
+METHOD:${method}
+${events.map((evt) => generateEventString(evt)).join(`
+`)}
 END:VCALENDAR`;
   return iCal;
 };
