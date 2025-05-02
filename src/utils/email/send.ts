@@ -152,6 +152,7 @@ export const sendEventEmail = async ({
       userId: p.userId,
       nickname: p.user.nickname,
     })),
+    creationTimezone: event.creationTimezone ?? undefined,
   };
 
   // Create basic template props without event for non-event templates

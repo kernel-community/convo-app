@@ -1,4 +1,5 @@
 import { ConvoEvent } from "../types";
+import { DateTime } from "luxon";
 
 interface EventDetailsProps {
   event: ConvoEvent;
@@ -37,20 +38,27 @@ const formatDateWithTimezone = (
   timezone?: string
 ): string => {
   try {
-    // Create Date object from the dateTime string
-    const dateObj = new Date(dateTime);
-
-    // Format in UTC
-    const utcFormatted = dateObj.toUTCString();
-
-    // Mention the creation timezone if available
     if (timezone) {
-      return `${utcFormatted} (UTC, originally created in ${timezone})`;
-    }
+      // Use the original timezone when available
+      const dt = DateTime.fromISO(dateTime).setZone(timezone);
 
-    return `${utcFormatted} (UTC)`;
+      // Format with the timezone name
+      const formattedDate = dt.toFormat("EEEE, MMMM d, yyyy");
+      const formattedTime = dt.toFormat("h:mm a");
+      const zoneName = dt.toFormat("ZZZZ"); // Full timezone name
+
+      return `${formattedDate} at ${formattedTime} ${zoneName}`;
+    } else {
+      // Fallback to UTC if no timezone is available
+      const dt = DateTime.fromISO(dateTime).toUTC();
+
+      const formattedDate = dt.toFormat("EEEE, MMMM d, yyyy");
+      const formattedTime = dt.toFormat("h:mm a");
+
+      return `${formattedDate} at ${formattedTime} UTC`;
+    }
   } catch (e) {
-    // Fallback to default formatting
+    // Fallback to default formatting if something goes wrong
     const dateObj = new Date(dateTime);
     return dateObj.toLocaleString();
   }
