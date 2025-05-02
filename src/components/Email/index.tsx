@@ -40,6 +40,10 @@ import {
   SUBJECT as UpdateAttendeeMaybeEmailTemplateSubject,
 } from "./templates/UpdateAttendeeMaybe";
 import {
+  EventDetailsUpdatedEmailTemplate,
+  SUBJECT as EventDetailsUpdatedEmailTemplateSubject,
+} from "./templates/EventDetailsUpdated";
+import {
   Reminder1hrEmailTemplate,
   SUBJECT as Reminder1hrEmailTemplateSubject,
 } from "./templates/Reminder1hr";
@@ -89,6 +93,7 @@ export type EmailType =
   | "update-proposer"
   | "update-attendee-going"
   | "update-attendee-maybe"
+  | "event-details-updated"
   | "reminder24hr"
   | "reminder1hr"
   | "reminder1min"
@@ -183,6 +188,11 @@ export const getEmailTemplateFromType = (
       return {
         template: UpdateAttendeeMaybeEmailTemplate({ ...props }),
         subject: UpdateAttendeeMaybeEmailTemplateSubject,
+      };
+    case "event-details-updated":
+      return {
+        template: EventDetailsUpdatedEmailTemplate({ ...props }),
+        subject: EventDetailsUpdatedEmailTemplateSubject,
       };
     case "reminder24hr":
       return {

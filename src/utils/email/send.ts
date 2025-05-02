@@ -12,6 +12,75 @@ import { EVENT_ORGANIZER_NAME } from "../constants";
 import { emailTypeToRsvpType } from "../emailTypeToRsvpType";
 import type { ConvoEvent } from "src/components/Email/types";
 
+// Create a global email queue with rate limiting
+interface EmailQueueItem {
+  options: CreateEmailOptions;
+  resolve: (value: any) => void;
+  reject: (reason?: any) => void;
+}
+
+class EmailQueue {
+  private queue: EmailQueueItem[] = [];
+  private processing = false;
+  private rateLimitPerSecond = 5; // Pro plan with higher limit
+
+  addToQueue(item: EmailQueueItem): void {
+    this.queue.push(item);
+    if (!this.processing) {
+      this.processQueue();
+    }
+  }
+
+  private async processQueue(): Promise<void> {
+    if (this.queue.length === 0) {
+      this.processing = false;
+      return;
+    }
+
+    this.processing = true;
+
+    // Process up to rateLimitPerSecond items at once
+    const batch = this.queue.splice(0, this.rateLimitPerSecond);
+
+    // Send emails in batch
+    await Promise.all(
+      batch.map(async (item) => {
+        try {
+          const { data, error } = await resend.emails.send(item.options);
+
+          if (error) {
+            console.error("Failed to send email:", error);
+            item.reject(error);
+            return;
+          }
+
+          if (!data) {
+            const noDataError = new Error("No data returned from resend");
+            console.error(noDataError);
+            item.reject(noDataError);
+            return;
+          }
+
+          item.resolve(data);
+          console.log(`Email sent successfully: ${data.id}`);
+        } catch (error) {
+          console.error("Failed to send email:", error);
+          item.reject(error);
+        }
+      })
+    );
+
+    // Add delay before processing next batch
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+
+    // Continue processing
+    this.processQueue();
+  }
+}
+
+// Create a singleton instance
+const emailQueue = new EmailQueue();
+
 export const sendEventEmail = async ({
   receiver,
   event,
@@ -99,7 +168,7 @@ export const sendEventEmail = async ({
 
   const subject = processSubject(rawSubject, { event: convoEvent });
   // Method already determined above, reuse it for the content type
-  const opts: CreateEmailOptions = {
+  const emailOptions: CreateEmailOptions = {
     from: `${EVENT_ORGANIZER_NAME} <${EVENT_ORGANIZER_EMAIL}>`,
     to: [receiver.email],
     subject,
@@ -115,35 +184,22 @@ export const sendEventEmail = async ({
   };
   // If returnOptionsOnly is true, just return the options without sending
   if (returnOptionsOnly) {
-    return opts;
+    return emailOptions;
   }
+
   try {
-    const { data, error } = await resend.emails.send(opts);
-
-    if (error) {
-      // Log the specific error details
-      console.error("Email sending failed:", {
-        error,
-        recipient: opts.to,
-        subject: opts.subject,
+    // Instead of sending directly, add to the rate-limited queue
+    return await new Promise((resolve, reject) => {
+      emailQueue.addToQueue({
+        options: emailOptions,
+        resolve,
+        reject,
       });
-
-      throw new Error(`Failed to send email: ${error.message}`);
-    }
-
-    if (!data) {
-      throw new Error("No data returned from resend");
-    }
-
-    return data;
-  } catch (e) {
-    // Handle any unexpected errors from the API
-    console.error("Unexpected error while sending email:", e);
-    throw new Error(
-      e instanceof Error
-        ? e.message
-        : "An unexpected error occurred while sending email"
-    );
+      console.log(`Email to ${receiver.email} added to queue for ${type}`);
+    });
+  } catch (error) {
+    console.error("Unexpected error while queuing email:", error);
+    throw error;
   }
 };
 

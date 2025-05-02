@@ -8,6 +8,7 @@ import { getCommunityFromSubdomain } from "src/utils/getCommunityFromSubdomain";
 import type { ClientEventInput, ServerEvent } from "src/types";
 import { sendEventEmail } from "src/utils/email/send";
 import type { Rsvp, User } from "@prisma/client";
+import type { EmailType } from "src/components/Email";
 import { RSVP_TYPE } from "@prisma/client";
 import { DateTime } from "luxon";
 import { sendMessage } from "src/utils/slack/sendMessage";
@@ -18,69 +19,145 @@ import {
 import { rrulestr } from "rrule";
 import { cleanupRruleString } from "src/utils/rrule";
 
+// Helper function to check if there are significant changes in the event details
+const hasSignificantChanges = (
+  previousValues: Partial<ServerEvent>,
+  currentEvent: ServerEvent
+) => {
+  if (!previousValues) return false;
+
+  // Check for changes in date, time or location
+  const startTimeChanged =
+    previousValues.startDateTime &&
+    currentEvent.startDateTime &&
+    previousValues.startDateTime.toString() !==
+      currentEvent.startDateTime.toString();
+
+  const endTimeChanged =
+    previousValues.endDateTime &&
+    currentEvent.endDateTime &&
+    previousValues.endDateTime.toString() !==
+      currentEvent.endDateTime.toString();
+
+  const locationChanged = previousValues.location !== currentEvent.location;
+
+  return startTimeChanged || endTimeChanged || locationChanged;
+};
+
+// Rate-limited email sender that respects Resend's 2 req/sec limit
+const sendWithRateLimit = async (
+  emailBatches: Array<{
+    event: ServerEvent;
+    type: EmailType;
+    receiver: User;
+  }>[]
+) => {
+  // Process all batches sequentially
+  for (const batch of emailBatches) {
+    // Process each batch - sending up to 2 emails in parallel
+    for (let i = 0; i < batch.length; i += 2) {
+      // Send up to 2 emails in parallel (respecting rate limits of 2 req/sec)
+      const promises = [];
+      if (i < batch.length) {
+        // Ensure each item is a valid email options object before sending
+        const emailOptions = batch[i];
+        if (
+          emailOptions &&
+          emailOptions.event &&
+          emailOptions.type &&
+          emailOptions.receiver
+        ) {
+          promises.push(sendEventEmail(emailOptions));
+        }
+      }
+
+      if (i + 1 < batch.length) {
+        // Ensure each item is a valid email options object before sending
+        const emailOptions = batch[i + 1];
+        if (
+          emailOptions &&
+          emailOptions.event &&
+          emailOptions.type &&
+          emailOptions.receiver
+        ) {
+          promises.push(sendEventEmail(emailOptions));
+        }
+      }
+
+      if (promises.length > 0) {
+        await Promise.all(promises);
+
+        // Add a delay of 1 second after each pair to respect rate limit
+        if (i + 2 < batch.length) {
+          await new Promise((resolve) => setTimeout(resolve, 1000));
+        }
+      }
+    }
+  }
+};
+
 // Helper function to send emails asynchronously without blocking the response
 const sendEmailsAsync = async (
   event: ServerEvent,
   goingAttendees: (Rsvp & { attendee: User })[] = [],
   maybeAttendees: (Rsvp & { attendee: User })[] = [],
-  isUpdate = false
+  isUpdate = false,
+  previousValues?: Partial<ServerEvent>
 ) => {
   try {
-    // Send email to all proposers
-    const proposerEmailPromises = event.proposers.map((proposerEntry) =>
-      sendEventEmail({
+    // Prepare all email batches
+    const batches: Array<
+      {
+        event: ServerEvent;
+        type: EmailType;
+        receiver: User;
+      }[]
+    > = [];
+
+    // Prepare proposer emails
+    const proposerEmails = event.proposers.map((proposerEntry) => ({
+      event,
+      type: (isUpdate ? "update-proposer" : "create") as EmailType,
+      receiver: proposerEntry.user,
+    }));
+
+    if (proposerEmails.length > 0) {
+      batches.push(proposerEmails);
+    }
+
+    // Check if there are significant changes for attendee notifications
+    const hasChanges =
+      isUpdate &&
+      previousValues &&
+      hasSignificantChanges(previousValues as Partial<ServerEvent>, event);
+
+    // Prepare going attendee emails (only if significant changes)
+    if (goingAttendees.length > 0 && hasChanges) {
+      const goingEmails = goingAttendees.map((rsvp) => ({
         event,
-        type: isUpdate ? "update-proposer" : "create",
-        receiver: proposerEntry.user,
-      })
-    );
-    await Promise.all(proposerEmailPromises); // Process proposer emails
+        type: "event-details-updated" as EmailType,
+        receiver: rsvp.attendee,
+      }));
 
-    // Send emails to attendees who RSVP'd as Going
-    if (goingAttendees.length > 0) {
-      // Collect all email options
-      const goingEmailPromises = goingAttendees.map((rsvp) =>
-        sendEventEmail({
-          event,
-          type: "update-attendee-going",
-          receiver: rsvp.attendee,
-        })
-      );
-
-      // Process in batches to avoid rate limiting
-      for (let i = 0; i < goingEmailPromises.length; i += 10) {
-        const batch = goingEmailPromises.slice(i, i + 10);
-        await Promise.all(batch);
-
-        // Add a small delay between batches to avoid rate limiting
-        if (i + 10 < goingEmailPromises.length) {
-          await new Promise((resolve) => setTimeout(resolve, 500));
-        }
-      }
+      batches.push(goingEmails);
     }
 
-    // Send emails to attendees who RSVP'd as Maybe
-    if (maybeAttendees.length > 0) {
-      // Collect all email options
-      const maybeEmailPromises = maybeAttendees.map((rsvp) =>
-        sendEventEmail({
-          event,
-          type: "update-attendee-maybe",
-          receiver: rsvp.attendee,
-        })
-      );
+    // Prepare maybe attendee emails (only if significant changes)
+    if (maybeAttendees.length > 0 && hasChanges) {
+      const maybeEmails = maybeAttendees.map((rsvp) => ({
+        event,
+        type: "event-details-updated" as EmailType,
+        receiver: rsvp.attendee,
+      }));
 
-      // Process in batches to avoid rate limiting
-      for (let i = 0; i < maybeEmailPromises.length; i += 10) {
-        const batch = maybeEmailPromises.slice(i, i + 10);
-        await Promise.all(batch);
-
-        // Add a small delay between batches to avoid rate limiting
-        if (i + 10 < maybeEmailPromises.length) {
-          await new Promise((resolve) => setTimeout(resolve, 500));
-        }
-      }
+      batches.push(maybeEmails);
     }
+
+    // Fire and forget - send all emails in the background
+    // This way the API response isn't delayed by email sending
+    void sendWithRateLimit(batches).catch((error) => {
+      console.error("Error sending rate-limited emails:", error);
+    });
 
     // Send notification on a slack channel
     const headersList = headers();
@@ -195,17 +272,41 @@ export async function POST(req: NextRequest) {
       },
     });
 
+    // Save previous values to detect significant changes
+    const previousValues = {
+      startDateTime: eventToUpdate.startDateTime,
+      endDateTime: eventToUpdate.endDateTime,
+      location: eventToUpdate.location,
+    };
+
     // --- Proposer Update Logic ---
-    // Check if the user making the request is one of the current proposers
+    // Get the user making the request
+    const currentUser = await prisma.user.findUnique({
+      where: { id: userId },
+      include: {
+        profile: true,
+      },
+    });
+
+    if (!currentUser) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
+
+    // Check if the user is a proposer or a Kernel community member
     const isUserAProposer = eventToUpdate.proposers.some(
       (p) => p.userId === userId
     );
 
-    if (!isUserAProposer) {
+    // Check if user is a Kernel community member (email ends with @kernel.community)
+    const userEmail = currentUser.email || "";
+    const isKernelCommunityMember = userEmail.endsWith("@kernel.community");
+
+    // Allow update if user is either a proposer or a Kernel community member
+    if (!isUserAProposer && !isKernelCommunityMember) {
       return NextResponse.json(
         {
           error:
-            "Permission denied: Only current proposers can update the event.",
+            "Permission denied: Only current proposers or Kernel community members can update the event.",
         },
         { status: 403 }
       );
@@ -294,11 +395,14 @@ export async function POST(req: NextRequest) {
       (rsvp) => rsvp.rsvpType === RSVP_TYPE.MAYBE
     );
 
-    // Start sending emails asynchronously without awaiting
-    sendEmailsAsync(updated, goingAttendees, maybeAttendees, true).catch(
-      (error) => {
-        console.error("Background email sending failed:", error);
-      }
+    // Start sending emails asynchronously without awaiting or catching
+    // Error handling is now inside the sendEmailsAsync function
+    void sendEmailsAsync(
+      updated,
+      goingAttendees,
+      maybeAttendees,
+      true,
+      previousValues
     );
 
     // Cancel existing reminder emails and schedule new ones
