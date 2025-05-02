@@ -9,7 +9,7 @@ export const rsvpTypeToPartStat = (rsvpType: RSVP_TYPE) => {
     case RSVP_TYPE.MAYBE:
       return "NEEDS-ACTION";
     case RSVP_TYPE.NOT_GOING:
-      return "declined";
+      return "DECLINED";
     default:
       throw new Error(`invalid rsvp type: ${rsvpType}`);
   }
