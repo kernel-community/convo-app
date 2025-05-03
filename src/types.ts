@@ -48,6 +48,8 @@ export type ClientEvent = Omit<ServerEvent, "startDateTime" | "endDateTime"> & {
   recurrenceRule: string;
   waitlistCount: number;
   isCurrentUserWaitlisted: boolean;
+  // Added to indicate if current user has admin privileges for this event
+  isProposer?: boolean;
 };
 
 export type EventsRequest = {

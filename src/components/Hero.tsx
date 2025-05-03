@@ -294,8 +294,13 @@ export const WhoElseIsGoing = ({
 }) => {
   const [open, setOpen] = useState<boolean>(false);
   const { fetchedUser } = useUser();
+
   if (!isUserGoing && !isOwnerOfConvo) return null;
   if (!fetchedUser?.isSignedIn) return null;
+
+  // Check if the current user is a proposer of this event (has admin privileges)
+  const isProposer = event.isProposer || isOwnerOfConvo;
+
   const filteredRsvps = event.uniqueRsvps.filter(
     (rsvp) => rsvp.rsvpType !== RSVP_TYPE.NOT_GOING
   );
@@ -312,9 +317,17 @@ export const WhoElseIsGoing = ({
       {noModal ? null : (
         <Credenza open={open} onOpenChange={setOpen}>
           <CredenzaContent className="flex h-[34rem] flex-col">
-            <CredenzaHeader>All other RSVPs</CredenzaHeader>
+            <CredenzaHeader>
+              <CredenzaTitle>All RSVPs</CredenzaTitle>
+              {!isProposer && (
+                <CredenzaDescription className="text-sm text-muted-foreground">
+                  Personal information is hidden for privacy
+                </CredenzaDescription>
+              )}
+            </CredenzaHeader>
             <CredenzaBody className="flex-1 overflow-y-auto">
               {filteredRsvps.map((rsvp, key) => {
+                const isCurrentUser = fetchedUser.id === rsvp.attendee.id;
                 return (
                   <div
                     key={key}
@@ -325,7 +338,7 @@ export const WhoElseIsGoing = ({
                       size="md"
                       userId={rsvp.attendee.id}
                     />
-                    {fetchedUser.id === rsvp.attendee.id ? (
+                    {isCurrentUser ? (
                       <span>
                         <span className="font-bold">You</span>
                         <span> ({rsvp.attendee.nickname})</span>
@@ -333,7 +346,20 @@ export const WhoElseIsGoing = ({
                     ) : (
                       <span>{rsvp.attendee.nickname}</span>
                     )}
-                    <span>{rsvpTypeToEmoji(rsvp.rsvpType)}</span>
+                    {/* Show RSVP status based on permissions */}
+                    {(isProposer || isCurrentUser) && (
+                      <span>{rsvpTypeToEmoji(rsvp.rsvpType)}</span>
+                    )}
+
+                    {/* Show admin badge for proposers */}
+                    {isProposer &&
+                      event.proposers.some(
+                        (p) => p.userId === rsvp.attendee.id
+                      ) && (
+                        <span className="ml-1 rounded-full bg-blue-100 px-2 py-0.5 text-xs text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
+                          Organizer
+                        </span>
+                      )}
                   </div>
                 );
               })}
@@ -382,7 +408,7 @@ export const WhoElseIsGoing = ({
         </CardHeader>
         <CardContent>
           {hasRsvps ? (
-            <ViewOtherRSVPs event={event} />
+            <ViewOtherRSVPs event={event} showDetailedInfo={isOwnerOfConvo} />
           ) : (
             <div className="text-sm text-gray-500">No RSVPs yet</div>
           )}
