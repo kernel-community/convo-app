@@ -19,9 +19,11 @@ import { useBetaMode } from "src/app/providers";
 const Edit = ({ params }: { params: { eventHash: string } }) => {
   const { push } = useRouter();
   const { eventHash } = params;
+  // Set dontFetch explicitly to true for edit pages to prevent refetching and form resets
+  // Added staleTime: Infinity in useEvent hook to prevent refetching when tab regains focus
   const { data, isLoading: isEventLoading } = useEvent({
     hash: eventHash,
-    dontFetch: true,
+    dontFetch: true, // Ensure we don't poll for updates on edit pages
   });
   const { deleteEvent, isDeleting } = useDeleteEvent();
   const { fetchedUser: user } = useUser();

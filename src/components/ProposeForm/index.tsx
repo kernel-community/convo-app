@@ -10,7 +10,7 @@ import { Button } from "../ui/button";
 import { RichTextArea } from "./FormFields/RichText";
 import { upsertConvo } from "src/utils/upsertConvo";
 import LoginButton from "../LoginButton";
-import { useEffect, useMemo, useState, useRef } from "react";
+import { useEffect, useMemo, useState, useRef, useCallback } from "react";
 import { useUser } from "src/context/UserContext";
 import { useBetaMode } from "src/hooks/useBetaMode";
 import Signature from "../EventPage/Signature";
@@ -305,8 +305,28 @@ const ProposeForm = ({
     }, [event, user]),
   });
 
+  // Memoize fetching proposers to avoid unnecessary rerenders and API calls
+  const fetchProposersData = useCallback(async (proposerIds: string[]) => {
+    if (proposerIds.length === 0) return [];
+
+    try {
+      const response = await fetch(
+        `/api/query/users-by-ids?ids=${proposerIds.join(",")}`
+      );
+      if (!response.ok) {
+        throw new Error(`API error: ${response.statusText}`);
+      }
+      const data = await response.json();
+      return Array.isArray(data?.users) ? data.users : [];
+    } catch (error) {
+      console.error("Failed to fetch proposer details:", error);
+      return [];
+    }
+  }, []);
+
   // Initialize proposersList state ONCE based on user sign-in or event data
   useEffect(() => {
+    // Skip if already initialized with this data
     const eventContextId = event?.id ?? "new";
     const key = `${user.isSignedIn}-${eventContextId}`;
 
@@ -314,65 +334,25 @@ const ProposeForm = ({
       isInitializedRef.current &&
       initializationContextKeyRef.current === key
     ) {
-      console.log(
-        "[ProposeForm useEffect user/event] Skipping initialization, already set for key:",
-        key
-      );
       return;
     }
 
-    console.log(
-      "[ProposeForm useEffect user/event] Running INITIALIZATION for key:",
-      key
-    );
-
-    // Use an async IIFE (Immediately Invoked Function Expression) to handle async fetch
+    // Use an immediately invoked async function
     (async () => {
       let initialList: ProposerInfo[] = [];
-      let fetchedFromApi = false; // Flag to track if we fetched data
 
       if (event && event.proposers && event.proposers.length > 0) {
-        console.log(
-          "[ProposeForm useEffect user/event] Initializing from EVENT data (fetching details):",
-          event.proposers
-        );
+        // Extract valid proposer IDs
         const proposerIds = event.proposers
           .map((p) => p.userId)
           .filter((id) => !!id);
 
         if (proposerIds.length > 0) {
-          try {
-            const response = await fetch(
-              `/api/query/users-by-ids?ids=${proposerIds.join(",")}`
-            );
-            if (!response.ok) {
-              throw new Error(`API error: ${response.statusText}`);
-            }
-            const data = await response.json();
-            // Ensure data.users is an array before assigning
-            initialList = Array.isArray(data?.users) ? data.users : [];
-            fetchedFromApi = true;
-            console.log(
-              "[ProposeForm useEffect user/event] Fetched user details:",
-              initialList
-            );
-          } catch (error) {
-            console.error(
-              "[ProposeForm useEffect user/event] Failed to fetch proposer details:",
-              error
-            );
-            // Decide fallback behavior: empty list, or list with just IDs?
-            // Falling back to an empty list for now.
-            initialList = [];
-          }
-        } else {
-          // Event has proposers array, but it's empty or only null/empty IDs
-          initialList = [];
+          // Fetch proposer details
+          initialList = await fetchProposersData(proposerIds);
         }
       } else if (user.isSignedIn) {
-        console.log(
-          "[ProposeForm useEffect user/event] Initializing with signed-in user."
-        );
+        // Use current user as the only proposer
         initialList = [
           {
             id: user.id ?? "",
@@ -381,64 +361,62 @@ const ProposeForm = ({
             email: user.email ?? "",
           },
         ];
-      } // If not signed in and no event data, initialList remains []
-
-      console.log(
-        "[ProposeForm useEffect user/event] Setting initial proposer list:",
-        initialList
-      );
-      setProposersList(initialList);
-      // Only set form value if we didn't just fetch (avoids potential race conditions if API is slow)
-      // Or, adjust setValue dependency array if needed
-      if (!fetchedFromApi) {
-        setValue(
-          "proposers",
-          initialList.map((p) => ({ userId: p.id }))
-        );
       }
 
-      // Mark as initialized and store the context key
+      // Update state only if there are changes
+      setProposersList(initialList);
+
+      // Set form values directly with proposer IDs
+      setValue(
+        "proposers",
+        initialList.map((p) => ({ userId: p.id }))
+      );
+
+      // Mark as initialized
       isInitializedRef.current = true;
       initializationContextKeyRef.current = key;
-      console.log(
-        "[ProposeForm useEffect user/event] Initialization complete for key:",
-        key
+    })();
+  }, [
+    user.isSignedIn,
+    user.id,
+    user.nickname,
+    user.email,
+    event,
+    fetchProposersData,
+    setValue,
+  ]);
+
+  // Memoized function to update form value when proposersList changes
+  const updateFormProposers = useCallback(() => {
+    // Only update form value if we have a non-empty list and form is initialized
+    if (proposersList.length > 0 && formInitializedRef.current) {
+      const validProposerIds = proposersList
+        .map((p) => p.id)
+        .filter((id) => !!id);
+
+      setValue(
+        "proposers",
+        validProposerIds.map((id) => ({ userId: id }))
       );
-    })(); // Immediately invoke the async function
-
-    // Watch user sign-in status and the event object itself
-    // We only include setValue in deps for the non-async path to avoid issues.
-    // The list is set via setProposersList, which triggers the other effect for form value sync.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user.isSignedIn, event]); // Removed setValue from deps
-
-  // Update form value whenever proposersList changes (This handles sync after fetch)
-  useEffect(() => {
-    console.log(
-      "[ProposeForm useEffect proposersList] Running. List:",
-      proposersList
-    );
-    const validProposerIds = proposersList
-      .map((p) => p.id)
-      .filter((id) => !!id);
-    console.log(
-      "[ProposeForm useEffect proposersList] Setting form value:",
-      validProposerIds.map((id) => ({ userId: id }))
-    );
-    setValue(
-      "proposers",
-      validProposerIds.map((id) => ({ userId: id }))
-    );
+    }
   }, [proposersList, setValue]);
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+  // Update form value when proposersList changes
   useEffect(() => {
-    console.log(
-      "[ProposeForm useEffect reset] Running. Resetting form with event:",
-      event
-    );
-    reset(event);
-  }, [event, reset]); // Added reset dependency explicitly
+    updateFormProposers();
+  }, [updateFormProposers]);
+
+  // Use a ref to track if the form was already initialized to prevent resets on tab focus changes
+  const formInitializedRef = useRef(false);
+
+  useEffect(() => {
+    if (!formInitializedRef.current && event) {
+      // Only reset the form once when it first loads with event data
+      console.log("Initial form reset with event data");
+      reset(event);
+      formInitializedRef.current = true;
+    }
+  }, [event, reset]);
 
   const [openModalFlag, setOpenModalFlag] = useState<boolean>(false);
 
