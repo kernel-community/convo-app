@@ -1,7 +1,7 @@
 ---
 title: March 2025 - Timezones, Reminders, and More
 date: "2025-03-31T00:00:00-04:00"
-description: A roundup of all the exciting new features and improvements we've added to Convo this month
+description: A roundup of all the new features and improvements we've added to Convo this month
 author: Angela Gilhotra
 authorWebsite: https://convo.cafe/people/angelagilhotra
 ---
