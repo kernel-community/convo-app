@@ -32,15 +32,37 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
     // Enhanced metadata for better SEO
     const formattedDate = event.startDateTime
-      ? new Date(event.startDateTime).toLocaleDateString("en-US", {
-          weekday: "long",
-          year: "numeric",
-          month: "long",
-          day: "numeric",
-          hour: "numeric",
-          minute: "2-digit",
-          timeZoneName: "short",
-        })
+      ? (() => {
+          // If creationTimezone exists, format the date in that timezone
+          if (event.creationTimezone) {
+            // Format date with explicit timezone mention
+            const options: Intl.DateTimeFormatOptions = {
+              weekday: "long",
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+              hour: "numeric",
+              minute: "2-digit",
+              timeZone: event.creationTimezone,
+              timeZoneName: "short",
+            };
+            return new Date(event.startDateTime).toLocaleString(
+              "en-US",
+              options
+            );
+          } else {
+            // Use current behavior if no timezone is specified
+            return new Date(event.startDateTime).toLocaleDateString("en-US", {
+              weekday: "long",
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+              hour: "numeric",
+              minute: "2-digit",
+              timeZoneName: "short",
+            });
+          }
+        })()
       : "";
 
     // Include community name in the title if available
