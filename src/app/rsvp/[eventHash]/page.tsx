@@ -71,8 +71,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       : `${event.title} | Convo Cafe`;
     // Include community name in the description if available
     const metaDescription = event.community
-      ? `Join us for ${event.title} by ${event.community.displayName} on ${formattedDate}. ${event.description}`
-      : `Join us for ${event.title} on ${formattedDate}. ${event.description}`;
+      ? `Join us for ${event.title} by ${event.community.displayName} on ${formattedDate}.`
+      : `Join us for ${event.title} on ${formattedDate}.`;
 
     // Generate dynamic OG image URL
     const imageUrl = new URL(`${baseUrl}/api/og/convo-cover-image`);
