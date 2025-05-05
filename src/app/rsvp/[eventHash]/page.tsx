@@ -15,12 +15,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://www.convo.cafe";
 
   try {
-    // Fetch the event data
+    // Fetch the event data with reduced caching for more timely updates
     const response = await fetch(`${baseUrl}/api/query/getEventByHash`, {
       body: JSON.stringify({ hash: params.eventHash }),
       method: "POST",
       headers: { "Content-type": "application/json" },
-      next: { revalidate: 3600 },
+      cache: "no-store", // Disable caching completely to always fetch fresh data
     });
 
     if (!response.ok) {
