@@ -24,7 +24,7 @@ export default function BlogPost({ params }: Props) {
     <Main>
       {/* Background SVG */}
       {/* <BlogBackground /> */}
-      <article className="container relative px-24 py-16">
+      <article className="container relative px-6 py-6 sm:px-24 sm:py-12">
         <Link href={"/blog"}>
           <span className="mb-6 flex flex-row gap-2 font-secondary text-muted-foreground underline decoration-dashed underline-offset-4 hover:text-primary">
             <ArrowLeft />

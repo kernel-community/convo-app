@@ -12,7 +12,7 @@ export default function BlogPage() {
     <Main>
       {/* Background SVG */}
       {/* <BlogBackground /> */}
-      <div className="container relative px-24 py-12">
+      <div className="container relative px-6 py-6 sm:px-24 sm:py-12">
         <div className="mb-16">
           <h1 className="mb-3 inline-flex items-center gap-4 font-primary text-4xl">
             Hearth{" "}
