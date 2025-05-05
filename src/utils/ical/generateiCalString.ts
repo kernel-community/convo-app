@@ -17,6 +17,7 @@ export const generateEventString = ({
   location,
   sequence,
   status = "CONFIRMED",
+  creationTimezone,
 }: // allOtherrecipients,
 ICalRequestParams) => {
   // For cancelled events, always set PARTSTAT to DECLINED
@@ -24,6 +25,15 @@ ICalRequestParams) => {
     status === "CANCELLED"
       ? "DECLINED"
       : rsvpTypeToPartStat(recipient.rsvpType as RSVP_TYPE);
+
+  // Add timezone information to the description if available
+  let enhancedDescription = description;
+  if (creationTimezone) {
+    // Escape any newlines in the original description to maintain iCal format
+    const escapedDescription = description.replace(/\n/g, "\\n");
+    // Add the timezone info at the beginning with improved wording
+    enhancedDescription = `[TIMEZONE NOTE: This event was originally created in the ${creationTimezone} timezone. Times shown in your calendar are automatically converted to your local time.]\\n\\n${escapedDescription}`;
+  }
 
   const event =
     `BEGIN:VEVENT
@@ -33,9 +43,9 @@ DTSTAMP:${start}` +
     `${rrule ? `\n${rrule}\n` : `\n`}` +
     `ORGANIZER;CN="${organizer.name}":mailto:${organizer.email}
 UID:${uid}@evts.convo.cafe
-ATTENDEE;CUTYPE=INDIVIDUAL;ROLE=REQ-PARTICIPANT;PARTSTAT=${partstat};CN=${recipient.email};X-NUM-GUESTS=0:mailto:${recipient.email}
+ATTENDEE;CUTYPE=INDIVIDUAL;ROLE=REQ-PARTICIPANT;PARTSTAT=${partstat};RSVP=TRUE;CN=${recipient.email};X-NUM-GUESTS=0:mailto:${recipient.email}
 SUMMARY:${title}
-DESCRIPTION:${description}
+DESCRIPTION:${enhancedDescription}
 LOCATION:${location}
 SEQUENCE:${sequence}
 STATUS:${status}
@@ -62,17 +72,22 @@ export type ICalRequestParams = {
   rrule?: string | null;
   allOtherrecipients: Array<{ name: string; email: string }>;
   status: "TENTATIVE" | "CONFIRMED" | "CANCELLED";
+  creationTimezone?: string | null;
 };
-export const generateiCalString = (events: Array<ICalRequestParams>) => {
-  // Use REQUEST as default method, individual event statuses will handle cancellations
+export const generateiCalString = (
+  events: Array<ICalRequestParams>,
+  method: "REQUEST" | "CANCEL" = "REQUEST"
+) => {
+  // Allow method to be passed in, defaulting to REQUEST if not specified
   const iCal = `BEGIN:VCALENDAR
 VERSION:2.0
 CALSCALE:GREGORIAN
 NAME:convo-cafe
 PRODID:-//convo.cafe//NONSGML convo.cafe//EN
 X-WR-CALNAME:convo-cafe
-METHOD:REQUEST
-${events.map((evt) => generateEventString(evt)).join(`\n`)}
+METHOD:${method}
+${events.map((evt) => generateEventString(evt)).join(`
+`)}
 END:VCALENDAR`;
   return iCal;
 };

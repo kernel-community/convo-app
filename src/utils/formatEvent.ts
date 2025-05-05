@@ -35,7 +35,7 @@ const formatEvent = (
   return {
     ...firstInSeries,
     id: firstInSeries.id,
-    community: null, // @todo fix this
+    community: firstInSeries.community, // Include the community data from the event
     recurrenceRule: firstInSeries.rrule || "",
     startDateTime: startDateTime.toISOString(),
     endDateTime: endDateTime.toISOString(),

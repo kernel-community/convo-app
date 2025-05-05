@@ -3,7 +3,7 @@ import { EmailWrapper } from "../components/EmailWrapper";
 import { EventDetails } from "../components/EventDetails";
 import { StarryEyesEmoji } from "../components/EmailEmojis";
 
-export const SUBJECT = "RSVP Updated: You&apos;re going to {{event.title}}";
+export const SUBJECT = "RSVP Updated: You're going to {{event.title}}";
 
 export const UpdateAttendeeGoingEmailTemplate: React.FC<
   Readonly<EmailTemplateWithEventProps>

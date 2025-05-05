@@ -40,6 +40,11 @@ export const generateiCalRequestFromEvent = ({
   }
   const firstProposer = event.proposers[0].user;
 
+  // Generate a modified UID if this is a re-invitation after a 'not going' RSVP
+  // This helps calendar clients recognize it as a new invitation
+  const isReinvite = rsvpType === RSVP_TYPE.GOING && event.sequence > 1;
+  const uid = isReinvite ? `${event.id}-reinvite-${event.sequence}` : event.id;
+
   return {
     start: `${sdt.toFormat("yyyyLLdd")}T${sdt.toFormat("HHmmss")}Z`,
     end: `${edt.toFormat("yyyyLLdd")}T${edt.toFormat("HHmmss")}Z`,
@@ -47,7 +52,7 @@ export const generateiCalRequestFromEvent = ({
       name: EVENT_ORGANIZER_NAME,
       email: EVENT_ORGANIZER_EMAIL,
     },
-    uid: event.id,
+    uid: uid,
     title: event.title,
     description: event.descriptionHtml
       ? sandwichDescriptionForCalendar(
@@ -59,7 +64,10 @@ export const generateiCalRequestFromEvent = ({
         )
       : "",
     location: event.location,
-    sequence: event.sequence,
+    // Increment sequence for NOT_GOING RSVPs to ensure calendar clients remove the event
+    // This only affects the iCal attachment, not the database
+    sequence:
+      rsvpType === RSVP_TYPE.NOT_GOING ? event.sequence + 1 : event.sequence,
     recipient: {
       email: recipientEmail,
       rsvpType: event.isDeleted ? RSVP_TYPE.NOT_GOING : rsvpType,

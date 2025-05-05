@@ -10,7 +10,7 @@ import { Button } from "../ui/button";
 import { RichTextArea } from "./FormFields/RichText";
 import { upsertConvo } from "src/utils/upsertConvo";
 import LoginButton from "../LoginButton";
-import { useEffect, useMemo, useState, useRef } from "react";
+import { useEffect, useMemo, useState, useRef, useCallback } from "react";
 import { useUser } from "src/context/UserContext";
 import { useBetaMode } from "src/hooks/useBetaMode";
 import Signature from "../EventPage/Signature";
@@ -35,8 +35,18 @@ import {
 import BetaBadge from "../ui/beta-badge";
 import { SadEmoji } from "../ui/emojis";
 import { Input } from "../ui/input";
-import { X } from "lucide-react";
+import { X, Check, ChevronsUpDown } from "lucide-react";
 import { ProposerSearchCombobox } from "../ProposerSearchCombobox";
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "../ui/command";
+import { cn } from "src/lib/utils";
 
 // Define a simple type for the proposer object in the list
 type ProposerInfo = {
@@ -44,6 +54,176 @@ type ProposerInfo = {
   nickname: string | null;
   image?: string | null;
   email?: string | null;
+};
+
+// Common timezones array for dropdown
+const commonTimezones = [
+  // North America
+  "America/Adak", // Hawaii-Aleutian (UTC-10/UTC-9)
+  "America/Anchorage", // Alaska (UTC-9/UTC-8)
+  "America/Los_Angeles", // Pacific Time (UTC-8/UTC-7)
+  "America/Phoenix", // Mountain Time - no DST (UTC-7)
+  "America/Denver", // Mountain Time (UTC-7/UTC-6)
+  "America/Chicago", // Central Time (UTC-6/UTC-5)
+  "America/New_York", // Eastern Time (UTC-5/UTC-4)
+  "America/Halifax", // Atlantic Time (UTC-4/UTC-3)
+  "America/St_Johns", // Newfoundland (UTC-3:30/UTC-2:30)
+
+  // Caribbean/Central America
+  "America/Puerto_Rico", // Atlantic Standard Time (UTC-4)
+  "America/Panama", // Eastern Standard Time (UTC-5)
+
+  // South America
+  "America/Santiago", // Chile (UTC-4/UTC-3)
+  "America/Sao_Paulo", // Brazil (UTC-3)
+  "America/Argentina/Buenos_Aires", // Argentina (UTC-3)
+  "America/Bogota", // Colombia (UTC-5)
+
+  // Europe
+  "Atlantic/Reykjavik", // Iceland (UTC+0)
+  "Europe/London", // United Kingdom (UTC+0/UTC+1)
+  "Europe/Dublin", // Ireland (UTC+0/UTC+1)
+  "Europe/Lisbon", // Portugal (UTC+0/UTC+1)
+  "Europe/Paris", // France, Central European Time (UTC+1/UTC+2)
+  "Europe/Berlin", // Germany (UTC+1/UTC+2)
+  "Europe/Madrid", // Spain (UTC+1/UTC+2)
+  "Europe/Rome", // Italy (UTC+1/UTC+2)
+  "Europe/Amsterdam", // Netherlands (UTC+1/UTC+2)
+  "Europe/Brussels", // Belgium (UTC+1/UTC+2)
+  "Europe/Athens", // Greece (UTC+2/UTC+3)
+  "Europe/Helsinki", // Finland (UTC+2/UTC+3)
+  "Europe/Istanbul", // Turkey (UTC+3)
+  "Europe/Moscow", // Russia - Moscow (UTC+3)
+
+  // Africa
+  "Africa/Cairo", // Egypt (UTC+2)
+  "Africa/Lagos", // Nigeria (UTC+1)
+  "Africa/Johannesburg", // South Africa (UTC+2)
+  "Africa/Nairobi", // Kenya (UTC+3)
+  "Africa/Casablanca", // Morocco (UTC+0/UTC+1)
+
+  // Asia
+  "Asia/Dubai", // UAE (UTC+4)
+  "Asia/Riyadh", // Saudi Arabia (UTC+3)
+  "Asia/Tehran", // Iran (UTC+3:30/UTC+4:30)
+  "Asia/Karachi", // Pakistan (UTC+5)
+  "Asia/Kolkata", // India (UTC+5:30)
+  "Asia/Kathmandu", // Nepal (UTC+5:45)
+  "Asia/Dhaka", // Bangladesh (UTC+6)
+  "Asia/Bangkok", // Thailand (UTC+7)
+  "Asia/Singapore", // Singapore (UTC+8)
+  "Asia/Jakarta", // Indonesia (UTC+7)
+  "Asia/Shanghai", // China (UTC+8)
+  "Asia/Seoul", // South Korea (UTC+9)
+  "Asia/Tokyo", // Japan (UTC+9)
+  "Asia/Taipei", // Taiwan (UTC+8)
+  "Asia/Manila", // Philippines (UTC+8)
+
+  // Australia and Oceania
+  "Australia/Perth", // Western Australia (UTC+8)
+  "Australia/Darwin", // Northern Territory (UTC+9:30)
+  "Australia/Brisbane", // Queensland (UTC+10)
+  "Australia/Adelaide", // South Australia (UTC+9:30/UTC+10:30)
+  "Australia/Sydney", // New South Wales (UTC+10/UTC+11)
+  "Australia/Melbourne", // Victoria (UTC+10/UTC+11)
+  "Australia/Hobart", // Tasmania (UTC+10/UTC+11)
+  "Pacific/Auckland", // New Zealand (UTC+12/UTC+13)
+  "Pacific/Fiji", // Fiji (UTC+12/UTC+13)
+  "Pacific/Honolulu", // Hawaii (UTC-10)
+  "Pacific/Guam", // Guam (UTC+10)
+
+  // Additional North American Timezones for Canadian provinces
+  "America/Vancouver", // British Columbia (UTC-8/UTC-7)
+  "America/Edmonton", // Alberta (UTC-7/UTC-6)
+  "America/Regina", // Saskatchewan - no DST (UTC-6)
+  "America/Winnipeg", // Manitoba (UTC-6/UTC-5)
+  "America/Toronto", // Ontario (UTC-5/UTC-4)
+  "America/Montreal", // Quebec (UTC-5/UTC-4)
+
+  // Special/Misc
+  "UTC", // Coordinated Universal Time
+];
+
+// Format timezone name for display
+const formatTimezoneDisplay = (tzName: string | null | undefined): string => {
+  if (!tzName) return "Select timezone...";
+
+  try {
+    const now = DateTime.now().setZone(tzName);
+    const offset = now.toFormat("ZZZZ");
+    // Format: "America/New_York (GMT-04:00)"
+    return `${tzName.replace("_", " ")} (${offset})`;
+  } catch (e) {
+    return tzName;
+  }
+};
+
+// Timezone combobox component
+const TimeZoneCombobox = ({
+  value,
+  onChange,
+}: {
+  value: string | null | undefined;
+  onChange: (value: string) => void;
+}) => {
+  const [searchTerm, setSearchTerm] = useState("");
+  const localTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+  // Don't override the value with local timezone - use the actual value passed in
+  const displayValue = value;
+
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <Button
+          variant="outline"
+          role="combobox"
+          className="w-full justify-between"
+        >
+          {displayValue
+            ? formatTimezoneDisplay(displayValue)
+            : formatTimezoneDisplay(localTimezone)}
+          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
+        <Command shouldFilter={false} loop={true}>
+          <CommandInput
+            placeholder="Search timezone..."
+            className="h-9"
+            value={searchTerm}
+            onValueChange={setSearchTerm}
+          />
+          <CommandList className="max-h-[300px]">
+            <CommandEmpty>No timezone found.</CommandEmpty>
+            <CommandGroup>
+              {commonTimezones
+                .filter((timezone) =>
+                  timezone.toLowerCase().includes(searchTerm.toLowerCase())
+                )
+                .map((timezone) => (
+                  <CommandItem
+                    key={timezone}
+                    value={timezone}
+                    onSelect={() => {
+                      onChange(timezone);
+                    }}
+                  >
+                    <Check
+                      className={cn(
+                        "mr-2 h-4 w-4",
+                        displayValue === timezone ? "opacity-100" : "opacity-0"
+                      )}
+                    />
+                    {formatTimezoneDisplay(timezone)}
+                  </CommandItem>
+                ))}
+            </CommandGroup>
+          </CommandList>
+        </Command>
+      </PopoverContent>
+    </Popover>
+  );
 };
 
 const ProposeForm = ({
@@ -100,6 +280,7 @@ const ProposeForm = ({
         .toJSDate();
 
       const initialProposers = user.isSignedIn ? [{ userId: user.id }] : [];
+      const localTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
       return {
         sessions: [
@@ -119,12 +300,33 @@ const ProposeForm = ({
         recurrenceRule: "",
         limit: "0",
         proposers: initialProposers, // Initialize with current user if signed in
+        creationTimezone: localTimezone, // Initialize with browser's local timezone
       };
     }, [event, user]),
   });
 
+  // Memoize fetching proposers to avoid unnecessary rerenders and API calls
+  const fetchProposersData = useCallback(async (proposerIds: string[]) => {
+    if (proposerIds.length === 0) return [];
+
+    try {
+      const response = await fetch(
+        `/api/query/users-by-ids?ids=${proposerIds.join(",")}`
+      );
+      if (!response.ok) {
+        throw new Error(`API error: ${response.statusText}`);
+      }
+      const data = await response.json();
+      return Array.isArray(data?.users) ? data.users : [];
+    } catch (error) {
+      console.error("Failed to fetch proposer details:", error);
+      return [];
+    }
+  }, []);
+
   // Initialize proposersList state ONCE based on user sign-in or event data
   useEffect(() => {
+    // Skip if already initialized with this data
     const eventContextId = event?.id ?? "new";
     const key = `${user.isSignedIn}-${eventContextId}`;
 
@@ -132,65 +334,25 @@ const ProposeForm = ({
       isInitializedRef.current &&
       initializationContextKeyRef.current === key
     ) {
-      console.log(
-        "[ProposeForm useEffect user/event] Skipping initialization, already set for key:",
-        key
-      );
       return;
     }
 
-    console.log(
-      "[ProposeForm useEffect user/event] Running INITIALIZATION for key:",
-      key
-    );
-
-    // Use an async IIFE (Immediately Invoked Function Expression) to handle async fetch
+    // Use an immediately invoked async function
     (async () => {
       let initialList: ProposerInfo[] = [];
-      let fetchedFromApi = false; // Flag to track if we fetched data
 
       if (event && event.proposers && event.proposers.length > 0) {
-        console.log(
-          "[ProposeForm useEffect user/event] Initializing from EVENT data (fetching details):",
-          event.proposers
-        );
+        // Extract valid proposer IDs
         const proposerIds = event.proposers
           .map((p) => p.userId)
           .filter((id) => !!id);
 
         if (proposerIds.length > 0) {
-          try {
-            const response = await fetch(
-              `/api/query/users-by-ids?ids=${proposerIds.join(",")}`
-            );
-            if (!response.ok) {
-              throw new Error(`API error: ${response.statusText}`);
-            }
-            const data = await response.json();
-            // Ensure data.users is an array before assigning
-            initialList = Array.isArray(data?.users) ? data.users : [];
-            fetchedFromApi = true;
-            console.log(
-              "[ProposeForm useEffect user/event] Fetched user details:",
-              initialList
-            );
-          } catch (error) {
-            console.error(
-              "[ProposeForm useEffect user/event] Failed to fetch proposer details:",
-              error
-            );
-            // Decide fallback behavior: empty list, or list with just IDs?
-            // Falling back to an empty list for now.
-            initialList = [];
-          }
-        } else {
-          // Event has proposers array, but it's empty or only null/empty IDs
-          initialList = [];
+          // Fetch proposer details
+          initialList = await fetchProposersData(proposerIds);
         }
       } else if (user.isSignedIn) {
-        console.log(
-          "[ProposeForm useEffect user/event] Initializing with signed-in user."
-        );
+        // Use current user as the only proposer
         initialList = [
           {
             id: user.id ?? "",
@@ -199,64 +361,62 @@ const ProposeForm = ({
             email: user.email ?? "",
           },
         ];
-      } // If not signed in and no event data, initialList remains []
-
-      console.log(
-        "[ProposeForm useEffect user/event] Setting initial proposer list:",
-        initialList
-      );
-      setProposersList(initialList);
-      // Only set form value if we didn't just fetch (avoids potential race conditions if API is slow)
-      // Or, adjust setValue dependency array if needed
-      if (!fetchedFromApi) {
-        setValue(
-          "proposers",
-          initialList.map((p) => ({ userId: p.id }))
-        );
       }
 
-      // Mark as initialized and store the context key
+      // Update state only if there are changes
+      setProposersList(initialList);
+
+      // Set form values directly with proposer IDs
+      setValue(
+        "proposers",
+        initialList.map((p) => ({ userId: p.id }))
+      );
+
+      // Mark as initialized
       isInitializedRef.current = true;
       initializationContextKeyRef.current = key;
-      console.log(
-        "[ProposeForm useEffect user/event] Initialization complete for key:",
-        key
+    })();
+  }, [
+    user.isSignedIn,
+    user.id,
+    user.nickname,
+    user.email,
+    event,
+    fetchProposersData,
+    setValue,
+  ]);
+
+  // Memoized function to update form value when proposersList changes
+  const updateFormProposers = useCallback(() => {
+    // Only update form value if we have a non-empty list and form is initialized
+    if (proposersList.length > 0 && formInitializedRef.current) {
+      const validProposerIds = proposersList
+        .map((p) => p.id)
+        .filter((id) => !!id);
+
+      setValue(
+        "proposers",
+        validProposerIds.map((id) => ({ userId: id }))
       );
-    })(); // Immediately invoke the async function
-
-    // Watch user sign-in status and the event object itself
-    // We only include setValue in deps for the non-async path to avoid issues.
-    // The list is set via setProposersList, which triggers the other effect for form value sync.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user.isSignedIn, event]); // Removed setValue from deps
-
-  // Update form value whenever proposersList changes (This handles sync after fetch)
-  useEffect(() => {
-    console.log(
-      "[ProposeForm useEffect proposersList] Running. List:",
-      proposersList
-    );
-    const validProposerIds = proposersList
-      .map((p) => p.id)
-      .filter((id) => !!id);
-    console.log(
-      "[ProposeForm useEffect proposersList] Setting form value:",
-      validProposerIds.map((id) => ({ userId: id }))
-    );
-    setValue(
-      "proposers",
-      validProposerIds.map((id) => ({ userId: id }))
-    );
+    }
   }, [proposersList, setValue]);
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+  // Update form value when proposersList changes
   useEffect(() => {
-    console.log(
-      "[ProposeForm useEffect reset] Running. Resetting form with event:",
-      event
-    );
-    reset(event);
-  }, [event, reset]); // Added reset dependency explicitly
+    updateFormProposers();
+  }, [updateFormProposers]);
+
+  // Use a ref to track if the form was already initialized to prevent resets on tab focus changes
+  const formInitializedRef = useRef(false);
+
+  useEffect(() => {
+    if (!formInitializedRef.current && event) {
+      // Only reset the form once when it first loads with event data
+      console.log("Initial form reset with event data");
+      reset(event);
+      formInitializedRef.current = true;
+    }
+  }, [event, reset]);
 
   const [openModalFlag, setOpenModalFlag] = useState<boolean>(false);
 
@@ -264,6 +424,7 @@ const ProposeForm = ({
     useState<ClientEventInput>();
 
   const [loading, setLoading] = useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState<string | undefined>();
 
   // Function to handle selection from the combobox
   const handleSelectProposerFromCombobox = (
@@ -332,33 +493,204 @@ const ProposeForm = ({
     console.log("INVALID submission");
     console.error(errors);
   };
+
+  // We handle timezone conversion in the onSubmit handler
+
+  const onSubmit: SubmitHandler<ClientEventInput> = async (data) => {
+    console.log("Form data before timezone conversion:", data);
+
+    // Create a copy of the data to modify
+    const processedData = { ...data };
+
+    // Ensure we have a valid timezone
+    const timezone =
+      processedData.creationTimezone ||
+      Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+    // Store the timezone in IANA format
+    processedData.creationTimezone = timezone;
+
+    // Convert dateTimeStartAndEnd dates to UTC based on selected timezone
+    if (processedData.dateTimeStartAndEnd && timezone) {
+      // Enhanced timezone diagnostics
+      console.log(`Converting dates from timezone: ${timezone} to UTC`);
+      console.log(`Timezone details:`);
+      console.log(`- IANA name: ${timezone}`);
+
+      // Check if timezone is in DST
+      const now = DateTime.now().setZone(timezone);
+      console.log(`- Current time in this zone: ${now.toString()}`);
+      console.log(`- Is this timezone in DST? ${now.isInDST}`);
+      console.log(`- UTC offset: ${now.offset / 60} hours`);
+
+      // Get the exact offset for the selected dates
+      const selectedDateStart = DateTime.fromJSDate(
+        processedData.dateTimeStartAndEnd.start
+      ).setZone(timezone);
+      console.log(`- Selected date DST status: ${selectedDateStart.isInDST}`);
+      console.log(
+        `- Selected date UTC offset: ${selectedDateStart.offset / 60} hours`
+      );
+
+      // The issue is that the Date objects don't have timezone info, so we need to interpret them correctly
+      // First, get the raw date values without timezone interpretation
+      const rawStart = processedData.dateTimeStartAndEnd.start;
+      const rawEnd = processedData.dateTimeStartAndEnd.end;
+
+      // Create DateTime objects in the local timezone first
+      const localTZ = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      console.log(`Browser's local timezone: ${localTZ}`);
+
+      // Extract the date components in local time
+      const startYear = rawStart.getFullYear();
+      const startMonth = rawStart.getMonth() + 1; // Month is 0-indexed
+      const startDay = rawStart.getDate();
+      const startHour = rawStart.getHours();
+      const startMinute = rawStart.getMinutes();
+
+      const endYear = rawEnd.getFullYear();
+      const endMonth = rawEnd.getMonth() + 1; // Month is 0-indexed
+      const endDay = rawEnd.getDate();
+      const endHour = rawEnd.getHours();
+      const endMinute = rawEnd.getMinutes();
+
+      console.log(
+        `Raw date components: ${startYear}-${startMonth}-${startDay} ${startHour}:${startMinute}`
+      );
+
+      // Create DateTime objects with the correct timezone interpretation
+      const startLocal = DateTime.fromObject(
+        {
+          year: startYear,
+          month: startMonth,
+          day: startDay,
+          hour: startHour,
+          minute: startMinute,
+        },
+        { zone: timezone }
+      );
+
+      const endLocal = DateTime.fromObject(
+        {
+          year: endYear,
+          month: endMonth,
+          day: endDay,
+          hour: endHour,
+          minute: endMinute,
+        },
+        { zone: timezone }
+      );
+
+      console.log(
+        `Original start: ${startLocal.toISO()} (${startLocal.toFormat(
+          "yyyy-MM-dd hh:mm a"
+        )})`
+      );
+      console.log(
+        `Original timezone: ${startLocal.zoneName}, Offset: ${
+          startLocal.offset / 60
+        } hours`
+      );
+      console.log(
+        `Original end: ${endLocal.toISO()} (${endLocal.toFormat(
+          "yyyy-MM-dd hh:mm a"
+        )})`
+      );
+      console.log(
+        `Original timezone: ${endLocal.zoneName}, Offset: ${
+          endLocal.offset / 60
+        } hours`
+      );
+
+      // Convert to UTC
+      const startUTC = startLocal.toUTC();
+      const endUTC = endLocal.toUTC();
+
+      // Log the UTC conversion results
+      console.log(
+        `UTC start: ${startUTC.toISO()} (${startUTC.toFormat(
+          "yyyy-MM-dd HH:mm:ss"
+        )})`
+      );
+      console.log(
+        `UTC end: ${endUTC.toISO()} (${endUTC.toFormat("yyyy-MM-dd HH:mm:ss")})`
+      );
+      console.log(`UTC offset: ${startUTC.offset / 60} hours (should be 0)`);
+
+      // Calculate and log the actual time difference
+      const hoursDiff =
+        (startUTC.toMillis() - startLocal.toMillis()) / (1000 * 60 * 60);
+      console.log(`Hours difference from local to UTC: ${hoursDiff}`);
+      console.log(
+        `Expected hours difference based on offset: ${-startLocal.offset / 60}`
+      );
+      console.log(
+        `Conversion matches expected? ${
+          Math.abs(hoursDiff + startLocal.offset / 60) < 0.01 ? "Yes" : "No"
+        }`
+      );
+
+      console.log(
+        `Converted start: ${startUTC.toString()}, UTC timezone: ${
+          startUTC.zoneName
+        }`
+      );
+      console.log(
+        `Converted end: ${endUTC.toString()}, UTC timezone: ${endUTC.zoneName}`
+      );
+
+      // Update the data with UTC dates
+      processedData.dateTimeStartAndEnd = {
+        start: startUTC.toJSDate(),
+        end: endUTC.toJSDate(),
+      };
+    }
+
+    console.log("Form data after timezone conversion:", processedData);
+    setOpenModalFlag(true);
+    setConvoToCreateData(processedData);
+  };
+
   const createConvo = async () => {
     setLoading(true);
+    setErrorMessage(undefined); // Clear any previous errors
+
     if (!convoToCreateData) {
-      console.error("convo to create data not found");
+      setErrorMessage("Event data not found. Please try again.");
+      setLoading(false);
       return;
     }
+
+    // Check if the event date is in the past
+    if (new Date(convoToCreateData.dateTimeStartAndEnd.start) < new Date()) {
+      setErrorMessage("Events cannot be scheduled in the past.");
+      setLoading(false);
+      return;
+    }
+
     // Ensure proposers are included in the data sent
     const dataToSend = {
       ...convoToCreateData,
       proposers: proposersList.map((p) => ({ userId: p.id })), // Use the state list
     };
     console.log("Data being sent to upsertConvo:", dataToSend); // Debug log
+
     try {
       const result = await upsertConvo(dataToSend, user?.id); // Pass updated data
-      if (!result) throw "No response returned from upsert operation";
+      if (!result)
+        throw new Error("No response returned from upsert operation");
       push(`/rsvp/${result.hash}`);
     } catch (err) {
-      console.log(err);
+      console.error("Error creating event:", err);
+      setErrorMessage(
+        err instanceof Error
+          ? err.message
+          : typeof err === "string"
+          ? err
+          : "An unexpected error occurred. Please try again."
+      );
       setLoading(false);
     }
-  };
-  const onSubmit: SubmitHandler<ClientEventInput> = async (data) => {
-    // The 'proposers' field in 'data' should now be up-to-date
-    // because we used setValue in the useEffect hook listening to proposersList
-    console.log("Form data on submit:", data); // Debug log
-    setOpenModalFlag(true);
-    setConvoToCreateData(data); // Use the data directly from react-hook-form
   };
 
   console.log(
@@ -378,6 +710,7 @@ const ProposeForm = ({
         action={createConvo}
         isLoading={loading}
         fullProposersList={proposersList}
+        errorMessage={errorMessage}
       />
       <form
         onSubmit={handleSubmit(onSubmit, onInvalid)}
@@ -436,6 +769,31 @@ const ProposeForm = ({
             />
           )}
         />
+
+        {/* Timezone Selection */}
+        <div className="space-y-4">
+          <div className="flex flex-col space-y-2">
+            <Label htmlFor="timezone" className="font-secondary">
+              Timezone
+            </Label>
+            <Controller
+              name="creationTimezone"
+              control={control}
+              render={({ field }) => {
+                return (
+                  <TimeZoneCombobox
+                    value={field.value}
+                    onChange={field.onChange}
+                  />
+                );
+              }}
+            />
+            <p className="text-sm text-muted-foreground">
+              This timezone will be used for displaying event times to
+              attendees.
+            </p>
+          </div>
+        </div>
 
         {/* component/dropdown for recurrence rule */}
         {showRecurrenceInput && (

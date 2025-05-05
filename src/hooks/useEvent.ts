@@ -34,7 +34,14 @@ const useEvent = ({
       }
     },
     {
+      // Prevent polling in edit mode to avoid form resets
       refetchInterval: dontFetch ? false : 3000,
+      // Increase stale time to reduce unnecessary refetching
+      staleTime: dontFetch ? Infinity : 10000,
+      // Avoid refetching on window focus for edit pages
+      refetchOnWindowFocus: !dontFetch,
+      // Cache data longer in edit mode
+      cacheTime: dontFetch ? 1000 * 60 * 10 : 1000 * 60 * 5,
       enabled: !!hash,
     }
   );

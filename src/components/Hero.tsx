@@ -37,30 +37,40 @@ import { useUser } from "src/context/UserContext";
 import { motion, AnimatePresence } from "framer-motion";
 import { UserImage } from "src/components/ui/default-user-image";
 import { EventCard, EventsView } from "./ui/event-list";
-import { parseConvoLocation } from "src/utils/parseConvoLocation";
+// import { parseConvoLocation } from "src/utils/parseConvoLocation";
 import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
 import { Label } from "./ui/label";
 import type { User } from "@prisma/client";
 import { RSVP_TYPE } from "@prisma/client";
-import useUpdateRsvp from "src/hooks/useUpdateRsvp";
+// import useUpdateRsvp from "src/hooks/useUpdateRsvp";
 import useUserRsvpForConvo from "src/hooks/useUserRsvpForConvo";
 import Signature from "./EventPage/Signature";
 import FieldLabel from "./EventPage/RsvpConfirmationForm/FieldLabel";
 import LoginButton from "./LoginButton";
 import { rsvpTypeToEmoji } from "src/utils/rsvpTypeToEmoji";
+import { MoreHorizontal } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "./ui/dropdown-menu";
 import { cleanupRruleString } from "src/utils/cleanupRruleString";
 import { rrulestr } from "rrule";
 import { ArrowUpRight } from "lucide-react";
 import { AlertCircle } from "lucide-react";
-// import { toast } from "sonner";
 import { XIcon } from "lucide-react";
 import { ProposerSearchCombobox } from "./ProposerSearchCombobox";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "src/components/ui/popover";
 import { toast } from "react-hot-toast";
+import { FancyHighlight } from "./FancyHighlight";
+import { DateTime } from "luxon";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "./ui/tooltip";
+// Dialog components removed as we're now using a tooltip
 
 const When = ({
   event,
@@ -70,6 +80,13 @@ const When = ({
   className?: string;
 }) => {
   const [isOpen, setIsOpen] = useState(false);
+  // Determine if event timezone is different from user's local timezone
+  const localTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  const eventTimezone = event.creationTimezone || localTimezone;
+  console.log({ eventTimezone, localTimezone });
+  const isDifferentTimezone = eventTimezone !== localTimezone;
+  console.log({ isDifferentTimezone });
+
   return (
     <>
       <Credenza open={isOpen} onOpenChange={setIsOpen}>
@@ -88,6 +105,7 @@ const When = ({
                 <EventsView
                   rruleStr={event.recurrenceRule}
                   startDateTime={event.startDateTime}
+                  creationTimezone={event.creationTimezone ?? undefined}
                 />
               ) : (
                 <EventCard date={new Date(event.startDateTime)} />
@@ -110,18 +128,64 @@ const When = ({
       >
         <CardHeader>
           <CardTitle className="text-base">when</CardTitle>
-          <CardDescription>
-            <span className="text-xs text-foreground">
-              timezone: {Intl.DateTimeFormat().resolvedOptions().timeZone}
-            </span>
-          </CardDescription>
         </CardHeader>
         <CardContent>
-          <div>
-            {getDateTimeString(event.startDateTime, "date")}
-            {", "}
-            {getDateTimeString(event.startDateTime, "time")}
-          </div>
+          {isDifferentTimezone ? (
+            <div className="group relative inline-block">
+              {/* The trigger element with dotted underline */}
+              <div
+                className="cursor-pointer underline decoration-dotted underline-offset-4"
+                tabIndex={0} // Make it focusable for accessibility
+                role="button"
+                aria-label="Show timezone information"
+              >
+                {getFormattedDateOrTime(event.startDateTime, "date")}
+                {", "}
+                {getFormattedDateOrTime(event.startDateTime, "time")}{" "}
+                <span className="text-sm">({localTimezone})</span>
+              </div>
+              <span className="text-xs text-muted-foreground">
+                (original time proposed in {event.creationTimezone})
+              </span>
+
+              {/* Tooltip content */}
+              <div className="invisible absolute left-0 top-full z-10 mt-2 w-72 rounded-md border border-border bg-background p-4 shadow-lg transition-opacity duration-300 group-focus-within:visible group-hover:visible md:w-80">
+                <div className="space-y-4">
+                  <h3 className="text-sm font-semibold">
+                    Time Zone Information
+                  </h3>
+
+                  <div>
+                    <h4 className="mb-1 text-xs font-bold">
+                      Original time in {event.creationTimezone}:
+                    </h4>
+                    <p className="text-sm text-primary">
+                      {event.creationTimezone &&
+                        formatTimeInTimezone(
+                          event.startDateTime,
+                          event.creationTimezone
+                        )}
+                    </p>
+                  </div>
+
+                  <div>
+                    <h4 className="mb-1 text-xs font-bold">
+                      Your local time ({localTimezone}):
+                    </h4>
+                    <p className="text-sm">
+                      {formatTimeInTimezone(event.startDateTime, localTimezone)}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div>
+              {getFormattedDateOrTime(event.startDateTime, "date")}
+              {", "}
+              {getFormattedDateOrTime(event.startDateTime, "time")}
+            </div>
+          )}
           {event.recurrenceRule && (
             <div>
               <span className="text-sm font-semibold text-gray-500">
@@ -166,29 +230,9 @@ const Where = ({
       </CardHeader>
       <CardContent>
         <div className="rounded-xl bg-slate-400/10 px-2 py-1 text-sm text-gray-500 transition-all duration-300 hover:bg-slate-400/20">
-          {(isUserGoing || isOwnerOfConvo) && event.location
-            ? (() => {
-                try {
-                  new URL(event.location); // If this succeeds, it's a valid URL
-                  return (
-                    <a
-                      href={event.location}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-blue-500 underline"
-                    >
-                      {event.location.length > 100
-                        ? event.location.substring(0, 100) + "..."
-                        : event.location}
-                    </a>
-                  );
-                } catch {
-                  return event.location.length > 100
-                    ? event.location.substring(0, 100) + "..."
-                    : event.location;
-                }
-              })()
-            : null}
+          {(isUserGoing || isOwnerOfConvo) && event.location && (
+            <LocationDisplay location={event.location} />
+          )}
 
           {!(isUserGoing || isOwnerOfConvo) && (
             <span className="text-sm text-gray-500">RSVP to see location</span>
@@ -197,6 +241,38 @@ const Where = ({
       </CardContent>
     </Card>
   );
+};
+
+const LocationDisplay = ({ location }: { location: string }) => {
+  const isUrl = isValidUrl(location);
+  const truncatedLocation = truncateText(location, 50);
+
+  return isUrl ? (
+    <a
+      href={location}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="text-blue-500 underline"
+    >
+      {truncatedLocation}
+    </a>
+  ) : (
+    <span>{truncatedLocation}</span>
+  );
+};
+
+// Helper functions
+const isValidUrl = (str: string): boolean => {
+  try {
+    new URL(str);
+    return true;
+  } catch {
+    return false;
+  }
+};
+
+const truncateText = (text: string, maxLength: number): string => {
+  return text.length > maxLength ? text.substring(0, maxLength) + "..." : text;
 };
 
 export const WhoElseIsGoing = ({
@@ -218,8 +294,13 @@ export const WhoElseIsGoing = ({
 }) => {
   const [open, setOpen] = useState<boolean>(false);
   const { fetchedUser } = useUser();
+
   if (!isUserGoing && !isOwnerOfConvo) return null;
   if (!fetchedUser?.isSignedIn) return null;
+
+  // Check if the current user is a proposer of this event (has admin privileges)
+  const isProposer = event.isProposer || isOwnerOfConvo;
+
   const filteredRsvps = event.uniqueRsvps.filter(
     (rsvp) => rsvp.rsvpType !== RSVP_TYPE.NOT_GOING
   );
@@ -236,9 +317,17 @@ export const WhoElseIsGoing = ({
       {noModal ? null : (
         <Credenza open={open} onOpenChange={setOpen}>
           <CredenzaContent className="flex h-[34rem] flex-col">
-            <CredenzaHeader>All other RSVPs</CredenzaHeader>
+            <CredenzaHeader>
+              <CredenzaTitle>All RSVPs</CredenzaTitle>
+              {!isProposer && (
+                <CredenzaDescription className="text-sm text-muted-foreground">
+                  Personal information is hidden for privacy
+                </CredenzaDescription>
+              )}
+            </CredenzaHeader>
             <CredenzaBody className="flex-1 overflow-y-auto">
               {filteredRsvps.map((rsvp, key) => {
+                const isCurrentUser = fetchedUser.id === rsvp.attendee.id;
                 return (
                   <div
                     key={key}
@@ -249,7 +338,7 @@ export const WhoElseIsGoing = ({
                       size="md"
                       userId={rsvp.attendee.id}
                     />
-                    {fetchedUser.id === rsvp.attendee.id ? (
+                    {isCurrentUser ? (
                       <span>
                         <span className="font-bold">You</span>
                         <span> ({rsvp.attendee.nickname})</span>
@@ -257,7 +346,20 @@ export const WhoElseIsGoing = ({
                     ) : (
                       <span>{rsvp.attendee.nickname}</span>
                     )}
-                    <span>{rsvpTypeToEmoji(rsvp.rsvpType)}</span>
+                    {/* Show RSVP status based on permissions */}
+                    {(isProposer || isCurrentUser) && (
+                      <span>{rsvpTypeToEmoji(rsvp.rsvpType)}</span>
+                    )}
+
+                    {/* Show admin badge for proposers */}
+                    {isProposer &&
+                      event.proposers.some(
+                        (p) => p.userId === rsvp.attendee.id
+                      ) && (
+                        <span className="ml-1 rounded-full bg-blue-100 px-2 py-0.5 text-xs text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
+                          Organizer
+                        </span>
+                      )}
                   </div>
                 );
               })}
@@ -306,7 +408,7 @@ export const WhoElseIsGoing = ({
         </CardHeader>
         <CardContent>
           {hasRsvps ? (
-            <ViewOtherRSVPs event={event} />
+            <ViewOtherRSVPs event={event} showDetailedInfo={isOwnerOfConvo} />
           ) : (
             <div className="text-sm text-gray-500">No RSVPs yet</div>
           )}
@@ -618,6 +720,7 @@ const Hero = ({
       event.rsvps.filter((rsvp) => rsvp.rsvpType === RSVP_TYPE.GOING).length
   );
   const totalSeats = event.limit;
+  console.log({ event });
   return (
     <div className="flex w-full flex-col justify-items-start">
       <div
@@ -630,6 +733,19 @@ const Hero = ({
       >
         {event?.title}
       </div>
+
+      {event.community && (
+        <div className="text-md mt-1 font-primary italic text-muted-foreground">
+          created for the{" "}
+          <a
+            className="cursor-pointer font-semibold underline decoration-dotted underline-offset-4"
+            href={`/community/${event.community.subdomain}`}
+          >
+            {event.community.displayName}
+          </a>{" "}
+          community.
+        </div>
+      )}
 
       {(isKernelCommunityMember || isOwnerOfConvo) && (
         <motion.div
@@ -727,11 +843,49 @@ const AdminMetricsAccordion = ({ event }: { event: ClientEvent }) => {
   const [isRemovingProposer, setIsRemovingProposer] = useState<string | null>(
     null
   );
+  const [isUpdatingRsvp, setIsUpdatingRsvp] = useState<string | null>(null);
   const { fetchedUser } = useUser();
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
 
   // Calculate existing proposer IDs set to pass to combobox
   const existingProposerIds = new Set(event.proposers.map((p) => p.userId));
+
+  // Function to handle updating RSVP status for another user
+  const handleUpdateRsvpStatus = async (
+    rsvpId: string,
+    userId: string,
+    newStatus: "GOING" | "NOT_GOING" | "MAYBE"
+  ) => {
+    try {
+      setIsUpdatingRsvp(rsvpId);
+      const response = await fetch("/api/create/rsvp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          rsvp: {
+            userId: userId,
+            eventId: event.id,
+            type: newStatus,
+            adminOverride: true, // Flag to indicate this is an admin action
+          },
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(
+          errorData?.error || `HTTP error! status: ${response.status}`
+        );
+      }
+
+      // Success - refresh the page to show updated RSVP status
+      window.location.reload();
+    } catch (error) {
+      console.error("Error updating RSVP status:", error);
+    } finally {
+      setIsUpdatingRsvp(null);
+    }
+  };
 
   const handleAddProposer = async () => {
     if (!selectedUserId) {
@@ -853,9 +1007,7 @@ const AdminMetricsAccordion = ({ event }: { event: ClientEvent }) => {
     };
   }, [isOpen, rsvpFilter]);
 
-  // Find the selected user object based on selectedUserId (ADDED HELPER)
-  const selectedUser =
-    filteredRsvps.find((u) => u.attendee.id === selectedUserId) || null;
+  // No need to find selected user object here
 
   // Log state and key prop just before render
   console.log(
@@ -958,7 +1110,7 @@ const AdminMetricsAccordion = ({ event }: { event: ClientEvent }) => {
             </div>
             <div className="relative">
               <div className="flex items-center justify-between gap-2 border-t-2 py-3 text-sm">
-                <div className="flex items-center gap-4">
+                <div className="flex flex-col items-center gap-4">
                   <div className="flex items-center gap-2">
                     <span className="text-primary-foreground/60">
                       Filter / Message RSVPs:{" "}
@@ -1106,7 +1258,66 @@ const AdminMetricsAccordion = ({ event }: { event: ClientEvent }) => {
                       filteredRsvps.map((rsvp, index) => (
                         <tr key={index} className="border-t border-white/10">
                           <td className="p-2">
-                            {rsvpTypeToEmoji(rsvp.rsvpType)}
+                            <div className="flex items-center gap-2">
+                              {rsvpTypeToEmoji(rsvp.rsvpType)}
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <button
+                                    className="rounded-full p-1 hover:bg-muted focus:outline-none focus:ring-1 focus:ring-primary"
+                                    disabled={isUpdatingRsvp === rsvp.id}
+                                  >
+                                    <MoreHorizontal className="h-4 w-4" />
+                                  </button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="start">
+                                  <DropdownMenuItem
+                                    onClick={() =>
+                                      handleUpdateRsvpStatus(
+                                        rsvp.id,
+                                        rsvp.attendee.id,
+                                        "GOING"
+                                      )
+                                    }
+                                    disabled={
+                                      rsvp.rsvpType === "GOING" ||
+                                      isUpdatingRsvp === rsvp.id
+                                    }
+                                  >
+                                    Set to Going
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem
+                                    onClick={() =>
+                                      handleUpdateRsvpStatus(
+                                        rsvp.id,
+                                        rsvp.attendee.id,
+                                        "MAYBE"
+                                      )
+                                    }
+                                    disabled={
+                                      rsvp.rsvpType === "MAYBE" ||
+                                      isUpdatingRsvp === rsvp.id
+                                    }
+                                  >
+                                    Set to Maybe
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem
+                                    onClick={() =>
+                                      handleUpdateRsvpStatus(
+                                        rsvp.id,
+                                        rsvp.attendee.id,
+                                        "NOT_GOING"
+                                      )
+                                    }
+                                    disabled={
+                                      rsvp.rsvpType === "NOT_GOING" ||
+                                      isUpdatingRsvp === rsvp.id
+                                    }
+                                  >
+                                    Set to Not Going
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            </div>
                           </td>
                           <td className="p-2">{rsvp.attendee.nickname}</td>
                           <td className="p-2 font-mono text-xs">
@@ -1138,6 +1349,63 @@ const AdminMetricsAccordion = ({ event }: { event: ClientEvent }) => {
                             <span className="font-medium">
                               {rsvp.attendee.nickname}
                             </span>
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <button
+                                  className="rounded-full p-1 hover:bg-muted focus:outline-none focus:ring-1 focus:ring-primary"
+                                  disabled={isUpdatingRsvp === rsvp.id}
+                                >
+                                  <MoreHorizontal className="h-4 w-4" />
+                                </button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="start">
+                                <DropdownMenuItem
+                                  onClick={() =>
+                                    handleUpdateRsvpStatus(
+                                      rsvp.id,
+                                      rsvp.attendee.id,
+                                      "GOING"
+                                    )
+                                  }
+                                  disabled={
+                                    rsvp.rsvpType === "GOING" ||
+                                    isUpdatingRsvp === rsvp.id
+                                  }
+                                >
+                                  Set to Going
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                  onClick={() =>
+                                    handleUpdateRsvpStatus(
+                                      rsvp.id,
+                                      rsvp.attendee.id,
+                                      "MAYBE"
+                                    )
+                                  }
+                                  disabled={
+                                    rsvp.rsvpType === "MAYBE" ||
+                                    isUpdatingRsvp === rsvp.id
+                                  }
+                                >
+                                  Set to Maybe
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                  onClick={() =>
+                                    handleUpdateRsvpStatus(
+                                      rsvp.id,
+                                      rsvp.attendee.id,
+                                      "NOT_GOING"
+                                    )
+                                  }
+                                  disabled={
+                                    rsvp.rsvpType === "NOT_GOING" ||
+                                    isUpdatingRsvp === rsvp.id
+                                  }
+                                >
+                                  Set to Not Going
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
                           </div>
                           <span className="text-primary-foreground/60 text-xs">
                             {new Date(rsvp.updatedAt).toLocaleString()}
@@ -1251,6 +1519,79 @@ const AdminMetricsAccordion = ({ event }: { event: ClientEvent }) => {
       </AnimatePresence>
     </motion.div>
   );
+};
+
+// Format timezone name with offset for display
+const formatTimezoneDisplay = (tzName: string): string => {
+  try {
+    const now = DateTime.now().setZone(tzName);
+    const offset = now.toFormat("ZZZZ");
+    return `${tzName.replace("_", " ")} (${offset})`;
+  } catch (e) {
+    return tzName;
+  }
+};
+
+// Function to show the event time in the creation timezone
+const formatLocalTimeDisplay = (
+  dateTimeStr: string,
+  creationTimezone?: string | null
+): string => {
+  try {
+    if (!creationTimezone) {
+      // If no creation timezone, show time in local timezone
+      return new Date(dateTimeStr).toLocaleString();
+    }
+
+    // Parse the date with Luxon for better timezone handling
+    // Format the date in the creation timezone
+    const creationDate = DateTime.fromISO(dateTimeStr, {
+      zone: creationTimezone,
+    });
+    return creationDate.toFormat("EEEE, MMMM d, yyyy 'at' h:mm a");
+  } catch (e) {
+    // Fallback if conversion fails
+    return new Date(dateTimeStr).toLocaleString();
+  }
+};
+
+// Function to properly convert and display event time in different timezones
+const formatTimeInTimezone = (
+  utcDateTimeStr: string,
+  targetTimezone: string
+): string => {
+  try {
+    // Parse the date in UTC
+    const utcDateTime = DateTime.fromISO(utcDateTimeStr, { zone: "utc" });
+
+    // Convert to target timezone
+    const localDateTime = utcDateTime.setZone(targetTimezone);
+
+    // Format with full details
+    return localDateTime.toFormat("EEEE, MMMM d, yyyy 'at' h:mm a");
+  } catch (e) {
+    // Fallback if conversion fails
+    console.error("Time conversion error:", e);
+    return new Date(utcDateTimeStr).toLocaleString();
+  }
+};
+
+// Helper function to get formatted date or time in user's local timezone
+const getFormattedDateOrTime = (
+  dateTimeStr: string,
+  format: "date" | "time" | "both"
+) => {
+  const localDateTime = DateTime.fromISO(dateTimeStr, {
+    zone: "utc",
+  }).toLocal();
+
+  if (format === "date") {
+    return localDateTime.toFormat("EEEE, MMMM d, yyyy");
+  } else if (format === "time") {
+    return localDateTime.toFormat("h:mm a");
+  } else {
+    return localDateTime.toFormat("EEEE, MMMM d, yyyy 'at' h:mm a");
+  }
 };
 
 export default Hero;

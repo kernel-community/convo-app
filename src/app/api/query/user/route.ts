@@ -41,10 +41,21 @@ export async function POST(req: NextRequest) {
       where: {
         id: effectiveUserId,
       },
+      include: {
+        profile: true, // Include the profile which contains the image
+      },
     });
 
+    // Transform the user object to flatten the profile data for easier access
+    const userData = user
+      ? {
+          ...user,
+          image: user.profile?.image || null, // Add image directly to the user object
+        }
+      : null;
+
     return NextResponse.json({
-      data: user,
+      data: userData,
     });
   } catch (error) {
     console.error("Error fetching user:", error);

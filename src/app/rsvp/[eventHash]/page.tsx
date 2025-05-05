@@ -43,8 +43,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         })
       : "";
 
-    const metaTitle = `${event.title} | Convo Cafe`;
-    const metaDescription = `Join us for ${event.title} on ${formattedDate}. ${event.description}`;
+    // Include community name in the title if available
+    const metaTitle = event.community
+      ? `${event.title} | ${event.community.displayName} | Convo Cafe`
+      : `${event.title} | Convo Cafe`;
+    // Include community name in the description if available
+    const metaDescription = event.community
+      ? `Join us for ${event.title} by ${event.community.displayName} on ${formattedDate}. ${event.description}`
+      : `Join us for ${event.title} on ${formattedDate}. ${event.description}`;
 
     // Generate dynamic OG image URL
     const imageUrl = new URL(`${baseUrl}/api/og/convo-cover-image`);
@@ -63,6 +69,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     // Pass the creation timezone if available
     if (event.creationTimezone) {
       imageUrl.searchParams.set("creationTimezone", event.creationTimezone);
+    }
+
+    // Add community name to OG image if available
+    if (event.community) {
+      imageUrl.searchParams.set("communityName", event.community.displayName);
     }
 
     return {

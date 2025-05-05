@@ -47,7 +47,11 @@ const EventDetails = ({
             {proposers.map((p, index) => (
               <React.Fragment key={p.user.id}>
                 <Signature
-                  user={{ id: p.user.id, nickname: p.user.nickname }}
+                  user={{
+                    id: p.user.id,
+                    nickname: p.user.nickname,
+                    image: p.user.profile?.image,
+                  }}
                   style="fancy"
                   className="text-4xl"
                 />

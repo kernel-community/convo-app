@@ -1,4 +1,5 @@
 import { ConvoEvent } from "../types";
+import { DateTime } from "luxon";
 
 interface EventDetailsProps {
   event: ConvoEvent;
@@ -31,6 +32,38 @@ const formatProposers = (proposers: ConvoEvent["proposers"]): string => {
   }
 };
 
+// Helper function to format date with timezone info for email
+const formatDateWithTimezone = (
+  dateTime: string,
+  timezone?: string
+): string => {
+  try {
+    if (timezone) {
+      // Use the original timezone when available
+      const dt = DateTime.fromISO(dateTime).setZone(timezone);
+
+      // Format with the timezone name
+      const formattedDate = dt.toFormat("EEEE, MMMM d, yyyy");
+      const formattedTime = dt.toFormat("h:mm a");
+      const zoneName = dt.toFormat("ZZZZ"); // Full timezone name
+
+      return `${formattedDate} at ${formattedTime} ${zoneName}`;
+    } else {
+      // Fallback to UTC if no timezone is available
+      const dt = DateTime.fromISO(dateTime).toUTC();
+
+      const formattedDate = dt.toFormat("EEEE, MMMM d, yyyy");
+      const formattedTime = dt.toFormat("h:mm a");
+
+      return `${formattedDate} at ${formattedTime} UTC`;
+    }
+  } catch (e) {
+    // Fallback to default formatting if something goes wrong
+    const dateObj = new Date(dateTime);
+    return dateObj.toLocaleString();
+  }
+};
+
 export const EventDetails: React.FC<EventDetailsProps> = ({
   event,
   showDescription = true,
@@ -48,7 +81,8 @@ export const EventDetails: React.FC<EventDetailsProps> = ({
     }}
   >
     <div>
-      <strong>When:</strong> {new Date(event.startDateTime).toLocaleString()}
+      <strong>When:</strong>{" "}
+      {formatDateWithTimezone(event.startDateTime, event.creationTimezone)}
     </div>
 
     {showDescription && event.descriptionHtml && (
