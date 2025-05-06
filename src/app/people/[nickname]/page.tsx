@@ -167,14 +167,14 @@ export default function ProfilePage() {
                   </div>
                 )}
 
-                {/* <div className="mt-6 space-y-2 w-full">
-                  <Link href={`/frens?user=${user.nickname}`}>
+                <div className="mt-6 w-full space-y-2">
+                  <Link href={`/nook?id=${user.id}`}>
                     <Button variant="outline" className="w-full sm:w-auto">
-                      <Users className="h-4 w-4 mr-2" />
+                      <Users className="mr-2 h-4 w-4" />
                       See Connections
                     </Button>
                   </Link>
-                </div> */}
+                </div>
               </div>
             </div>
 
