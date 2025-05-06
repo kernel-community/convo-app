@@ -127,6 +127,11 @@ export const Events = ({
   const [mounted, setMounted] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
 
+  // Update filter when preFilterObject changes to ensure it's always current
+  useEffect(() => {
+    setFilterObject(preFilterObject);
+  }, [preFilterObject]);
+
   useEffect(() => {
     setMounted(true);
   }, []);
@@ -142,13 +147,50 @@ export const Events = ({
   } = useInfiniteQuery(
     `events_${type}_${JSON.stringify(filterObject)}`,
     async ({ pageParam = "" }) => {
+      // When a specific user's events are requested, just pass that filter directly
+      // without mixing in the current user's filters
+      let requestFilter = filterObject;
+
+      // Only apply user-specific filters when no specific user is already specified
+      if (
+        !filterObject?.userId &&
+        user?.isSignedIn &&
+        filterObject?.proposerId
+      ) {
+        // This is the "by me" filter for the currently logged-in user
+        requestFilter = {
+          proposerId: user.id,
+        };
+      } else if (
+        !filterObject?.userId &&
+        user?.isSignedIn &&
+        filterObject?.rsvpUserId
+      ) {
+        // This is the "my rsvps" filter for the currently logged-in user
+        requestFilter = {
+          rsvpUserId: user.id,
+        };
+      } else if (filterObject?.userId) {
+        // For a specific user view, pass the filter unchanged
+        requestFilter = {
+          userId: filterObject.userId,
+          nickname: filterObject.nickname,
+        };
+      }
+
       const requestObject: EventsRequest = {
         type,
         now: new Date(),
         take,
         fromId: pageParam,
-        filter: filterObject,
+        filter: requestFilter,
       };
+
+      console.log(
+        "Fetching events with filter:",
+        JSON.stringify(requestFilter)
+      );
+
       const r = await (
         await fetch(`/api/query/getEvents`, {
           body: JSON.stringify(requestObject),
@@ -169,6 +211,12 @@ export const Events = ({
       enabled: mounted,
     }
   );
+
+  // Clear any filters when switching between filter types to avoid mixed results
+  const handleFilterChange = (newFilter: EventsRequest["filter"]) => {
+    // Ensure we completely replace the filter object to avoid merging properties
+    setFilterObject(newFilter);
+  };
 
   useEffect(() => {
     if (inView && hasNextPage) {
@@ -205,14 +253,21 @@ export const Events = ({
       // Group events by day
       const groupedEvents = _.groupBy(eventsWithProcessedDates, "dayKey");
 
-      // Sort the dates chronologically
-      return Object.entries(groupedEvents).sort(
-        ([dateA], [dateB]) =>
-          DateTime.fromISO(dateA).toMillis() -
-          DateTime.fromISO(dateB).toMillis()
-      );
+      // Sort the date groups - the events are already sorted by the API
+      // Just maintain the same date ordering logic (chronological vs reverse chronological)
+      return Object.entries(groupedEvents).sort(([dateA], [dateB]) => {
+        const dateAMillis = DateTime.fromISO(dateA).toMillis();
+        const dateBMillis = DateTime.fromISO(dateB).toMillis();
+
+        // If type is "past", reverse the order (newest first)
+        if (type === "past") {
+          return dateBMillis - dateAMillis;
+        }
+        // Otherwise, keep chronological order (oldest first)
+        return dateAMillis - dateBMillis;
+      });
     };
-  }, []);
+  }, [type]); // Add type as a dependency since we use it in the sorting logic
 
   return (
     <>
@@ -222,18 +277,21 @@ export const Events = ({
         <div className="my-4 flex flex-row gap-12">
           <FilterButton
             text="all"
-            onClick={() => setFilterObject(undefined)}
-            active={!filterObject}
+            onClick={() => handleFilterChange(undefined)}
+            active={
+              !filterObject ||
+              !!(filterObject?.userId && filterObject?.nickname)
+            }
           />
           <FilterButton
             text="by me"
-            onClick={() => setFilterObject({ proposerId: user.id })}
+            onClick={() => handleFilterChange({ proposerId: user.id })}
             active={!!filterObject?.proposerId}
           />
           <FilterButton
             text="my rsvps"
             onClick={() =>
-              setFilterObject({ proposerId: undefined, rsvpUserId: user.id })
+              handleFilterChange({ proposerId: undefined, rsvpUserId: user.id })
             }
             active={!!filterObject?.rsvpUserId}
           />
@@ -281,9 +339,61 @@ export const Events = ({
                         "day"
                       )
                     )
-                    .map(([date, events]) => (
+                    .map(([date, events]) => {
+                      return (
+                        <div
+                          key={date}
+                          className={`${
+                            useDynamicLayout && events.length > 2
+                              ? "grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3"
+                              : "flex flex-col gap-2"
+                          }`}
+                        >
+                          {events.map((event: ClientEvent, k: Key) => (
+                            <Link
+                              href={`/rsvp/${event.hash}`}
+                              key={k}
+                              className="h-full w-full"
+                            >
+                              <Card event={event} />
+                            </Link>
+                          ))}
+                        </div>
+                      );
+                    })}
+                  {groupEventsByDay(data.pages).filter(([date]) =>
+                    DateTime.fromISO(date).hasSame(
+                      DateTime.fromJSDate(selectedDate),
+                      "day"
+                    )
+                  ).length === 0 && (
+                    <div className="py-8 text-center font-primary text-gray-600">
+                      No Convos scheduled
+                    </div>
+                  )}
+                </motion.div>
+              ) : (
+                groupEventsByDay(data.pages).map(([date, events]) => {
+                  return (
+                    <motion.div
+                      key={date}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.2 }}
+                      className="flex flex-col gap-2"
+                    >
+                      <DateDisplay
+                        date={date}
+                        onDateChange={(newDate) => setSelectedDate(newDate)}
+                        eventDates={data?.pages.flatMap((page) =>
+                          page.data.map(
+                            (event: {
+                              startDateTime: string | number | Date;
+                            }) => new Date(event.startDateTime)
+                          )
+                        )}
+                      />
                       <div
-                        key={date}
                         className={`${
                           useDynamicLayout && events.length > 2
                             ? "grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3"
@@ -300,56 +410,9 @@ export const Events = ({
                           </Link>
                         ))}
                       </div>
-                    ))}
-                  {groupEventsByDay(data.pages).filter(([date]) =>
-                    DateTime.fromISO(date).hasSame(
-                      DateTime.fromJSDate(selectedDate),
-                      "day"
-                    )
-                  ).length === 0 && (
-                    <div className="py-8 text-center font-primary text-gray-600">
-                      No Convos scheduled
-                    </div>
-                  )}
-                </motion.div>
-              ) : (
-                groupEventsByDay(data.pages).map(([date, events]) => (
-                  <motion.div
-                    key={date}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.2 }}
-                    className="flex flex-col gap-2"
-                  >
-                    <DateDisplay
-                      date={date}
-                      onDateChange={(newDate) => setSelectedDate(newDate)}
-                      eventDates={data?.pages.flatMap((page) =>
-                        page.data.map(
-                          (event: { startDateTime: string | number | Date }) =>
-                            new Date(event.startDateTime)
-                        )
-                      )}
-                    />
-                    <div
-                      className={`${
-                        useDynamicLayout && events.length > 2
-                          ? "grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3"
-                          : "flex flex-col gap-2"
-                      }`}
-                    >
-                      {events.map((event: ClientEvent, k: Key) => (
-                        <Link
-                          href={`/rsvp/${event.hash}`}
-                          key={k}
-                          className="h-full w-full"
-                        >
-                          <Card event={event} />
-                        </Link>
-                      ))}
-                    </div>
-                  </motion.div>
-                ))
+                    </motion.div>
+                  );
+                })
               )}
             </>
           )}

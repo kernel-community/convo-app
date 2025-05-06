@@ -834,7 +834,7 @@ const ProfilePage = () => {
                         href={profileAttributes.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center gap-1 text-primary"
+                        className="flex items-center gap-1 font-primary"
                       >
                         {profileAttributes.url} <LinkIcon className="h-3 w-3" />
                       </a>

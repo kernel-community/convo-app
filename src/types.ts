@@ -69,6 +69,8 @@ export type EventsRequest = {
   filter?: {
     proposerId?: string;
     rsvpUserId?: string;
+    userId?: string; // For combined filter that includes both proposed and RSVP'd events
+    nickname?: string; // For displaying the user's nickname in the UI
     collection?: {
       id: string;
       when: "past" | "upcoming";

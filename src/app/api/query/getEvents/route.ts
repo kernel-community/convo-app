@@ -79,6 +79,150 @@ export async function POST(request: NextRequest) {
       filter,
     }: EventsRequest = _.pick(req, ["now", "take", "fromId", "type", "filter"]);
 
+    // Handle the special userId filter which only shows events proposed by that specific user
+    if (filter?.userId) {
+      const userId = filter.userId;
+      const nickname = filter.nickname || "User";
+      console.log(
+        `Strictly filtering events proposed ONLY by user: ${nickname} (${userId})`
+      );
+
+      const Now = DateTime.fromISO(now as string).toJSDate();
+      const defaultIncludes = {
+        include: {
+          proposers: {
+            include: {
+              user: {
+                include: {
+                  profile: true,
+                },
+              },
+            },
+          },
+          rsvps: {
+            include: {
+              attendee: {
+                include: {
+                  profile: true,
+                },
+              },
+            },
+          },
+          collections: true,
+          community: {
+            include: {
+              slack: true,
+            },
+          },
+        },
+      };
+
+      const defaultWheres = {
+        isDeleted: false,
+        type: {
+          not: "UNLISTED" as EventType,
+        },
+        communityId: community.id,
+        // Add explicit filtering to only include events where this specific user is a proposer
+        proposers: {
+          some: {
+            userId: userId,
+          },
+        },
+      };
+
+      // Properly type the userEvents array to avoid implicit any[]
+      let userEvents: ServerEvent[] = [];
+
+      // Handle different event type requests
+      if (type === "upcoming") {
+        // Get only events the user has proposed
+        userEvents = await prisma.event.findMany({
+          ...defaultIncludes,
+          where: {
+            ...defaultWheres,
+            startDateTime: {
+              gte: Now,
+            },
+          },
+          orderBy: {
+            startDateTime: "asc",
+          },
+        });
+      } else if (type === "past") {
+        // Get only past events the user has proposed
+        userEvents = await prisma.event.findMany({
+          ...defaultIncludes,
+          where: {
+            ...defaultWheres,
+            endDateTime: {
+              lt: Now,
+            },
+          },
+          orderBy: {
+            startDateTime: "desc",
+          },
+        });
+      } else {
+        // For any other type, default to upcoming events
+        console.log(
+          `Type "${type}" not specifically handled for user filtering, defaulting to upcoming events logic`
+        );
+
+        // Get only events the user has proposed
+        userEvents = await prisma.event.findMany({
+          ...defaultIncludes,
+          where: {
+            ...defaultWheres,
+            startDateTime: {
+              gte: Now,
+            },
+          },
+          orderBy: {
+            startDateTime: "asc",
+          },
+        });
+      }
+
+      // No need to sort again since database queries already handle sorting
+      /*
+      // Sort the combined events with proper type annotation
+      userEvents.sort((a: ServerEvent, b: ServerEvent) => {
+        if (type === "past") {
+          return new Date(b.startDateTime).getTime() - new Date(a.startDateTime).getTime();
+        } else {
+          return new Date(a.startDateTime).getTime() - new Date(b.startDateTime).getTime();
+        }
+      });
+      */
+
+      // Apply pagination: skip/take
+      const startIndex = skip ?? 0;
+      const effectiveTake = take ?? 6;
+      const paginatedEvents = userEvents.slice(
+        startIndex,
+        startIndex + effectiveTake
+      );
+
+      // Format and return the events
+      const formattedEvents = formatEvents(
+        paginatedEvents,
+        filter,
+        filter.userId
+      );
+
+      // Calculate if there are more events for pagination
+      const hasMore = userEvents.length > startIndex + effectiveTake;
+      const nextId = hasMore
+        ? userEvents[startIndex + effectiveTake]?.id
+        : null;
+
+      return NextResponse.json({
+        data: formattedEvents,
+        nextId,
+      });
+    }
+
     const Now = DateTime.fromISO(now as string).toJSDate();
     const tomorrow12Am = DateTime.fromJSDate(Now)
       .plus({ days: 1 })
@@ -285,13 +429,16 @@ export async function POST(request: NextRequest) {
             ...adjustedRecurringEvents, // Use the list of adjusted events
           ];
 
-          // Sort all combined events by their effective start date
-          serverEvents.sort((a, b) => {
-            // Ensure comparison is done on Date objects
-            const aStart = new Date(a.startDateTime);
-            const bStart = new Date(b.startDateTime);
-            return aStart.getTime() - bStart.getTime();
-          });
+          // Only sort if we have adjusted recurring events, as the upcomingEvents are already sorted
+          if (adjustedRecurringEvents.length > 0) {
+            // Sort all combined events by their effective start date
+            serverEvents.sort((a, b) => {
+              // Ensure comparison is done on Date objects
+              const aStart = new Date(a.startDateTime);
+              const bStart = new Date(b.startDateTime);
+              return aStart.getTime() - bStart.getTime();
+            });
+          }
 
           // Apply pagination *after* combining and sorting all potential upcoming events
           const startIndex = skip ?? 0;
@@ -425,13 +572,24 @@ export async function POST(request: NextRequest) {
           throw new Error("`when` needs to be either `upcoming` or `past`");
         }
         serverEvents = collection.events;
-        serverEvents = serverEvents.sort((a, b) => {
-          const aStart = new Date(a.startDateTime);
-          const bStart = new Date(b.startDateTime);
-          if (aStart < bStart) return -1;
-          if (aStart < bStart) return 1;
-          else return 0;
-        });
+        // Sort the events according to the requested time period
+        if (filter.collection.when === "past") {
+          // For past events, sort in reverse chronological order (newest first)
+          serverEvents = serverEvents.sort((a, b) => {
+            return (
+              new Date(b.startDateTime).getTime() -
+              new Date(a.startDateTime).getTime()
+            );
+          });
+        } else {
+          // For upcoming events, sort in chronological order (oldest first)
+          serverEvents = serverEvents.sort((a, b) => {
+            return (
+              new Date(a.startDateTime).getTime() -
+              new Date(b.startDateTime).getTime()
+            );
+          });
+        }
         break;
       }
       default: {
