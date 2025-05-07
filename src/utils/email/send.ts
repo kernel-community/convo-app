@@ -23,7 +23,6 @@ class EmailQueue {
   private queue: EmailQueueItem[] = [];
   private processing = false;
   private rateLimitPerSecond = 2; // Resend limits to 2 req/sec even on Pro plan
-  private lastProcessTime = 0; // TypeScript can infer this is a number
 
   addToQueue(item: EmailQueueItem): void {
     this.queue.push(item);
@@ -40,19 +39,8 @@ class EmailQueue {
 
     this.processing = true;
 
-    // Calculate time since last batch to respect rate limits
-    const now = Date.now();
-    const timeSinceLastProcess = now - this.lastProcessTime;
-    if (timeSinceLastProcess < 500 && this.lastProcessTime !== 0) {
-      // If less than 500ms has passed, wait until we hit the minimum interval
-      // This ensures we don't exceed 2 req/sec
-      const waitTime = 500 - timeSinceLastProcess;
-      await new Promise((resolve) => setTimeout(resolve, waitTime));
-    }
-
     // Process up to rateLimitPerSecond items at once
     const batch = this.queue.splice(0, this.rateLimitPerSecond);
-    this.lastProcessTime = Date.now();
 
     // Send emails in batch
     await Promise.all(
@@ -82,12 +70,11 @@ class EmailQueue {
       })
     );
 
-    // Schedule next batch processing based on how many emails we just sent
-    // At 2 req/sec rate limit, each email needs 500ms interval
-    const delayNeeded = Math.max(500, batch.length * 500);
+    // Add delay before processing next batch (500ms per request = 2 req/sec)
+    await new Promise((resolve) => setTimeout(resolve, 1000));
 
-    // Schedule the next batch
-    setTimeout(() => this.processQueue(), delayNeeded);
+    // Continue processing
+    this.processQueue();
   }
 }
 
