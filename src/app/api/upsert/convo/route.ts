@@ -44,7 +44,7 @@ const hasSignificantChanges = (
   return startTimeChanged || endTimeChanged || locationChanged;
 };
 
-// Process emails sequentially to ensure all are sent before completing
+// Let the EmailQueue handle rate limiting but ensure all emails are tracked
 const sendWithRateLimit = async (
   emailBatches: Array<{
     event: ServerEvent;
@@ -52,37 +52,47 @@ const sendWithRateLimit = async (
     receiver: User;
   }>[]
 ) => {
-  // Process batches one after another
-  for (const batch of emailBatches) {
-    console.log(`Processing batch of ${batch.length} emails`);
+  // Create a list of all email options to send
+  const allEmailOptions: Array<{
+    event: ServerEvent;
+    type: EmailType;
+    receiver: User;
+  }> = [];
 
-    // Process emails sequentially to ensure none are dropped
-    for (let i = 0; i < batch.length; i++) {
-      const emailOptions = batch[i];
-      if (
-        emailOptions &&
-        emailOptions.event &&
-        emailOptions.type &&
-        emailOptions.receiver
-      ) {
+  // Flatten all batches into a single array
+  emailBatches.forEach((batch) => {
+    batch.forEach((options) => {
+      if (options && options.event && options.type && options.receiver) {
+        allEmailOptions.push(options);
+      }
+    });
+  });
+
+  console.log(`Processing ${allEmailOptions.length} emails total`);
+
+  // Create a small number of larger promise groups to provide some parallelism
+  // while still keeping track of all emails
+  const batchSize = 5; // Process 5 emails at a time
+  for (let i = 0; i < allEmailOptions.length; i += batchSize) {
+    const currentBatch = allEmailOptions.slice(i, i + batchSize);
+    await Promise.all(
+      currentBatch.map(async (options) => {
         try {
-          await sendEventEmail(emailOptions);
+          await sendEventEmail(options);
           console.log(
-            `Processed email ${i + 1}/${batch.length} for recipient ${
-              emailOptions.receiver.email
-            }`
+            `Email sent to ${options.receiver.email} for ${options.type}`
           );
         } catch (error) {
           console.error(
-            `Error sending email to ${emailOptions.receiver.email}:`,
+            `Error sending email to ${options.receiver.email}:`,
             error
           );
         }
-      }
-    }
-
-    console.log(`Completed processing batch of ${batch.length} emails`);
+      })
+    );
   }
+
+  console.log(`Completed processing all ${allEmailOptions.length} emails`);
 };
 
 // Helper function to send emails asynchronously without blocking the response
