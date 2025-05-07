@@ -44,7 +44,7 @@ const hasSignificantChanges = (
   return startTimeChanged || endTimeChanged || locationChanged;
 };
 
-// Rate-limited email sender that respects Resend's 2 req/sec limit
+// Use the EmailQueue's built-in rate limiting instead of adding our own
 const sendWithRateLimit = async (
   emailBatches: Array<{
     event: ServerEvent;
@@ -52,47 +52,22 @@ const sendWithRateLimit = async (
     receiver: User;
   }>[]
 ) => {
-  // Process all batches sequentially
+  // Simply process all batches and let EmailQueue handle rate limiting
   for (const batch of emailBatches) {
-    // Process each batch - sending up to 2 emails in parallel
-    for (let i = 0; i < batch.length; i += 2) {
-      // Send up to 2 emails in parallel (respecting rate limits of 2 req/sec)
-      const promises = [];
-      if (i < batch.length) {
-        // Ensure each item is a valid email options object before sending
-        const emailOptions = batch[i];
+    // Process all emails in parallel and let EmailQueue's rate limiting handle it
+    await Promise.all(
+      batch.map((emailOptions) => {
         if (
           emailOptions &&
           emailOptions.event &&
           emailOptions.type &&
           emailOptions.receiver
         ) {
-          promises.push(sendEventEmail(emailOptions));
+          return sendEventEmail(emailOptions);
         }
-      }
-
-      if (i + 1 < batch.length) {
-        // Ensure each item is a valid email options object before sending
-        const emailOptions = batch[i + 1];
-        if (
-          emailOptions &&
-          emailOptions.event &&
-          emailOptions.type &&
-          emailOptions.receiver
-        ) {
-          promises.push(sendEventEmail(emailOptions));
-        }
-      }
-
-      if (promises.length > 0) {
-        await Promise.all(promises);
-
-        // Add a delay of 1 second after each pair to respect rate limit
-        if (i + 2 < batch.length) {
-          await new Promise((resolve) => setTimeout(resolve, 1000));
-        }
-      }
-    }
+        return Promise.resolve();
+      })
+    );
   }
 };
 
@@ -420,11 +395,14 @@ export async function POST(req: NextRequest) {
           ...maybeAttendees.map((rsvp) => rsvp.attendee),
         ];
 
-        // Schedule reminders for each recipient individually
-        // Schedule reminder emails asynchronously without blocking the response
-        // This prevents users from seeing a loading state while emails are being scheduled
-        Promise.all(
-          allRecipients.map(async (recipient) => {
+        // Process recipients sequentially with proper rate limiting
+        // This approach avoids overwhelming Resend's API
+        for (let i = 0; i < allRecipients.length; i++) {
+          const recipient = allRecipients[i];
+          // Skip if recipient is undefined
+          if (!recipient) continue;
+
+          try {
             // Determine if this recipient is a "maybe" attendee
             const isMaybeAttendee = maybeAttendees.some(
               (rsvp) => rsvp.attendee.id === recipient.id
@@ -435,16 +413,24 @@ export async function POST(req: NextRequest) {
               (p) => p.userId === recipient.id
             );
 
-            return scheduleReminderEmails({
+            await scheduleReminderEmails({
               event: updated,
               recipient,
               isProposer: isProposer, // Use the calculated value
               isMaybe: isMaybeAttendee,
             });
-          })
-        ).catch((error) => {
-          console.error(`Error scheduling reminder emails: ${error}`);
-        });
+
+            // Add a small delay between recipients to respect rate limits
+            if (i < allRecipients.length - 1) {
+              await new Promise((resolve) => setTimeout(resolve, 500));
+            }
+          } catch (error) {
+            console.error(
+              `Error scheduling reminders for recipient ${recipient.id}: ${error}`
+            );
+            // Continue with next recipient even if one fails
+          }
+        }
 
         console.log(
           `Scheduling reminder emails for updated event ${updated.id}`
@@ -538,25 +524,25 @@ export async function POST(req: NextRequest) {
 
   // Schedule reminder emails
   // We do this in the background to avoid blocking the response
-  Promise.all([
-    // Schedule reminder emails for the proposer with custom subject line
+  if (user) {
+    // Only schedule if user exists
     scheduleReminderEmails({
       event: created,
       recipient: user,
       isProposer: true,
-    }),
-  ])
-    .then(() => {
-      console.log(
-        `Scheduled reminder emails for proposer of new event ${created.id}`
-      );
     })
-    .catch((error) => {
-      console.error(
-        `Error scheduling reminder emails for new event ${created.id}:`,
-        error
-      );
-    });
+      .then(() => {
+        console.log(
+          `Scheduled reminder emails for proposer of new event ${created.id}`
+        );
+      })
+      .catch((error) => {
+        console.error(
+          `Error scheduling reminder emails for new event ${created.id}:`,
+          error
+        );
+      });
+  }
 
   return NextResponse.json(created);
 }

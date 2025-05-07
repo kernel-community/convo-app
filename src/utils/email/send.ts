@@ -22,7 +22,7 @@ interface EmailQueueItem {
 class EmailQueue {
   private queue: EmailQueueItem[] = [];
   private processing = false;
-  private rateLimitPerSecond = 5; // Pro plan with higher limit
+  private rateLimitPerSecond = 2; // Resend limits to 2 req/sec even on Pro plan
 
   addToQueue(item: EmailQueueItem): void {
     this.queue.push(item);
@@ -70,7 +70,7 @@ class EmailQueue {
       })
     );
 
-    // Add delay before processing next batch
+    // Add delay before processing next batch (500ms per request = 2 req/sec)
     await new Promise((resolve) => setTimeout(resolve, 1000));
 
     // Continue processing
