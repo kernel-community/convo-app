@@ -44,7 +44,7 @@ const hasSignificantChanges = (
   return startTimeChanged || endTimeChanged || locationChanged;
 };
 
-// Use the EmailQueue's built-in rate limiting instead of adding our own
+// Process emails sequentially to ensure all are sent before completing
 const sendWithRateLimit = async (
   emailBatches: Array<{
     event: ServerEvent;
@@ -52,22 +52,36 @@ const sendWithRateLimit = async (
     receiver: User;
   }>[]
 ) => {
-  // Simply process all batches and let EmailQueue handle rate limiting
+  // Process batches one after another
   for (const batch of emailBatches) {
-    // Process all emails in parallel and let EmailQueue's rate limiting handle it
-    await Promise.all(
-      batch.map((emailOptions) => {
-        if (
-          emailOptions &&
-          emailOptions.event &&
-          emailOptions.type &&
-          emailOptions.receiver
-        ) {
-          return sendEventEmail(emailOptions);
+    console.log(`Processing batch of ${batch.length} emails`);
+
+    // Process emails sequentially to ensure none are dropped
+    for (let i = 0; i < batch.length; i++) {
+      const emailOptions = batch[i];
+      if (
+        emailOptions &&
+        emailOptions.event &&
+        emailOptions.type &&
+        emailOptions.receiver
+      ) {
+        try {
+          await sendEventEmail(emailOptions);
+          console.log(
+            `Processed email ${i + 1}/${batch.length} for recipient ${
+              emailOptions.receiver.email
+            }`
+          );
+        } catch (error) {
+          console.error(
+            `Error sending email to ${emailOptions.receiver.email}:`,
+            error
+          );
         }
-        return Promise.resolve();
-      })
-    );
+      }
+    }
+
+    console.log(`Completed processing batch of ${batch.length} emails`);
   }
 };
 
