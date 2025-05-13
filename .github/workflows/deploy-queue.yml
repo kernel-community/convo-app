@@ -22,8 +22,10 @@ jobs:
           key: ${{ secrets.DO_SSH_KEY }}
           script: |
             cd ${{ secrets.APP_DIR }}
-            git pull
+            export NVM_DIR="$HOME/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
             nvm use 18
+            git pull
             npm i --legacy-peer-deps
             npm run build
             pm2 restart email-queue
