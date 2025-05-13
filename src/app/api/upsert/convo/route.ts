@@ -18,6 +18,7 @@ import {
 } from "src/utils/email/scheduleReminders";
 import { rrulestr } from "rrule";
 import { cleanupRruleString } from "src/utils/rrule";
+import { queueEmailBatch } from "src/lib/queue";
 
 // Helper function to check if there are significant changes in the event details
 const hasSignificantChanges = (
@@ -44,7 +45,7 @@ const hasSignificantChanges = (
   return startTimeChanged || endTimeChanged || locationChanged;
 };
 
-// Let the EmailQueue handle rate limiting but ensure all emails are tracked
+// Use Redis queue to handle emails with proper rate limiting
 const sendWithRateLimit = async (
   emailBatches: Array<{
     event: ServerEvent;
@@ -52,47 +53,30 @@ const sendWithRateLimit = async (
     receiver: User;
   }>[]
 ) => {
-  // Create a list of all email options to send
-  const allEmailOptions: Array<{
-    event: ServerEvent;
-    type: EmailType;
-    receiver: User;
-  }> = [];
-
-  // Flatten all batches into a single array
-  emailBatches.forEach((batch) => {
-    batch.forEach((options) => {
-      if (options && options.event && options.type && options.receiver) {
-        allEmailOptions.push(options);
-      }
-    });
-  });
-
-  console.log(`Processing ${allEmailOptions.length} emails total`);
-
-  // Create a small number of larger promise groups to provide some parallelism
-  // while still keeping track of all emails
-  const batchSize = 5; // Process 5 emails at a time
-  for (let i = 0; i < allEmailOptions.length; i += batchSize) {
-    const currentBatch = allEmailOptions.slice(i, i + batchSize);
-    await Promise.all(
-      currentBatch.map(async (options) => {
-        try {
-          await sendEventEmail(options);
-          console.log(
-            `Email sent to ${options.receiver.email} for ${options.type}`
-          );
-        } catch (error) {
-          console.error(
-            `Error sending email to ${options.receiver.email}:`,
-            error
-          );
-        }
-      })
+  try {
+    // Flatten all batches into a single array
+    const allEmailOptions = emailBatches.flatMap((batch) =>
+      batch.filter(
+        (options) =>
+          options && options.event && options.type && options.receiver
+      )
     );
-  }
 
-  console.log(`Completed processing all ${allEmailOptions.length} emails`);
+    if (allEmailOptions.length === 0) {
+      console.log("No valid email options to process");
+      return;
+    }
+
+    console.log(`Queueing ${allEmailOptions.length} emails to Redis`);
+
+    // Queue all emails to Redis in a batch
+    const jobIds = await queueEmailBatch(allEmailOptions);
+
+    console.log(`Successfully queued ${jobIds.length} emails to Redis`);
+  } catch (error) {
+    console.error("Error queueing emails to Redis:", error);
+    throw error;
+  }
 };
 
 // Helper function to send emails asynchronously without blocking the response
