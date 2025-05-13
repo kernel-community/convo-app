@@ -98,8 +98,8 @@ Create a `.env` file with these variables:
 1. **Clone your repository**
 
    ```bash
-   git clone https://github.com/yourusername/convo.git
-   cd convo
+   git clone https://github.com/kernel-community/convo-app.git
+   cd convo-app
    ```
 
 2. **Create .env file**
@@ -119,9 +119,7 @@ Create a `.env` file with these variables:
 3. **Install dependencies and build**
 
    ```bash
-   npm ci
-   npx prisma generate
-   npm run build
+   npm i --legacy-peer-deps ; npx prisma generate ; npm run build
    ```
 
 4. **Start the queue worker with PM2**
@@ -145,21 +143,6 @@ Create a `.env` file with these variables:
    ```
 
 ### Managing the Queue
-
-#### View Queue Status
-
-```bash
-# Create a simple script to check status
-cat > check-queue.sh << 'EOF'
-#!/bin/bash
-node scripts/check-queue.js "$@"
-EOF
-
-chmod +x check-queue.sh
-
-# Run it
-./check-queue.sh
-```
 
 #### Clear the Queue (if needed)
 
