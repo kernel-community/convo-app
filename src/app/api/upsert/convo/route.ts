@@ -84,24 +84,53 @@ const sendEmailsAsync = async (
   goingAttendees: (Rsvp & { attendee: User })[] = [],
   maybeAttendees: (Rsvp & { attendee: User })[] = [],
   isUpdate = false,
-  previousValues?: Partial<ServerEvent>
+  previousValues?: Partial<ServerEvent>,
+  creatorId?: string // Add parameter for the creator's ID
 ) => {
   try {
-    // Prepare proposer emails - these will be sent first
-    const proposerEmails = event.proposers.map((proposerEntry) => ({
+    // Prepare proposer emails and separate the creator from other proposers
+    const allProposerEmails = event.proposers.map((proposerEntry) => ({
       event,
       type: (isUpdate ? "update-proposer" : "create") as EmailType,
       receiver: proposerEntry.user,
     }));
 
-    // Send proposer emails immediately, but still with rate limiting
-    if (proposerEmails.length > 0) {
-      console.log(`Sending ${proposerEmails.length} proposer emails first`);
-      await sendWithRateLimit([proposerEmails]);
+    // Separate creator email from other proposer emails
+    let creatorEmail;
+    let otherProposerEmails;
+
+    if (creatorId) {
+      // Find the creator's email
+      creatorEmail = allProposerEmails.find(
+        (email) => email.receiver.id === creatorId
+      );
+
+      // Filter out other proposer emails
+      otherProposerEmails = allProposerEmails.filter(
+        (email) => email.receiver.id !== creatorId
+      );
+    } else {
+      // If no creatorId provided, treat all proposers equally
+      creatorEmail = null;
+      otherProposerEmails = allProposerEmails;
     }
 
-    // Prepare remaining email batches
-    const batches: Array<
+    // 1. Send creator email immediately if available
+    if (creatorEmail) {
+      console.log(`Sending email to the creator (${creatorId}) first`);
+      await sendWithRateLimit([[creatorEmail]]);
+    }
+
+    // 2. Send other proposer emails next
+    if (otherProposerEmails.length > 0) {
+      console.log(
+        `Sending ${otherProposerEmails.length} other proposer emails`
+      );
+      await sendWithRateLimit([otherProposerEmails]);
+    }
+
+    // 3. Prepare attendee email batches
+    const attendeeBatches: Array<
       {
         event: ServerEvent;
         type: EmailType;
@@ -123,7 +152,7 @@ const sendEmailsAsync = async (
         receiver: rsvp.attendee,
       }));
 
-      batches.push(goingEmails);
+      attendeeBatches.push(goingEmails);
     }
 
     // Prepare maybe attendee emails (only if significant changes)
@@ -134,13 +163,13 @@ const sendEmailsAsync = async (
         receiver: rsvp.attendee,
       }));
 
-      batches.push(maybeEmails);
+      attendeeBatches.push(maybeEmails);
     }
 
-    // Send remaining emails after proposer emails have been sent
-    if (batches.length > 0) {
+    // Send attendee emails last
+    if (attendeeBatches.length > 0) {
       // Fire and forget - send all remaining emails in the background
-      void sendWithRateLimit(batches).catch((error) => {
+      void sendWithRateLimit(attendeeBatches).catch((error) => {
         console.error("Error sending rate-limited attendee emails:", error);
       });
     }
@@ -388,7 +417,8 @@ export async function POST(req: NextRequest) {
       goingAttendees,
       maybeAttendees,
       true,
-      previousValues
+      previousValues,
+      userId
     );
 
     // Cancel existing reminder emails and schedule new ones
@@ -529,7 +559,7 @@ export async function POST(req: NextRequest) {
   });
 
   // Start sending emails asynchronously without awaiting
-  sendEmailsAsync(created).catch((error) => {
+  sendEmailsAsync(created, [], [], false, undefined, userId).catch((error) => {
     console.error("Background email sending failed:", error);
   });
 
