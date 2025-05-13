@@ -13,63 +13,180 @@ import { getEmailTemplateFromType } from "src/components/Email";
 import type { ConvoEvent } from "src/components/Email/types";
 import type { CreateEmailOptions } from "resend";
 
-// Rate limiting variables
-let lastEmailSent = 0;
-// Fixed time between emails - 1.7 seconds (around 35 emails per minute)
-// This ensures we stay well under Resend's limit of 2/second
-const FIXED_DELAY_MS = 1700;
-// Small jitter to avoid exactly synchronized requests
-const MAX_JITTER_MS = 300;
-// Backoff times for rate limit errors (in ms)
+// Rate limiting state based on Resend API headers
+interface RateLimitState {
+  limit: number; // Maximum requests allowed in window (from ratelimit-limit)
+  remaining: number; // Requests remaining in current window (from ratelimit-remaining)
+  resetSeconds: number; // Seconds until limit resets (from ratelimit-reset)
+  nextRequestTime: number; // Timestamp when we can make the next request
+}
+
+// Default rate limit state (2 requests per second as per Resend's default)
+const rateLimitState: RateLimitState = {
+  limit: 2,
+  remaining: 2,
+  resetSeconds: 1,
+  nextRequestTime: 0,
+};
+
+// Fixed defaults if headers aren't available
+const FIXED_DELAY_MS = 600; // Default to ~1.6 emails per second (80% of limit)
+const MAX_JITTER_MS = 300; // Add jitter to avoid synchronized requests
 const RATE_LIMIT_BACKOFFS = [
   3000, 6000, 12000, 24000, 48000, 96000, 192000, 384000,
 ];
 
 /**
- * Simple and deterministic rate limiter - always waits a fixed time between emails
+ * Update rate limit state based on response headers from Resend
+ */
+function updateRateLimitState(headers: Record<string, string>): void {
+  if (headers["ratelimit-limit"]) {
+    rateLimitState.limit = parseInt(headers["ratelimit-limit"], 10);
+  }
+
+  if (headers["ratelimit-remaining"]) {
+    rateLimitState.remaining = parseInt(headers["ratelimit-remaining"], 10);
+  }
+
+  if (headers["ratelimit-reset"]) {
+    rateLimitState.resetSeconds = parseInt(headers["ratelimit-reset"], 10);
+
+    // Calculate the next safe time to make a request
+    const now = Date.now();
+
+    if (rateLimitState.remaining <= 0) {
+      // If no requests remaining, we need to wait for the reset
+      rateLimitState.nextRequestTime = now + rateLimitState.resetSeconds * 1000;
+      console.log(
+        `Rate limit reached. Next request allowed in ${rateLimitState.resetSeconds} seconds`
+      );
+    } else {
+      // If we have requests remaining, calculate safe interval
+      // Distribute remaining requests over the reset period with a small buffer
+      const safeIntervalMs = Math.max(
+        50, // Minimum 50ms between requests
+        ((rateLimitState.resetSeconds * 1000) /
+          (rateLimitState.remaining + 1)) *
+          0.8 // 20% buffer
+      );
+      rateLimitState.nextRequestTime = now + safeIntervalMs;
+    }
+  }
+
+  // If retry-after header is present (received 429), it takes precedence
+  if (headers["retry-after"]) {
+    const retryAfterSeconds = parseInt(headers["retry-after"], 10);
+    rateLimitState.nextRequestTime = Date.now() + retryAfterSeconds * 1000;
+    console.log(
+      `Received retry-after header. Waiting ${retryAfterSeconds} seconds before next request`
+    );
+  }
+
+  console.log(
+    `Rate limit state updated: ${rateLimitState.remaining}/${rateLimitState.limit} requests remaining, reset in ${rateLimitState.resetSeconds}s`
+  );
+}
+
+/**
+ * Smart rate limiter that uses Resend API headers to determine wait times
  * @param attempt The current attempt number (0 for first attempt)
  */
-async function rateLimit(attempt: number): Promise<void> {
-  // Calculate retry backoff if this is a retry attempt
-  let backoff = 0;
-  if (attempt > 0) {
-    const backoffIndex = Math.min(attempt - 1, RATE_LIMIT_BACKOFFS.length - 1);
-    backoff = RATE_LIMIT_BACKOFFS[backoffIndex] || 0;
+async function rateLimit(attempt = 0): Promise<void> {
+  const now = Date.now();
+
+  // If we're within a rate limit window, respect the next request time
+  if (now < rateLimitState.nextRequestTime) {
+    const waitTime = rateLimitState.nextRequestTime - now;
+    console.log(
+      `[${new Date().toISOString()}] Rate limiting: waiting ${waitTime}ms before next request based on Resend headers`
+    );
+    await new Promise((resolve) => setTimeout(resolve, waitTime));
+    return;
   }
 
-  // Add small random jitter to avoid exact synchronization
-  const jitter = Math.floor(Math.random() * MAX_JITTER_MS);
+  // If we don't have header information yet or starting fresh
+  if (rateLimitState.nextRequestTime === 0) {
+    // Calculate retry backoff if this is a retry attempt
+    let backoff = 0;
+    if (attempt > 0) {
+      const backoffIndex = Math.min(
+        attempt - 1,
+        RATE_LIMIT_BACKOFFS.length - 1
+      );
+      backoff = RATE_LIMIT_BACKOFFS[backoffIndex] || 0;
+    }
 
-  // Calculate total delay - ALWAYS use full fixed delay plus jitter and backoff
-  const totalDelay = FIXED_DELAY_MS + jitter + backoff;
+    // Add small random jitter to avoid exact synchronization
+    const jitter = Math.floor(Math.random() * MAX_JITTER_MS);
 
-  // Log what we're doing
-  const timestamp = new Date().toISOString();
-  if (backoff > 0) {
-    console.log(
-      `[${timestamp}] Waiting ${totalDelay}ms between emails (includes ${backoff}ms backoff for attempt ${
-        attempt + 1
-      })`
-    );
-  } else {
-    console.log(
-      `[${timestamp}] Waiting ${totalDelay}ms between emails (fixed:${FIXED_DELAY_MS}ms + jitter:${jitter}ms)`
-    );
+    // Calculate total delay - ALWAYS use full fixed delay plus jitter and backoff
+    const totalDelay = FIXED_DELAY_MS + jitter + backoff;
+
+    // Log what we're doing
+    const timestamp = new Date().toISOString();
+    if (backoff > 0) {
+      console.log(
+        `[${timestamp}] Using conservative rate limit: ${totalDelay}ms between emails (includes ${backoff}ms backoff for attempt ${
+          attempt + 1
+        })`
+      );
+    } else {
+      console.log(
+        `[${timestamp}] Using conservative rate limit: ${totalDelay}ms between emails (fixed:${FIXED_DELAY_MS}ms + jitter:${jitter}ms)`
+      );
+    }
+
+    // Wait the calculated time
+    await new Promise((resolve) => setTimeout(resolve, totalDelay));
+
+    // Set a default next request time (conservative approach)
+    rateLimitState.nextRequestTime = Date.now() + FIXED_DELAY_MS;
   }
 
-  // ALWAYS wait the full time - no time subtraction logic
-  await new Promise((resolve) => setTimeout(resolve, totalDelay));
-
-  // Update timestamp AFTER the delay
-  lastEmailSent = Date.now();
   console.log(`[${new Date().toISOString()}] Sending email now`);
 }
 
 /**
- * Sends an email via Resend API
+ * Sends an email via Resend API and captures rate limit headers
  */
 async function sendEmail(options: CreateEmailOptions) {
-  const { data, error } = await resend.emails.send(options);
+  // Cast the response to get access to headers
+  interface ResendResponse {
+    data?: { id: string } | null;
+    error?: {
+      message: string;
+      name?: string;
+      statusCode?: number;
+    } | null;
+    headers?: Record<string, string>;
+  }
+
+  // Send the email
+  const response = (await resend.emails.send(
+    options
+  )) as unknown as ResendResponse;
+  const { data, error, headers } = response;
+
+  // Update rate limit state if headers are present
+  if (headers) {
+    updateRateLimitState(headers);
+  }
+
+  // Check for rate limit error (429)
+  if (error && error.statusCode === 429) {
+    console.error(`Rate limit exceeded for email to ${options.to}`);
+
+    // Check for retry-after header
+    if (headers && headers["retry-after"]) {
+      const retryAfterSeconds = parseInt(headers["retry-after"], 10);
+      console.log(`Retry-After header received: ${retryAfterSeconds} seconds`);
+    }
+
+    // Throw a specific error for rate limits that Bull will handle
+    const rateLimitError = new Error("rate_limit_exceeded");
+    rateLimitError.name = "rate_limit_exceeded";
+    throw rateLimitError;
+  }
 
   if (error) {
     console.error(`Failed to send email to ${options.to}:`, error);

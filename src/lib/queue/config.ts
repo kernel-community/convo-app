@@ -44,7 +44,7 @@ export const queueOptions = {
   // For Vercel, we need to provide Redis options rather than just the URL
   redis: redisUrl,
   defaultJobOptions: {
-    attempts: 20, // Retry failed jobs 10 times
+    attempts: 20, // Retry failed jobs up to 20 times
     backoff: {
       // Exponential backoff strategy
       type: "exponential",
@@ -56,6 +56,33 @@ export const queueOptions = {
     failParentOnFailure: false, // Don't fail parent jobs if child jobs fail
     timeout: 120000, // 2 minutes timeout for job execution
     stackTraceLimit: 100, // More stack trace for debugging
+    // If a job fails with a rate limit error (429), use a specific backoff
+    backoffStrategy: (attemptsMade: number, err: any) => {
+      // For rate limit errors, use recommended backoff from Resend
+      if (
+        err &&
+        ((typeof err.name === "string" && err.name === "rate_limit_exceeded") ||
+          (typeof err.message === "string" &&
+            err.message.includes("rate limit")))
+      ) {
+        // Start with a larger backoff for rate limit errors
+        // Use recommended time from retry-after header if available
+        if (
+          err.headers &&
+          err.headers["retry-after"] &&
+          !isNaN(parseInt(err.headers["retry-after"], 10))
+        ) {
+          const retryAfterSeconds = parseInt(err.headers["retry-after"], 10);
+          return retryAfterSeconds * 1000;
+        }
+
+        // Otherwise use exponential backoff starting at 5s
+        return Math.min(Math.pow(2, attemptsMade) * 5000, 30 * 60 * 1000); // Cap at 30 minutes
+      }
+
+      // For other errors, default to regular exponential backoff
+      return Math.min(Math.pow(1.5, attemptsMade) * 5000, 30 * 60 * 1000);
+    },
   },
 };
 
