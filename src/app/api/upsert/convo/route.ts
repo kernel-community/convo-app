@@ -6,7 +6,6 @@ import { NextResponse } from "next/server";
 import { headers } from "next/headers";
 import { getCommunityFromSubdomain } from "src/utils/getCommunityFromSubdomain";
 import type { ClientEventInput, ServerEvent } from "src/types";
-import { sendEventEmail } from "src/utils/email/send";
 import type { Rsvp, User } from "@prisma/client";
 import type { EmailType } from "src/components/Email";
 import { RSVP_TYPE } from "@prisma/client";
@@ -88,7 +87,20 @@ const sendEmailsAsync = async (
   previousValues?: Partial<ServerEvent>
 ) => {
   try {
-    // Prepare all email batches
+    // Prepare proposer emails - these will be sent first
+    const proposerEmails = event.proposers.map((proposerEntry) => ({
+      event,
+      type: (isUpdate ? "update-proposer" : "create") as EmailType,
+      receiver: proposerEntry.user,
+    }));
+
+    // Send proposer emails immediately, but still with rate limiting
+    if (proposerEmails.length > 0) {
+      console.log(`Sending ${proposerEmails.length} proposer emails first`);
+      await sendWithRateLimit([proposerEmails]);
+    }
+
+    // Prepare remaining email batches
     const batches: Array<
       {
         event: ServerEvent;
@@ -96,17 +108,6 @@ const sendEmailsAsync = async (
         receiver: User;
       }[]
     > = [];
-
-    // Prepare proposer emails
-    const proposerEmails = event.proposers.map((proposerEntry) => ({
-      event,
-      type: (isUpdate ? "update-proposer" : "create") as EmailType,
-      receiver: proposerEntry.user,
-    }));
-
-    if (proposerEmails.length > 0) {
-      batches.push(proposerEmails);
-    }
 
     // Check if there are significant changes for attendee notifications
     const hasChanges =
@@ -136,11 +137,13 @@ const sendEmailsAsync = async (
       batches.push(maybeEmails);
     }
 
-    // Fire and forget - send all emails in the background
-    // This way the API response isn't delayed by email sending
-    void sendWithRateLimit(batches).catch((error) => {
-      console.error("Error sending rate-limited emails:", error);
-    });
+    // Send remaining emails after proposer emails have been sent
+    if (batches.length > 0) {
+      // Fire and forget - send all remaining emails in the background
+      void sendWithRateLimit(batches).catch((error) => {
+        console.error("Error sending rate-limited attendee emails:", error);
+      });
+    }
 
     // Send notification on a slack channel
     const headersList = headers();
