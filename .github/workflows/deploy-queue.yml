@@ -23,7 +23,7 @@ jobs:
           script: |
             cd ${{ secrets.APP_DIR }}
             git pull
-            npm ci
+            npm i --legacy-peer-deps
             npm run build
             pm2 restart email-queue
             pm2 save
