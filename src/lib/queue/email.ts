@@ -88,7 +88,7 @@ export const queueEmailBatch = async (
   const jobs = await Promise.all(
     dataArray.map((data) =>
       emailQueue.add(data, {
-        attempts: 5,
+        attempts: 20,
         backoff: {
           type: "exponential",
           delay: 10000,

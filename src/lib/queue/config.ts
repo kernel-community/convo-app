@@ -44,7 +44,7 @@ export const queueOptions = {
   // For Vercel, we need to provide Redis options rather than just the URL
   redis: redisUrl,
   defaultJobOptions: {
-    attempts: 5, // Retry failed jobs 5 times
+    attempts: 20, // Retry failed jobs 10 times
     backoff: {
       // Exponential backoff strategy
       type: "exponential",
