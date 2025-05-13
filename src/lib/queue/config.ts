@@ -10,15 +10,23 @@ if (!process.env.QUEUE_REDIS_URL) {
 // Use environment variable exclusively - no fallbacks with credentials
 const redisUrl = process.env.QUEUE_REDIS_URL;
 
+// Check if the Redis URL uses SSL (rediss://)
+const usesTLS = redisUrl.startsWith("rediss://");
+
 // Log for debugging (hide credentials in logs)
-console.log("Redis connection configured (config.ts)");
+console.log(
+  `Redis connection configured (config.ts) with${usesTLS ? "" : "out"} TLS`
+);
 
 // Additional Redis connection options for Vercel deployment
 const redisOptions = {
   enableReadyCheck: false,
   maxRetriesPerRequest: 10, // Reduce from null (infinite) to 3 to avoid hanging
-  // These options help with TLS connections often required by Redis providers
-  tls: { rejectUnauthorized: false },
+  // Only apply TLS options if using a secure connection
+  ...(usesTLS && {
+    tls: { rejectUnauthorized: false },
+    enableTLSForSentinelMode: false,
+  }),
   retryStrategy: (times: number) => {
     // Exponential backoff for connection retries
     return Math.min(times * 100, 3000);
@@ -27,7 +35,6 @@ const redisOptions = {
   connectTimeout: 10000,
   // Add better error handling
   showFriendlyErrorStack: true,
-  enableTLSForSentinelMode: false,
 };
 
 // Bull requires specific Redis settings
