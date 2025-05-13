@@ -6,9 +6,6 @@
 
 // Load environment variables
 require("dotenv").config();
-
-const Bull = require("bull");
-const Redis = require("ioredis");
 const { createRedisClient, createQueue } = require("./utils/redis-config");
 
 // Get action from command line
