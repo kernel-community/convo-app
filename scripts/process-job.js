@@ -6,9 +6,6 @@
 
 // Load environment variables
 require("dotenv").config();
-
-const Bull = require("bull");
-const Redis = require("ioredis");
 const { createRedisClient, createQueue } = require("./utils/redis-config");
 
 // Register React globally for email template rendering (might be needed for rendering templates)
