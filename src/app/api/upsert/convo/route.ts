@@ -18,6 +18,7 @@ import {
 import { rrulestr } from "rrule";
 import { cleanupRruleString } from "src/utils/rrule";
 import { queueEmailBatch } from "src/lib/queue";
+import { sendDirectEmailsWithPriority } from "src/utils/email/directResend";
 
 // Helper function to check if there are significant changes in the event details
 const hasSignificantChanges = (
@@ -88,55 +89,12 @@ const sendEmailsAsync = async (
   creatorId?: string // Add parameter for the creator's ID
 ) => {
   try {
-    // Prepare proposer emails and separate the creator from other proposers
-    const allProposerEmails = event.proposers.map((proposerEntry) => ({
+    // Prepare proposer emails
+    const proposerEmails = event.proposers.map((proposerEntry) => ({
       event,
       type: (isUpdate ? "update-proposer" : "create") as EmailType,
       receiver: proposerEntry.user,
     }));
-
-    // Separate creator email from other proposer emails
-    let creatorEmail;
-    let otherProposerEmails;
-
-    if (creatorId) {
-      // Find the creator's email
-      creatorEmail = allProposerEmails.find(
-        (email) => email.receiver.id === creatorId
-      );
-
-      // Filter out other proposer emails
-      otherProposerEmails = allProposerEmails.filter(
-        (email) => email.receiver.id !== creatorId
-      );
-    } else {
-      // If no creatorId provided, treat all proposers equally
-      creatorEmail = null;
-      otherProposerEmails = allProposerEmails;
-    }
-
-    // 1. Send creator email immediately if available
-    if (creatorEmail) {
-      console.log(`Sending email to the creator (${creatorId}) first`);
-      await sendWithRateLimit([[creatorEmail]]);
-    }
-
-    // 2. Send other proposer emails next
-    if (otherProposerEmails.length > 0) {
-      console.log(
-        `Sending ${otherProposerEmails.length} other proposer emails`
-      );
-      await sendWithRateLimit([otherProposerEmails]);
-    }
-
-    // 3. Prepare attendee email batches
-    const attendeeBatches: Array<
-      {
-        event: ServerEvent;
-        type: EmailType;
-        receiver: User;
-      }[]
-    > = [];
 
     // Check if there are significant changes for attendee notifications
     const hasChanges =
@@ -145,33 +103,77 @@ const sendEmailsAsync = async (
       hasSignificantChanges(previousValues as Partial<ServerEvent>, event);
 
     // Prepare going attendee emails (only if significant changes)
-    if (goingAttendees.length > 0 && hasChanges) {
-      const goingEmails = goingAttendees.map((rsvp) => ({
-        event,
-        type: "event-details-updated" as EmailType,
-        receiver: rsvp.attendee,
-      }));
-
-      attendeeBatches.push(goingEmails);
-    }
+    const goingEmails =
+      goingAttendees.length > 0 && hasChanges
+        ? goingAttendees.map((rsvp) => ({
+            event,
+            type: "event-details-updated" as EmailType,
+            receiver: rsvp.attendee,
+          }))
+        : [];
 
     // Prepare maybe attendee emails (only if significant changes)
-    if (maybeAttendees.length > 0 && hasChanges) {
-      const maybeEmails = maybeAttendees.map((rsvp) => ({
-        event,
-        type: "event-details-updated" as EmailType,
-        receiver: rsvp.attendee,
-      }));
+    const maybeEmails =
+      maybeAttendees.length > 0 && hasChanges
+        ? maybeAttendees.map((rsvp) => ({
+            event,
+            type: "event-details-updated" as EmailType,
+            receiver: rsvp.attendee,
+          }))
+        : [];
 
-      attendeeBatches.push(maybeEmails);
-    }
+    // Combine all attendee emails
+    const attendeeEmails = [...goingEmails, ...maybeEmails];
 
-    // Send attendee emails last
-    if (attendeeBatches.length > 0) {
-      // Fire and forget - send all remaining emails in the background
-      void sendWithRateLimit(attendeeBatches).catch((error) => {
-        console.error("Error sending rate-limited attendee emails:", error);
-      });
+    // Use direct email sending with prioritization for creator/proposers
+    try {
+      console.log(
+        `Sending creator/proposer emails directly with Resend (bypassing queue)`
+      );
+
+      const { sentResults, attendeeEmailsForQueue } =
+        await sendDirectEmailsWithPriority({
+          event,
+          creatorId,
+          proposerEmails,
+          attendeeEmails,
+        });
+
+      console.log(
+        `${sentResults.length} emails sent directly with priority order`
+      );
+
+      // Now process attendee emails through the queue if there are any
+      if (attendeeEmailsForQueue.length > 0) {
+        console.log(
+          `Processing ${attendeeEmailsForQueue.length} attendee emails through queue`
+        );
+
+        void sendWithRateLimit([attendeeEmailsForQueue]).catch((error) => {
+          console.error("Error in queue email sending for attendees:", error);
+        });
+      }
+    } catch (error) {
+      console.error("Error sending direct emails with Resend:", error);
+
+      // Fallback to queue for all emails if direct sending fails
+      console.log("Falling back to queue for all email delivery");
+
+      const batches = [];
+
+      if (proposerEmails.length > 0) {
+        batches.push(proposerEmails);
+      }
+
+      if (attendeeEmails.length > 0) {
+        batches.push(attendeeEmails);
+      }
+
+      if (batches.length > 0) {
+        void sendWithRateLimit(batches).catch((error) => {
+          console.error("Error in fallback queue email sending:", error);
+        });
+      }
     }
 
     // Send notification on a slack channel
