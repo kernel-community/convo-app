@@ -1,0 +1,32 @@
+name: Deploy Queue Worker
+
+on:
+  push:
+    branches:
+      - main  # or your default branch
+    paths:
+      - 'src/lib/queue/**'  # Only trigger on queue-related changes
+      - 'scripts/**'
+      - 'package.json'
+      - 'package-lock.json'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to DigitalOcean
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.DO_HOST }}
+          username: ${{ secrets.DO_USERNAME }}
+          key: ${{ secrets.DO_SSH_KEY }}
+          script: |
+            cd ${{ secrets.APP_DIR }}
+            export NVM_DIR="$HOME/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+            nvm use 18
+            git pull
+            npm i --legacy-peer-deps
+            npm run build
+            pm2 restart email-queue
+            pm2 save

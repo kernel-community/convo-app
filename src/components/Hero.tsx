@@ -1181,7 +1181,7 @@ const AdminMetricsAccordion = ({ event }: { event: ClientEvent }) => {
                     eventId={event.id}
                     onSuccess={() => {
                       // Refresh the page to show new RSVP
-                      window.location.reload();
+                      // window.location.reload();
                     }}
                   />
                 </div>
