@@ -16,12 +16,9 @@ console.log("Redis connection configured (config.ts)");
 // Additional Redis connection options for Vercel deployment
 const redisOptions = {
   enableReadyCheck: false,
-  maxRetriesPerRequest: 3, // Reduce from null (infinite) to 3 to avoid hanging
+  maxRetriesPerRequest: 10, // Reduce from null (infinite) to 3 to avoid hanging
   // These options help with TLS connections often required by Redis providers
-  tls:
-    process.env.NODE_ENV === "production"
-      ? { rejectUnauthorized: false }
-      : undefined,
+  tls: { rejectUnauthorized: false },
   retryStrategy: (times: number) => {
     // Exponential backoff for connection retries
     return Math.min(times * 100, 3000);
@@ -29,7 +26,8 @@ const redisOptions = {
   // Add a connection timeout to avoid hanging indefinitely
   connectTimeout: 10000,
   // Add better error handling
-  showFriendlyErrorStack: process.env.NODE_ENV !== "production",
+  showFriendlyErrorStack: true,
+  enableTLSForSentinelMode: false,
 };
 
 // Bull requires specific Redis settings
@@ -37,17 +35,7 @@ const redisOptions = {
 // Instead, pass the connection options
 export const queueOptions = {
   // For Vercel, we need to provide Redis options rather than just the URL
-  redis:
-    process.env.NODE_ENV === "production"
-      ? {
-          port: 6379, // Default Redis port, will be overridden by URL if provided
-          host: "127.0.0.1", // Default host, will be overridden
-          password: undefined, // Will be extracted from URL
-          ...redisOptions,
-          // Set this to your Redis URL if just passing options
-          url: redisUrl,
-        }
-      : redisUrl,
+  redis: redisUrl,
   defaultJobOptions: {
     attempts: 5, // Retry failed jobs 5 times
     backoff: {
