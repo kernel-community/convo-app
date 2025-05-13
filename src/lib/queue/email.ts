@@ -2,7 +2,6 @@ import Bull from "bull";
 import { queueOptions } from "./config";
 import type { User } from "@prisma/client";
 import type { EmailType } from "src/components/Email";
-import type { EventWithProposerAndRsvps } from "src/utils/ical/generateiCalRequestFromEventId";
 import type { CreateEmailOptions } from "resend";
 // Define the job data type
 export interface EmailJobData {
