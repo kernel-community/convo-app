@@ -385,7 +385,13 @@ export const startEmailWorker = () => {
       }
 
       // Otherwise, validate required fields for standard email
-      const { receiver, event: rawEvent, type, text } = job.data;
+      const {
+        receiver,
+        event: rawEvent,
+        type,
+        text,
+        previousRsvpType,
+      } = job.data;
 
       if (!receiver || !rawEvent || !type) {
         throw new Error(
@@ -458,6 +464,7 @@ export const startEmailWorker = () => {
             recipientEmail: validatedReceiver.email,
             recipientName: validatedReceiver.nickname,
             rsvpType: emailTypeToRsvpType(validatedType),
+            previousRsvpType: previousRsvpType,
           }),
         ],
         method

@@ -17,11 +17,13 @@ export const generateiCalRequestFromEvent = ({
   recipientEmail,
   recipientName,
   rsvpType,
+  previousRsvpType,
 }: {
   event: EventWithProposerAndRsvps;
   recipientEmail: string;
   recipientName: string;
   rsvpType: RSVP_TYPE;
+  previousRsvpType?: RSVP_TYPE;
 }): ICalRequestParams => {
   const sdt = DateTime.fromISO(event.startDateTime.toISOString(), {
     zone: "utc",
@@ -40,10 +42,15 @@ export const generateiCalRequestFromEvent = ({
   }
   const firstProposer = event.proposers[0].user;
 
-  // Generate a modified UID if this is a re-invitation after a 'not going' RSVP
-  // This helps calendar clients recognize it as a new invitation
-  const isReinvite = rsvpType === RSVP_TYPE.GOING && event.sequence > 1;
-  const uid = isReinvite ? `${event.id}-reinvite-${event.sequence}` : event.id;
+  // Only modify the UID when RSVP status changes from NOT_GOING to GOING
+  // This ensures we only create a new calendar event in this specific transition case
+  const isReinviteAfterDecline =
+    rsvpType === RSVP_TYPE.GOING && previousRsvpType === RSVP_TYPE.NOT_GOING;
+
+  // Use the original event ID as UID unless it's a specific reinvite case
+  const uid = isReinviteAfterDecline
+    ? `${event.id}-reinvite-${event.sequence}`
+    : event.id;
 
   return {
     start: `${sdt.toFormat("yyyyLLdd")}T${sdt.toFormat("HHmmss")}Z`,

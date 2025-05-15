@@ -217,6 +217,14 @@ export async function POST(req: NextRequest) {
         receiver: user,
         type: emailTypeForUser,
         event: event,
+        previousRsvpType:
+          existingRsvp?.rsvpType === RSVP_TYPE.GOING
+            ? "GOING"
+            : existingRsvp?.rsvpType === RSVP_TYPE.MAYBE
+            ? "MAYBE"
+            : existingRsvp?.rsvpType === RSVP_TYPE.NOT_GOING
+            ? "NOT_GOING"
+            : undefined,
       }).catch((error) =>
         console.error(
           `Error sending RSVP email to ${user.email}: ${error?.message}`
@@ -233,6 +241,7 @@ export async function POST(req: NextRequest) {
         receiver: promotedUser,
         type: "off-waitlist",
         event: event,
+        previousRsvpType: "NOT_GOING", // User is being promoted from waitlist, so previous status is effectively NOT_GOING
       }).catch((error) =>
         console.error(
           `Error sending Off Waitlist email to ${promotedUserEmail}: ${error?.message}`

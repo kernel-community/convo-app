@@ -18,12 +18,14 @@ export const sendEventEmail = async ({
   event,
   type,
   text,
+  previousRsvpType,
   returnOptionsOnly = false,
 }: {
   receiver: User;
   type: EmailType;
   text?: string;
   event: EventWithProposerAndRsvps;
+  previousRsvpType?: "GOING" | "MAYBE" | "NOT_GOING";
   returnOptionsOnly?: boolean;
 }): Promise<CreateEmailOptions | { id: string | number }> => {
   if (!receiver.email) {
@@ -43,6 +45,7 @@ export const sendEventEmail = async ({
         recipientEmail: receiver.email,
         recipientName: receiver.nickname,
         rsvpType: emailTypeToRsvpType(type),
+        previousRsvpType: previousRsvpType,
       }),
     ],
     method
@@ -131,6 +134,7 @@ export const sendEventEmail = async ({
       },
       type,
       text,
+      previousRsvpType,
     });
 
     console.log(`Email to ${receiver.email} added to Redis queue for ${type}`);
