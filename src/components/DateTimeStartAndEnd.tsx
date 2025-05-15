@@ -8,7 +8,7 @@ import {
   differenceInMinutes,
 } from "date-fns";
 import { DateAndTimePicker } from "./ui/date-and-time-picker";
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, Info } from "lucide-react";
 import { cn } from "src/lib/utils";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 
@@ -34,25 +34,86 @@ const durationObjectToHumanReadableString = (obj: DurationObjectUnits) => {
   return str;
 };
 
+// Helper function to format timezone with offset
+const formatTimezoneDisplay = (timezone: string): string => {
+  try {
+    const now = DateTime.now().setZone(timezone);
+    const offset = now.toFormat("ZZZZ"); // e.g., GMT-04:00
+    return `${timezone.replace("_", " ")} (${offset})`;
+  } catch (e) {
+    return timezone;
+  }
+};
+
 export const DateTimeStartAndEnd = ({
   handleChange,
   value,
+  creationTimezone,
 }: {
   handleChange: (e: any) => void;
   value?: { start?: Date; end?: Date };
+  creationTimezone?: string;
 }) => {
-  const [startDate, setStartDate] = useState<Date | undefined>(
-    value?.start || DateTime.now().toJSDate()
-  );
-  const [endDate, setEndDate] = useState<Date | undefined>(
-    value?.end || DateTime.now().plus({ hour: 1 }).toJSDate()
-  );
+  // Get user's local timezone
+  const localTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+  // Use creation timezone if provided, otherwise fall back to local
+  const displayTimezone = creationTimezone || localTimezone;
+
+  // Check if we're using a different timezone than local
+  const isUsingOriginalTimezone =
+    creationTimezone && creationTimezone !== localTimezone;
+
+  // Initialize dates in the original timezone context
+  const [startDate, setStartDate] = useState<Date | undefined>(() => {
+    if (!value?.start) return DateTime.now().toJSDate();
+
+    // If we have a timezone, ensure we're displaying in that timezone
+    if (creationTimezone) {
+      // Convert the UTC date to the original creation timezone for display
+      return DateTime.fromJSDate(value.start)
+        .setZone(displayTimezone)
+        .toJSDate();
+    }
+
+    return value.start;
+  });
+
+  const [endDate, setEndDate] = useState<Date | undefined>(() => {
+    if (!value?.end) return DateTime.now().plus({ hour: 1 }).toJSDate();
+
+    // If we have a timezone, ensure we're displaying in that timezone
+    if (creationTimezone) {
+      // Convert the UTC date to the original creation timezone for display
+      return DateTime.fromJSDate(value.end).setZone(displayTimezone).toJSDate();
+    }
+
+    return value.end;
+  });
 
   const handleChangeCallback = useCallback(
     (e: { start?: Date; end?: Date }) => {
-      handleChange(e);
+      // When updating, we need to ensure we're converting from display timezone to UTC
+      if (creationTimezone && e.start && e.end) {
+        // Create date in the creation timezone
+        const startInTZ = DateTime.fromJSDate(e.start).setZone(
+          creationTimezone
+        );
+        const endInTZ = DateTime.fromJSDate(e.end).setZone(creationTimezone);
+
+        // Convert to UTC for storage
+        const startUTC = startInTZ.toUTC().toJSDate();
+        const endUTC = endInTZ.toUTC().toJSDate();
+
+        handleChange({
+          start: startUTC,
+          end: endUTC,
+        });
+      } else {
+        handleChange(e);
+      }
     },
-    [handleChange]
+    [handleChange, creationTimezone]
   );
 
   useEffect(() => {
@@ -107,9 +168,15 @@ export const DateTimeStartAndEnd = ({
       <FieldLabel>
         Date and Time
         <div className="font-primary text-sm font-light lowercase">
-          {
+          {isUsingOriginalTimezone ? (
+            <span className="flex items-center gap-1 font-medium text-amber-500">
+              <Info className="h-4 w-4" />
+              Displaying times in original timezone:{" "}
+              {formatTimezoneDisplay(displayTimezone)}
+            </span>
+          ) : (
             "Define start and end times and optionally a recurring schedule for your convo"
-          }
+          )}
         </div>
       </FieldLabel>
       <div className="space-y-3 rounded-lg bg-muted p-3">

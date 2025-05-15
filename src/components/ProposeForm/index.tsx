@@ -766,6 +766,7 @@ const ProposeForm = ({
             <DateTimeStartAndEnd
               handleChange={field.onChange}
               value={defaultValues?.dateTimeStartAndEnd}
+              creationTimezone={defaultValues?.creationTimezone}
             />
           )}
         />
