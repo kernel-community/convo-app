@@ -47,53 +47,53 @@ const Home = () => {
 
   // Handle the create button click
   const handleCreateClick = useCallback(() => {
-    if (!showTextArea) {
-      // First click - show text area
-      setShowTextArea(true);
-      return;
-    }
+    // if (!showTextArea) {
+    //   // First click - show text area
+    //   setShowTextArea(true);
+    //   return;
+    // }
 
-    if (!text.trim()) {
-      // No text entered - hide text area
-      setShowTextArea(false);
-      setText("");
-      return;
-    }
+    // if (!text.trim()) {
+    //   // No text entered - hide text area
+    //   setShowTextArea(false);
+    //   setText("");
+    //   return;
+    // }
 
     // Text entered - show form
-    setIsLoading(true);
+    // setIsLoading(true);
 
     // Call API to generate event data
-    fetch("/api/client-data", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        text,
-        now: NOW,
-        tzOffset,
-      }),
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        return response.json();
-      })
-      .then((data: GeneratedEventData) => {
-        setGeneratedTitle(data.title);
-        setDateTimeStartAndEnd(data.dateTime);
-        setGeneratedDescription(data.description);
-        setGeneratedLocation(data.location);
-        setShowForm(true);
-      })
-      .catch((error) => {
-        console.error("Error processing data:", error);
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
+    // fetch("/api/client-data", {
+    //   method: "POST",
+    //   headers: {
+    //     "Content-Type": "application/json",
+    //   },
+    //   body: JSON.stringify({
+    //     text,
+    //     now: NOW,
+    //     tzOffset,
+    //   }),
+    // })
+    // .then((response) => {
+    //   if (!response.ok) {
+    //     throw new Error(`HTTP error! status: ${response.status}`);
+    //   }
+    //   return response.json();
+    // })
+    // .then((data: GeneratedEventData) => {
+    //   setGeneratedTitle(data.title);
+    //   setDateTimeStartAndEnd(data.dateTime);
+    //   setGeneratedDescription(data.description);
+    //   setGeneratedLocation(data.location);
+    setShowForm(true);
+    // })
+    // .catch((error) => {
+    //   console.error("Error processing data:", error);
+    // })
+    // .finally(() => {
+    //   setIsLoading(false);
+    // });
 
     // Wait for form to be rendered before scrolling
     setTimeout(() => {
@@ -156,6 +156,7 @@ const Home = () => {
                 generatedTitle={generatedTitle}
                 dateTimeStartAndEnd={dateTimeStartAndEnd}
                 generatedLocation={generatedLocation}
+                setShowForm={setShowForm}
               />
             </div>
 
