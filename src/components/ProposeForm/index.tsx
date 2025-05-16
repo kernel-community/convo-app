@@ -34,8 +34,7 @@ import {
 } from "../ui/select";
 import BetaBadge from "../ui/beta-badge";
 import { SadEmoji } from "../ui/emojis";
-import { Input } from "../ui/input";
-import { X, Check, ChevronsUpDown } from "lucide-react";
+import { X, Check, ChevronsUpDown, Infinity } from "lucide-react";
 import { ProposerSearchCombobox } from "../ProposerSearchCombobox";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import {
@@ -47,6 +46,9 @@ import {
   CommandList,
 } from "../ui/command";
 import { cn } from "src/lib/utils";
+import { motion, AnimatePresence } from "framer-motion";
+import { Switch } from "../ui/switch";
+import { Slider } from "../ui/slider";
 
 // Define a simple type for the proposer object in the list
 type ProposerInfo = {
@@ -729,6 +731,7 @@ const ProposeForm = ({
           errors={errors}
           required={false}
           autoFocus={true}
+          placeholder="What would you like to call this Convo?"
         />
 
         {/* Description */}
@@ -813,15 +816,107 @@ const ProposeForm = ({
 
         {/* Limit */}
         <div className="space-y-4">
-          <TextField
-            name="limit"
-            fieldName="Limit"
-            register={register}
-            errors={errors}
-            required={false}
-            type="number"
-            infoText="Set the maximum number of attendees (set 0 for No Limit). If a limit is set, attendees trying to RSVP after it's full will be added to a waitlist."
-          />
+          <div className="flex flex-col space-y-2">
+            <FieldLabel>Attendee Limit</FieldLabel>
+            <div className="mb-2 font-primary text-sm font-light text-muted-foreground">
+              Set a maximum number of attendees or select &ldquo;No
+              Limit&rdquo;. If limited, anyone trying to RSVP after it&apos;s
+              full will be added to a waitlist.
+            </div>
+            <Controller
+              name="limit"
+              control={control}
+              render={({ field }) => {
+                // Parse the current value and handle special cases
+                const isNoLimit = field.value === "0";
+                const currentValue = isNoLimit
+                  ? 0
+                  : parseInt(field.value || "8", 10);
+
+                // Create a function to get the message based on slider value
+                const getLimitMessage = (value: number, noLimit: boolean) => {
+                  if (noLimit)
+                    return "The sky's the limit! Everyone is welcome.";
+                  if (value === 2) return "It takes two to tango 💃";
+                  if (value > 2 && value <= 10)
+                    return "Perfect for an intimate gathering 🍷";
+                  if (value > 10 && value < 50)
+                    return "Exciting group event brewing! 🎉";
+                  return "Massive gathering incoming! 🌟";
+                };
+
+                return (
+                  <div className="space-y-4">
+                    <div className="flex items-center space-x-2">
+                      <Switch
+                        checked={isNoLimit}
+                        onCheckedChange={(checked) => {
+                          field.onChange(checked ? "0" : "8");
+                        }}
+                        id="no-limit-switch"
+                      />
+                      <Label
+                        htmlFor="no-limit-switch"
+                        className="cursor-pointer"
+                      >
+                        No Limit
+                      </Label>
+                    </div>
+
+                    {!isNoLimit && (
+                      <>
+                        <Slider
+                          min={2}
+                          max={100}
+                          value={currentValue}
+                          onChange={(value) => field.onChange(value.toString())}
+                        />
+
+                        <AnimatePresence mode="wait">
+                          <motion.div
+                            key={
+                              currentValue === 2
+                                ? "tango"
+                                : currentValue <= 10
+                                ? "intimate"
+                                : currentValue < 50
+                                ? "group"
+                                : "massive"
+                            }
+                            initial={{ opacity: 0, y: -10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: 10 }}
+                            transition={{ duration: 0.2 }}
+                            className="mt-2 text-sm text-muted-foreground"
+                          >
+                            {getLimitMessage(currentValue, isNoLimit)}
+                          </motion.div>
+                        </AnimatePresence>
+                      </>
+                    )}
+
+                    {isNoLimit && (
+                      <motion.div
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{
+                          type: "spring",
+                          stiffness: 500,
+                          damping: 30,
+                        }}
+                        className="mt-3 flex items-center justify-center"
+                      >
+                        <Infinity className="mr-2 h-5 w-5 text-primary" />
+                        <span className="text-muted-foreground">
+                          {getLimitMessage(0, true)}
+                        </span>
+                      </motion.div>
+                    )}
+                  </div>
+                );
+              }}
+            />
+          </div>
         </div>
 
         {/* Location */}

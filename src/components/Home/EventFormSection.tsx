@@ -2,6 +2,7 @@ import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { DateTime } from "luxon";
 import ProposeForm from "src/components/ProposeForm";
+import { X } from "lucide-react";
 
 type DateTimeRange = {
   start: string;
@@ -16,6 +17,7 @@ type EventFormSectionProps = {
   generatedTitle: string;
   dateTimeStartAndEnd: DateTimeRange | null;
   generatedLocation: string | null;
+  setShowForm?: (show: boolean) => void;
 };
 
 export const EventFormSection: React.FC<EventFormSectionProps> = ({
@@ -26,6 +28,7 @@ export const EventFormSection: React.FC<EventFormSectionProps> = ({
   generatedTitle,
   dateTimeStartAndEnd,
   generatedLocation,
+  setShowForm,
 }) => (
   <AnimatePresence mode="wait">
     {showForm && (
@@ -50,13 +53,22 @@ export const EventFormSection: React.FC<EventFormSectionProps> = ({
             opacity: { duration: 0.2 },
           },
         }}
-        className="mt-8 overflow-visible"
+        className="relative mt-8 overflow-visible"
       >
+        {setShowForm && (
+          <button
+            onClick={() => setShowForm(false)}
+            className="absolute right-0 top-0 z-10 rounded-full p-2 transition-colors hover:bg-gray-100"
+            aria-label="Close form"
+          >
+            <X className="h-5 w-5 text-gray-500" />
+          </button>
+        )}
         <div className="mt-8">
           <ProposeForm
             event={{
               description: generatedDescription || text,
-              title: generatedTitle || text.split("\n")[0] || "Untitled Convo",
+              title: generatedTitle || text.split("\n")[0] || "",
               dateTimeStartAndEnd: dateTimeStartAndEnd
                 ? {
                     start: new Date(dateTimeStartAndEnd.start),
