@@ -55,6 +55,9 @@ export const scheduleReminderEmails = async ({
   const twentyFourHoursBefore = new Date(
     event.startDateTime.getTime() - 24 * 60 * 60 * 1000
   );
+  const thirtyMinutesBefore = new Date(
+    event.startDateTime.getTime() - 30 * 60 * 1000
+  );
 
   // Don't schedule reminders that are in the past
   const remindersToSchedule: {
@@ -88,13 +91,20 @@ export const scheduleReminderEmails = async ({
       });
     }
   }
-  // For attendees: 24hr and 1min reminders
+  // For attendees: 24hr and 30min reminders ONLY
   else {
-    // 1 minute reminder for attendees
-    if (oneMinuteBefore > now) {
+    // if (oneMinuteBefore > now) {
+    //   remindersToSchedule.push({
+    //     type: "reminder1min",
+    //     scheduledTime: oneMinuteBefore,
+    //   });
+    // }
+
+    // 30 minute reminder for attendees
+    if (thirtyMinutesBefore > now) {
       remindersToSchedule.push({
-        type: "reminder1min",
-        scheduledTime: oneMinuteBefore,
+        type: "reminder30min",
+        scheduledTime: thirtyMinutesBefore,
       });
     }
 
@@ -404,6 +414,7 @@ type DbEmailType =
   | "REMINDER24HR"
   | "REMINDER1HR"
   | "REMINDER1MIN"
+  | "REMINDER30MIN"
   | "REMINDER1HRPROPOSER"
   | "REMINDER72HR"
   | "REMINDER72HRPROPOSER";
@@ -419,6 +430,8 @@ function mapEmailTypeToDbType(type: EmailType): DbEmailType {
       return "REMINDER24HR";
     case "reminder1min":
       return "REMINDER1MIN";
+    case "reminder30min":
+      return "REMINDER30MIN";
     case "reminder1hrProposer":
       return "REMINDER1HRPROPOSER";
     case "reminder72hr":
