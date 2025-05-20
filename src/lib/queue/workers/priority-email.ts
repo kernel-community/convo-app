@@ -16,13 +16,57 @@ async function processPriorityEmailJob(job: {
   );
 
   try {
+    // Fix dates: convert string dates back to Date objects
+    const fixedEvent = {
+      ...event,
+      startDateTime: new Date(event.startDateTime),
+      endDateTime: new Date(event.endDateTime),
+      // Always create valid Date objects for required fields to satisfy TypeScript
+      createdAt: event.createdAt ? new Date(event.createdAt) : new Date(),
+      updatedAt: event.updatedAt ? new Date(event.updatedAt) : new Date(),
+    };
+
+    // Fix dates in proposer emails
+    const fixedProposerEmails = proposerEmails.map((email) => ({
+      ...email,
+      event: {
+        ...email.event,
+        startDateTime: new Date(email.event.startDateTime),
+        endDateTime: new Date(email.event.endDateTime),
+        createdAt: email.event.createdAt
+          ? new Date(email.event.createdAt)
+          : new Date(),
+        updatedAt: email.event.updatedAt
+          ? new Date(email.event.updatedAt)
+          : new Date(),
+      },
+    }));
+
+    // Fix dates in attendee emails
+    const fixedAttendeeEmails = attendeeEmails.map((email) => ({
+      ...email,
+      event: {
+        ...email.event,
+        startDateTime: new Date(email.event.startDateTime),
+        endDateTime: new Date(email.event.endDateTime),
+        createdAt: email.event.createdAt
+          ? new Date(email.event.createdAt)
+          : new Date(),
+        updatedAt: email.event.updatedAt
+          ? new Date(email.event.updatedAt)
+          : new Date(),
+      },
+    }));
+
+    console.log(`Date objects restored for event ${event.id}`);
+
     // Send the direct emails with priority
     const { sentResults, attendeeEmailsForQueue } =
       await sendDirectEmailsWithPriority({
-        event,
+        event: fixedEvent,
         creatorId,
-        proposerEmails,
-        attendeeEmails,
+        proposerEmails: fixedProposerEmails,
+        attendeeEmails: fixedAttendeeEmails,
       });
 
     console.log(
