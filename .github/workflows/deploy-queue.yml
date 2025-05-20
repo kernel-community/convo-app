@@ -23,7 +23,7 @@ jobs:
           script: |
             export NVM_DIR="$HOME/.nvm"; [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"; nvm use 20
             cd ${{ secrets.APP_DIR }}
-            git pull
+            git pull origin main
             npm i --legacy-peer-deps
             npm run build
             pm2 restart email-queue
