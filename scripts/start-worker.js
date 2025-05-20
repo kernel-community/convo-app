@@ -40,42 +40,110 @@ if (
 
 // Start the worker with more detailed logging
 async function startWorker() {
-  console.log("Initializing worker...");
+  console.log(" Initializing workers...");
 
   try {
-    // Import the queue and get stats before starting worker
-    const { emailQueue, getQueueStats } = require("../src/lib/queue/email");
+    // Import the centralized queue system
+    const queueSystem = require("../src/lib/queue");
 
-    // Check if queue has jobs before starting worker
-    const stats = await getQueueStats();
-    console.log("Queue stats before starting worker:", stats);
+    // Display initial queue stats if available
+    try {
+      // Email queue stats
+      const emailStats = await queueSystem.getQueueStats();
+      console.log(" Email queue stats:", JSON.stringify(emailStats, null, 2));
 
-    // Start the worker manually instead of just requiring the module
-    const { startWorkers } = require("../src/lib/queue/workers/index.ts");
-    const worker = startWorkers();
+      // Reminder queue stats
+      const reminderStats = await queueSystem.getReminderQueueStats();
+      console.log(
+        " Reminder queue stats:",
+        JSON.stringify(reminderStats, null, 2)
+      );
 
-    console.log("Worker started successfully");
+      // Slack queue stats
+      const slackStats = await queueSystem.getSlackQueueStats();
+      console.log(" Slack queue stats:", JSON.stringify(slackStats, null, 2));
 
-    // Add event listeners to the queue to see job events
-    emailQueue.on("active", (job) => {
-      console.log(`Job ${job.id} has started processing`);
+      // Priority email queue stats
+      const priorityStats = await queueSystem.getPriorityEmailQueueStats();
+      console.log(
+        " Priority email queue stats:",
+        JSON.stringify(priorityStats, null, 2)
+      );
+    } catch (statsError) {
+      console.warn(" Could not get all queue stats:", statsError.message);
+    }
+
+    // Start all workers using the centralized starter
+    console.log(" Starting all queue workers...");
+    queueSystem.startWorkers();
+    console.log(" All workers started successfully");
+
+    // Log queue status periodically (every 30 seconds)
+    const statsInterval = setInterval(async () => {
+      try {
+        console.log("\n--- Queue Stats Update ---");
+        const emailStats = await queueSystem.getQueueStats();
+        console.log(
+          " Email queue:",
+          emailStats.waiting,
+          "waiting,",
+          emailStats.active,
+          "active,",
+          emailStats.completed,
+          "completed"
+        );
+
+        const reminderStats = await queueSystem.getReminderQueueStats();
+        console.log(
+          " Reminder queue:",
+          reminderStats.waiting,
+          "waiting,",
+          reminderStats.active,
+          "active,",
+          reminderStats.completed,
+          "completed"
+        );
+
+        const slackStats = await queueSystem.getSlackQueueStats();
+        console.log(
+          " Slack queue:",
+          slackStats.waiting,
+          "waiting,",
+          slackStats.active,
+          "active,",
+          slackStats.completed,
+          "completed"
+        );
+
+        const priorityStats = await queueSystem.getPriorityEmailQueueStats();
+        console.log(
+          " Priority email:",
+          priorityStats.waiting,
+          "waiting,",
+          priorityStats.active,
+          "active,",
+          priorityStats.completed,
+          "completed"
+        );
+      } catch (error) {
+        console.warn(" Error getting queue stats:", error.message);
+      }
+    }, 30000); // Every 30 seconds
+
+    // Handle graceful shutdown
+    process.on("SIGINT", () => {
+      console.log("\n Graceful shutdown initiated...");
+      clearInterval(statsInterval);
+      console.log("Queue workers will shut down automatically.");
+      console.log("Goodbye! ");
+      process.exit(0);
     });
 
-    emailQueue.on("completed", (job) => {
-      console.log(`Job ${job.id} has been completed`);
-    });
-
-    emailQueue.on("failed", (job, err) => {
-      console.log(`Job ${job.id} has failed with error: ${err.message}`);
-    });
-
-    // Log queue status every 5 seconds
-    setInterval(async () => {
-      const currentStats = await getQueueStats();
-      console.log("Current queue stats:", currentStats);
-    }, 5000);
-
-    return worker;
+    // Prevent the process from exiting
+    console.log("All queue workers started. Waiting for jobs...\n");
+    console.log(
+      "Press Ctrl+C to exit workers. Redis connections will be cleaned up automatically."
+    );
   } catch (error) {
     console.error("Error starting worker:", error);
     throw error;
