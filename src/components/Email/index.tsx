@@ -52,6 +52,10 @@ import {
   SUBJECT as Reminder1minEmailTemplateSubject,
 } from "./templates/Reminder1min";
 import {
+  Reminder30minEmailTemplate,
+  SUBJECT as Reminder30minEmailTemplateSubject,
+} from "./templates/Reminder30min";
+import {
   Reminder1hrProposerEmailTemplate,
   SUBJECT as Reminder1hrProposerEmailTemplateSubject,
 } from "./templates/Reminder1hrProposer";
@@ -97,6 +101,7 @@ export type EmailType =
   | "reminder24hr"
   | "reminder1hr"
   | "reminder1min"
+  | "reminder30min"
   | "reminder1hrProposer"
   | "reminder72hr"
   | "reminder72hrProposer"
@@ -208,6 +213,11 @@ export const getEmailTemplateFromType = (
       return {
         template: Reminder1minEmailTemplate({ ...props }),
         subject: Reminder1minEmailTemplateSubject,
+      };
+    case "reminder30min":
+      return {
+        template: Reminder30minEmailTemplate({ ...props }),
+        subject: Reminder30minEmailTemplateSubject,
       };
     case "reminder1hrProposer":
       return {
