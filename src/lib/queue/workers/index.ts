@@ -1,4 +1,7 @@
 import { startEmailWorker } from "./email";
+import { startReminderWorker } from "./reminder";
+import { startSlackWorker } from "./slack";
+import { startPriorityEmailWorker } from "./priority-email";
 import * as dotenv from "dotenv";
 
 // Load environment variables from .env file
@@ -8,7 +11,9 @@ dotenv.config();
 export const startWorkers = () => {
   console.log("Starting queue workers...");
   startEmailWorker();
-  // Add other workers as needed
+  startReminderWorker();
+  startSlackWorker();
+  startPriorityEmailWorker();
   console.log("All workers started");
 };
 
