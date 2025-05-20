@@ -10,15 +10,10 @@ import type { Rsvp, User } from "@prisma/client";
 import type { EmailType } from "src/components/Email";
 import { RSVP_TYPE } from "@prisma/client";
 import { DateTime } from "luxon";
-import { sendMessage } from "src/utils/slack/sendMessage";
-import {
-  scheduleReminderEmails,
-  cancelReminderEmails,
-} from "src/utils/email/scheduleReminders";
+import { cancelReminderEmails } from "src/utils/email/scheduleReminders";
 import { rrulestr } from "rrule";
 import { cleanupRruleString } from "src/utils/rrule";
 import { queueEmailBatch } from "src/lib/queue";
-import { sendDirectEmailsWithPriority } from "src/utils/email/directResend";
 
 // Helper function to check if there are significant changes in the event details
 const hasSignificantChanges = (
@@ -125,67 +120,76 @@ const sendEmailsAsync = async (
     // Combine all attendee emails
     const attendeeEmails = [...goingEmails, ...maybeEmails];
 
-    // Use direct email sending with prioritization for creator/proposers
+    // Queue priority emails instead of sending directly
     try {
-      console.log(
-        `Sending creator/proposer emails directly with Resend (bypassing queue)`
-      );
+      // Import the queue function to avoid circular dependencies
+      const { queuePriorityEmail } = await import("src/lib/queue");
 
-      const { sentResults, attendeeEmailsForQueue } =
-        await sendDirectEmailsWithPriority({
-          event,
-          creatorId,
-          proposerEmails,
-          attendeeEmails,
-        });
+      console.log(`Queueing priority emails for event ${event.id}`);
 
-      console.log(
-        `${sentResults.length} emails sent directly with priority order`
-      );
+      // Queue all emails (both priority and regular) through the priority email queue
+      // The priority email worker will handle the separation and sending
+      await queuePriorityEmail({
+        event,
+        creatorId,
+        proposerEmails,
+        attendeeEmails,
+      });
 
-      // Now process attendee emails through the queue if there are any
-      if (attendeeEmailsForQueue.length > 0) {
-        console.log(
-          `Processing ${attendeeEmailsForQueue.length} attendee emails through queue`
-        );
-
-        void sendWithRateLimit([attendeeEmailsForQueue]).catch((error) => {
-          console.error("Error in queue email sending for attendees:", error);
-        });
-      }
+      console.log(`Successfully queued all emails for event ${event.id}`);
     } catch (error) {
-      console.error("Error sending direct emails with Resend:", error);
+      console.error("Error queueing priority emails:", error);
 
-      // Fallback to queue for all emails if direct sending fails
-      console.log("Falling back to queue for all email delivery");
+      // Fallback to regular queue for all emails if priority queueing fails
+      console.log("Falling back to regular queue for all email delivery");
 
-      const batches = [];
+      try {
+        const batches = [];
 
-      if (proposerEmails.length > 0) {
-        batches.push(proposerEmails);
-      }
+        if (proposerEmails.length > 0) {
+          batches.push(proposerEmails);
+        }
 
-      if (attendeeEmails.length > 0) {
-        batches.push(attendeeEmails);
-      }
+        if (attendeeEmails.length > 0) {
+          batches.push(attendeeEmails);
+        }
 
-      if (batches.length > 0) {
-        void sendWithRateLimit(batches).catch((error) => {
-          console.error("Error in fallback queue email sending:", error);
-        });
+        if (batches.length > 0) {
+          void sendWithRateLimit(batches).catch((error) => {
+            console.error("Error in fallback queue email sending:", error);
+          });
+          console.log(`Fallback: queued ${batches.length} email batches`);
+        }
+      } catch (fallbackError) {
+        // Log but don't throw - we want the API to continue even if email queueing fails
+        console.error("Error in fallback queue email sending:", fallbackError);
       }
     }
 
-    // Send notification on a slack channel
-    const headersList = headers();
-    const host = headersList.get("host") ?? "kernel";
-    await sendMessage({
-      event,
-      host,
-      type: isUpdate ? "updated" : "new", // "new" | "reminder" | "updated"
-    });
+    // Queue Slack notification instead of sending directly
+    try {
+      const headersList = headers();
+      const host = headersList.get("host") ?? "kernel";
 
-    console.log("All notifications sent successfully");
+      // Import the queue function to avoid circular dependencies
+      const { queueSlackNotification } = await import("src/lib/queue");
+
+      // Queue the Slack notification
+      await queueSlackNotification({
+        eventId: event.id,
+        host,
+        type: isUpdate ? "updated" : "new", // "new" | "reminder" | "updated"
+      });
+
+      console.log(
+        `Slack notification for event ${event.id} queued successfully`
+      );
+    } catch (error) {
+      console.error("Error queueing Slack notification:", error);
+      // Continue even if queueing fails - non-critical
+    }
+
+    console.log("All notifications processed successfully");
   } catch (error) {
     console.error("Error sending notifications:", error);
     // We don't throw here since this is running asynchronously
@@ -193,6 +197,8 @@ const sendEmailsAsync = async (
 };
 
 export async function POST(req: NextRequest) {
+  console.time("total-api-time");
+  console.time("parse-json");
   const body = await req.json();
   const {
     event,
@@ -201,6 +207,7 @@ export async function POST(req: NextRequest) {
     event: ClientEventInput;
     userId: string;
   } = _.pick(body, ["event", "userId"]);
+  console.timeEnd("parse-json");
 
   // Validate that event dates are not in the past
   const now = DateTime.now();
@@ -423,14 +430,18 @@ export async function POST(req: NextRequest) {
       userId
     );
 
-    // Cancel existing reminder emails and schedule new ones
-    // We do this in the background to avoid blocking the response
+    // Cancel existing reminder emails and queue new ones using the reminder queue
+    // We now do just the cancelation synchronously, and queue the scheduling
+    // This significantly reduces API response time
     (async () => {
       try {
-        // Cancel existing reminder emails
+        // Step 1: Cancel existing reminder emails - this we still do synchronously
+        console.log(
+          `Canceling existing reminder emails for event ${updated.id}`
+        );
         await cancelReminderEmails(updated.id);
 
-        // Schedule new reminder emails for all proposers and attendees
+        // Step 2: Prepare recipients for queueing
         const proposerUsers = updated.proposers.map((p) => p.user); // Get all proposer users
         const allRecipients = [
           ...proposerUsers, // Use all proposer users
@@ -438,14 +449,13 @@ export async function POST(req: NextRequest) {
           ...maybeAttendees.map((rsvp) => rsvp.attendee),
         ];
 
-        // Process recipients sequentially with proper rate limiting
-        // This approach avoids overwhelming Resend's API
-        for (let i = 0; i < allRecipients.length; i++) {
-          const recipient = allRecipients[i];
-          // Skip if recipient is undefined
-          if (!recipient) continue;
+        // Step 3: Import queue functions to avoid circular dependencies
+        const { queueReminderBatch } = await import("src/lib/queue");
 
-          try {
+        // Step 4: Prepare batch of reminder jobs
+        const reminderJobs = allRecipients
+          .filter((recipient) => recipient && recipient.id) // Filter out any undefined recipients
+          .map((recipient) => {
             // Determine if this recipient is a "maybe" attendee
             const isMaybeAttendee = maybeAttendees.some(
               (rsvp) => rsvp.attendee.id === recipient.id
@@ -456,31 +466,27 @@ export async function POST(req: NextRequest) {
               (p) => p.userId === recipient.id
             );
 
-            await scheduleReminderEmails({
-              event: updated,
-              recipient,
-              isProposer: isProposer, // Use the calculated value
+            // Create the reminder job data
+            return {
+              eventId: updated.id,
+              recipientId: recipient.id,
+              isProposer,
               isMaybe: isMaybeAttendee,
-            });
+            };
+          });
 
-            // Add a small delay between recipients to respect rate limits
-            if (i < allRecipients.length - 1) {
-              await new Promise((resolve) => setTimeout(resolve, 500));
-            }
-          } catch (error) {
-            console.error(
-              `Error scheduling reminders for recipient ${recipient.id}: ${error}`
-            );
-            // Continue with next recipient even if one fails
-          }
+        // Step 5: Queue the batch of reminder jobs
+        if (reminderJobs.length > 0) {
+          const jobIds = await queueReminderBatch(reminderJobs);
+          console.log(
+            `Queued ${jobIds.length} reminder jobs for updated event ${updated.id}`
+          );
+        } else {
+          console.log(`No valid recipients found for event ${updated.id}`);
         }
-
-        console.log(
-          `Scheduling reminder emails for updated event ${updated.id}`
-        );
       } catch (error) {
         console.error(
-          `Error rescheduling reminder emails for updated event ${updated.id}:`,
+          `Error processing reminders for updated event ${updated.id}:`,
           error
         );
       }
@@ -499,7 +505,9 @@ export async function POST(req: NextRequest) {
   const hash = event.hash || nanoid(10);
 
   // Use the centralized utility to get or create the appropriate community
+  console.time("community-resolution");
   const community = await getCommunityFromSubdomain();
+  console.timeEnd("community-resolution");
 
   // --- Proposer Create Logic ---
   // Prepare the list of proposers to create
@@ -515,27 +523,36 @@ export async function POST(req: NextRequest) {
 
   // The creationTimezone is now part of the event object
   // It was captured on the client side to ensure we're using the user's actual timezone
-  const created = await prisma.event.create({
-    data: {
-      title: event.title,
-      descriptionHtml: event.description,
-      limit: event.limit ? Number(event.limit) : 0,
-      location: event.location,
-      rrule: event.recurrenceRule || null,
-      startDateTime: new Date(event.dateTimeStartAndEnd.start),
-      endDateTime: new Date(event.dateTimeStartAndEnd.end),
-      hash,
-      proposers: {
-        // Use the prepared list
-        create: proposersToCreate,
-      },
-      communityId: community.id,
-      series: event.recurrenceRule ? true : false,
-      isDeleted: false,
-      sequence: 0,
-      type: event.type,
-      creationTimezone: event.creationTimezone, // Store the timezone the event was created in
+  console.time("db-create-operation");
+  // Break down the timing of different parts of the database operation
+  console.time("db-prepare-data");
+  // Prepare the data for the event creation
+  const eventData = {
+    title: event.title,
+    descriptionHtml: event.description,
+    limit: event.limit ? Number(event.limit) : 0,
+    location: event.location,
+    rrule: event.recurrenceRule || null,
+    startDateTime: new Date(event.dateTimeStartAndEnd.start),
+    endDateTime: new Date(event.dateTimeStartAndEnd.end),
+    hash,
+    proposers: {
+      // Use the prepared list
+      create: proposersToCreate,
     },
+    communityId: community.id,
+    series: event.recurrenceRule ? true : false,
+    isDeleted: false,
+    sequence: 0,
+    type: event.type,
+    creationTimezone: event.creationTimezone, // Store the timezone the event was created in
+  };
+  console.timeEnd("db-prepare-data");
+
+  // Log the actual database operation time separately
+  console.time("db-execute-query");
+  const created = await prisma.event.create({
+    data: eventData,
     include: {
       proposers: {
         include: {
@@ -559,33 +576,46 @@ export async function POST(req: NextRequest) {
       },
     },
   });
+  console.timeEnd("db-execute-query");
+  console.timeEnd("db-create-operation");
 
   // Start sending emails asynchronously without awaiting
+  // Don't await or use catch - start this fully asynchronously to improve response time
+  // Fire and forget approach
   sendEmailsAsync(created, [], [], false, undefined, userId).catch((error) => {
     console.error("Background email sending failed:", error);
   });
 
-  // Schedule reminder emails
-  // We do this in the background to avoid blocking the response
+  // Queue reminder scheduling in parallel - fully asynchronous
+  // This significantly improves API response time
   if (user) {
-    // Only schedule if user exists
-    scheduleReminderEmails({
-      event: created,
-      recipient: user,
-      isProposer: true,
-    })
-      .then(() => {
+    // Start this operation without awaiting
+    (async () => {
+      try {
+        // Import the queue function here to avoid circular dependencies
+        const { queueReminderScheduling } = await import("src/lib/queue");
+
+        // Queue the reminder scheduling for the creator
+        const reminderJobId = await queueReminderScheduling({
+          eventId: created.id,
+          recipientId: user.id,
+          isProposer: true,
+          isMaybe: false,
+        });
+
         console.log(
-          `Scheduled reminder emails for proposer of new event ${created.id}`
+          `Reminder scheduling for event ${created.id} and recipient ${user.id} queued with job ID: ${reminderJobId}`
         );
-      })
-      .catch((error) => {
+      } catch (error) {
         console.error(
-          `Error scheduling reminder emails for new event ${created.id}:`,
+          `Error queueing reminder scheduling for new event ${created.id}:`,
           error
         );
-      });
+        // Non-blocking error - we continue even if queueing fails
+      }
+    })();
   }
 
+  console.timeEnd("total-api-time");
   return NextResponse.json(created);
 }
