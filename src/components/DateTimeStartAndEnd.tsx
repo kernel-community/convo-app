@@ -64,64 +64,68 @@ export const DateTimeStartAndEnd = ({
   const isUsingOriginalTimezone =
     creationTimezone && creationTimezone !== localTimezone;
 
-  // Initialize dates in the original timezone context
-  const [startDate, setStartDate] = useState<Date | undefined>(() => {
-    if (!value?.start) return DateTime.now().toJSDate();
-
-    // If we have a timezone, ensure we're displaying in that timezone
-    if (creationTimezone) {
-      // Convert the UTC date to the original creation timezone for display
-      return DateTime.fromJSDate(value.start)
-        .setZone(displayTimezone)
-        .toJSDate();
-    }
-
-    return value.start;
-  });
-
-  const [endDate, setEndDate] = useState<Date | undefined>(() => {
-    if (!value?.end) return DateTime.now().plus({ hour: 1 }).toJSDate();
-
-    // If we have a timezone, ensure we're displaying in that timezone
-    if (creationTimezone) {
-      // Convert the UTC date to the original creation timezone for display
-      return DateTime.fromJSDate(value.end).setZone(displayTimezone).toJSDate();
-    }
-
-    return value.end;
-  });
-
-  const handleChangeCallback = useCallback(
-    (e: { start?: Date; end?: Date }) => {
-      // When updating, we need to ensure we're converting from display timezone to UTC
-      if (creationTimezone && e.start && e.end) {
-        // Create date in the creation timezone
-        const startInTZ = DateTime.fromJSDate(e.start).setZone(
-          creationTimezone
-        );
-        const endInTZ = DateTime.fromJSDate(e.end).setZone(creationTimezone);
-
-        // Convert to UTC for storage
-        const startUTC = startInTZ.toUTC().toJSDate();
-        const endUTC = endInTZ.toUTC().toJSDate();
-
-        handleChange({
-          start: startUTC,
-          end: endUTC,
-        });
-      } else {
-        handleChange(e);
-      }
-    },
-    [handleChange, creationTimezone]
+  // Store dates as Luxon DateTime objects to properly handle timezone conversion
+  const [startDateTime, setStartDateTime] = useState<DateTime | undefined>(
+    value?.start
+      ? DateTime.fromISO(value.start.toISOString(), { zone: "utc" }).setZone(
+          displayTimezone
+        )
+      : undefined
   );
 
+  const [endDateTime, setEndDateTime] = useState<DateTime | undefined>(
+    value?.end
+      ? DateTime.fromISO(value.end.toISOString(), { zone: "utc" }).setZone(
+          displayTimezone
+        )
+      : undefined
+  );
+
+  // These functions convert between local time (as shown in UI) and display timezone (as stored in state)
+  const setStartDate = useCallback(
+    (localDate: Date | undefined) => {
+      if (!localDate) {
+        setStartDateTime(undefined);
+        return;
+      }
+
+      // When a date comes from the UI picker, it's already in the correct display timezone
+      // We just need to create a proper Luxon DateTime object in that timezone
+      const newDateTime = DateTime.fromJSDate(localDate, {
+        zone: displayTimezone,
+      });
+      setStartDateTime(newDateTime);
+    },
+    [displayTimezone]
+  );
+
+  const setEndDate = useCallback(
+    (localDate: Date | undefined) => {
+      if (!localDate) {
+        setEndDateTime(undefined);
+        return;
+      }
+
+      // When a date comes from the UI picker, it's already in the correct display timezone
+      // We just need to create a proper Luxon DateTime object in that timezone
+      const newDateTime = DateTime.fromJSDate(localDate, {
+        zone: displayTimezone,
+      });
+      setEndDateTime(newDateTime);
+    },
+    [displayTimezone]
+  );
+
+  // Call handleChange whenever start or end dates change
   useEffect(() => {
-    handleChangeCallback({
-      start: startDate,
-      end: endDate,
-    });
-  }, [startDate, endDate, handleChangeCallback]);
+    // Only call handleChange if we have valid dates to report
+    if (startDateTime || endDateTime) {
+      handleChange({
+        start: startDateTime ? startDateTime.toUTC().toJSDate() : undefined,
+        end: endDateTime ? endDateTime.toUTC().toJSDate() : undefined,
+      });
+    }
+  }, [startDateTime, endDateTime, handleChange]);
 
   const getDurationColor = (start: Date, end: Date) => {
     const diffInMinutes = differenceInMinutes(end, start);
@@ -130,11 +134,12 @@ export const DateTimeStartAndEnd = ({
     return "text-destructive";
   };
 
+  // Calculate duration directly in the display timezone
   const duration =
-    endDate && startDate
+    endDateTime && startDateTime
       ? durationObjectToHumanReadableString(
-          DateTime.fromJSDate(endDate)
-            .diff(DateTime.fromJSDate(startDate), [
+          endDateTime
+            .diff(startDateTime, [
               "years",
               "months",
               "days",
@@ -146,22 +151,19 @@ export const DateTimeStartAndEnd = ({
       : `0 minutes`;
 
   const durationColor =
-    endDate && startDate
-      ? getDurationColor(startDate, endDate)
+    endDateTime && startDateTime
+      ? getDurationColor(
+          startDateTime.toUTC().toJSDate(),
+          endDateTime.toUTC().toJSDate()
+        )
       : "text-muted-foreground";
   const showWarning =
-    endDate && startDate && differenceInMinutes(endDate, startDate) > 180;
-
-  // Validate dates whenever either one changes
-  useEffect(() => {
-    if (!startDate || !endDate) return;
-
-    const diffInMs = differenceInMilliseconds(endDate, startDate);
-    if (diffInMs < 0) {
-      // If end is before start, move end to start + 1 hour
-      setEndDate(addMinutes(startDate, 60));
-    }
-  }, [startDate, endDate]); // Run when either date changes
+    endDateTime &&
+    startDateTime &&
+    differenceInMinutes(
+      endDateTime.toUTC().toJSDate(),
+      startDateTime.toUTC().toJSDate()
+    ) > 180;
 
   return (
     <div>
@@ -188,9 +190,10 @@ export const DateTimeStartAndEnd = ({
             <span className="w-8 text-sm">Start</span>
           </div>
           <DateAndTimePicker
-            date={startDate || new Date()}
+            date={startDateTime?.toUTC().toJSDate() || new Date()}
             setDate={setStartDate}
             fromDate={new Date()}
+            timezone={displayTimezone}
           />
         </div>
         <div className="grid grid-cols-[auto,1fr] items-start gap-4">
@@ -202,9 +205,10 @@ export const DateTimeStartAndEnd = ({
           </div>
           <div className="space-y-1">
             <DateAndTimePicker
-              date={endDate || new Date()}
+              date={endDateTime?.toUTC().toJSDate() || new Date()}
               setDate={setEndDate}
-              fromDate={startDate || new Date()}
+              fromDate={new Date()}
+              timezone={displayTimezone}
             />
             <div className="flex items-center gap-2 whitespace-nowrap pl-2 text-sm">
               <span className={cn("font-medium", durationColor)}>
