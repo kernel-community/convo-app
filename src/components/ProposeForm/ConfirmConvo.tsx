@@ -99,16 +99,17 @@ export const ConfirmConvoCredenza = ({
               {convoToCreateData && (
                 <div>
                   <FancyHighlight>
-                    {getDateTimeString(
-                      convoToCreateData.dateTimeStartAndEnd.start.toISOString(),
-                      "date",
-                      convoToCreateData.creationTimezone
-                    )}{" "}
-                    {getDateTimeString(
-                      convoToCreateData.dateTimeStartAndEnd.start.toISOString(),
-                      "time",
-                      convoToCreateData.creationTimezone
-                    )}
+                    {
+                      /* Format date in original creation timezone */
+                      DateTime.fromJSDate(
+                        convoToCreateData.dateTimeStartAndEnd.start,
+                        { zone: "utc" }
+                      )
+                        .setZone(convoToCreateData.creationTimezone, {
+                          keepLocalTime: true,
+                        })
+                        .toFormat("ccc, dd LLL yyyy hh:mm a")
+                    }
                   </FancyHighlight>
                 </div>
               )}
