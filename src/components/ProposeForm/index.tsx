@@ -237,7 +237,6 @@ const ProposeForm = ({
 }) => {
   const { fetchedUser: user } = useUser();
   const isBetaMode = useBetaMode();
-  console.log("Beta mode enabled:", isBetaMode);
   const { push } = useRouter();
 
   // State for managing the list of proposers added to the event
@@ -641,11 +640,18 @@ const ProposeForm = ({
         `Converted end: ${endUTC.toString()}, UTC timezone: ${endUTC.zoneName}`
       );
 
-      // Update the data with UTC dates
+      // Convert back to JS Date objects for API compatibility
       processedData.dateTimeStartAndEnd = {
         start: startUTC.toJSDate(),
         end: endUTC.toJSDate(),
       };
+
+      // Store these for later use in logs
+      console.log("UTC Date info for confirmation dialog:", {
+        startISO: startUTC.toISO(),
+        endISO: endUTC.toISO(),
+        timezone: timezone,
+      });
     }
 
     console.log("Form data after timezone conversion:", processedData);
@@ -694,13 +700,6 @@ const ProposeForm = ({
       setLoading(false);
     }
   };
-
-  console.log(
-    "[ProposeForm Render] State Before Return - ID:",
-    selectedProposerIdToAdd,
-    "Details:",
-    selectedProposerDetails
-  );
 
   return (
     <>
