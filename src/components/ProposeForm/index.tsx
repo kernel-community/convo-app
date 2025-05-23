@@ -759,42 +759,28 @@ const ProposeForm = ({
           }}
         />
 
-        {/* component for start datetime */}
-        <Controller
-          name="dateTimeStartAndEnd"
-          control={control}
-          rules={{ required: true }}
-          render={({ field }) => (
-            <DateTimeStartAndEnd
-              handleChange={field.onChange}
-              value={defaultValues?.dateTimeStartAndEnd}
-              creationTimezone={defaultValues?.creationTimezone}
-            />
-          )}
-        />
-
-        {/* Timezone Selection */}
+        {/* Start Time, End Time, Timezone */}
         <div className="space-y-4">
-          <div className="flex flex-col space-y-2">
-            <Label htmlFor="timezone" className="font-secondary">
-              Timezone
-            </Label>
+          <div className="grid gap-2">
             <Controller
-              name="creationTimezone"
+              name="dateTimeStartAndEnd"
               control={control}
-              render={({ field }) => {
-                return (
-                  <TimeZoneCombobox
-                    value={field.value}
-                    onChange={field.onChange}
-                  />
-                );
-              }}
+              render={({ field }) => (
+                <Controller
+                  name="creationTimezone"
+                  control={control}
+                  render={({ field: timezoneField }) => (
+                    <DateTimeStartAndEnd
+                      handleChange={field.onChange}
+                      value={field.value}
+                      creationTimezone={timezoneField.value}
+                      onTimezoneChange={timezoneField.onChange}
+                      isEditMode={!!event}
+                    />
+                  )}
+                />
+              )}
             />
-            <p className="text-sm text-muted-foreground">
-              This timezone will be used for displaying event times to
-              attendees.
-            </p>
           </div>
         </div>
 
