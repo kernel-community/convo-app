@@ -84,6 +84,20 @@ import {
   SUBJECT as WaitlistedEmailTemplateSubject,
 } from "./templates/Waitlisted";
 
+// Import approval-related templates
+import {
+  ApprovalRequestedEmailTemplate,
+  SUBJECT as ApprovalRequestedEmailTemplateSubject,
+} from "./templates/ApprovalRequested";
+import {
+  ApprovalApprovedEmailTemplate,
+  SUBJECT as ApprovalApprovedEmailTemplateSubject,
+} from "./templates/ApprovalApproved";
+import {
+  ApprovalRejectedEmailTemplate,
+  SUBJECT as ApprovalRejectedEmailTemplateSubject,
+} from "./templates/ApprovalRejected";
+
 import type { EmailTemplateWithEventProps } from "./types";
 
 type ProposerMessageProps = EmailTemplateWithEventProps & {
@@ -112,7 +126,10 @@ export type EmailType =
   | "deleted-attendee"
   | "proposer-message"
   | "off-waitlist"
-  | "waitlisted";
+  | "waitlisted"
+  | "approval-requested"
+  | "approval-approved"
+  | "approval-rejected";
 
 export const getEmailTemplateFromType = (
   type: EmailType,
@@ -260,6 +277,27 @@ export const getEmailTemplateFromType = (
           ...(props as EmailTemplateWithEventProps),
         }),
         subject: WaitlistedEmailTemplateSubject,
+      };
+    case "approval-requested":
+      return {
+        template: ApprovalRequestedEmailTemplate({
+          ...(props as EmailTemplateWithEventProps),
+        }),
+        subject: ApprovalRequestedEmailTemplateSubject,
+      };
+    case "approval-approved":
+      return {
+        template: ApprovalApprovedEmailTemplate({
+          ...(props as EmailTemplateWithEventProps),
+        }),
+        subject: ApprovalApprovedEmailTemplateSubject,
+      };
+    case "approval-rejected":
+      return {
+        template: ApprovalRejectedEmailTemplate({
+          ...(props as EmailTemplateWithEventProps),
+        }),
+        subject: ApprovalRejectedEmailTemplateSubject,
       };
     default:
       // Ensure exhaustive check - if a new type is added, this will error

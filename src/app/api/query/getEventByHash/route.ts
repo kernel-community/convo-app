@@ -43,11 +43,32 @@ export async function POST(req: NextRequest) {
         },
       },
       _count: {
-        select: { waitlist: true },
+        select: {
+          waitlist: true,
+          approvalRequests: true,
+        },
       },
       waitlist: {
         where: {
           userId: userId || undefined,
+        },
+      },
+      approvalRequests: {
+        where: {
+          userId: userId || undefined,
+        },
+        include: {
+          user: {
+            include: {
+              profile: true,
+            },
+          },
+          reviewer: {
+            select: {
+              id: true,
+              nickname: true,
+            },
+          },
         },
       },
     },
@@ -67,7 +88,7 @@ export async function POST(req: NextRequest) {
   // Otherwise, they get sanitized data with limited personal information
   if (isProposer) {
     // For proposers, format with the original event data
-    const formattedEvent = formatEvent([event], userId);
+    const formattedEvent = formatEvent([event as any], userId);
     return NextResponse.json({
       data: {
         ...formattedEvent,
@@ -85,7 +106,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Format and return the sanitized event
-    const formattedEvent = formatEvent([sanitizedEvent], userId);
+    const formattedEvent = formatEvent([sanitizedEvent as any], userId);
     return NextResponse.json({
       data: {
         ...formattedEvent,

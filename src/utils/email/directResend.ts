@@ -170,23 +170,28 @@ export const sendDirectEmail = async (
 
     console.log(`Sending direct email to ${receiver.email} with type: ${type}`);
 
-    // Determine if this is a cancellation or invitation
-    const method =
-      emailTypeToRsvpType(type) === "NOT_GOING" || event.isDeleted === true
-        ? "CANCEL"
-        : "REQUEST";
+    // Check if this email type requires iCal generation
+    const rsvpType = emailTypeToRsvpType(type);
+    let iCal: string | null = null;
 
-    // Generate iCal attachment
-    const icalRequest = generateiCalRequestFromEvent({
-      event,
-      recipientEmail: receiver.email,
-      recipientName: receiver.nickname,
-      rsvpType: emailTypeToRsvpType(type),
-    });
+    // Only generate iCal for RSVP-related emails, not approval notifications
+    if (rsvpType !== null) {
+      const method =
+        rsvpType === "NOT_GOING" || event.isDeleted === true
+          ? "CANCEL"
+          : "REQUEST";
 
-    const iCal = icalRequest
-      ? await generateiCalString([icalRequest], method)
-      : null;
+      const icalRequest = generateiCalRequestFromEvent({
+        event,
+        recipientEmail: receiver.email,
+        recipientName: receiver.nickname,
+        rsvpType: rsvpType,
+      });
+
+      iCal = icalRequest
+        ? await generateiCalString([icalRequest], method)
+        : null;
+    }
 
     // Convert event to ConvoEvent format for email templates
     const convoEvent: ConvoEvent = {
@@ -219,15 +224,20 @@ export const sendDirectEmail = async (
     const subject = processSubject(rawSubject, { event: convoEvent });
 
     // Prepare attachments if iCal exists
-    const attachments = iCal
-      ? [
-          {
-            filename: "convo.ics",
-            contentType: `text/calendar;charset=utf-8;method=${method}`,
-            content: iCal.toString(),
-          },
-        ]
-      : [];
+    const attachments =
+      iCal && rsvpType !== null
+        ? [
+            {
+              filename: "convo.ics",
+              contentType: `text/calendar;charset=utf-8;method=${
+                rsvpType === "NOT_GOING" || event.isDeleted === true
+                  ? "CANCEL"
+                  : "REQUEST"
+              }`,
+              content: iCal.toString(),
+            },
+          ]
+        : [];
 
     // Send email directly with Resend
     // Cast response to our custom type to access headers

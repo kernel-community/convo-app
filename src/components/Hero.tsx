@@ -70,6 +70,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "./ui/tooltip";
+import { ApprovalManagementAccordion } from "./ApprovalManagementAccordion";
 // Dialog components removed as we're now using a tooltip
 
 const When = ({
@@ -498,19 +499,53 @@ const RSVP = ({
     setRsvpType(rsvp ? rsvp.rsvpType : RSVP_TYPE.GOING);
   }, [rsvp]);
 
-  // Reinstate the function to get display text for current RSVP
+  // Function to get display text for current RSVP/approval status
   const getCurrentRsvpTypeToString = () => {
     const type = rsvp?.rsvpType;
-    // Check if type is one of the expected keys
+
+    // If user has an existing RSVP, show that status
     if (
       type === RSVP_TYPE.GOING ||
       type === RSVP_TYPE.MAYBE ||
       type === RSVP_TYPE.NOT_GOING
     ) {
-      // Now TypeScript knows 'type' is a valid key
       return RSVP_TYPE_MESSAGES[type];
     }
-    // Fallback for no RSVP or unexpected rsvpType
+
+    // If event requires approval, show approval status instead of generic "not RSVPed"
+    if (event.requiresApproval && event.userApprovalRequest) {
+      if (event.userApprovalRequest.status === "PENDING") {
+        return (
+          <>
+            Your request to join is{" "}
+            <span className="underline decoration-dotted underline-offset-4">
+              pending approval
+            </span>
+          </>
+        );
+      } else if (event.userApprovalRequest.status === "APPROVED") {
+        return (
+          <>
+            Your request has been{" "}
+            <span className="text-green-600 underline decoration-dotted underline-offset-4">
+              approved
+            </span>{" "}
+            - you can now RSVP
+          </>
+        );
+      } else if (event.userApprovalRequest.status === "REJECTED") {
+        return (
+          <>
+            Your previous request was{" "}
+            <span className="text-red-600 underline decoration-dotted underline-offset-4">
+              not approved
+            </span>
+          </>
+        );
+      }
+    }
+
+    // Fallback for no RSVP or approval request
     return (
       <>
         You have not{" "}
@@ -563,7 +598,68 @@ const RSVP = ({
         <CardTitle className="text-base">
           {getCurrentRsvpTypeToString()}
         </CardTitle>
-        <CardDescription>
+        {/* Approval Status Display - More prominent placement */}
+        {event.requiresApproval && event.userApprovalRequest && (
+          <div
+            className={`mt-3 rounded-lg border border-l-4 p-3 ${
+              event.userApprovalRequest.status === "PENDING"
+                ? "border-l-yellow-500 bg-yellow-50 dark:bg-yellow-900/20"
+                : event.userApprovalRequest.status === "APPROVED"
+                ? "border-l-green-500 bg-green-50 dark:bg-green-900/20"
+                : "border-l-red-500 bg-red-50 dark:bg-red-900/20"
+            }`}
+          >
+            <div className="flex items-center gap-2">
+              <div
+                className={`h-3 w-3 rounded-full ${
+                  event.userApprovalRequest.status === "PENDING"
+                    ? "bg-yellow-500"
+                    : event.userApprovalRequest.status === "APPROVED"
+                    ? "bg-green-500"
+                    : "bg-red-500"
+                }`}
+              />
+              <span
+                className={`text-sm font-semibold ${
+                  event.userApprovalRequest.status === "PENDING"
+                    ? "text-yellow-800 dark:text-yellow-200"
+                    : event.userApprovalRequest.status === "APPROVED"
+                    ? "text-green-800 dark:text-green-200"
+                    : "text-red-800 dark:text-red-200"
+                }`}
+              >
+                {event.userApprovalRequest.status === "PENDING" &&
+                  "Approval Pending"}
+                {event.userApprovalRequest.status === "APPROVED" &&
+                  "Request Approved"}
+                {event.userApprovalRequest.status === "REJECTED" &&
+                  "Request Rejected"}
+              </span>
+            </div>
+            <p
+              className={`mt-2 text-sm ${
+                event.userApprovalRequest.status === "PENDING"
+                  ? "text-yellow-700 dark:text-yellow-300"
+                  : event.userApprovalRequest.status === "APPROVED"
+                  ? "text-green-700 dark:text-green-300"
+                  : "text-red-700 dark:text-red-300"
+              }`}
+            >
+              {event.userApprovalRequest.status === "PENDING" &&
+                "Your RSVP request is waiting for organizer approval."}
+              {event.userApprovalRequest.status === "APPROVED" &&
+                "Your RSVP request has been approved! You can now complete your RSVP below."}
+              {event.userApprovalRequest.status === "REJECTED" &&
+                "Your RSVP request was not approved. You can submit a new request if you'd like."}
+              {event.userApprovalRequest.reviewMessage && (
+                <span className="mt-2 block border-l-2 border-gray-400 pl-3 text-sm italic opacity-80">
+                  &quot;{event.userApprovalRequest.reviewMessage}&quot;
+                </span>
+              )}
+            </p>
+          </div>
+        )}
+        <CardDescription className="mt-3">
           Please update your RSVP here in the app, not through your calendar.
           While you&apos;ll receive calendar invites by email, responses made in
           your calendar won&apos;t reflect back to the proposer of this Convo.
@@ -587,15 +683,41 @@ const RSVP = ({
                 );
               }}
               className="w-full"
-              disabled={isRsvpUpdating}
+              disabled={
+                isRsvpUpdating ||
+                (event.requiresApproval &&
+                  event.userApprovalRequest?.status === "PENDING")
+              }
               isLoading={isRsvpUpdating}
               variant={isWaitlisted ? "destructive" : "default"}
             >
-              {isWaitlisted ? "Leave Waitlist" : "Join Waitlist"}
+              {(() => {
+                if (isWaitlisted) {
+                  return "Leave Waitlist";
+                }
+
+                // For approval-required events, adjust waitlist button text
+                if (event.requiresApproval) {
+                  if (event.userApprovalRequest?.status === "PENDING") {
+                    return "Request Pending";
+                  } else if (event.userApprovalRequest?.status === "APPROVED") {
+                    return "Join Waitlist";
+                  } else {
+                    return "Request to Join Waitlist";
+                  }
+                }
+
+                return "Join Waitlist";
+              })()}
             </Button>
             <p className="mt-2 text-xs text-muted-foreground">
               {isWaitlisted
                 ? "You won't be notified if a spot opens up."
+                : event.requiresApproval && !event.userApprovalRequest?.status
+                ? "The event is full. Request approval to join the waitlist."
+                : event.requiresApproval &&
+                  event.userApprovalRequest?.status === "PENDING"
+                ? "Your approval request is pending."
                 : "The event is full. Join the waitlist to be notified if a spot opens up."}
             </p>
           </div>
@@ -670,10 +792,51 @@ const RSVP = ({
                 onRsvpAttempt(rsvpType);
               }}
               className="mt-4 w-full"
-              disabled={isRsvpUpdating}
+              disabled={
+                isRsvpUpdating ||
+                (event.requiresApproval &&
+                  event.userApprovalRequest?.status === "PENDING")
+              }
               isLoading={isRsvpUpdating}
             >
-              {rsvp ? "Update RSVP" : "RSVP"}
+              {(() => {
+                // If user has an existing RSVP, always show "Update RSVP"
+                if (rsvp) {
+                  return "Update RSVP";
+                }
+
+                // If event requires approval and user has a pending request, disable button
+                if (
+                  event.requiresApproval &&
+                  event.userApprovalRequest?.status === "PENDING"
+                ) {
+                  return "Request Pending";
+                }
+
+                // If event requires approval and user has a rejected request, allow new request
+                if (
+                  event.requiresApproval &&
+                  event.userApprovalRequest?.status === "REJECTED"
+                ) {
+                  return "Request Again";
+                }
+
+                // If event requires approval and user has approved request, show regular RSVP (shouldn't happen but fallback)
+                if (
+                  event.requiresApproval &&
+                  event.userApprovalRequest?.status === "APPROVED"
+                ) {
+                  return "RSVP";
+                }
+
+                // If event requires approval and no existing request, show request button
+                if (event.requiresApproval && !event.userApprovalRequest) {
+                  return "Request to Join";
+                }
+
+                // Default case for non-approval events
+                return "RSVP";
+              })()}
             </Button>
           </>
         )}
@@ -749,12 +912,18 @@ const Hero = ({
 
       {(isKernelCommunityMember || isOwnerOfConvo) && (
         <motion.div
-          className="my-4 w-full"
+          className="my-4 w-full space-y-4"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.3 }}
         >
           <AdminMetricsAccordion event={event} />
+          {event.requiresApproval && fetchedUser && (
+            <ApprovalManagementAccordion
+              eventId={event.id}
+              currentUser={fetchedUser as any}
+            />
+          )}
         </motion.div>
       )}
 

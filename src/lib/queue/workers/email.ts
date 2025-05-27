@@ -450,25 +450,30 @@ export const startEmailWorker = () => {
         `Preparing email to ${validatedReceiver.email} for event ${validatedEvent.id} with type ${validatedType}`
       );
 
-      // Determine the method based on RSVP type
-      const method =
-        emailTypeToRsvpType(validatedType) === "NOT_GOING" ||
-        validatedEvent.isDeleted === true
-          ? "CANCEL"
-          : "REQUEST";
+      // Check if this email type needs iCal generation
+      const rsvpType = emailTypeToRsvpType(validatedType);
+      let iCal: string | null = null;
 
-      const iCal = await generateiCalString(
-        [
-          await generateiCalRequestFromEvent({
-            event,
-            recipientEmail: validatedReceiver.email,
-            recipientName: validatedReceiver.nickname,
-            rsvpType: emailTypeToRsvpType(validatedType),
-            previousRsvpType: previousRsvpType,
-          }),
-        ],
-        method
-      );
+      // Only generate iCal for RSVP-related emails, not approval notifications
+      if (rsvpType !== null) {
+        const method =
+          rsvpType === "NOT_GOING" || validatedEvent.isDeleted === true
+            ? "CANCEL"
+            : "REQUEST";
+
+        iCal = await generateiCalString(
+          [
+            await generateiCalRequestFromEvent({
+              event,
+              recipientEmail: validatedReceiver.email,
+              recipientName: validatedReceiver.nickname,
+              rsvpType: rsvpType,
+              previousRsvpType: previousRsvpType,
+            }),
+          ],
+          method
+        );
+      }
 
       // Process subject template variables
       const processSubject = (subject: string, data: { event: ConvoEvent }) => {
@@ -520,21 +525,29 @@ export const startEmailWorker = () => {
 
       const subject = processSubject(rawSubject, { event: convoEvent });
 
-      // Method already determined above, reuse it for the content type
+      // Build email options
       const emailOptions: CreateEmailOptions = {
         from: `${EVENT_ORGANIZER_NAME} <${EVENT_ORGANIZER_EMAIL}>`,
         to: [validatedReceiver.email],
         subject,
         react: template,
         text: text || "Email from Convo Cafe",
-        attachments: [
+      };
+
+      // Only add iCal attachment for RSVP emails, not approval notifications
+      if (iCal && rsvpType !== null) {
+        const method =
+          rsvpType === "NOT_GOING" || validatedEvent.isDeleted === true
+            ? "CANCEL"
+            : "REQUEST";
+        emailOptions.attachments = [
           {
             filename: "convo.ics",
             contentType: `text/calendar;charset=utf-8;method=${method}`,
             content: iCal.toString(),
           },
-        ],
-      };
+        ];
+      }
 
       // Apply rate limiting before sending email with backoff for retries
       console.log(`Sending rate-limited email to ${validatedReceiver.email}`);

@@ -9,6 +9,9 @@ import type {
   Slack,
   User,
   EventProposer,
+  RsvpApprovalRequest,
+  RSVP_TYPE,
+  RSVP_APPROVAL_STATUS,
 } from "@prisma/client";
 import { DateTime } from "luxon";
 
@@ -50,6 +53,10 @@ export type ClientEvent = Omit<ServerEvent, "startDateTime" | "endDateTime"> & {
   isCurrentUserWaitlisted: boolean;
   // Added to indicate if current user has admin privileges for this event
   isProposer?: boolean;
+  // Approval-related fields
+  requiresApproval: boolean;
+  approvalRequestsCount?: number;
+  userApprovalRequest?: RsvpApprovalRequestWithDetails;
 };
 
 export type EventsRequest = {
@@ -121,9 +128,18 @@ export const clientEventInputValidationScheme = z.object({
   type: z.enum(["JUNTO", "UNLISTED", "INTERVIEW", "TEST"]).default("JUNTO"),
   creationTimezone: z.string().optional(),
   proposers: z.array(z.object({ userId: z.string() })).optional(),
+  requiresApproval: z.boolean().optional(),
 });
 
 export type ClientEventInput = z.infer<typeof clientEventInputValidationScheme>;
+
+export type RsvpApprovalRequestWithDetails = RsvpApprovalRequest & {
+  user: User & { profile: Profile | null };
+  reviewer?: {
+    id: string;
+    nickname: string;
+  };
+};
 
 export type FullEvent = Event & {
   proposers: (EventProposer & { user: User })[];
