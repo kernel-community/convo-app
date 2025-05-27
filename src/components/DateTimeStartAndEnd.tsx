@@ -350,16 +350,7 @@ export const DateTimeStartAndEnd = ({
     <div>
       <FieldLabel>
         Date and Time
-        <div className="font-primary text-sm font-light lowercase">
-          {
-            <span className="flex items-center gap-1 font-medium text-amber-500">
-              <Info className="h-4 w-4" />
-              Displaying times in your local timezone:
-            </span>
-            //  :
-            // "Define start and end times and optionally a recurring schedule for your convo"
-          }
-        </div>
+        <div className="font-primary text-sm font-light lowercase"></div>
       </FieldLabel>
       <div className="space-y-3 rounded-lg bg-muted p-3">
         {/* Timezone Selection */}
