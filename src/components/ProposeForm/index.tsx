@@ -952,6 +952,39 @@ const ProposeForm = ({
                 )}
               />
             </div>
+
+            {/* Requires Approval Toggle */}
+            <div className="flex flex-col space-y-2">
+              <div className="flex items-center">
+                <Label htmlFor="requiresApproval" className="font-secondary">
+                  Requires RSVP Approval
+                </Label>
+                <BetaBadge />
+              </div>
+              <Controller
+                name="requiresApproval"
+                control={control}
+                render={({ field }) => (
+                  <div className="flex items-center space-x-3">
+                    <Switch
+                      id="requiresApproval"
+                      checked={field.value || false}
+                      onCheckedChange={field.onChange}
+                    />
+                    <div className="flex flex-col">
+                      <span className="text-sm font-medium">
+                        {field.value ? "Approval Required" : "Open RSVPs"}
+                      </span>
+                      <span className="text-xs text-muted-foreground">
+                        {field.value
+                          ? "All RSVP requests will need your approval before attendees can join"
+                          : "Anyone can RSVP immediately without approval"}
+                      </span>
+                    </div>
+                  </div>
+                )}
+              />
+            </div>
           </div>
         )}
 

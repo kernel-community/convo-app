@@ -22,6 +22,8 @@ import useUpdateRsvp from "src/hooks/useUpdateRsvp";
 import { RSVP_TYPE } from "@prisma/client";
 import useEvent from "src/hooks/useEvent";
 import { Loader2 } from "lucide-react";
+import { ApprovalRequestCredenza } from "../ApprovalRequestCredenza";
+import type { User } from "@prisma/client";
 
 const EventWrapper = ({
   event,
@@ -48,6 +50,7 @@ const EventWrapper = ({
   const [isNavigating, setIsNavigating] = useState(false);
 
   const [isConfirmCredenzaOpen, setIsConfirmCredenzaOpen] = useState(false);
+  const [isApprovalRequestOpen, setIsApprovalRequestOpen] = useState(false);
   const [pendingRsvpType, setPendingRsvpType] = useState<RSVP_TYPE | null>(
     null
   );
@@ -61,7 +64,18 @@ const EventWrapper = ({
   const handleRsvpAttempt = (type: RSVP_TYPE) => {
     console.log("Attempting RSVP with type:", type);
     setPendingRsvpType(type);
-    setIsConfirmCredenzaOpen(true);
+
+    // Check if event requires approval and user doesn't already have an RSVP
+    if (
+      event.requiresApproval &&
+      !event.uniqueRsvps.some((rsvp) => rsvp.attendee.id === fetchedUser.id)
+    ) {
+      // Show approval request modal
+      setIsApprovalRequestOpen(true);
+    } else {
+      // Show regular confirmation modal
+      setIsConfirmCredenzaOpen(true);
+    }
   };
 
   const confirmRsvp = () => {
@@ -81,6 +95,19 @@ const EventWrapper = ({
         },
       }
     );
+  };
+
+  const handleApprovalRequestSuccess = () => {
+    // Close modal and reset state
+    setIsApprovalRequestOpen(false);
+    setPendingRsvpType(null);
+
+    // Optionally show a success message or refresh event data
+    // Could trigger a toast notification here
+    console.log("Approval request submitted successfully");
+
+    // Refresh the event data to show updated approval request status
+    window.location.reload();
   };
 
   const handleInfoClick = async () => {
@@ -181,6 +208,22 @@ const EventWrapper = ({
               </CredenzaFooter>
             </CredenzaContent>
           </Credenza>
+
+          {/* Approval Request Modal */}
+          {fetchedUser.isSignedIn && pendingRsvpType && (
+            <ApprovalRequestCredenza
+              isOpen={isApprovalRequestOpen}
+              onClose={() => {
+                setIsApprovalRequestOpen(false);
+                setPendingRsvpType(null);
+              }}
+              eventId={eventId}
+              eventTitle={title}
+              rsvpType={pendingRsvpType}
+              user={fetchedUser as User}
+              onSuccess={handleApprovalRequestSuccess}
+            />
+          )}
         </>
       </SharedSpace>
     </CursorsContextProvider>

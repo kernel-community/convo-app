@@ -57,6 +57,48 @@ export async function POST(req: NextRequest) {
       }),
     ]);
 
+    // Check if event requires approval and this is not an admin override
+    if (event.requiresApproval && !rsvp.adminOverride) {
+      // Check if user already has an approval request
+      const existingApprovalRequest =
+        await prisma.rsvpApprovalRequest.findUnique({
+          where: {
+            eventId_userId: {
+              eventId: rsvp.eventId,
+              userId: rsvp.userId,
+            },
+          },
+        });
+
+      if (existingApprovalRequest) {
+        // Return the status of existing approval request
+        return NextResponse.json({
+          data: {
+            status: "APPROVAL_PENDING",
+            eventId: rsvp.eventId,
+            approvalStatus: existingApprovalRequest.status,
+            message:
+              "You already have a pending approval request for this event",
+          },
+        });
+      }
+
+      // If user doesn't have an existing RSVP or approval request, they need to go through approval flow
+      if (!existingRsvp) {
+        return NextResponse.json(
+          {
+            data: {
+              status: "APPROVAL_REQUIRED",
+              eventId: rsvp.eventId,
+              message:
+                "This event requires approval. Please use the approval request endpoint.",
+            },
+          },
+          { status: 400 }
+        );
+      }
+    }
+
     if (!user.email) {
       return NextResponse.json(
         { error: `User ${user.id} has no email, cannot process RSVP.` },

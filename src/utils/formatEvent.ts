@@ -2,13 +2,33 @@ import { RSVP_TYPE } from "@prisma/client";
 import type { ClientEvent, EventsRequest, ServerEvent } from "src/types";
 import totalUniqueRSVPs, { uniqueRSVPs } from "src/utils/totalUniqueRsvps";
 
-// Define an extended ServerEvent type that includes the waitlist fields
+// Define an extended ServerEvent type that includes the waitlist and approval request fields
 // We expect the caller (getEventByHash) to provide these based on its Prisma query
 type ServerEventWithWaitlist = ServerEvent & {
   _count?: {
     waitlist: number;
+    approvalRequests: number;
   };
   waitlist?: { userId: string }[]; // Expecting an array with 0 or 1 entry for the specific user
+  approvalRequests?: Array<{
+    id: string;
+    status: string;
+    message?: string;
+    reviewedBy?: string;
+    reviewedAt?: Date;
+    reviewMessage?: string;
+    user: {
+      id: string;
+      nickname: string;
+      profile?: {
+        image?: string;
+      } | null;
+    };
+    reviewer?: {
+      id: string;
+      nickname: string;
+    } | null;
+  }>; // Expecting an array with 0 or 1 entry for the specific user
 };
 
 // Update the function signature to accept ServerEventWithWaitlist[] and optional userId
@@ -31,6 +51,12 @@ const formatEvent = (
   const isCurrentUserWaitlisted = firstInSeries.waitlist
     ? firstInSeries.waitlist.length > 0
     : false;
+
+  // Extract approval request info for the user
+  const approvalRequestsCount = firstInSeries._count?.approvalRequests ?? 0;
+  const userApprovalRequest = firstInSeries.approvalRequests
+    ? firstInSeries.approvalRequests[0] || undefined
+    : undefined;
 
   return {
     ...firstInSeries,
@@ -69,6 +95,9 @@ const formatEvent = (
     // Add the new waitlist fields
     waitlistCount: waitlistCount,
     isCurrentUserWaitlisted: !!userId && isCurrentUserWaitlisted, // Ensure only true if userId was provided
+    // Add approval-related fields
+    approvalRequestsCount: approvalRequestsCount,
+    userApprovalRequest: userApprovalRequest as any,
   };
 };
 

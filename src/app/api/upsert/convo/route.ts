@@ -374,6 +374,8 @@ export async function POST(req: NextRequest) {
         endDateTime: new Date(event.dateTimeStartAndEnd.end),
         sequence: eventToUpdate.sequence + 1,
         type: event.type,
+        requiresApproval:
+          event.requiresApproval ?? eventToUpdate.requiresApproval, // Update approval requirement or keep existing
         // Update proposers
         proposers: {
           // Create new proposer entries for those added
@@ -546,6 +548,7 @@ export async function POST(req: NextRequest) {
     sequence: 0,
     type: event.type,
     creationTimezone: event.creationTimezone, // Store the timezone the event was created in
+    requiresApproval: event.requiresApproval ?? false, // Add approval requirement field
   };
   console.timeEnd("db-prepare-data");
 

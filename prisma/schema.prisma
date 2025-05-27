@@ -65,6 +65,8 @@ model Event {
   PostedSlackMessage PostedSlackMessage[]
   waitlist           Waitlist[]
   proposers          EventProposer[]
+  requiresApproval   Boolean              @default(false)
+  approvalRequests   RsvpApprovalRequest[]
 }
 
 model User {
@@ -79,10 +81,12 @@ model User {
   reminders   Email[]
 
   // connections
-  Connections    Connections[]   @relation("User")
-  ConnectedUser  Connections[]   @relation("ConnectedUser")
-  Waitlist       Waitlist[]
-  proposedEvents EventProposer[]
+  Connections      Connections[]         @relation("User")
+  ConnectedUser    Connections[]         @relation("ConnectedUser")
+  Waitlist         Waitlist[]
+  proposedEvents   EventProposer[]
+  approvalRequests RsvpApprovalRequest[]
+  reviewedRequests RsvpApprovalRequest[] @relation("ReviewedRequests")
 }
 
 model Connections {
@@ -144,6 +148,12 @@ enum RSVP_TYPE {
   OFF_WAITLIST
 }
 
+enum RSVP_APPROVAL_STATUS {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
 //////////////////
 ///  SERVICES  ///
 //////////////////
@@ -176,6 +186,9 @@ enum EmailType {
   REMINDER72HRPROPOSER
   OFF_WAITLIST
   WAITLISTED
+  APPROVAL_REQUESTED
+  APPROVAL_APPROVED
+  APPROVAL_REJECTED
 }
 
 model Slack {
@@ -221,4 +234,23 @@ model EventProposer {
   createdAt DateTime @default(now())
 
   @@unique([eventId, userId]) // Ensure a user can only be linked once per event
+}
+
+model RsvpApprovalRequest {
+  id            String                @id @default(uuid())
+  createdAt     DateTime              @default(now())
+  updatedAt     DateTime              @updatedAt
+  eventId       String
+  event         Event                 @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  userId        String
+  user          User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  rsvpType      RSVP_TYPE
+  status        RSVP_APPROVAL_STATUS  @default(PENDING)
+  message       String?
+  reviewedBy    String?
+  reviewer      User?                 @relation("ReviewedRequests", fields: [reviewedBy], references: [id], onDelete: SetNull)
+  reviewedAt    DateTime?
+  reviewMessage String?
+
+  @@unique([eventId, userId]) // A user can only have one approval request per event
 }

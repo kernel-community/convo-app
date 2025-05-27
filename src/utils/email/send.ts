@@ -32,24 +32,30 @@ export const sendEventEmail = async ({
     throw new Error(`receiver ${receiver.id} has no email`);
   }
 
-  // Determine the method based on RSVP type
-  const method =
-    emailTypeToRsvpType(type) === "NOT_GOING" || event.isDeleted === true
-      ? "CANCEL"
-      : "REQUEST";
+  // Determine the method based on RSVP type and generate iCal if needed
+  const rsvpType = emailTypeToRsvpType(type);
+  let iCal: string | null = null;
 
-  const iCal = await generateiCalString(
-    [
-      await generateiCalRequestFromEvent({
-        event: event,
-        recipientEmail: receiver.email,
-        recipientName: receiver.nickname,
-        rsvpType: emailTypeToRsvpType(type),
-        previousRsvpType: previousRsvpType,
-      }),
-    ],
-    method
-  );
+  // Only generate iCal for RSVP-related emails, not for approval notifications
+  if (rsvpType !== null) {
+    const method =
+      rsvpType === "NOT_GOING" || event.isDeleted === true
+        ? "CANCEL"
+        : "REQUEST";
+
+    iCal = await generateiCalString(
+      [
+        await generateiCalRequestFromEvent({
+          event: event,
+          recipientEmail: receiver.email,
+          recipientName: receiver.nickname,
+          rsvpType: rsvpType,
+          previousRsvpType: previousRsvpType,
+        }),
+      ],
+      method
+    );
+  }
 
   // Process subject template variables
   const processSubject = (subject: string, data: { event: ConvoEvent }) => {
@@ -99,21 +105,29 @@ export const sendEventEmail = async ({
 
   const subject = processSubject(rawSubject, { event: convoEvent });
 
-  // Method already determined above, reuse it for the content type
+  // Build email options
   const emailOptions: CreateEmailOptions = {
     from: `${EVENT_ORGANIZER_NAME} <${EVENT_ORGANIZER_EMAIL}>`,
     to: [receiver.email],
     subject,
     react: template,
     text: text || "Email from Convo Cafe",
-    attachments: [
+  };
+
+  // Only add iCal attachment for RSVP emails, not approval notifications
+  if (iCal && rsvpType !== null) {
+    const method =
+      rsvpType === "NOT_GOING" || event.isDeleted === true
+        ? "CANCEL"
+        : "REQUEST";
+    emailOptions.attachments = [
       {
         filename: "convo.ics",
         contentType: `text/calendar;charset=utf-8;method=${method}`,
         content: iCal.toString(),
       },
-    ],
-  };
+    ];
+  }
 
   // If returnOptionsOnly is true, just return the options without sending
   if (returnOptionsOnly) {
