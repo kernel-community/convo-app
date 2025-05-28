@@ -7,10 +7,10 @@ import React, {
   useMemo,
 } from "react";
 import * as d3 from "d3";
-import { data as mockData } from "../utils/mock";
 import type { User, NodeType, Connection } from "../utils/types";
 import UserSearch from "./UserSearch";
 import Profile from "./Profile";
+import { useNetworkData } from "../hooks/useNetworkData";
 // import GraphLegend from "./GraphLegend";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 
@@ -94,46 +94,10 @@ interface CommunityNetworkGraphProps {
 }
 
 const CommunityNetworkGraph: React.FC<CommunityNetworkGraphProps> = ({
-  data = mockData as unknown as {
-    nodes: User[];
-    links: { source: string; target: string; weight?: number }[];
-  },
+  data: propData, // Rename to avoid confusion
   currentUserId, // Get the current user ID from props
 }) => {
-  // Add prominent debug for currentUserId
-  console.log(
-    "%c CURRENT USER ID CHECK",
-    "background: #ff0000; color: white; font-size: 20px"
-  );
-  console.log(
-    "%c currentUserId:",
-    "font-weight: bold; font-size: 16px",
-    currentUserId || "NOT PROVIDED"
-  );
-  console.log("%c Type:", "font-weight: bold", typeof currentUserId);
-
-  // Add initial debug log for component props
-  console.log("CommunityNetworkGraph initializing with:", {
-    currentUserId,
-    nodesCount: data.nodes.length,
-    linksCount: data.links.length,
-  });
-
-  // Validate the mock data for user1
-  const user1 = data.nodes.find((node) => node.id === "user1");
-  console.log(
-    "User1 data from mock:",
-    user1
-      ? {
-          id: user1.id,
-          name: user1.name,
-          type: user1.type,
-          hasBio: !!user1.profile?.bio,
-          hasImage: !!user1.profile?.image,
-        }
-      : "Not found"
-  );
-
+  // ALL HOOKS MUST BE AT THE TOP - before any conditional returns
   const svgRef = useRef<SVGSVGElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [selectedNode, setSelectedNode] = useState<User | null>(null);
@@ -157,6 +121,31 @@ const CommunityNetworkGraph: React.FC<CommunityNetworkGraphProps> = ({
   const simulationStabilizedRef = useRef(false);
   // Reference to store peripheral nodes
   const peripheralNodesRef = useRef<User[]>([]);
+  // Reference to track the currently selected node ID (updated immediately)
+  const selectedNodeIdRef = useRef<string | null>(null);
+  // Define simulation reference to use in drag functions
+  const simulationRef = useRef<d3.Simulation<
+    d3.SimulationNodeDatum,
+    undefined
+  > | null>(null);
+  // Keep zoom reference for consistent zooming
+  const zoomRef = useRef<d3.ZoomBehavior<SVGSVGElement, unknown> | null>(null);
+
+  // Use the real data from API with fallback to prop data
+  const { data: apiData, isLoading, error, isRefetching } = useNetworkData();
+
+  // Use API data if available, fallback to prop data only
+  const data = apiData || propData || { nodes: [], links: [] };
+
+  // Add initial debug log for component props
+  console.log("CommunityNetworkGraph initializing with:", {
+    currentUserId,
+    nodesCount: data.nodes.length,
+    linksCount: data.links.length,
+    isLoading,
+    isRefetching,
+    dataSource: apiData ? "API" : propData ? "props" : "empty",
+  });
 
   // Create memoized data structures for faster lookups
   const dataNodesMap = useMemo(() => {
@@ -170,14 +159,6 @@ const CommunityNetworkGraph: React.FC<CommunityNetworkGraphProps> = ({
     if (!item) return null;
     return typeof item === "string" ? item : item.id;
   }, []);
-
-  // Now that safeGetId is defined, check connections for user1
-  const user1Connections = data.links.filter((link) => {
-    const sourceId = safeGetId(link.source);
-    const targetId = safeGetId(link.target);
-    return sourceId === "user1" || targetId === "user1";
-  });
-  console.log(`User1 has ${user1Connections.length} connections in mock data`);
 
   // Calculate node connections count in advance for faster access
   const nodeConnectionsMap = useMemo(() => {
@@ -193,6 +174,24 @@ const CommunityNetworkGraph: React.FC<CommunityNetworkGraphProps> = ({
 
     return connectionsMap;
   }, [safeGetId, data.links]);
+
+  // Function to calculate node radius based on connection count
+  const getNodeRadius = useCallback(
+    (node: any): number => {
+      // Base radius - smaller on mobile
+      const isMobile = window.innerWidth < 768;
+      const baseRadius = isMobile ? 4 : 6;
+
+      // Get connections count from our precomputed map
+      const connections = nodeConnectionsMap.get(node.id) || 0;
+
+      // Scale radius logarithmically based on connections count (capped for visual consistency)
+      if (connections === 0) return baseRadius;
+      const scaleFactor = Math.log(connections + 1) / (isMobile ? 4 : 3);
+      return baseRadius + Math.min(isMobile ? 3 : 4, scaleFactor);
+    },
+    [nodeConnectionsMap]
+  );
 
   // Function to filter data to only show the selected node and its connections
   const filterDataForNode = useCallback(
@@ -312,71 +311,6 @@ const CommunityNetworkGraph: React.FC<CommunityNetworkGraphProps> = ({
     [data.nodes, data.links, safeGetId, currentUserId]
   );
 
-  // Handle search term changes
-  useEffect(() => {
-    if (searchTerm.trim() === "") {
-      setSearchResults([]);
-      return;
-    }
-
-    const filteredNodes = data.nodes.filter((node) =>
-      node.name.toLowerCase().includes(searchTerm.toLowerCase())
-    ) as User[];
-
-    setSearchResults(filteredNodes);
-  }, [searchTerm, data.nodes]);
-
-  const updateUrlWithNodeId = useCallback(
-    (nodeId: string | null) => {
-      const params = new URLSearchParams(searchParams.toString());
-      const currentId = params.get("id");
-
-      // Only update URL if the ID actually changed
-      if (nodeId !== currentId) {
-        if (nodeId) {
-          params.set("id", nodeId);
-        } else {
-          params.delete("id");
-        }
-
-        // Use window.history directly to avoid triggering searchParams updates
-        const newUrl = `${pathname}?${params.toString()}`;
-        window.history.replaceState(null, "", newUrl);
-      }
-    },
-    [pathname, searchParams]
-  );
-
-  // Function to calculate node radius based on connection count
-  const getNodeRadius = useCallback(
-    (node: any): number => {
-      // Base radius - smaller on mobile
-      const isMobile = window.innerWidth < 768;
-      const baseRadius = isMobile ? 4 : 6;
-
-      // Get connections count from our precomputed map
-      const connections = nodeConnectionsMap.get(node.id) || 0;
-
-      // Scale radius logarithmically based on connections count (capped for visual consistency)
-      if (connections === 0) return baseRadius;
-      const scaleFactor = Math.log(connections + 1) / (isMobile ? 4 : 3);
-      return baseRadius + Math.min(isMobile ? 3 : 4, scaleFactor);
-    },
-    [nodeConnectionsMap]
-  );
-
-  // Reference to track the currently selected node ID (updated immediately)
-  const selectedNodeIdRef = useRef<string | null>(null);
-
-  // Define simulation reference to use in drag functions
-  const simulationRef = useRef<d3.Simulation<
-    d3.SimulationNodeDatum,
-    undefined
-  > | null>(null);
-
-  // Keep zoom reference for consistent zooming
-  const zoomRef = useRef<d3.ZoomBehavior<SVGSVGElement, unknown> | null>(null);
-
   // Function to update node sizes based on selection state
   const updateNodeSizes = useCallback(
     (selectedNodeId: string | null) => {
@@ -437,6 +371,27 @@ const CommunityNetworkGraph: React.FC<CommunityNetworkGraphProps> = ({
       });
     },
     [getNodeRadius, isInitialRenderDone]
+  );
+
+  const updateUrlWithNodeId = useCallback(
+    (nodeId: string | null) => {
+      const params = new URLSearchParams(searchParams.toString());
+      const currentId = params.get("id");
+
+      // Only update URL if the ID actually changed
+      if (nodeId !== currentId) {
+        if (nodeId) {
+          params.set("id", nodeId);
+        } else {
+          params.delete("id");
+        }
+
+        // Use window.history directly to avoid triggering searchParams updates
+        const newUrl = `${pathname}?${params.toString()}`;
+        window.history.replaceState(null, "", newUrl);
+      }
+    },
+    [pathname, searchParams]
   );
 
   // Memoized function to update connections for a node
@@ -584,6 +539,20 @@ const CommunityNetworkGraph: React.FC<CommunityNetworkGraphProps> = ({
     },
     [safeGetId, dataNodesMap, data.links, currentUserId, filterDataForNode]
   );
+
+  // Handle search term changes
+  useEffect(() => {
+    if (searchTerm.trim() === "") {
+      setSearchResults([]);
+      return;
+    }
+
+    const filteredNodes = data.nodes.filter((node) =>
+      node.name.toLowerCase().includes(searchTerm.toLowerCase())
+    ) as User[];
+
+    setSearchResults(filteredNodes);
+  }, [searchTerm, data.nodes]);
 
   // Initial load effect - check for URL parameters or load current user's node
   useEffect(() => {
@@ -1856,6 +1825,50 @@ const CommunityNetworkGraph: React.FC<CommunityNetworkGraphProps> = ({
       d3.select(".tooltip").remove();
     };
   }, [filteredData, getNodeRadius, safeGetId, updateNodeConnections]);
+
+  // NOW WE CAN HAVE CONDITIONAL RETURNS AFTER ALL HOOKS ARE DEFINED
+
+  // Show loading state
+  if (isLoading) {
+    return (
+      <div className="flex h-96 items-center justify-center">
+        <div className="text-center">
+          <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-b-2 border-primary"></div>
+          <p className="text-muted-foreground">Loading network data...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error state
+  if (error) {
+    return (
+      <div className="flex h-96 items-center justify-center">
+        <div className="text-center">
+          <p className="mb-2 text-destructive">Failed to load network data</p>
+          <p className="text-sm text-muted-foreground">
+            Please try again later
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show empty state if no data
+  if (!data.nodes.length) {
+    return (
+      <div className="flex h-96 items-center justify-center">
+        <div className="text-center">
+          <p className="mb-2 text-muted-foreground">
+            No network data available
+          </p>
+          <p className="text-sm text-muted-foreground">
+            Check back later for connections
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="h-[calc(100vh-2rem)] w-full rounded-lg bg-white shadow">
