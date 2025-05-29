@@ -509,6 +509,7 @@ const CommunityNetworkGraph: React.FC<CommunityNetworkGraphProps> = ({
                 name: connectedNode.name,
                 weight: linkData.weight || 5, // Get weight from link data or default to 5
                 type: connectedNode.type as NodeType,
+                description: linkData.description, // Include the detailed similarity description
               };
             }
           );
