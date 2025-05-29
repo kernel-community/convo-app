@@ -27,6 +27,7 @@ export interface Link {
   target: string | { id: string };
   type?: string; // Optional type for the link (e.g., "contributor", "creator", etc.)
   weight?: number; // Connection strength (0-10)
+  description?: string; // Detailed similarity calculation description
 }
 
 export interface Connection {
@@ -34,4 +35,5 @@ export interface Connection {
   name: string;
   weight: number;
   type: NodeType;
+  description?: string; // Detailed similarity calculation description
 }

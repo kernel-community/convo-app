@@ -66,8 +66,7 @@ export async function GET(request: NextRequest) {
       source: connection.fromId,
       target: connection.toId,
       weight: connection.weight,
-      // Optionally include description if needed
-      // description: connection.description
+      description: connection.description,
     }));
 
     // Return data in the exact same format as mock.ts

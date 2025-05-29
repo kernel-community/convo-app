@@ -21,6 +21,7 @@ interface Link {
   source: string;
   target: string;
   weight: number;
+  description?: string; // Detailed similarity calculation description
 }
 
 interface NetworkData {
