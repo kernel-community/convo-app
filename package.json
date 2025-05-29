@@ -30,7 +30,12 @@
     "seed:connections:sparse": "npx tsx scripts/seed-connections.ts --clear --density sparse --max 20",
     "seed:connections:dense": "npx tsx scripts/seed-connections.ts --clear --density dense --max 1000",
     "seed:connections:test": "npx tsx scripts/seed-connections.ts --clear --density sparse --max 10",
-    "fix:weights": "npx tsx scripts/fix-weights.ts"
+    "fix:weights": "npx tsx scripts/fix-weights.ts",
+    "similarity:calculate": "npx tsx scripts/calculate-similarity.ts",
+    "similarity:calculate:clear": "npx tsx scripts/calculate-similarity.ts --clear",
+    "similarity:dry-run": "npx tsx scripts/calculate-similarity.ts --dry-run --verbose",
+    "similarity:user": "npx tsx scripts/calculate-similarity.ts --user",
+    "similarity:help": "npx tsx scripts/calculate-similarity.ts --help"
   },
   "lint-staged": {
     "*.{jsx,js,tsx,ts}": "prettier --write"
