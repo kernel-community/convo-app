@@ -104,17 +104,35 @@ model Connections {
 }
 
 model Profile {
-  id                 String   @id @default(uuid())
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
-  userId             String   @unique
-  user               User     @relation(fields: [userId], references: [id])
+  id                 String           @id @default(uuid())
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+  userId             String           @unique
+  user               User             @relation(fields: [userId], references: [id])
   // profile data
   bio                String?
   image              String?
   keywords           String[]
   url                String?
+  socialHandle      String?
   currentAffiliation String?
+  history            ProfileHistory[]
+}
+
+model ProfileHistory {
+  id                 String   @id @default(uuid())
+  createdAt          DateTime @default(now())
+  profileId          String
+  profile            Profile  @relation(fields: [profileId], references: [id])
+  // snapshot of all fields at this point in time
+  bio                String?
+  image              String?
+  keywords           String[]
+  url                String?
+  Handle      String?
+  currentAffiliation String?
+  // metadata
+  changedBy          String?  // User ID or system identifier that made the change
 }
 
 model Collection {
