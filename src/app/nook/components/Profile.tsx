@@ -29,6 +29,10 @@ const Profile: React.FC<ProfileProps> = ({
   // Store minimized state in a ref to persist across selectedNode changes
   const minimizedStateRef = useRef(false);
   const [isMinimized, setIsMinimized] = useState(minimizedStateRef.current);
+  const [expandedDescriptions, setExpandedDescriptions] = useState<{
+    [key: string]: boolean;
+  }>({});
+  console.log("Direct connections data:", directConnections);
   const [dragConstraints, setDragConstraints] = useState({
     top: 0,
     right: 0,
@@ -326,46 +330,112 @@ const Profile: React.FC<ProfileProps> = ({
                   className="max-h-64 divide-y overflow-auto pr-2"
                   style={{ borderColor: "#eee" }}
                 >
-                  {directConnections.map((connection) => (
-                    <div
-                      key={connection.id}
-                      className="rounded flex cursor-pointer items-center justify-between px-2 py-2 transition-colors hover:bg-gray-50"
-                      onClick={() => onSelectConnection?.(connection.id)}
-                    >
-                      <div className="flex-1">
-                        <div className="font-medium text-gray-800">
-                          {connection.name}
-                        </div>
-                        <div className="text-xs text-gray-500">
-                          {connection.type === "user"
-                            ? "Member"
-                            : connection.type}
-                        </div>
-                      </div>
+                  {directConnections.map((connection) => {
+                    const isDescriptionExpanded =
+                      expandedDescriptions[connection.id] || false;
+                    const toggleDescription = () => {
+                      setExpandedDescriptions((prev) => ({
+                        ...prev,
+                        [connection.id]: !prev[connection.id],
+                      }));
+                    };
+
+                    return (
                       <div
-                        className="rounded px-2 py-1 text-xs"
-                        style={{
-                          background:
-                            connection.weight > 7
-                              ? "var(--highlight-active)"
-                              : connection.weight > 5
-                              ? "var(--highlight)"
-                              : "var(--accent)",
-                          color:
-                            connection.weight > 5
-                              ? "white"
-                              : "var(--accent-foreground)",
-                          boxShadow: "1px 1px 0 rgba(0, 0, 0, 0.1)",
-                        }}
+                        key={connection.id}
+                        className="rounded px-2 py-2 transition-colors hover:bg-gray-50"
                       >
-                        {connection.weight > 7
-                          ? "Very Close"
-                          : connection.weight > 5
-                          ? "Close"
-                          : "Connected"}
+                        <div
+                          className="flex cursor-pointer items-center justify-between"
+                          onClick={() => onSelectConnection?.(connection.id)}
+                        >
+                          <div className="flex-1">
+                            <div className="font-medium text-gray-800">
+                              {connection.name}
+                            </div>
+                            <div className="text-xs text-gray-500">
+                              {connection.type === "user"
+                                ? "Member"
+                                : connection.type}
+                            </div>
+                          </div>
+                          <div
+                            className="rounded px-2 py-1 text-xs"
+                            style={{
+                              background:
+                                connection.weight > 7
+                                  ? "var(--highlight-active)"
+                                  : connection.weight > 5
+                                  ? "var(--highlight)"
+                                  : "var(--accent)",
+                              color:
+                                connection.weight > 5
+                                  ? "white"
+                                  : "var(--accent-foreground)",
+                              boxShadow: "1px 1px 0 rgba(0, 0, 0, 0.1)",
+                            }}
+                          >
+                            Score: {connection.weight}/10
+                          </div>
+                        </div>
+
+                        {/* Similarity Description */}
+                        {connection.description && (
+                          <div className="mt-2">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                toggleDescription();
+                              }}
+                              className="text-xs text-blue-600 underline hover:text-blue-800"
+                            >
+                              {isDescriptionExpanded
+                                ? "Hide calculation details"
+                                : "Show calculation details"}
+                            </button>
+
+                            {isDescriptionExpanded && (
+                              <div className="rounded mt-2 border bg-gray-50 p-3 font-mono text-xs leading-relaxed">
+                                {connection.description
+                                  .split(" | ")
+                                  .map((part: string, index: number) => (
+                                    <div key={index} className="mb-1">
+                                      {part.startsWith(
+                                        "CALCULATION BREAKDOWN:"
+                                      ) ? (
+                                        <div className="mb-1 font-bold text-blue-700">
+                                          {part}
+                                        </div>
+                                      ) : part.startsWith(
+                                          "FACTOR ANALYSIS:"
+                                        ) ? (
+                                        <div className="mb-1 font-bold text-green-700">
+                                          {part}
+                                        </div>
+                                      ) : part.startsWith(
+                                          "DOMINANT FACTOR:"
+                                        ) ? (
+                                        <div className="mb-1 font-bold text-purple-700">
+                                          {part}
+                                        </div>
+                                      ) : part.includes("SIMILARITY") ? (
+                                        <div className="mb-1 font-bold text-red-700">
+                                          {part}
+                                        </div>
+                                      ) : (
+                                        <div className="text-gray-700">
+                                          {part}
+                                        </div>
+                                      )}
+                                    </div>
+                                  ))}
+                              </div>
+                            )}
+                          </div>
+                        )}
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               ) : (
                 <div className="py-4 text-center text-sm italic text-gray-500">

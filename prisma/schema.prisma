@@ -92,7 +92,7 @@ model User {
 model Connections {
   id          String   @id @default(uuid())
   description String
-  weight      Int
+  weight      Int      // Connection strength: 1-10 (1=weak, 10=strong)
   fromId      String
   from        User     @relation("User", fields: [fromId], references: [id], onDelete: Cascade)
   toId        String

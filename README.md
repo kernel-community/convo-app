@@ -8,7 +8,7 @@
 
 ### Read more
 
-- The best place to stay updated on all things Convo is to check what's [currently in the pipeline](https://github.com/kernel-community/convo-app/discussions/categories/dev-notes) or what [I'm musing on](https://thinkingabout.convo.cafe)
+- The best place to stay updated on all things Convo is to check what's [currently in the pipeline](https://github.com/kernel-community/convo-app/discussions/categories/dev-notes)
 - See [Milestones](https://github.com/kernel-community/convo-app/milestones) for the current focus
 
 ### Connect
@@ -18,7 +18,7 @@
 ### URLs
 
 - app: https://convo.cafe
-- blog/notes: https://thinkingabout.convo.cafe
+- blog/notes: https://convo.cafe/blog
 - updates: https://t.me/startaconvo
 - ENS: `convo.cafe`
 
