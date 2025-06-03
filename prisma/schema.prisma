@@ -25,6 +25,7 @@ model Community {
   description    String
   subdomain      String    @unique
   url            String?
+  imageUrl       String?
   features       Json? // Store feature flags and community-specific settings
   templateConfig Json? // Store community-specific template configurations
   events         Event[]
