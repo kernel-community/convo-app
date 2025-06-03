@@ -18,17 +18,19 @@ enum EventType {
 }
 
 model Community {
-  id             String   @id @default(uuid())
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  id             String    @id @default(uuid())
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
   displayName    String
   description    String
-  subdomain      String   @unique
+  subdomain      String    @unique
   url            String?
+  imageUrl       String?
   features       Json? // Store feature flags and community-specific settings
   templateConfig Json? // Store community-specific template configurations
   events         Event[]
   slack          Slack?
+  profiles       Profile[]
 }
 
 enum LocationType {
@@ -38,34 +40,34 @@ enum LocationType {
 }
 
 model Event {
-  id                 String               @id @default(uuid())
-  createdAt          DateTime             @default(now())
-  updatedAt          DateTime             @updatedAt
+  id                 String                @id @default(uuid())
+  createdAt          DateTime              @default(now())
+  updatedAt          DateTime              @updatedAt
   title              String
   descriptionHtml    String?
   startDateTime      DateTime
   endDateTime        DateTime
   creationTimezone   String?
   location           String
-  locationType       LocationType         @default(ONLINE)
+  locationType       LocationType          @default(ONLINE)
   hash               String // @note deprecated
   series             Boolean // @note deprecated
   limit              Int
   rrule              String?
-  sequence           Int                  @default(0)
-  isDeleted          Boolean              @default(false)
+  sequence           Int                   @default(0)
+  isDeleted          Boolean               @default(false)
   gCalEventId        String? // KEEP, DONT REMOVE
-  type               EventType            @default(JUNTO)
+  type               EventType             @default(JUNTO)
   rsvps              Rsvp[]
   collections        Collection[]
   reminders          Email[]
   communityId        String?
-  community          Community?           @relation(fields: [communityId], references: [id])
-  isImported         Boolean              @default(false)
+  community          Community?            @relation(fields: [communityId], references: [id])
+  isImported         Boolean               @default(false)
   PostedSlackMessage PostedSlackMessage[]
   waitlist           Waitlist[]
   proposers          EventProposer[]
-  requiresApproval   Boolean              @default(false)
+  requiresApproval   Boolean               @default(false)
   approvalRequests   RsvpApprovalRequest[]
 }
 
@@ -74,7 +76,7 @@ model User {
   email       String?      @unique
   address     String?      @unique // deprecated
   nickname    String       @default("Anonymous")
-  profile     Profile?
+  profiles    Profile[]
   isBeta      Boolean      @default(false)
   rsvps       Rsvp[]
   collections Collection[]
@@ -92,7 +94,7 @@ model User {
 model Connections {
   id          String   @id @default(uuid())
   description String
-  weight      Int
+  weight      Int // Connection strength: 1-10 (1=weak, 10=strong)
   fromId      String
   from        User     @relation("User", fields: [fromId], references: [id], onDelete: Cascade)
   toId        String
@@ -104,35 +106,51 @@ model Connections {
 }
 
 model Profile {
-  id                 String           @id @default(uuid())
-  createdAt          DateTime         @default(now())
-  updatedAt          DateTime         @updatedAt
-  userId             String           @unique
-  user               User             @relation(fields: [userId], references: [id])
+  id                 String     @id @default(uuid())
+  createdAt          DateTime   @default(now())
+  updatedAt          DateTime   @updatedAt
+  communityId        String?
+  community          Community? @relation(fields: [communityId], references: [id])
+  userId             String
+  user               User       @relation(fields: [userId], references: [id])
+
   // profile data
   bio                String?
   image              String?
   keywords           String[]
   url                String?
-  socialHandle      String?
+  socialHandle       String?
   currentAffiliation String?
-  history            ProfileHistory[]
+
+  project            String?
+  projectDescription String?
+  projectUrl         String?
+  city               String?
+  uploadUrl          String?
+  uploadFileName     String?
+  uploadMimeType     String?
+  customData         Json?
+
+  // @note: for snapshots
+  history ProfileHistory[]
+
+  @@unique([userId, communityId])
 }
 
 model ProfileHistory {
   id                 String   @id @default(uuid())
   createdAt          DateTime @default(now())
   profileId          String
-  profile            Profile  @relation(fields: [profileId], references: [id])
+  profile            Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
   // snapshot of all fields at this point in time
   bio                String?
   image              String?
   keywords           String[]
   url                String?
-  Handle      String?
+  Handle             String?
   currentAffiliation String?
   // metadata
-  changedBy          String?  // User ID or system identifier that made the change
+  changedBy          String? // User ID or system identifier that made the change
 }
 
 model Collection {
@@ -255,18 +273,18 @@ model EventProposer {
 }
 
 model RsvpApprovalRequest {
-  id            String                @id @default(uuid())
-  createdAt     DateTime              @default(now())
-  updatedAt     DateTime              @updatedAt
+  id            String               @id @default(uuid())
+  createdAt     DateTime             @default(now())
+  updatedAt     DateTime             @updatedAt
   eventId       String
-  event         Event                 @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  event         Event                @relation(fields: [eventId], references: [id], onDelete: Cascade)
   userId        String
-  user          User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user          User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
   rsvpType      RSVP_TYPE
-  status        RSVP_APPROVAL_STATUS  @default(PENDING)
+  status        RSVP_APPROVAL_STATUS @default(PENDING)
   message       String?
   reviewedBy    String?
-  reviewer      User?                 @relation("ReviewedRequests", fields: [reviewedBy], references: [id], onDelete: SetNull)
+  reviewer      User?                @relation("ReviewedRequests", fields: [reviewedBy], references: [id], onDelete: SetNull)
   reviewedAt    DateTime?
   reviewMessage String?
 

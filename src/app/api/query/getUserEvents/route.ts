@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "src/utils/db";
 import formatEvent from "src/utils/formatEvent";
 import { DateTime } from "luxon";
+import { getCommunityFromSubdomain } from "src/utils/getCommunityFromSubdomain";
 
 export async function POST(req: NextRequest) {
   try {
@@ -14,6 +15,9 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Get the community for the current subdomain
+    const community = await getCommunityFromSubdomain();
+
     const now = new Date();
 
     // Common include options for both queries
@@ -22,7 +26,10 @@ export async function POST(req: NextRequest) {
         include: {
           user: {
             include: {
-              profile: true,
+              profiles: {
+                where: { communityId: community.id },
+                take: 1,
+              },
             },
           },
         },
@@ -31,7 +38,10 @@ export async function POST(req: NextRequest) {
         include: {
           attendee: {
             include: {
-              profile: true,
+              profiles: {
+                where: { communityId: community.id },
+                take: 1,
+              },
             },
           },
         },

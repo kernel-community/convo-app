@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { prisma } from "src/utils/db";
 import { Prisma } from "@prisma/client";
+import { getCommunityFromSubdomain } from "src/utils/getCommunityFromSubdomain";
 
 // Expected structure for the response items
 type ProposerInfo = {
@@ -28,6 +29,9 @@ export async function GET(request: NextRequest) {
   }
 
   try {
+    // Get the community for the current subdomain
+    const community = await getCommunityFromSubdomain();
+
     const users = await prisma.user.findMany({
       where: {
         id: {
@@ -37,7 +41,11 @@ export async function GET(request: NextRequest) {
       select: {
         id: true,
         nickname: true,
-        profile: {
+        profiles: {
+          where: {
+            communityId: community.id,
+          },
+          take: 1,
           select: {
             image: true,
           },
@@ -49,7 +57,7 @@ export async function GET(request: NextRequest) {
     const formattedUsers: ProposerInfo[] = users.map((user) => ({
       id: user.id,
       nickname: user.nickname ?? null, // Ensure nickname is null if missing
-      image: user.profile?.image ?? null, // Handle potentially null profile/image
+      image: user.profiles[0]?.image ?? null, // Handle community-specific profile image
     }));
 
     // Optional: Maintain original order if needed (Prisma doesn't guarantee order)

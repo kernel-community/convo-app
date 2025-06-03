@@ -5,6 +5,7 @@ import { prepareSlackMessage } from "src/utils/slack/prepareSlackMessage";
 import { DEFAULT_HOST } from "src/utils/constants";
 import { NextResponse, type NextRequest } from "next/server";
 import { headers } from "next/headers";
+import { getCommunityFromSubdomain } from "src/utils/getCommunityFromSubdomain";
 
 export async function POST(req: NextRequest) {
   console.log("[api] services/slack/notify");
@@ -12,6 +13,10 @@ export async function POST(req: NextRequest) {
   const body = await req.json();
   const { eventId, type } = pick(body, ["eventId", "type"]);
   const host = headersList.get("host") ?? "kernel";
+
+  // Get the community for the current subdomain
+  const community = await getCommunityFromSubdomain();
+
   const event = await prisma.event.findUnique({
     where: {
       id: eventId,
@@ -21,7 +26,10 @@ export async function POST(req: NextRequest) {
         include: {
           user: {
             include: {
-              profile: true,
+              profiles: {
+                where: { communityId: community.id },
+                take: 1,
+              },
             },
           },
         },
@@ -30,7 +38,10 @@ export async function POST(req: NextRequest) {
         include: {
           attendee: {
             include: {
-              profile: true,
+              profiles: {
+                where: { communityId: community.id },
+                take: 1,
+              },
             },
           },
         },

@@ -3,6 +3,13 @@ import { Article } from "../Article";
 import Signature from "./Signature"; // RE-IMPORTED
 import type { ClientEvent } from "src/types";
 import React from "react";
+import { Button } from "src/components/ui/button";
+import { Dialog, DialogContent, DialogTrigger } from "src/components/ui/dialog";
+import { UserImage } from "src/components/ui/default-user-image";
+import { Pencil, Check, X, Copy } from "lucide-react";
+import { Badge } from "src/components/ui/badge";
+import { useUser } from "src/context/UserContext";
+import { getUserImage } from "src/utils/getUserProfile";
 
 // Helper function to format names
 /*
@@ -27,6 +34,12 @@ const EventDetails = ({
   // const proposerNicknames = proposers?.map((p: { userId: string; nickname: string }) => p.nickname) ?? [];
   // const formattedProposerNames = formatNames(proposerNicknames);
 
+  const proposeWithProposers = proposers.flatMap((p) => ({
+    id: p.userId,
+    nickname: p.user.nickname,
+    image: getUserImage(p.user),
+  }));
+
   return (
     <>
       <div className="font-primary text-lg font-light">Convo Description</div>
@@ -50,7 +63,9 @@ const EventDetails = ({
                   user={{
                     id: p.user.id,
                     nickname: p.user.nickname,
-                    image: p.user.profile?.image,
+                    image: getUserImage(p.user),
+                    profiles: p.user.profiles,
+                    profile: p.user.profile,
                   }}
                   style="fancy"
                   className="text-4xl"

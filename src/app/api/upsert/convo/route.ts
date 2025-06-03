@@ -14,6 +14,10 @@ import { cancelReminderEmails } from "src/utils/email/scheduleReminders";
 import { rrulestr } from "rrule";
 import { cleanupRruleString } from "src/utils/rrule";
 import { queueEmailBatch } from "src/lib/queue";
+import {
+  EVENT_ORGANIZER_EMAIL,
+  EVENT_ORGANIZER_NAME,
+} from "src/utils/constants";
 
 // Helper function to check if there are significant changes in the event details
 const hasSignificantChanges = (
@@ -209,6 +213,21 @@ export async function POST(req: NextRequest) {
   } = _.pick(body, ["event", "userId"]);
   console.timeEnd("parse-json");
 
+  if (!userId) {
+    return NextResponse.json({ error: "userId is required" }, { status: 400 });
+  }
+
+  // Get the community for community-specific profiles
+  const community = await getCommunityFromSubdomain();
+
+  // Validate required fields
+  if (!event.title || !event.description) {
+    return NextResponse.json(
+      { error: "Title and description are required" },
+      { status: 400 }
+    );
+  }
+
   // Validate that event dates are not in the past
   const now = DateTime.now();
 
@@ -285,12 +304,26 @@ export async function POST(req: NextRequest) {
       include: {
         proposers: {
           include: {
-            user: { include: { profile: true } },
+            user: {
+              include: {
+                profiles: {
+                  where: { communityId: community.id },
+                  take: 1,
+                },
+              },
+            },
           },
         },
         rsvps: {
           include: {
-            attendee: true,
+            attendee: {
+              include: {
+                profiles: {
+                  where: { communityId: community.id },
+                  take: 1,
+                },
+              },
+            },
           },
         },
       },
@@ -308,7 +341,10 @@ export async function POST(req: NextRequest) {
     const currentUser = await prisma.user.findUnique({
       where: { id: userId },
       include: {
-        profile: true,
+        profiles: {
+          where: { communityId: community.id },
+          take: 1,
+        },
       },
     });
 
@@ -391,14 +427,24 @@ export async function POST(req: NextRequest) {
       include: {
         proposers: {
           include: {
-            user: { include: { profile: true } },
+            user: {
+              include: {
+                profiles: {
+                  where: { communityId: community.id },
+                  take: 1,
+                },
+              },
+            },
           },
         },
         rsvps: {
           include: {
             attendee: {
               include: {
-                profile: true,
+                profiles: {
+                  where: { communityId: community.id },
+                  take: 1,
+                },
               },
             },
           },
@@ -506,11 +552,6 @@ export async function POST(req: NextRequest) {
 
   const hash = event.hash || nanoid(10);
 
-  // Use the centralized utility to get or create the appropriate community
-  console.time("community-resolution");
-  const community = await getCommunityFromSubdomain();
-  console.timeEnd("community-resolution");
-
   // --- Proposer Create Logic ---
   // Prepare the list of proposers to create
   // Start with the user making the request
@@ -559,14 +600,24 @@ export async function POST(req: NextRequest) {
     include: {
       proposers: {
         include: {
-          user: { include: { profile: true } },
+          user: {
+            include: {
+              profiles: {
+                where: { communityId: community.id },
+                take: 1,
+              },
+            },
+          },
         },
       },
       rsvps: {
         include: {
           attendee: {
             include: {
-              profile: true,
+              profiles: {
+                where: { communityId: community.id },
+                take: 1,
+              },
             },
           },
         },

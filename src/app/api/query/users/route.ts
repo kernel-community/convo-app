@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "src/utils/db";
 import { Prisma } from "@prisma/client";
+import { getCommunityFromSubdomain } from "src/utils/getCommunityFromSubdomain";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -12,6 +13,9 @@ export async function GET(request: Request) {
   }
 
   try {
+    // Get the community for the current subdomain
+    const community = await getCommunityFromSubdomain();
+
     const users = await prisma.user.findMany({
       where: {
         nickname: {
@@ -23,7 +27,11 @@ export async function GET(request: Request) {
       select: {
         id: true,
         nickname: true,
-        profile: {
+        profiles: {
+          where: {
+            communityId: community.id,
+          },
+          take: 1,
           select: {
             image: true,
           },
@@ -39,7 +47,7 @@ export async function GET(request: Request) {
     const formattedUsers = users.map((user) => ({
       id: user.id,
       nickname: user.nickname,
-      image: user.profile?.image || null, // Handle potentially null profile/image
+      image: user.profiles[0]?.image || null, // Handle community-specific profile image
     }));
 
     return NextResponse.json({ users: formattedUsers });

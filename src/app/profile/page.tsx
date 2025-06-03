@@ -31,6 +31,7 @@ import {
   DEFAULT_PROFILE_PICTURES,
 } from "src/utils/constants";
 import { Separator } from "src/components/ui/separator";
+import { useCommunity } from "src/hooks/useCommunity";
 
 // Create a simple Textarea component if not available
 const Textarea = ({
@@ -65,6 +66,9 @@ const ProfilePage = () => {
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [keywordInput, setKeywordInput] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(true);
+
+  // Get current community information
+  const { community, isLoading: communityLoading } = useCommunity();
 
   // Profile data
   const {
@@ -588,6 +592,25 @@ const ProfilePage = () => {
               {isEditing ? formState.user.nickname : userAttributes.nickname} :)
             </h1>
           </div>
+
+          {/* Community Profile Indicator */}
+          {community && !communityLoading && (
+            <div className="border-primary/20 from-primary/5 to-primary/10 mb-6 rounded-xl border bg-gradient-to-r p-4 backdrop-blur-sm">
+              <div>
+                <p className="font-medium text-foreground">
+                  Your{" "}
+                  <span className="font-semibold text-primary">
+                    {community.displayName}
+                  </span>{" "}
+                  community profile
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  This profile is specific to the {community.displayName}{" "}
+                  community
+                </p>
+              </div>
+            </div>
+          )}
 
           {/* Grid layout: Image on left (md+), Details on right (md+) / Stacked on mobile */}
           <div className="grid gap-8 md:grid-cols-[200px_1fr]">

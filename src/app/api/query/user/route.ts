@@ -3,6 +3,7 @@ import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { prisma } from "src/utils/db";
 import { cookies } from "next/headers";
+import { getCommunityFromSubdomain } from "src/utils/getCommunityFromSubdomain";
 
 // This tells Next.js this route should be dynamically rendered
 export const dynamic = "force-dynamic";
@@ -37,22 +38,58 @@ export async function POST(req: NextRequest) {
   }
 
   try {
+    // Get the current community from subdomain
+    const community = await getCommunityFromSubdomain();
+    console.log(
+      `Fetching user data for user: ${effectiveUserId} in community: ${community.displayName} (${community.subdomain})`
+    );
+
+    // Fetch the user
     const user = await prisma.user.findUnique({
       where: {
         id: effectiveUserId,
       },
-      include: {
-        profile: true, // Include the profile which contains the image
+    });
+
+    if (!user) {
+      return NextResponse.json(
+        {
+          data: null,
+          error: "User not found",
+        },
+        { status: 404 }
+      );
+    }
+
+    // Try to get the profile for the current community
+    let profile = await prisma.profile.findUnique({
+      where: {
+        userId_communityId: {
+          userId: effectiveUserId,
+          communityId: community.id,
+        },
       },
     });
 
-    // Transform the user object to flatten the profile data for easier access
-    const userData = user
-      ? {
-          ...user,
-          image: user.profile?.image || null, // Add image directly to the user object
-        }
-      : null;
+    // If no profile exists for this community, fall back to the most recent profile from any community
+    if (!profile) {
+      console.log(
+        `No profile found for user ${effectiveUserId} in community ${community.subdomain}, using fallback profile`
+      );
+      profile = await prisma.profile.findFirst({
+        where: {
+          userId: effectiveUserId,
+        },
+        orderBy: { updatedAt: "desc" },
+      });
+    }
+
+    // Transform the user object to include the profile data for easier access
+    const userData = {
+      ...user,
+      profile,
+      image: profile?.image || null, // Add image directly to the user object for backward compatibility
+    };
 
     return NextResponse.json({
       data: userData,

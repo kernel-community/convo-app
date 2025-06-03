@@ -16,11 +16,14 @@ import type {
 import { DateTime } from "luxon";
 
 export type ServerEvent = Event & {
-  proposers: (EventProposer & { user: User & { profile: Profile | null } })[];
+  proposers: (EventProposer & {
+    user: User & { profiles?: Profile[]; profile?: Profile | null };
+  })[];
   rsvps: Array<
     Rsvp & {
       attendee: User & {
-        profile: Profile | null;
+        profiles?: Profile[];
+        profile?: Profile | null;
       };
     }
   >;
@@ -45,7 +48,9 @@ export type ClientEvent = Omit<ServerEvent, "startDateTime" | "endDateTime"> & {
   startDateTime: string;
   endDateTime: string;
   proposers: Array<
-    EventProposer & { user: User & { profile: Profile | null } }
+    EventProposer & {
+      user: User & { profiles?: Profile[]; profile?: Profile | null };
+    }
   >;
   uniqueRsvps: ServerEvent["rsvps"];
   recurrenceRule: string;
@@ -134,7 +139,7 @@ export const clientEventInputValidationScheme = z.object({
 export type ClientEventInput = z.infer<typeof clientEventInputValidationScheme>;
 
 export type RsvpApprovalRequestWithDetails = RsvpApprovalRequest & {
-  user: User & { profile: Profile | null };
+  user: User & { profiles?: Profile[]; profile?: Profile | null };
   reviewer?: {
     id: string;
     nickname: string;

@@ -239,8 +239,17 @@ export const Events = ({
   };
   const groupEventsByDay = React.useMemo(() => {
     return (pages: { data: ClientEvent[] }[]) => {
+      // Defensive check: filter out pages that don't have data (error responses)
+      const validPages = pages.filter(
+        (page) => page && page.data && Array.isArray(page.data)
+      );
+
+      if (validPages.length === 0) {
+        return [];
+      }
+
       // Flatten all pages of events into a single array
-      const allEvents = pages.flatMap((page) => page.data);
+      const allEvents = validPages.flatMap((page) => page.data);
 
       // Pre-process dates once
       const eventsWithProcessedDates = allEvents.map((event) => ({
@@ -268,6 +277,15 @@ export const Events = ({
       });
     };
   }, [type]); // Add type as a dependency since we use it in the sorting logic
+
+  // Helper function to safely check if we have valid data
+  const hasValidData =
+    data &&
+    data.pages &&
+    data.pages.length > 0 &&
+    data.pages[0] &&
+    data.pages[0].data &&
+    Array.isArray(data.pages[0].data);
 
   return (
     <>
@@ -300,7 +318,11 @@ export const Events = ({
       {displayLoadingState && <Loading />}
       {!displayLoadingState && data && (
         <div className="flex flex-col gap-6">
-          {data.pages[0].data.length === 0 ? (
+          {!hasValidData ? (
+            <div className="font-primary lowercase">
+              no events to display here
+            </div>
+          ) : data.pages[0].data.length === 0 ? (
             <div className="font-primary lowercase">
               no events to display here
             </div>
@@ -319,10 +341,13 @@ export const Events = ({
                       date={selectedDate}
                       onDateChange={setSelectedDate}
                       eventDates={data?.pages.flatMap((page) =>
-                        page.data.map(
-                          (event: { startDateTime: string | number | Date }) =>
-                            new Date(event.startDateTime)
-                        )
+                        page && page.data && Array.isArray(page.data)
+                          ? page.data.map(
+                              (event: {
+                                startDateTime: string | number | Date;
+                              }) => new Date(event.startDateTime)
+                            )
+                          : []
                       )}
                     />
                     <button
@@ -386,11 +411,13 @@ export const Events = ({
                         date={date}
                         onDateChange={(newDate) => setSelectedDate(newDate)}
                         eventDates={data?.pages.flatMap((page) =>
-                          page.data.map(
-                            (event: {
-                              startDateTime: string | number | Date;
-                            }) => new Date(event.startDateTime)
-                          )
+                          page && page.data && Array.isArray(page.data)
+                            ? page.data.map(
+                                (event: {
+                                  startDateTime: string | number | Date;
+                                }) => new Date(event.startDateTime)
+                              )
+                            : []
                         )}
                       />
                       <div

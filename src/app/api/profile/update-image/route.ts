@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { checkSessionAuth } from "src/lib/serverAuth";
 import { prisma } from "src/utils/db";
 import { getPublicS3Url } from "src/utils/s3";
+import { getCommunityFromSubdomain } from "src/utils/getCommunityFromSubdomain";
 
 export async function POST(req: NextRequest) {
   try {
@@ -23,21 +24,33 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Get the current community from subdomain
+    const community = await getCommunityFromSubdomain();
+    console.log(
+      `Updating profile image for user: ${userId} in community: ${community.displayName} (${community.subdomain})`
+    );
+
     // Get the full S3 URL
     const imageUrl = getPublicS3Url(fileKey);
 
-    // Update or create profile with the new image URL
+    // Update or create profile with the new image URL for this specific user-community combination
     const profile = await prisma.profile.upsert({
-      where: { userId },
+      where: {
+        userId_communityId: {
+          userId,
+          communityId: community.id,
+        },
+      },
       create: {
         image: imageUrl,
         keywords: [],
         user: { connect: { id: userId } },
+        community: { connect: { id: community.id } },
       },
       update: {
         image: imageUrl,
       },
-      include: { user: true },
+      include: { user: true, community: true },
     });
 
     return NextResponse.json({

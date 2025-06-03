@@ -22,9 +22,10 @@ export async function getCommunityFromSubdomain() {
   // Special case handling
   let targetSubdomain = subdomain;
 
-  // Case 1: Request from localhost - use 'dev' community
-  if (subdomain.startsWith("localhost")) {
-    console.log(`Request from localhost - using 'dev' community`);
+  // Case 1: Request from localhost - but only if subdomain is actually "localhost"
+  // If the x-subdomain header is set to something specific (like in tests), use that
+  if (subdomain === "localhost") {
+    console.log(`Request from localhost - using 'dev' community as default`);
     targetSubdomain = "dev";
   }
   // Case 2: Request from root domain (convo.cafe without subdomain)
@@ -34,37 +35,34 @@ export async function getCommunityFromSubdomain() {
     targetSubdomain = "kernel";
   }
 
+  console.log(
+    `Resolving community for subdomain: ${targetSubdomain} (original: ${subdomain})`
+  );
+
   // Try to find community for the specified subdomain
-  let community = await prisma.community.findUnique({
+  const community = await prisma.community.findUnique({
     where: { subdomain: targetSubdomain },
     include: {
       slack: true,
     },
   });
 
-  // If no community found for the special cases or specified subdomain, fall back to default
-  if (!community) {
-    const defaultSubdomain = isProd(originalHost) ? "kernel" : "staging";
-
-    console.log(
-      `Community for subdomain '${targetSubdomain}' not found, trying default '${defaultSubdomain}'`
-    );
-
-    community = await prisma.community.findUnique({
-      where: { subdomain: defaultSubdomain },
-      include: {
-        slack: true,
-      },
-    });
-  }
-
-  // If still no community, throw error
+  // If still no community, throw error with helpful message
   if (!community || isNil(community)) {
+    const availableCommunities = await prisma.community.findMany({
+      select: { subdomain: true, displayName: true },
+    });
+
     throw new Error(
-      "Community is undefined. Every request should belong to a community. Check database setup."
+      `Community not found for subdomain '${targetSubdomain}'. Available communities: ${availableCommunities
+        .map((c) => `${c.displayName} (${c.subdomain})`)
+        .join(", ")}`
     );
   }
 
+  console.log(
+    `✅ Resolved to community: ${community.displayName} (${community.subdomain}) - ID: ${community.id}`
+  );
   return community;
 }
 
