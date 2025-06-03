@@ -390,7 +390,7 @@ async function seedProfiles(options: SeedOptions = {}) {
     console.log("👥 Fetching users...");
     const users = await prisma.user.findMany({
       include: {
-        profile: true,
+        profiles: true,
       },
     });
 
@@ -401,7 +401,7 @@ async function seedProfiles(options: SeedOptions = {}) {
 
     const usersNeedingProfiles = clear
       ? users
-      : users.filter((user) => !user.profile);
+      : users.filter((user) => !user.profiles);
     console.log(
       `   Found ${users.length} total users, ${usersNeedingProfiles.length} need profiles`
     );
@@ -437,7 +437,12 @@ async function seedProfiles(options: SeedOptions = {}) {
     for (const profileData of profiles) {
       try {
         await prisma.profile.upsert({
-          where: { userId: profileData.userId },
+          where: {
+            userId_communityId: {
+              userId: profileData.userId,
+              communityId: null as any,
+            },
+          },
           update: profileData,
           create: profileData,
         });
