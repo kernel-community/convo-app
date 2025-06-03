@@ -133,7 +133,7 @@ async function main() {
         data: {
           email: profile.email,
           nickname: profile.nickname,
-          profile: {
+          profiles: {
             create: {
               bio: profile.bio,
             },
