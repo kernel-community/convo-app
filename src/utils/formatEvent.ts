@@ -20,8 +20,15 @@ type ServerEventWithWaitlist = ServerEvent & {
     user: {
       id: string;
       nickname: string;
+      profiles?: Array<{
+        image?: string;
+        bio?: string;
+        currentAffiliation?: string;
+      }>;
       profile?: {
         image?: string;
+        bio?: string;
+        currentAffiliation?: string;
       } | null;
     };
     reviewer?: {
@@ -29,6 +36,20 @@ type ServerEventWithWaitlist = ServerEvent & {
       nickname: string;
     } | null;
   }>; // Expecting an array with 0 or 1 entry for the specific user
+};
+
+// Helper function to extract profile from either profiles array or legacy profile field
+const getProfile = (user: any) => {
+  // If profiles array exists and has items, use the first one
+  if (
+    user.profiles &&
+    Array.isArray(user.profiles) &&
+    user.profiles.length > 0
+  ) {
+    return user.profiles[0];
+  }
+  // Fallback to legacy profile field
+  return user.profile || null;
 };
 
 // Update the function signature to accept ServerEventWithWaitlist[] and optional userId
@@ -71,7 +92,7 @@ const formatEvent = (
       ...p,
       user: {
         ...p.user,
-        profile: p.user.profile ?? null,
+        profile: getProfile(p.user),
       },
     })),
     sessions: event.map((e) => {
