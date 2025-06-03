@@ -596,25 +596,18 @@ const ProfilePage = () => {
           {/* Community Profile Indicator */}
           {community && !communityLoading && (
             <div className="border-primary/20 from-primary/5 to-primary/10 mb-6 rounded-xl border bg-gradient-to-r p-4 backdrop-blur-sm">
-              <div className="flex items-center gap-3">
-                <div className="bg-primary/15 flex h-10 w-10 items-center justify-center rounded-full">
+              <div>
+                <p className="font-medium text-foreground">
+                  Your{" "}
                   <span className="font-semibold text-primary">
-                    {community.displayName.charAt(0).toUpperCase()}
-                  </span>
-                </div>
-                <div>
-                  <p className="font-medium text-foreground">
-                    Your{" "}
-                    <span className="font-semibold text-primary">
-                      {community.displayName}
-                    </span>{" "}
-                    community profile
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    This profile is specific to the {community.displayName}{" "}
-                    community
-                  </p>
-                </div>
+                    {community.displayName}
+                  </span>{" "}
+                  community profile
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  This profile is specific to the {community.displayName}{" "}
+                  community
+                </p>
               </div>
             </div>
           )}
