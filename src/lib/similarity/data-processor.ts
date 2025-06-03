@@ -1,15 +1,22 @@
 import { prisma } from "src/utils/db";
 import type { UserProfileAnalysis } from "./types";
+import { getCommunityFromSubdomain } from "src/utils/getCommunityFromSubdomain";
 
 export class SimilarityDataProcessor {
   /**
    * Extract and analyze user profile data from the database
    */
   async extractUserProfileData(): Promise<UserProfileAnalysis[]> {
+    // Get the community for community-specific profiles
+    const community = await getCommunityFromSubdomain();
+
     // Fetch all users with their profiles only (no event data needed)
     const users = await prisma.user.findMany({
       include: {
-        profile: true,
+        profiles: {
+          where: { communityId: community.id },
+          take: 1,
+        },
       },
     });
 
@@ -17,11 +24,12 @@ export class SimilarityDataProcessor {
     const userAnalyses: UserProfileAnalysis[] = [];
 
     for (const user of users) {
+      const profile = user.profiles[0]; // Get the community-specific profile
       const analysis: UserProfileAnalysis = {
         id: user.id,
-        keywords: user.profile?.keywords || [],
-        bio: user.profile?.bio || "",
-        affiliation: user.profile?.currentAffiliation || "",
+        keywords: profile?.keywords || [],
+        bio: profile?.bio || "",
+        affiliation: profile?.currentAffiliation || "",
       };
 
       userAnalyses.push(analysis);
