@@ -35,7 +35,7 @@ import { useEffect, useState } from "react";
 import { Button } from "./ui/button";
 import { useUser } from "src/context/UserContext";
 import { motion, AnimatePresence } from "framer-motion";
-import { UserImage } from "src/components/ui/default-user-image";
+import { UserImage } from "./ui/default-user-image";
 import { EventCard, EventsView } from "./ui/event-list";
 // import { parseConvoLocation } from "src/utils/parseConvoLocation";
 import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
@@ -71,6 +71,7 @@ import {
   TooltipTrigger,
 } from "./ui/tooltip";
 import { ApprovalManagementAccordion } from "./ApprovalManagementAccordion";
+import { getUserImage } from "src/utils/getUserProfile";
 // Dialog components removed as we're now using a tooltip
 
 const When = ({
@@ -293,40 +294,53 @@ export const WhoElseIsGoing = ({
   totalSeats: number;
   noModal?: boolean;
 }) => {
-  const [open, setOpen] = useState<boolean>(false);
+  const [open, setOpen] = useState(false);
   const { fetchedUser } = useUser();
 
-  if (!isUserGoing && !isOwnerOfConvo) return null;
-  if (!fetchedUser?.isSignedIn) return null;
-
-  // Check if the current user is a proposer of this event (has admin privileges)
-  const isProposer = event.isProposer || isOwnerOfConvo;
-
-  const filteredRsvps = event.uniqueRsvps.filter(
-    (rsvp) => rsvp.rsvpType !== RSVP_TYPE.NOT_GOING
+  const attendees = event.rsvps.filter(
+    (rsvp) => rsvp.rsvpType === RSVP_TYPE.GOING
   );
-  const hasRsvps = filteredRsvps.length > 0;
 
-  // Get waitlist info from the event object
+  const hasRsvps = attendees.length > 0;
+  const waitlistCount = event.waitlistCount || 0;
   const isWaitlisted = event.isCurrentUserWaitlisted;
-  const waitlistCount = event.waitlistCount;
-  // Calculate how many others are on the waitlist
-  const othersOnWaitlist = waitlistCount > 0 ? waitlistCount - 1 : 0;
+
+  // Filter RSVPs based on permissions
+  const filteredRsvps = (() => {
+    if (isOwnerOfConvo) {
+      // Proposers can see all RSVPs
+      return event.rsvps;
+    } else if (isUserGoing) {
+      // Users who are going can see all going/maybe RSVPs but not not_going
+      return event.rsvps.filter(
+        (rsvp) =>
+          rsvp.rsvpType === RSVP_TYPE.GOING || rsvp.rsvpType === RSVP_TYPE.MAYBE
+      );
+    } else {
+      // Users who aren't going can only see going RSVPs
+      return event.rsvps.filter((rsvp) => rsvp.rsvpType === RSVP_TYPE.GOING);
+    }
+  })();
+
+  const othersOnWaitlist = Math.max(0, waitlistCount - (isWaitlisted ? 1 : 0));
 
   return (
     <>
-      {noModal ? null : (
+      {noModal && filteredRsvps.length > 0 && (
+        <ViewOtherRSVPs event={event} showDetailedInfo={isOwnerOfConvo} />
+      )}
+      {!noModal && (
         <Credenza open={open} onOpenChange={setOpen}>
-          <CredenzaContent className="flex h-[34rem] flex-col">
+          <CredenzaContent className="w-full max-w-md">
             <CredenzaHeader>
-              <CredenzaTitle>All RSVPs</CredenzaTitle>
-              {!isProposer && (
-                <CredenzaDescription className="text-sm text-muted-foreground">
-                  Personal information is hidden for privacy
-                </CredenzaDescription>
-              )}
+              <CredenzaTitle>Event Attendees</CredenzaTitle>
+              <CredenzaDescription>
+                {totalSeats > 0
+                  ? `${totalAvailableSeats} of ${totalSeats} seats available`
+                  : "No seat limit"}
+              </CredenzaDescription>
             </CredenzaHeader>
-            <CredenzaBody className="flex-1 overflow-y-auto">
+            <CredenzaBody className="max-h-96 space-y-2 overflow-y-auto">
               {filteredRsvps.map((rsvp, key) => {
                 const isCurrentUser = fetchedUser.id === rsvp.attendee.id;
                 return (
@@ -335,7 +349,7 @@ export const WhoElseIsGoing = ({
                     className="my-2 flex flex-row items-center gap-3"
                   >
                     <UserImage
-                      photo={rsvp.attendee?.profile?.image}
+                      photo={getUserImage(rsvp.attendee)}
                       size="md"
                       userId={rsvp.attendee.id}
                     />
@@ -348,12 +362,12 @@ export const WhoElseIsGoing = ({
                       <span>{rsvp.attendee.nickname}</span>
                     )}
                     {/* Show RSVP status based on permissions */}
-                    {(isProposer || isCurrentUser) && (
+                    {(isOwnerOfConvo || isCurrentUser) && (
                       <span>{rsvpTypeToEmoji(rsvp.rsvpType)}</span>
                     )}
 
                     {/* Show admin badge for proposers */}
-                    {isProposer &&
+                    {isOwnerOfConvo &&
                       event.proposers.some(
                         (p) => p.userId === rsvp.attendee.id
                       ) && (
@@ -1614,7 +1628,7 @@ const AdminMetricsAccordion = ({ event }: { event: ClientEvent }) => {
                         <UserImage
                           userId={proposer.userId}
                           size="sm"
-                          photo={proposer.user?.profile?.image ?? null}
+                          photo={getUserImage(proposer.user)}
                         />
                         <div>
                           <p className="font-medium">

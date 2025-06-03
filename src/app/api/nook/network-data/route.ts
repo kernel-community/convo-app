@@ -2,13 +2,22 @@ import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { prisma } from "src/utils/db";
 import { getDefaultProfilePicture } from "src/utils/constants";
+import { getCommunityFromSubdomain } from "src/utils/getCommunityFromSubdomain";
 
 export async function GET(request: NextRequest) {
   try {
-    // Fetch all users with their profiles, events, and RSVPs
+    // Get the community for the current subdomain
+    const community = await getCommunityFromSubdomain();
+
+    // Fetch all users with their community-specific profiles, events, and RSVPs
     const users = await prisma.user.findMany({
       include: {
-        profile: true,
+        profiles: {
+          where: {
+            communityId: community.id,
+          },
+          take: 1,
+        },
         collections: {
           include: {
             events: true,
@@ -41,6 +50,10 @@ export async function GET(request: NextRequest) {
       // Get deterministic default image based on user ID
       const defaultImage = getDefaultProfilePicture(user.id);
 
+      // Get the community-specific profile (first one from the filtered array)
+      const profile =
+        user.profiles && user.profiles.length > 0 ? user.profiles[0] : null;
+
       return {
         id: user.id,
         name: user.nickname || "Anonymous",
@@ -50,13 +63,13 @@ export async function GET(request: NextRequest) {
           rsvps: user.rsvps.length,
         },
         profile: {
-          image: user.profile?.image || defaultImage,
-          keywords: user.profile?.keywords || [],
+          image: profile?.image || defaultImage,
+          keywords: profile?.keywords || [],
           bio:
-            user.profile?.bio ||
+            profile?.bio ||
             `${user.nickname || "Anonymous"} is exploring the web3 space.`,
-          currentAffiliation: user.profile?.currentAffiliation || "Independent",
-          url: user.profile?.url || "#",
+          currentAffiliation: profile?.currentAffiliation || "Independent",
+          url: profile?.url || "#",
         },
       };
     });

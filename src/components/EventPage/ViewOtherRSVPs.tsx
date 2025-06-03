@@ -1,6 +1,7 @@
 import { RSVP_TYPE } from "@prisma/client";
 import type { ClientEvent } from "src/types";
 import { UserImage } from "src/components/ui/default-user-image";
+import { getUserImage } from "src/utils/getUserProfile";
 import {
   Tooltip,
   TooltipContent,
@@ -35,7 +36,7 @@ export default function ViewOtherRSVPs({
                 <TooltipTrigger asChild>
                   <div>
                     <UserImage
-                      photo={rsvp.attendee?.profile?.image}
+                      photo={getUserImage(rsvp.attendee)}
                       size="sm"
                       userId={rsvp.attendee.id}
                     />

@@ -94,7 +94,12 @@ export async function POST(request: NextRequest) {
             include: {
               user: {
                 include: {
-                  profile: true,
+                  profiles: {
+                    where: {
+                      communityId: community.id,
+                    },
+                    take: 1,
+                  },
                 },
               },
             },
@@ -103,7 +108,12 @@ export async function POST(request: NextRequest) {
             include: {
               attendee: {
                 include: {
-                  profile: true,
+                  profiles: {
+                    where: {
+                      communityId: community.id,
+                    },
+                    take: 1,
+                  },
                 },
               },
             },
@@ -254,7 +264,12 @@ export async function POST(request: NextRequest) {
           include: {
             user: {
               include: {
-                profile: true,
+                profiles: {
+                  where: {
+                    communityId: community.id,
+                  },
+                  take: 1,
+                },
               },
             },
           },
@@ -263,7 +278,12 @@ export async function POST(request: NextRequest) {
           include: {
             attendee: {
               include: {
-                profile: true,
+                profiles: {
+                  where: {
+                    communityId: community.id,
+                  },
+                  take: 1,
+                },
               },
             },
           },

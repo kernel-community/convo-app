@@ -48,7 +48,7 @@ export async function POST(req: NextRequest) {
       include: {
         user: {
           include: {
-            profile: true,
+            profiles: true,
           },
         },
         event: {

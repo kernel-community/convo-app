@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "src/utils/db";
 import formatEvent from "src/utils/formatEvent";
 import sanitizeEventData from "src/utils/sanitizeEventData";
+import { getCommunityFromSubdomain } from "src/utils/getCommunityFromSubdomain";
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
@@ -11,6 +12,9 @@ export async function POST(req: NextRequest) {
   if (!hash) {
     return NextResponse.json({ error: "Hash is required" }, { status: 400 });
   }
+
+  // Get the community for the current subdomain
+  const community = await getCommunityFromSubdomain();
 
   const event = await prisma.event.findFirst({
     where: {
@@ -22,7 +26,12 @@ export async function POST(req: NextRequest) {
         include: {
           user: {
             include: {
-              profile: true,
+              profiles: {
+                where: {
+                  communityId: community.id,
+                },
+                take: 1,
+              },
             },
           },
         },
@@ -31,7 +40,12 @@ export async function POST(req: NextRequest) {
         include: {
           attendee: {
             include: {
-              profile: true,
+              profiles: {
+                where: {
+                  communityId: community.id,
+                },
+                take: 1,
+              },
             },
           },
         },
@@ -60,7 +74,12 @@ export async function POST(req: NextRequest) {
         include: {
           user: {
             include: {
-              profile: true,
+              profiles: {
+                where: {
+                  communityId: community.id,
+                },
+                take: 1,
+              },
             },
           },
           reviewer: {

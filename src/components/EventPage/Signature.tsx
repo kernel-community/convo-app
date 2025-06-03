@@ -40,16 +40,26 @@ const Signature = ({
   style = "fancy",
   className,
 }: {
-  user: { id: string; nickname: string | null; image?: string | null };
+  user: {
+    id: string;
+    nickname: string | null;
+    image?: string | null;
+    profiles?: Array<{ image?: string | null }>;
+    profile?: { image?: string | null } | null;
+  };
   style?: SignatureStyle;
   className?: string;
 }) => {
   const sign = user.nickname ?? "User";
   const { font, textSizeDefault, textSizeSmall } = getStyles(style);
 
+  // Get image from profiles array (first one), or fallback to profile or direct image prop
+  const userImage =
+    user.profiles?.[0]?.image || user.profile?.image || user.image;
+
   return (
     <div className="flex flex-row items-center gap-2">
-      <UserImage userId={user.id} photo={user.image} size="sm" />
+      <UserImage userId={user.id} photo={userImage} size="sm" />
 
       <div
         className={`${font} ${textSizeSmall} md:${textSizeDefault} ${className}`}

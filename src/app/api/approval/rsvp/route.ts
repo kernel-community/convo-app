@@ -132,7 +132,7 @@ export async function POST(req: NextRequest) {
       include: {
         user: {
           include: {
-            profile: true,
+            profiles: true,
           },
         },
         event: {
@@ -230,7 +230,7 @@ export async function PUT(req: NextRequest) {
       include: {
         user: {
           include: {
-            profile: true,
+            profiles: true,
           },
         },
         event: {
@@ -289,7 +289,7 @@ export async function PUT(req: NextRequest) {
       include: {
         user: {
           include: {
-            profile: true,
+            profiles: true,
           },
         },
         event: {
@@ -419,7 +419,7 @@ export async function GET(req: NextRequest) {
       include: {
         user: {
           include: {
-            profile: true,
+            profiles: true,
           },
         },
         event: {
