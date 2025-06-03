@@ -586,12 +586,10 @@ const ProfilePage = () => {
         className="mx-auto max-w-3xl px-4 py-8 md:px-6 lg:px-8"
       >
         <div className="bg-card mb-6 rounded-lg p-6 shadow-sm">
-          <div className="mb-6 flex items-center justify-between">
-            <h1 className="font-primary text-2xl md:text-3xl">
-              Hello,{" "}
-              {isEditing ? formState.user.nickname : userAttributes.nickname} :)
-            </h1>
-          </div>
+          <h1 className="mb-6 font-primary text-2xl md:text-3xl">
+            Hello,{" "}
+            {isEditing ? formState.user.nickname : userAttributes.nickname}
+          </h1>
 
           {/* Community Profile Indicator */}
           {community && !communityLoading && (
