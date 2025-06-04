@@ -1,5 +1,6 @@
 "use client";
-import { useDynamicContext } from "@dynamic-labs/sdk-react";
+
+import { SignInButton } from "@clerk/nextjs";
 import { Button } from "./ui/button";
 
 const LoginButton = ({
@@ -9,15 +10,13 @@ const LoginButton = ({
   className?: string;
   disabled?: boolean;
 }) => {
-  const { setShowAuthFlow } = useDynamicContext();
   return (
-    <Button
-      onClick={() => setShowAuthFlow(true)}
-      className={className}
-      disabled={disabled}
-    >
-      Sign in
-    </Button>
+    <SignInButton mode="modal">
+      <Button className={className} disabled={disabled}>
+        Sign in
+      </Button>
+    </SignInButton>
   );
 };
+
 export default LoginButton;

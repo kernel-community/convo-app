@@ -1,18 +1,18 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { SimilarityService } from "src/lib/similarity/similarity-service";
-import { checkSessionAuth } from "src/lib/checkSessionAuth";
+import { auth } from "@clerk/nextjs/server";
 
 export async function POST(request: NextRequest) {
   try {
-    // Check authentication
-    const isAuthenticated = await checkSessionAuth();
-    if (!isAuthenticated) {
+    // Check authentication with Clerk
+    const { userId } = await auth();
+    if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const body = await request.json();
-    const { userId, action = "all" } = body;
+    const { userId: targetUserId, action = "all" } = body;
 
     const similarityService = new SimilarityService();
 
@@ -27,16 +27,16 @@ export async function POST(request: NextRequest) {
         message: "Similarity calculation completed",
         data: result,
       });
-    } else if (action === "user" && userId) {
+    } else if (action === "user" && targetUserId) {
       // Calculate similarities for a specific user
-      console.log(`🔄 Calculating similarities for user ${userId}...`);
+      console.log(`🔄 Calculating similarities for user ${targetUserId}...`);
       const result = await similarityService.recalculateSimilaritiesForUser(
-        userId
+        targetUserId
       );
 
       return NextResponse.json({
         success: true,
-        message: `Similarity calculation completed for user ${userId}`,
+        message: `Similarity calculation completed for user ${targetUserId}`,
         data: result,
       });
     } else if (action === "stats") {
@@ -59,7 +59,7 @@ export async function POST(request: NextRequest) {
       );
     }
   } catch (error) {
-    console.error("Error in similarity calculation API:", error);
+    console.error("Error in similarity calculation:", error);
 
     return NextResponse.json(
       {
@@ -73,9 +73,9 @@ export async function POST(request: NextRequest) {
 
 export async function GET(request: NextRequest) {
   try {
-    // Check authentication
-    const isAuthenticated = await checkSessionAuth();
-    if (!isAuthenticated) {
+    // Check authentication with Clerk
+    const { userId } = await auth();
+    if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 

@@ -5,9 +5,9 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { usePathname } from "next/navigation";
 import Main from "src/layouts/Main";
 import CommunityNetworkGraph from "./components/CommunityNetworkGraph";
-import { checkSessionAuth } from "src/lib/checkSessionAuth";
-import BetaBadge from "src/components/ui/beta-badge";
 import { useUser } from "src/context/UserContext";
+import { useUser as useClerkUser } from "@clerk/nextjs";
+import BetaBadge from "src/components/ui/beta-badge";
 
 // Array of colors for different locations
 const locationColors = [
@@ -46,6 +46,7 @@ export default function NookPage() {
     tabParam && ["network", "map"].includes(tabParam) ? tabParam : "network"
   );
   const [userName, setUserName] = useState<string>("");
+  const { isSignedIn, isLoaded } = useClerkUser();
 
   // Array of fun, whimsical greetings
   const getRandomGreeting = (name: string) => {
@@ -67,9 +68,8 @@ export default function NookPage() {
   useEffect(() => {
     const checkBetaAccess = async () => {
       try {
-        // First check if user is authenticated
-        const isAuthenticated = await checkSessionAuth();
-        if (!isAuthenticated) {
+        // Use Clerk's authentication state instead of custom session check
+        if (!isSignedIn || !isLoaded) {
           // Redirect to 404 if not authenticated
           router.push("/404");
           return;
@@ -104,7 +104,7 @@ export default function NookPage() {
     };
 
     checkBetaAccess();
-  }, [router]);
+  }, [router, isSignedIn, isLoaded]);
 
   // Set currentUserId from UserContext when fetchedUser is available
   useEffect(() => {

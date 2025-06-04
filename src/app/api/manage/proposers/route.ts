@@ -1,33 +1,26 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "src/utils/db";
-import _ from "lodash"; // Import lodash
-import { getUserIdFromSession } from "src/lib/serverAuth"; // Import the helper
+import _ from "lodash";
+import { auth } from "@clerk/nextjs/server";
+import type { NextRequest } from "next/server";
 
 // Input validation schema for POST
-// No longer need requestingUserId in schema
 const addProposerSchema = z.object({
   eventId: z.string().uuid(),
   newProposerUserId: z.string().uuid(),
-  // requestingUserId: z.string().uuid(), // REMOVED
 });
 
-export async function POST(request: Request) {
-  // Get requesting user ID from session
-  const requestingUserId = getUserIdFromSession();
-
-  if (!requestingUserId) {
-    return NextResponse.json(
-      { error: "Authentication required" },
-      { status: 401 }
-    );
-  }
-
+export async function POST(req: NextRequest) {
   try {
-    const body = await request.json();
-    // Validate only eventId and newProposerUserId from body
-    // const pickedBody = _.pick(body, ["eventId", "newProposerUserId", "requestingUserId"]); REMOVED
-    const pickedBody = _.pick(body, ["eventId", "newProposerUserId"]); // UPDATED
+    // Check authentication
+    const { userId: requestingUserId } = await auth();
+    if (!requestingUserId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const body = await req.json();
+    const pickedBody = _.pick(body, ["eventId", "newProposerUserId"]);
     const validation = addProposerSchema.safeParse(pickedBody);
 
     if (!validation.success) {
@@ -37,10 +30,9 @@ export async function POST(request: Request) {
       );
     }
 
-    // Use requestingUserId from session, others from validation
     const { eventId, newProposerUserId } = validation.data;
 
-    // 1. Authorization: Check if the requesting user (from session) is a current proposer
+    // 1. Authorization: Check if the requesting user is a current proposer
     const existingProposer = await prisma.eventProposer.findUnique({
       where: {
         eventId_userId: {
@@ -80,7 +72,6 @@ export async function POST(request: Request) {
     });
 
     if (alreadyProposer) {
-      // User is already a proposer, return success or specific message
       return NextResponse.json(
         {
           message: "User is already a proposer for this event",
@@ -97,7 +88,6 @@ export async function POST(request: Request) {
         userId: newProposerUserId,
       },
       include: {
-        // Optionally include user details in the response
         user: {
           select: { id: true, nickname: true, email: true },
         },
@@ -110,13 +100,6 @@ export async function POST(request: Request) {
     );
   } catch (error) {
     console.error("Error adding co-proposer:", error);
-    // Handle potential Prisma errors or other unexpected issues
-    if (
-      error instanceof Error &&
-      error.name === "PrismaClientKnownRequestError"
-    ) {
-      // Example: Handle specific Prisma errors if necessary
-    }
     return NextResponse.json(
       { error: "Failed to add co-proposer" },
       { status: 500 }
@@ -125,29 +108,21 @@ export async function POST(request: Request) {
 }
 
 // Input validation schema for DELETE
-// No longer need requestingUserId in schema
 const deleteProposerSchema = z.object({
   eventId: z.string().uuid(),
   proposerUserIdToRemove: z.string().uuid(),
-  // requestingUserId: z.string().uuid(), // REMOVED
 });
 
-export async function DELETE(request: Request) {
-  // Get requesting user ID from session
-  const requestingUserId = getUserIdFromSession();
-
-  if (!requestingUserId) {
-    return NextResponse.json(
-      { error: "Authentication required" },
-      { status: 401 }
-    );
-  }
-
+export async function DELETE(req: NextRequest) {
   try {
-    const body = await request.json();
-    // Validate only eventId and proposerUserIdToRemove from body
-    // const pickedBody = _.pick(body, ["eventId", "proposerUserIdToRemove", "requestingUserId"]); // REMOVED
-    const pickedBody = _.pick(body, ["eventId", "proposerUserIdToRemove"]); // UPDATED
+    // Check authentication
+    const { userId: requestingUserId } = await auth();
+    if (!requestingUserId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const body = await req.json();
+    const pickedBody = _.pick(body, ["eventId", "proposerUserIdToRemove"]);
     const validation = deleteProposerSchema.safeParse(pickedBody);
 
     if (!validation.success) {
@@ -157,10 +132,9 @@ export async function DELETE(request: Request) {
       );
     }
 
-    // Use requestingUserId from session, others from validation
     const { eventId, proposerUserIdToRemove } = validation.data;
 
-    // 1. Authorization: Check if the requesting user (from session) is a current proposer
+    // 1. Authorization: Check if the requesting user is a current proposer
     const existingProposer = await prisma.eventProposer.findUnique({
       where: {
         eventId_userId: {
@@ -201,7 +175,7 @@ export async function DELETE(request: Request) {
 
     if (currentProposerCount <= 1) {
       return NextResponse.json(
-        { error: "Cannot remove the last proposer from an event" },
+        { error: "Cannot remove the last proposer" },
         { status: 400 }
       );
     }

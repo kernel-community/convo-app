@@ -6,6 +6,7 @@ import Providers from "./providers";
 import type { Metadata } from "next";
 import "mapbox-gl/dist/mapbox-gl.css"; // Import Mapbox CSS
 import { BetaModeWrapper } from "src/components/BetaModeWrapper";
+// import { AuthDebug } from "src/components/debug/AuthDebug";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -146,7 +147,10 @@ export default function RootLayout({
       <body className={inter.className}>
         <BetaModeWrapper>
           {(isBetaMode) => (
-            <Providers isBetaMode={isBetaMode}>{children}</Providers>
+            <Providers isBetaMode={isBetaMode}>
+              {children}
+              {/* <AuthDebug /> */}
+            </Providers>
           )}
         </BetaModeWrapper>
         <Analytics />

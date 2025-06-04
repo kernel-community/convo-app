@@ -14,7 +14,7 @@ import {
   X,
   PenSquare,
 } from "lucide-react";
-import { useDynamicContext } from "@dynamic-labs/sdk-react";
+import { useUser as useClerkUser } from "@clerk/nextjs";
 import { pick } from "lodash";
 
 import Main from "src/layouts/Main";
@@ -22,7 +22,6 @@ import { useUser } from "src/context/UserContext";
 import useProfile from "src/hooks/useProfile";
 import useUpdateProfile from "src/hooks/useUpdateProfile";
 import useUpdateUser from "src/hooks/useUpdateUser";
-import { checkSessionAuth } from "src/lib/checkSessionAuth";
 import { Button } from "src/components/ui/button";
 import { Input } from "src/components/ui/input";
 import type { Profile as ProfileType, User } from "@prisma/client";
@@ -62,10 +61,13 @@ const ProfilePage = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { fetchedUser, handleSignOut, setFetchedUser } = useUser();
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+  const { isSignedIn, isLoaded, user: clerkUser } = useClerkUser();
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [keywordInput, setKeywordInput] = useState<string>("");
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+
+  // Simplified authentication state - use Clerk's state
+  const isAuthenticated = isLoaded && isSignedIn && fetchedUser?.isSignedIn;
+  const isLoading = !isLoaded;
 
   // Get current community information
   const { community, isLoading: communityLoading } = useCommunity();
@@ -94,9 +96,9 @@ const ProfilePage = () => {
   // Force a re-render programmatically
   const forceUpdate = () => setRenderKey((prev) => prev + 1);
 
-  // New form state to track all edits until submission
+  // New form state to track all edits until submission (excluding image)
   const [formState, setFormState] = useState<{
-    profile: Partial<ProfileType>;
+    profile: Partial<Omit<ProfileType, "image">>;
     user: Partial<User>;
   }>({
     profile: {},
@@ -120,10 +122,18 @@ const ProfilePage = () => {
   useEffect(() => {
     const editParam = searchParams.get("edit");
     if (editParam === "true" && !isEditing && isAuthenticated) {
-      // Initialize form state with current data
+      // Initialize form state with current data (excluding image)
       setFormState({
         profile: {
-          ...(profile || {}),
+          ...(profile
+            ? pick(profile, [
+                "bio",
+                "currentAffiliation",
+                "url",
+                "keywords",
+                "userId",
+              ])
+            : {}),
           userId: fetchedUser?.id,
         },
         user: fetchedUser ? pick(fetchedUser, ["nickname", "id"]) : {},
@@ -136,41 +146,6 @@ const ProfilePage = () => {
       setIsEditing(false);
     }
   }, [searchParams, isAuthenticated, isEditing, profile, fetchedUser]);
-
-  // Single comprehensive effect for authentication tracking
-  useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        // Only perform the async check if we need to validate server-side
-        if (fetchedUser?.isSignedIn) {
-          const isServerAuthenticated = await checkSessionAuth();
-
-          // If the server says we're not authenticated but the client thinks we are,
-          // update the client state
-          if (!isServerAuthenticated && fetchedUser.isSignedIn) {
-            setIsAuthenticated(false);
-          } else {
-            setIsAuthenticated(isServerAuthenticated);
-          }
-        } else {
-          // If fetchedUser says we're not signed in, trust that
-          setIsAuthenticated(false);
-        }
-
-        setIsLoading(false);
-      } catch (error) {
-        console.error("Auth check failed:", error);
-        setIsAuthenticated(false);
-        setIsLoading(false);
-      }
-    };
-
-    // Always set isAuthenticated based on fetchedUser immediately
-    setIsAuthenticated(!!fetchedUser?.isSignedIn);
-
-    // Then verify with the server
-    checkAuth();
-  }, [fetchedUser]); // Only depend on fetchedUser
 
   // Set profile data once loaded and initialize form state
   useEffect(() => {
@@ -189,7 +164,15 @@ const ProfilePage = () => {
       if (profile || fetchedUser) {
         setFormState({
           profile: {
-            ...(profile || {}),
+            ...(profile
+              ? pick(profile, [
+                  "bio",
+                  "currentAffiliation",
+                  "url",
+                  "keywords",
+                  "userId",
+                ])
+              : {}),
             userId: fetchedUser?.id,
           },
           user: fetchedUser ? pick(fetchedUser, ["nickname", "id"]) : {},
@@ -290,10 +273,6 @@ const ProfilePage = () => {
     // Start loading state
     setIsSigningOut(true);
 
-    // Force immediate UI update before async operations
-    setIsAuthenticated(false);
-    forceUpdate(); // Force re-render immediately
-
     try {
       // Proceed with context logout (async operation)
       await handleSignOut();
@@ -306,8 +285,6 @@ const ProfilePage = () => {
 
   // Handle profile update
   const handleSubmit = async () => {
-    setIsLoading(true);
-
     try {
       console.log("About to update user with data:", formState.user);
 
@@ -363,8 +340,6 @@ const ProfilePage = () => {
           error instanceof Error ? error.message : "Unknown error"
         }`
       );
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -405,9 +380,17 @@ const ProfilePage = () => {
     // First clear the URL parameter
     await router.replace("/profile");
 
-    // Reset form state to match current profile and user data
+    // Reset form state to match current profile and user data (excluding image)
     setFormState({
-      profile: profile || {},
+      profile: profile
+        ? pick(profile, [
+            "bio",
+            "currentAffiliation",
+            "url",
+            "keywords",
+            "userId",
+          ])
+        : {},
       user: fetchedUser ? pick(fetchedUser, ["nickname", "id"]) : {},
     });
 
@@ -420,132 +403,6 @@ const ProfilePage = () => {
     // Force a re-render for good measure
     forceUpdate();
   };
-
-  // State for image upload handling in edit mode
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const [isUploadingImage, setIsUploadingImage] = useState(false);
-  const [uploadError, setUploadError] = useState<string | null>(null);
-
-  // Function to handle randomizing profile picture
-  const handleRandomizePicture = useCallback(() => {
-    const randomIndex = Math.floor(
-      Math.random() * DEFAULT_PROFILE_PICTURES.length
-    );
-    const randomImageUrl = DEFAULT_PROFILE_PICTURES[randomIndex];
-    if (randomImageUrl) {
-      setFormState((prev) => ({
-        ...prev,
-        profile: {
-          ...prev.profile,
-          image: randomImageUrl,
-        },
-      }));
-      // Clear any previous upload error when randomizing
-      setUploadError(null);
-    }
-  }, []);
-
-  // Function to trigger file input
-  const triggerFileInput = useCallback(() => {
-    fileInputRef.current?.click();
-  }, []);
-
-  // Function to handle file selection and initiate upload
-  const handleFileSelect = useCallback(
-    async (e: ChangeEvent<HTMLInputElement>) => {
-      const selectedFile = e.target.files?.[0];
-      // Reset file input value to allow re-uploading the same file
-      if (fileInputRef.current) {
-        fileInputRef.current.value = "";
-      }
-
-      if (!selectedFile) return;
-
-      // Validate file type
-      const validTypes = [
-        "image/jpeg",
-        "image/jpg",
-        "image/png",
-        "image/gif",
-        "image/webp",
-      ];
-      if (!validTypes.includes(selectedFile.type)) {
-        setUploadError(`Invalid type. Allowed: ${validTypes.join(", ")}`);
-        return;
-      }
-
-      // Validate file size (5MB max)
-      if (selectedFile.size > 5 * 1024 * 1024) {
-        setUploadError("File size must be less than 5MB");
-        return;
-      }
-
-      setUploadError(null);
-      setIsUploadingImage(true);
-
-      try {
-        // 1. Get presigned URL
-        const presignedResponse = await fetch("/api/profile/upload-url", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            contentType: selectedFile.type,
-            userId: fetchedUser?.id,
-          }),
-          credentials: "include",
-        });
-
-        if (!presignedResponse.ok) {
-          const errorData = await presignedResponse.json();
-          throw new Error(errorData.error || "Failed to get upload URL");
-        }
-
-        const { uploadUrl, fileKey } = await presignedResponse.json();
-
-        // 2. Upload to S3
-        const uploadResponse = await fetch(uploadUrl, {
-          method: "PUT",
-          body: selectedFile,
-          headers: { "Content-Type": selectedFile.type },
-        });
-
-        if (!uploadResponse.ok) {
-          throw new Error("Failed to upload file to storage");
-        }
-
-        // 3. Update profile via API
-        const updateResponse = await fetch("/api/profile/update-image", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ userId: fetchedUser?.id, fileKey }),
-          credentials: "include",
-        });
-
-        if (!updateResponse.ok) {
-          const errorData = await updateResponse.json();
-          throw new Error(errorData.error || "Failed to update profile image");
-        }
-
-        const result = await updateResponse.json();
-
-        // 4. Update local form state
-        if (result.profile.image) {
-          setFormState((prev) => ({
-            ...prev,
-            profile: { ...prev.profile, image: result.profile.image },
-          }));
-        }
-      } catch (error) {
-        console.error("Image upload failed:", error);
-        setUploadError(
-          error instanceof Error ? error.message : "Upload failed"
-        );
-      } finally {
-        setIsUploadingImage(false);
-      }
-    },
-    [fetchedUser?.id]
-  );
 
   // Loading state
   if (isLoading || isAuthenticated === null) {
@@ -594,108 +451,66 @@ const ProfilePage = () => {
           {/* Community Profile Indicator */}
           {community && !communityLoading && (
             <div className="border-primary/20 from-primary/5 to-primary/10 mb-6 rounded-xl border bg-gradient-to-r p-4 backdrop-blur-sm">
-              <div>
-                <p className="font-medium text-foreground">
-                  Your{" "}
-                  <span className="font-semibold text-primary">
-                    {community.displayName}
-                  </span>{" "}
-                  community profile
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  This profile is specific to the {community.displayName}{" "}
-                  community
-                </p>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="font-medium text-foreground">
+                    Your{" "}
+                    <span className="font-semibold text-primary">
+                      {community.displayName}
+                    </span>{" "}
+                    community profile
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    This profile is specific to the {community.displayName}{" "}
+                    community
+                  </p>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    // Open Clerk's user profile modal directly to our custom page
+                    const event = new CustomEvent("clerk:openUserProfile", {
+                      detail: { page: "community-profile" },
+                    });
+                    window.dispatchEvent(event);
+                  }}
+                  className="shrink-0"
+                >
+                  Quick Edit
+                </Button>
               </div>
             </div>
           )}
 
           {/* Grid layout: Image on left (md+), Details on right (md+) / Stacked on mobile */}
           <div className="grid gap-8 md:grid-cols-[200px_1fr]">
-            {/* Profile image section (Now first) */}
+            {/* Profile image section - Using Clerk's Image */}
             <div className="flex flex-col items-center gap-4 md:order-1">
-              {" "}
-              {/* Explicit order for clarity */}
-              {isEditing ? (
-                <div className="flex w-full flex-col items-center sm:w-auto md:w-[200px]">
-                  {" "}
-                  {/* Adjusted width constraints */}
-                  {/* Hidden File Input */}
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
-                    onChange={handleFileSelect}
-                    className="hidden"
+              <div className="h-40 w-40 overflow-hidden rounded-full bg-muted md:h-[200px] md:w-[200px]">
+                {clerkUser?.imageUrl ? (
+                  <img
+                    src={clerkUser.imageUrl}
+                    alt="Profile"
+                    className="h-full w-full object-cover"
                   />
-                  {/* Image Preview */}
-                  <div className="relative h-40 w-40 overflow-hidden rounded-full bg-muted md:h-[200px] md:w-[200px]">
-                    {" "}
-                    {/* Responsive size */}
-                    <img
-                      src={
-                        formState.profile.image ||
-                        getDefaultProfilePicture(fetchedUser?.id)
-                      }
-                      alt="Profile Preview"
-                      className="h-full w-full object-cover"
-                    />
-                    {isUploadingImage && (
-                      <div className="absolute inset-0 flex items-center justify-center bg-black/50">
-                        <Loader2 className="h-8 w-8 animate-spin text-white" />
-                      </div>
-                    )}
+                ) : (
+                  <div className="bg-primary/10 flex h-full w-full items-center justify-center text-primary">
+                    <UserIcon className="h-16 w-16" />
                   </div>
-                  {/* Buttons */}
-                  <div className="mt-3 flex w-full flex-col justify-center gap-2 sm:w-auto sm:flex-row">
-                    {" "}
-                    {/* Stack buttons on mobile */}
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={triggerFileInput}
-                      disabled={isUploadingImage}
-                      className="flex-grow sm:flex-grow-0"
-                    >
-                      {isUploadingImage ? "Uploading..." : "Upload"}
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={handleRandomizePicture}
-                      disabled={isUploadingImage}
-                      className="group flex-grow transition-transform hover:scale-105 sm:flex-grow-0"
-                    >
-                      <Shuffle className="mr-1.5 h-4 w-4 transition-transform group-hover:rotate-12" />
-                      Randomize
-                    </Button>
-                  </div>
-                  {/* Upload Error Message */}
-                  {uploadError && (
-                    <p className="mt-2 text-center text-sm text-red-500">
-                      {uploadError}
-                    </p>
-                  )}
-                </div>
-              ) : (
-                <div className="h-40 w-40 overflow-hidden rounded-full bg-muted md:h-[200px] md:w-[200px]">
-                  {" "}
-                  {/* Consistent sizing */}
-                  {profileAttributes.image || formState.profile.image ? (
-                    <img
-                      src={
-                        profileAttributes.image || formState.profile.image || ""
-                      }
-                      alt="Profile"
-                      className="h-full w-full object-cover"
-                    />
-                  ) : (
-                    <img
-                      src={getDefaultProfilePicture(fetchedUser?.id)}
-                      alt="Default Profile"
-                      className="h-full w-full object-cover"
-                    />
-                  )}
+                )}
+              </div>
+
+              {/* Info about image management */}
+              {isEditing && (
+                <div className="text-center">
+                  <p className="text-xs text-muted-foreground">
+                    Profile image is managed through your account settings
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Go to &quot;Account&quot; tab in the user menu to update
+                    your photo
+                  </p>
                 </div>
               )}
             </div>

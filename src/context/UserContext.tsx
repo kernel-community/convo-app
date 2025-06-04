@@ -1,11 +1,11 @@
 "use client";
 
-import { useDynamicContext } from "@dynamic-labs/sdk-react";
+import { useUser as useClerkUser, useAuth } from "@clerk/nextjs";
 import type { User } from "@prisma/client";
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import type { ReactNode } from "react";
 import { useQuery } from "react-query";
-import { checkSessionAuth, hasLocalUserState } from "src/lib/checkSessionAuth";
+import { DEFAULT_USER_NICKNAME } from "src/utils/constants";
 
 export type UserStatus = Partial<User> & {
   isSignedIn: boolean;
@@ -43,39 +43,33 @@ const useUser = () => {
 };
 
 const UserProvider = ({ children }: { children: ReactNode }) => {
-  const {
-    isAuthenticated: sdkIsAuthenticated,
-    handleLogOut,
-    user,
-  } = useDynamicContext();
-  const [isSessionAuthenticated, setIsSessionAuthenticated] = useState<boolean>(
-    hasLocalUserState()
-  );
+  const { user: clerkUser, isLoaded, isSignedIn } = useClerkUser();
+  const { signOut } = useAuth();
   const [fetchedUser, setFetchedUser] = useState<UserStatus>(
     defaultFullUser.fetchedUser
   );
 
-  // Combined authentication state - user is authenticated if either SDK or session says so
-  const isAuthenticated = sdkIsAuthenticated || isSessionAuthenticated;
+  // Simplified authentication - only need Clerk's state
+  const isAuthenticated = isLoaded && isSignedIn;
 
   const isKernelCommunityMember = useMemo(() => {
-    const email = user?.email;
+    const email = clerkUser?.emailAddresses?.[0]?.emailAddress;
     return email ? email.endsWith("@kernel.community") : false;
-  }, [user?.email]);
+  }, [clerkUser?.emailAddresses]);
 
-  const userId = user?.userId;
+  const userId = clerkUser?.id;
 
   useQuery(
     ["user-" + userId],
     async () => {
       try {
         // Only proceed with the fetch if we have authentication
-        if (!isAuthenticated) {
+        if (!isAuthenticated || !clerkUser) {
           return null;
         }
 
         const response = await fetch("/api/query/user", {
-          body: JSON.stringify({ userId }), // userId might be undefined, but our API now handles this
+          body: JSON.stringify({ userId }),
           method: "POST",
           headers: { "Content-type": "application/json" },
         });
@@ -84,29 +78,146 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
 
         // Check if we got a valid user response
         if (response.ok && result.data) {
+          const currentClerkName =
+            clerkUser.fullName ||
+            clerkUser.firstName ||
+            clerkUser.lastName ||
+            clerkUser.username;
+          const existingNickname = result.data.nickname;
+
+          console.log("🔍 Nickname sync check:", {
+            clerkFullName: clerkUser.fullName,
+            clerkFirstName: clerkUser.firstName,
+            clerkLastName: clerkUser.lastName,
+            clerkUsername: clerkUser.username,
+            currentClerkName,
+            existingNickname,
+            defaultNickname: DEFAULT_USER_NICKNAME,
+          });
+
+          // Check if we should sync the nickname with Clerk's name
+          let shouldUpdateNickname = false;
+          let updatedUser = result.data;
+
+          // More comprehensive sync conditions
+          if (currentClerkName) {
+            if (!existingNickname) {
+              console.log(
+                "📝 Sync reason: No existing nickname, will use Clerk name"
+              );
+              shouldUpdateNickname = true;
+            } else if (existingNickname === DEFAULT_USER_NICKNAME) {
+              console.log(
+                "📝 Sync reason: Existing nickname is default, will use Clerk name"
+              );
+              shouldUpdateNickname = true;
+            } else if (currentClerkName !== existingNickname) {
+              // For now, let's be conservative and only sync if it's the default
+              // In the future, you might want to add user preference for this
+              console.log(
+                "📝 Sync reason: Clerk name differs from existing nickname, syncing to match Clerk"
+              );
+              shouldUpdateNickname = true; // Uncomment this line if you want aggressive syncing
+            } else {
+              console.log("✅ Names already match, no sync needed");
+            }
+          } else {
+            console.log("⚠️ No name found in Clerk, keeping existing nickname");
+          }
+
+          // Update nickname if needed
+          if (shouldUpdateNickname) {
+            console.log(
+              `🔄 Syncing nickname from Clerk: "${currentClerkName}" for user ${clerkUser.id}`
+            );
+
+            try {
+              const syncResponse = await fetch("/api/update/user", {
+                method: "POST",
+                headers: { "Content-type": "application/json" },
+                body: JSON.stringify({
+                  user: {
+                    id: clerkUser.id,
+                    nickname: currentClerkName,
+                  },
+                }),
+              });
+
+              if (syncResponse.ok) {
+                const syncResult = await syncResponse.json();
+                updatedUser = syncResult.data;
+                console.log(
+                  "✅ Successfully synced nickname with Clerk:",
+                  updatedUser.nickname
+                );
+              } else {
+                console.error(
+                  "❌ Failed to sync nickname:",
+                  await syncResponse.text()
+                );
+              }
+            } catch (syncError) {
+              console.error("❌ Error syncing nickname:", syncError);
+            }
+          }
+
           setFetchedUser(() => {
             return {
-              ...result.data,
+              ...updatedUser,
               // the user was successfully found
               // in the database + the user is
-              // connected via web3
+              // connected via Clerk
               isSignedIn: isAuthenticated,
               isKernelCommunityMember,
             };
           });
-          return result.data;
-        } else if (response.status === 400) {
-          // No user ID available, but we're authenticated
-          // This could happen during initial login before user is created
-          console.log("No user ID available yet, but authenticated");
-          return null;
+          return updatedUser;
+        } else if (response.status === 400 || response.status === 404) {
+          // User doesn't exist in our database yet - create them
+          console.log("User not found in database, creating new user...");
+
+          try {
+            const createResponse = await fetch("/api/update/user", {
+              method: "POST",
+              headers: { "Content-type": "application/json" },
+              body: JSON.stringify({
+                user: {
+                  id: clerkUser.id,
+                  email: clerkUser.emailAddresses[0]?.emailAddress,
+                  nickname:
+                    clerkUser.username ||
+                    clerkUser.firstName ||
+                    clerkUser.lastName ||
+                    DEFAULT_USER_NICKNAME,
+                },
+              }),
+            });
+
+            if (createResponse.ok) {
+              const createResult = await createResponse.json();
+              console.log("Successfully created user:", createResult.data);
+
+              setFetchedUser({
+                ...createResult.data,
+                isSignedIn: isAuthenticated,
+                isKernelCommunityMember,
+              });
+
+              return createResult.data;
+            } else {
+              console.error(
+                "Failed to create user:",
+                await createResponse.text()
+              );
+              return null;
+            }
+          } catch (createError) {
+            console.error("Error creating user:", createError);
+            return null;
+          }
         } else {
           // Other error occurred
           console.error("Error fetching user:", result.error);
-          // Only log out if there's a serious error, not just missing user ID
-          if (response.status !== 400) {
-            handleLogOut();
-          }
           return null;
         }
       } catch (err) {
@@ -118,24 +229,14 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
       /**
        * Run whenever authentication state changes
        */
-      enabled: true,
+      enabled: isAuthenticated,
       // Don't keep retrying on error
       retry: false,
     }
   );
 
-  // Check session authentication on mount and when SDK auth state changes
   useEffect(() => {
-    const checkSession = async () => {
-      const isSessionValid = await checkSessionAuth();
-      setIsSessionAuthenticated(isSessionValid);
-    };
-
-    checkSession();
-  }, [sdkIsAuthenticated]);
-
-  useEffect(() => {
-    // Only clear user state if we're definitely logged out from both SDK and session
+    // Clear user state if not authenticated
     if (!isAuthenticated) {
       setFetchedUser(defaultFullUser.fetchedUser);
       localStorage.removeItem("user_state");
@@ -149,19 +250,19 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [fetchedUser]);
 
-  // Add a handleSignOut function that immediately updates UI
+  // Handle sign out with Clerk
   const handleSignOut = async () => {
     // Immediately set user as signed out for better UI responsiveness
     setFetchedUser({
-      ...defaultFullUser.fetchedUser, // Reset to default completely
+      ...defaultFullUser.fetchedUser,
       isSignedIn: false,
     });
 
-    // Also immediately set session state
-    setIsSessionAuthenticated(false);
+    // Clear local storage
+    localStorage.removeItem("user_state");
 
-    // Then proceed with normal logout
-    await handleLogOut();
+    // Use Clerk's sign out
+    await signOut();
   };
 
   const value = useMemo(
@@ -170,7 +271,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
       setFetchedUser,
       handleSignOut,
     }),
-    [fetchedUser, handleLogOut, setFetchedUser, handleSignOut]
+    [fetchedUser, setFetchedUser, handleSignOut]
   );
 
   return <UserContext.Provider value={value}>{children}</UserContext.Provider>;

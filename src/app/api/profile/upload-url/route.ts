@@ -1,62 +1,51 @@
-import { NextRequest, NextResponse } from "next/server";
-import { getPresignedUploadUrl, getMimeTypeExtension } from "src/utils/s3";
-import { checkSessionAuth } from "src/lib/serverAuth";
-import { prisma } from "src/utils/db";
+import type { NextRequest } from "next/server";
+import { auth } from "@clerk/nextjs/server";
+import { NextResponse } from "next/server";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import { v4 as uuidv4 } from "uuid";
+
+const s3Client = new S3Client({
+  region: process.env.AWS_REGION!,
+  credentials: {
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
+  },
+});
 
 export async function POST(req: NextRequest) {
   try {
-    // Check if user is authenticated
-    const isAuthenticated = await checkSessionAuth();
-    if (!isAuthenticated) {
+    // Check authentication
+    const { userId } = await auth();
+    if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Get the user session
-    const session = await req.json();
-    const { contentType, userId } = session;
+    const { fileType, fileName } = await req.json();
 
-    // Validate request
-    if (!contentType || !userId) {
+    if (!fileType || !fileName) {
       return NextResponse.json(
-        { error: "Missing contentType or userId" },
+        { error: "Missing fileType or fileName" },
         { status: 400 }
       );
     }
 
-    // Validate content type
-    const validContentTypes = [
-      "image/jpeg",
-      "image/jpg",
-      "image/png",
-      "image/gif",
-      "image/webp",
-    ];
-    if (!validContentTypes.includes(contentType)) {
-      return NextResponse.json(
-        {
-          error: `Invalid content type: ${contentType}. Allowed: ${validContentTypes.join(
-            ", "
-          )}`,
-        },
-        { status: 400 }
-      );
-    }
+    // Generate a unique file key
+    const fileExtension = fileName.split(".").pop();
+    const uniqueFileName = `${uuidv4()}.${fileExtension}`;
+    const fileKey = `profile-images/${userId}/${uniqueFileName}`;
 
-    // Get file extension from content type
-    const fileExtension = getMimeTypeExtension(contentType);
-    if (!fileExtension) {
-      return NextResponse.json(
-        { error: "Could not determine file extension from content type" },
-        { status: 400 }
-      );
-    }
+    // Create the S3 command
+    const command = new PutObjectCommand({
+      Bucket: process.env.AWS_S3_BUCKET_NAME!,
+      Key: fileKey,
+      ContentType: fileType,
+    });
 
-    // Generate presigned URL
-    const { uploadUrl, fileKey } = await getPresignedUploadUrl(
-      fileExtension,
-      contentType,
-      userId
-    );
+    // Generate the presigned URL
+    const uploadUrl = await getSignedUrl(s3Client, command, {
+      expiresIn: 3600, // URL expires in 1 hour
+    });
 
     return NextResponse.json({
       uploadUrl,
