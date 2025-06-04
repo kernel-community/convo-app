@@ -11,6 +11,7 @@ export const serverSchema = z.object({
   NODE_ENV: z.enum(["development", "test", "production"]),
   RESEND_API_KEY: z.string().min(1),
   OPENAI_API_KEY: z.string().min(1),
+  CLERK_SECRET_KEY: z.string().min(1),
 });
 
 /**
@@ -24,6 +25,7 @@ export const serverEnv = {
   NODE_ENV: process.env.NODE_ENV,
   RESEND_API_KEY: process.env.RESEND_API_KEY,
   OPENAI_API_KEY: process.env.OPENAI_API_KEY,
+  CLERK_SECRET_KEY: process.env.CLERK_SECRET_KEY,
 };
 
 /**
@@ -32,7 +34,7 @@ export const serverEnv = {
  * To expose them to the client, prefix them with `NEXT_PUBLIC_`.
  */
 export const clientSchema = z.object({
-  NEXT_PUBLIC_DYNAMIC_ENVIRONMENT_ID: z.string(),
+  NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: z.string(),
   NEXT_PUBLIC_PARTYKIT_SERVER_HOST: z.string(),
   NEXT_PUBLIC_KERNEL_SMOLBRAIN_API: z.string(),
   NEXT_PUBLIC_KERNEL_SMOLBRAIN_APP_NAME: z.string(),
@@ -46,8 +48,8 @@ export const clientSchema = z.object({
  * @type {{ [k in keyof z.infer<typeof clientSchema>]: z.infer<typeof clientSchema>[k] | undefined }}
  */
 export const clientEnv = {
-  NEXT_PUBLIC_DYNAMIC_ENVIRONMENT_ID:
-    process.env.NEXT_PUBLIC_DYNAMIC_ENVIRONMENT_ID,
+  NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY:
+    process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,
   NEXT_PUBLIC_PARTYKIT_SERVER_HOST:
     process.env.NEXT_PUBLIC_PARTYKIT_SERVER_HOST,
   NEXT_PUBLIC_KERNEL_SMOLBRAIN_API:

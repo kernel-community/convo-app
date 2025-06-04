@@ -1,14 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
-import { checkSessionAuth } from "src/lib/serverAuth";
+import { auth } from "@clerk/nextjs/server";
 import { prisma } from "src/utils/db";
 import { getPublicS3Url } from "src/utils/s3";
 import { getCommunityFromSubdomain } from "src/utils/getCommunityFromSubdomain";
 
 export async function POST(req: NextRequest) {
   try {
-    // Check if user is authenticated
-    const isAuthenticated = await checkSessionAuth();
-    if (!isAuthenticated) {
+    // Check authentication with Clerk
+    const { userId: authenticatedUserId } = await auth();
+    if (!authenticatedUserId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -22,6 +22,11 @@ export async function POST(req: NextRequest) {
         { error: "Missing userId or fileKey" },
         { status: 400 }
       );
+    }
+
+    // Ensure user can only update their own profile
+    if (userId !== authenticatedUserId) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
     // Get the current community from subdomain
