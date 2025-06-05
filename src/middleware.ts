@@ -42,7 +42,7 @@ export default clerkMiddleware(
       return NextResponse.next();
     }
   },
-  { debug: true }
+  { debug: true, authorizedParties: ["www.convo.cafe"] }
 );
 
 export const config = {
