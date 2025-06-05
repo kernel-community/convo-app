@@ -15,8 +15,8 @@ export default clerkMiddleware(
         headers: requestHeaders,
       },
     });
-  },
-  { debug: true }
+  }
+  // { authorizedParties: ["www.convo.cafe"] }
 );
 
 export const config = {
