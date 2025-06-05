@@ -260,17 +260,34 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
   // Handle sign out with Clerk
   const handleSignOut = useCallback(async () => {
     try {
+      console.log("🚪 Starting sign out process...");
+
       // Clear local state first (before redirect)
       setFetchedUser({
         ...defaultFullUser.fetchedUser,
         isSignedIn: false,
       });
       localStorage.removeItem("user_state");
+      console.log("✅ Local state cleared");
 
-      // Then sign out (this will redirect)
-      await signOut({ redirectUrl: "/" });
+      // Then sign out with proper domain handling for production
+      const isProduction =
+        typeof window !== "undefined" &&
+        window.location.hostname.includes("convo.cafe");
+      const redirectUrl = isProduction ? `https://www.convo.cafe/` : "/";
+      console.log("🔄 Calling Clerk signOut with redirectUrl:", redirectUrl);
+
+      await signOut({ redirectUrl });
+      console.log("✅ Clerk signOut completed");
+
+      // Fallback: Force redirect if Clerk doesn't redirect automatically
+      setTimeout(() => {
+        if (typeof window !== "undefined") {
+          window.location.href = redirectUrl;
+        }
+      }, 1000);
     } catch (error) {
-      console.error("Sign out error:", error);
+      console.error("❌ Sign out error:", error);
       // Ensure state is cleared even on error
       setFetchedUser({
         ...defaultFullUser.fetchedUser,
