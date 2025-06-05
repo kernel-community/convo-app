@@ -4,19 +4,26 @@ import { isNil } from "lodash";
 import isProd from "src/utils/isProd";
 
 /**
- * Get community from the subdomain header set by middleware
+ * Get community from the subdomain by parsing the host header directly
  * This centralizes community resolution across all API endpoints
  * @returns The resolved community or throws an error if none found
  */
 export async function getCommunityFromSubdomain() {
   const headersList = headers();
-  const subdomain = headersList.get("x-subdomain");
   const originalHost = headersList.get("host") || "";
 
+  // Extract subdomain directly from host header
+  let subdomain = originalHost.split(".")[0];
+
+  // Fallback to x-subdomain header if it exists (for middleware compatibility)
+  const middlewareSubdomain = headersList.get("x-subdomain");
+  if (middlewareSubdomain && middlewareSubdomain !== "default") {
+    subdomain = middlewareSubdomain;
+  }
+
   if (!subdomain) {
-    throw new Error(
-      "Subdomain header missing - middleware may not be functioning properly"
-    );
+    console.warn("No subdomain found, using 'kernel' as fallback");
+    subdomain = "kernel";
   }
 
   // Special case handling
@@ -73,7 +80,16 @@ export async function getCommunityFromSubdomain() {
  */
 export async function getOrCreateCommunityFromSubdomain() {
   const headersList = headers();
-  const subdomain = headersList.get("x-subdomain") || "kernel";
+  const originalHost = headersList.get("host") || "";
+
+  // Extract subdomain directly from host header
+  let subdomain = originalHost.split(".")[0] || "kernel";
+
+  // Fallback to x-subdomain header if it exists (for middleware compatibility)
+  const middlewareSubdomain = headersList.get("x-subdomain");
+  if (middlewareSubdomain && middlewareSubdomain !== "default") {
+    subdomain = middlewareSubdomain;
+  }
 
   try {
     // Try to get existing community
