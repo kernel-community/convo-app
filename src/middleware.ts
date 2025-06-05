@@ -42,7 +42,12 @@ export default clerkMiddleware(
       return NextResponse.next();
     }
   },
-  { debug: true, authorizedParties: ["www.convo.cafe", "convo.cafe"] }
+  {
+    debug: true,
+    authorizedParties: ["www.convo.cafe", "convo.cafe"],
+    secretKey: process.env.CLERK_SECRET_KEY,
+    publishableKey: process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,
+  }
 );
 
 export const config = {
