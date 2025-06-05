@@ -12,6 +12,7 @@ export const serverSchema = z.object({
   RESEND_API_KEY: z.string().min(1),
   OPENAI_API_KEY: z.string().min(1),
   CLERK_SECRET_KEY: z.string().min(1),
+  CLERK_DOMAIN: z.string().optional(),
 });
 
 /**
@@ -26,6 +27,7 @@ export const serverEnv = {
   RESEND_API_KEY: process.env.RESEND_API_KEY,
   OPENAI_API_KEY: process.env.OPENAI_API_KEY,
   CLERK_SECRET_KEY: process.env.CLERK_SECRET_KEY,
+  CLERK_DOMAIN: process.env.CLERK_DOMAIN,
 };
 
 /**
