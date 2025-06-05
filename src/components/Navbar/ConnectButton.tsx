@@ -88,11 +88,7 @@ export const ConnectButton = () => {
   }
 
   return (
-    <SignInButton
-      mode="modal"
-      signUpForceRedirectUrl="/"
-      signUpFallbackRedirectUrl="/"
-    >
+    <SignInButton mode="modal">
       <motion.div
         className="bg-primary/10 border-primary/20 hover:bg-primary/15 cursor-pointer rounded-full border px-4 py-1.5 text-sm font-medium"
         whileHover={{ scale: 1.03 }}

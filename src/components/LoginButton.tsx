@@ -11,11 +11,7 @@ const LoginButton = ({
   disabled?: boolean;
 }) => {
   return (
-    <SignInButton
-      mode="modal"
-      signUpForceRedirectUrl="/"
-      signUpFallbackRedirectUrl="/"
-    >
+    <SignInButton mode="modal">
       <Button className={className} disabled={disabled}>
         Sign in
       </Button>
