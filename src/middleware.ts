@@ -44,7 +44,7 @@ export default clerkMiddleware(
   },
   {
     debug: true,
-    authorizedParties: ["www.convo.cafe"],
+    authorizedParties: ["https://www.convo.cafe"],
   }
 );
 
