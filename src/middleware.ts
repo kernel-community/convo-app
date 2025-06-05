@@ -8,7 +8,7 @@ const isPublicRoute = createRouteMatcher([
   "/api/beta-access/check",
   "/sso-callback", // For SSO authentication
   // Allow public access to event pages and other core routes
-  // "/((?!profile|nook|edit).*)",
+  "/((?!profile|nook|edit).*)",
 ]);
 
 export default clerkMiddleware(async (auth, req) => {
