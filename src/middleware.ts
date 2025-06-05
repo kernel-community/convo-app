@@ -15,8 +15,13 @@ export default clerkMiddleware(
         headers: requestHeaders,
       },
     });
+  },
+  {
+    debug: true,
+    secretKey: process.env.CLERK_SECRET_KEY,
+    publishableKey: process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,
+    jwtKey: process.env.CLERK_JWT_KEY,
   }
-  // { authorizedParties: ["www.convo.cafe"] }
 );
 
 export const config = {
