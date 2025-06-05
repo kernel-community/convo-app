@@ -30,8 +30,6 @@ export default function Providers({
     <BetaModeContext.Provider value={isBetaMode || false}>
       <ClerkProvider
         publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY!}
-        afterSignInUrl="/"
-        afterSignUpUrl="/"
         signInUrl="/signin"
         signUpUrl="/signup"
         signInFallbackRedirectUrl="/"
