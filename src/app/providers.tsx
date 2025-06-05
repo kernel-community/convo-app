@@ -42,6 +42,7 @@ export default function Providers({
             card: "shadow-lg",
           },
         }}
+        routerDebug={true}
       >
         <QueryClientProvider client={queryClient}>
           <UserProvider>
