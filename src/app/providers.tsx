@@ -34,13 +34,13 @@ export default function Providers({
         signUpUrl="/signup"
         signInFallbackRedirectUrl="/"
         signUpFallbackRedirectUrl="/"
+        afterSignOutUrl="/"
         appearance={{
           elements: {
             formButtonPrimary: "bg-primary hover:bg-primary/90",
             card: "shadow-lg",
           },
         }}
-        routerDebug={true}
       >
         <QueryClientProvider client={queryClient}>
           <UserProvider>

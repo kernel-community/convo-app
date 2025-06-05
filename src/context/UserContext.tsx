@@ -2,7 +2,14 @@
 
 import { useUser as useClerkUser, useAuth } from "@clerk/nextjs";
 import type { User } from "@prisma/client";
-import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+  useCallback,
+} from "react";
 import type { ReactNode } from "react";
 import { useQuery } from "react-query";
 import { DEFAULT_USER_NICKNAME } from "src/utils/constants";
@@ -251,19 +258,27 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
   }, [fetchedUser]);
 
   // Handle sign out with Clerk
-  const handleSignOut = async () => {
-    // Immediately set user as signed out for better UI responsiveness
-    setFetchedUser({
-      ...defaultFullUser.fetchedUser,
-      isSignedIn: false,
-    });
+  const handleSignOut = useCallback(async () => {
+    try {
+      // Clear local state first (before redirect)
+      setFetchedUser({
+        ...defaultFullUser.fetchedUser,
+        isSignedIn: false,
+      });
+      localStorage.removeItem("user_state");
 
-    // Clear local storage
-    localStorage.removeItem("user_state");
-
-    // Use Clerk's sign out
-    await signOut();
-  };
+      // Then sign out (this will redirect)
+      await signOut({ redirectUrl: "/" });
+    } catch (error) {
+      console.error("Sign out error:", error);
+      // Ensure state is cleared even on error
+      setFetchedUser({
+        ...defaultFullUser.fetchedUser,
+        isSignedIn: false,
+      });
+      localStorage.removeItem("user_state");
+    }
+  }, [signOut]);
 
   const value = useMemo(
     () => ({
