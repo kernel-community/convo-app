@@ -1,6 +1,7 @@
 import { flag } from "flags/next";
 import { dedupe } from "flags/next";
 import { cache } from "react";
+import { auth } from "@clerk/nextjs/server";
 
 // Define our entities type for type safety
 interface ConvoEntities {
@@ -10,23 +11,25 @@ interface ConvoEntities {
   };
 }
 
-// Helper to identify users
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const identifyUser = dedupe(({ headers, cookies }) => {
-  const sessionCookie = cookies.get("session");
-  if (!sessionCookie?.value) return { user: {} };
-
+// Helper to identify users using Clerk
+const identifyUser = dedupe(async ({ headers, cookies }) => {
   try {
-    const { id, email } = JSON.parse(sessionCookie.value);
-    console.log("[Flags] Identified user from session:", { id, email });
+    // Use Clerk's auth() to get the authenticated user
+    const { userId } = await auth();
+
+    if (!userId) {
+      return { user: {} };
+    }
+
+    // For flags, we'll keep it simple and just return the userId
+    // If we need email, we can fetch it separately in the decide function
     return {
       user: {
-        id,
-        email,
+        id: userId,
       },
     };
   } catch (error) {
-    console.error("[Flags] Error parsing session:", error);
+    console.error("[Flags] Error identifying user with Clerk:", error);
     return { user: {} };
   }
 });
@@ -76,6 +79,8 @@ export const betaMode = flag<boolean, ConvoEntities>({
           select: { email: true, isBeta: true },
         });
 
+        console.log({ user });
+
         if (user?.isBeta) {
           console.log("[Flags] Beta mode enabled via database isBeta flag:", {
             userId,
@@ -106,8 +111,8 @@ export const betaMode = flag<boolean, ConvoEntities>({
       });
     }
 
-    // If we don't have an email or it's not from a beta domain, log it
-    if (!isEnabled) {
+    // If we don't have an email or it's not from a beta domain, log it (but only if we have some user data)
+    if (!isEnabled && (userId || userEmail)) {
       console.log("[Flags] Beta mode denied:", {
         userId,
         email: userEmail,

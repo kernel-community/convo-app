@@ -16,9 +16,6 @@ const queryClient = new QueryClient();
 // Create a context for beta mode
 export const BetaModeContext = createContext<boolean>(false);
 
-// Hook to use beta mode
-export const useBetaMode = () => useContext(BetaModeContext);
-
 export default function Providers({
   children,
   isBetaMode,
@@ -27,21 +24,22 @@ export default function Providers({
   isBetaMode?: boolean;
 }>) {
   return (
-    <BetaModeContext.Provider value={isBetaMode || false}>
-      <ClerkProvider
-        publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY!}
-        signInUrl="/signin"
-        signUpUrl="/signup"
-        signInFallbackRedirectUrl="/"
-        signUpFallbackRedirectUrl="/"
-        afterSignOutUrl="/"
-        appearance={{
-          elements: {
-            formButtonPrimary: "bg-primary hover:bg-primary/90",
-            card: "shadow-lg",
-          },
-        }}
-      >
+    <ClerkProvider
+      publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY!}
+      signInUrl="/signin"
+      signUpUrl="/signup"
+      signInFallbackRedirectUrl="/"
+      signUpFallbackRedirectUrl="/"
+      afterSignOutUrl="/"
+      dynamic
+      appearance={{
+        elements: {
+          formButtonPrimary: "bg-primary hover:bg-primary/90",
+          card: "shadow-lg",
+        },
+      }}
+    >
+      <BetaModeContext.Provider value={isBetaMode || false}>
         <QueryClientProvider client={queryClient}>
           <UserProvider>
             <CommunityProvider>
@@ -77,7 +75,7 @@ export default function Providers({
             </CommunityProvider>
           </UserProvider>
         </QueryClientProvider>
-      </ClerkProvider>
-    </BetaModeContext.Provider>
+      </BetaModeContext.Provider>
+    </ClerkProvider>
   );
 }

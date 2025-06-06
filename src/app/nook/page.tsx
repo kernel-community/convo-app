@@ -2,39 +2,15 @@
 
 import React, { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { usePathname } from "next/navigation";
 import Main from "src/layouts/Main";
 import CommunityNetworkGraph from "./components/CommunityNetworkGraph";
 import { useUser } from "src/context/UserContext";
 import { useUser as useClerkUser } from "@clerk/nextjs";
 import BetaBadge from "src/components/ui/beta-badge";
 
-// Array of colors for different locations
-const locationColors = [
-  "#FF5733", // Orange-red
-  "#33FF57", // Green
-  "#3357FF", // Blue
-  "#F033FF", // Purple
-  "#FF33F0", // Pink
-  "#33FFF0", // Cyan
-  "#F0FF33", // Yellow
-  "#FF8C33", // Orange
-  "#8C33FF", // Violet
-  "#33FF8C", // Mint
-];
-
-// Function to generate a color based on location ID for consistent coloring
-const getLocationColor = (id: number): string => {
-  // Use modulo to cycle through colors if we have more locations than colors
-  const index = id % locationColors.length;
-  // Ensure we return a valid string
-  return locationColors[index] || "#FF5733";
-};
-
 export default function NookPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const pathname = usePathname();
   const [loading, setLoading] = useState(true);
   const { fetchedUser } = useUser();
   const [currentUserId, setCurrentUserId] = useState<string | undefined>(
@@ -68,12 +44,12 @@ export default function NookPage() {
   useEffect(() => {
     const checkBetaAccess = async () => {
       try {
-        // Use Clerk's authentication state instead of custom session check
-        if (!isSignedIn || !isLoaded) {
-          // Redirect to 404 if not authenticated
-          router.push("/404");
-          return;
-        }
+        // // Use Clerk's authentication state instead of custom session check
+        // if (!isSignedIn || !isLoaded) {
+        //   // Redirect to 404 if not authenticated
+        //   router.push("/404");
+        //   return;
+        // }
 
         // Check if user has beta access
         const response = await fetch("/api/beta-access/check", {

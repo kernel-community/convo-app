@@ -13,8 +13,7 @@ import { Skeleton } from "src/components/ui/skeleton";
 import ConfirmDeleteCredenza from "src/components/EventPage/ConfirmDelete";
 import { useRouter } from "next/navigation";
 import type { ClientEventInput } from "src/types";
-import { upsertConvo } from "src/utils/upsertConvo";
-import { useBetaMode } from "src/app/providers";
+import { useBetaMode } from "src/hooks/useBetaMode";
 
 const Edit = ({ params }: { params: { eventHash: string } }) => {
   const { push } = useRouter();
