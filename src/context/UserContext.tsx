@@ -1,6 +1,6 @@
 "use client";
 
-import { useUser as useClerkUser, useAuth } from "@clerk/nextjs";
+import { useUser as useClerkUser } from "@clerk/nextjs";
 import type { User } from "@prisma/client";
 import {
   createContext,
@@ -51,7 +51,7 @@ const useUser = () => {
 
 const UserProvider = ({ children }: { children: ReactNode }) => {
   const { user: clerkUser, isLoaded, isSignedIn } = useClerkUser();
-  const { signOut } = useAuth();
+  // const { signOut } = useAuth();
   const [fetchedUser, setFetchedUser] = useState<UserStatus>(
     defaultFullUser.fetchedUser
   );
@@ -277,7 +277,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
       const redirectUrl = isProduction ? `https://www.convo.cafe/` : "/";
       console.log("🔄 Calling Clerk signOut with redirectUrl:", redirectUrl);
 
-      await signOut({ redirectUrl });
+      // await signOut({ redirectUrl });
       console.log("✅ Clerk signOut completed");
 
       // Fallback: Force redirect if Clerk doesn't redirect automatically
@@ -295,7 +295,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
       });
       localStorage.removeItem("user_state");
     }
-  }, [signOut]);
+  }, []);
 
   const value = useMemo(
     () => ({
