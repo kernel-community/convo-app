@@ -35,7 +35,6 @@ export default function SignInPage() {
           path="/signin"
           redirectUrl="/"
           forceRedirectUrl="/"
-          withSignUp={true}
         />
 
         <div className="text-center">
