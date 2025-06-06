@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { AddRsvpCredenza } from "./AddRsvpCredenza";
 import { MessageCredenza } from "./MessageCredenza";
+import { QuickRsvpModal } from "./QuickRsvpModal";
 import {
   Card,
   CardContent,
@@ -46,7 +47,6 @@ import { RSVP_TYPE } from "@prisma/client";
 import useUserRsvpForConvo from "src/hooks/useUserRsvpForConvo";
 import Signature from "./EventPage/Signature";
 import FieldLabel from "./EventPage/RsvpConfirmationForm/FieldLabel";
-import LoginButton from "./LoginButton";
 import { rsvpTypeToEmoji } from "src/utils/rsvpTypeToEmoji";
 import { MoreHorizontal } from "lucide-react";
 import {
@@ -504,9 +504,15 @@ const RSVP = ({
   const { rsvp } = useUserRsvpForConvo({ hash: event.hash });
   const { fetchedUser } = useUser();
   const [rsvpType, setRsvpType] = useState<RSVP_TYPE>(RSVP_TYPE.GOING);
+  const [isQuickRsvpModalOpen, setIsQuickRsvpModalOpen] = useState(false);
 
   const onRsvpTypeChange = (rsvpType: RSVP_TYPE) => {
     setRsvpType(rsvpType);
+  };
+
+  const handleQuickRsvpSuccess = () => {
+    // Force a page refresh to show the updated RSVP status
+    window.location.reload();
   };
 
   useEffect(() => {
@@ -581,24 +587,42 @@ const RSVP = ({
   }
   if (!fetchedUser.isSignedIn) {
     return (
-      <Card
-        className={cn(
-          "cursor-pointer border-2 border-border bg-background text-foreground duration-300",
-          className
-        )}
-      >
-        <CardHeader>
-          <CardTitle className="text-base">Login to RSVP</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <ConvoSeats
-            totalAvailableSeats={totalAvailableSeats}
-            totalSeats={totalSeats}
-            isSignedIn={false}
-          />
-          <LoginButton className="w-full" />
-        </CardContent>
-      </Card>
+      <>
+        <Card
+          className={cn(
+            "cursor-pointer border-2 border-border bg-background text-foreground duration-300",
+            className
+          )}
+        >
+          <CardHeader>
+            <CardTitle className="text-base">RSVP to this event</CardTitle>
+            <CardDescription>
+              No account needed! Just provide your nickname and email.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ConvoSeats
+              totalAvailableSeats={totalAvailableSeats}
+              totalSeats={totalSeats}
+              isSignedIn={false}
+            />
+            <Button
+              onClick={() => setIsQuickRsvpModalOpen(true)}
+              className="mt-4 w-full"
+            >
+              RSVP
+            </Button>
+          </CardContent>
+        </Card>
+
+        <QuickRsvpModal
+          isOpen={isQuickRsvpModalOpen}
+          onClose={() => setIsQuickRsvpModalOpen(false)}
+          eventId={event.id}
+          eventTitle={event.title}
+          onSuccess={handleQuickRsvpSuccess}
+        />
+      </>
     );
   }
   return (
