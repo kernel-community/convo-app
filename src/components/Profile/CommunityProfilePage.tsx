@@ -317,7 +317,7 @@ export const CommunityProfilePage = () => {
         </div>
 
         {/* Keywords */}
-        <div>
+        {/* <div>
           <label className="mb-1 block text-sm font-medium text-muted-foreground">
             <Tag className="mr-2 inline h-4 w-4" />
             Keywords
@@ -363,7 +363,7 @@ export const CommunityProfilePage = () => {
               <p className="text-sm text-muted-foreground">No keywords set</p>
             )}
           </div>
-        </div>
+        </div> */}
 
         {/* Save Button */}
         <div className="pt-4">
@@ -376,6 +376,7 @@ export const CommunityProfilePage = () => {
               !formState.user.id
             }
             className="w-full"
+            variant={"outline"}
           >
             {isSaving ? (
               <>
