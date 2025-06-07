@@ -196,22 +196,29 @@ const CommunityNetworkGraph: React.FC<CommunityNetworkGraphProps> = ({
   // Function to filter data to only show the selected node and its connections
   const filterDataForNode = useCallback(
     (nodeId: string | null) => {
-      console.log("filterDataForNode called with nodeId:", nodeId);
+      // Only log if in development mode to reduce noise
+      if (process.env.NODE_ENV === "development") {
+        console.log("filterDataForNode called with nodeId:", nodeId);
+      }
 
       if (!nodeId) {
         // If no node is selected and we have a current user, use that
         if (currentUserId) {
-          console.log(
-            "No nodeId provided, using currentUserId:",
-            currentUserId
-          );
+          if (process.env.NODE_ENV === "development") {
+            console.log(
+              "No nodeId provided, using currentUserId:",
+              currentUserId
+            );
+          }
           return filterDataForNode(currentUserId);
         }
 
         // Otherwise return empty data
-        console.log(
-          "No nodeId or currentUserId available, returning empty data"
-        );
+        if (process.env.NODE_ENV === "development") {
+          console.log(
+            "No nodeId or currentUserId available, returning empty data"
+          );
+        }
         return { nodes: [], links: [] };
       }
 
@@ -221,21 +228,27 @@ const CommunityNetworkGraph: React.FC<CommunityNetworkGraphProps> = ({
         console.error(
           `Node with ID ${nodeId} not found in data.nodes array of length ${data.nodes.length}`
         );
-        console.log(
-          "First 5 node IDs in data:",
-          data.nodes.slice(0, 5).map((n) => n.id)
-        );
-        console.log(
-          "All node IDs:",
-          data.nodes.map((n) => n.id)
-        );
+
+        // Only log detailed debug info in development
+        if (process.env.NODE_ENV === "development") {
+          console.log(
+            "First 5 node IDs in data:",
+            data.nodes.slice(0, 5).map((n) => n.id)
+          );
+          console.log(
+            "All node IDs:",
+            data.nodes.map((n) => n.id)
+          );
+        }
 
         // Special case for user with UUID if not found in the regular data
         if (
           nodeId === currentUserId &&
           nodeId === "e55075ef-3076-4019-bb46-854ab2662da1"
         ) {
-          console.log("Creating placeholder node for logged-in user");
+          if (process.env.NODE_ENV === "development") {
+            console.log("Creating placeholder node for logged-in user");
+          }
           // Create a placeholder node for this user
           const placeholderNode = {
             id: nodeId,
@@ -262,19 +275,12 @@ const CommunityNetworkGraph: React.FC<CommunityNetworkGraphProps> = ({
         return { nodes: [], links: [] };
       }
 
-      // Log success finding the node
-      console.log(`Found node with ID ${nodeId}:`, selectedNodeData.name);
-
       // Find all direct connections to this node
       const connectedLinks = data.links.filter((link) => {
         const sourceId = safeGetId(link.source);
         const targetId = safeGetId(link.target);
         return sourceId === nodeId || targetId === nodeId;
       });
-
-      console.log(
-        `Found ${connectedLinks.length} connected links for node ${nodeId}`
-      );
 
       // Get IDs of all connected nodes
       const connectedNodeIds = new Set<string>();
@@ -288,10 +294,6 @@ const CommunityNetworkGraph: React.FC<CommunityNetworkGraphProps> = ({
         }
       });
 
-      console.log(
-        `Found ${connectedNodeIds.size} connected nodes for node ${nodeId}`
-      );
-
       // Filter nodes to include only the selected node and its connections
       const filteredNodes = [
         selectedNodeData,
@@ -303,9 +305,17 @@ const CommunityNetworkGraph: React.FC<CommunityNetworkGraphProps> = ({
         links: connectedLinks,
       };
 
-      console.log(
-        `Filtered data result: ${result.nodes.length} nodes, ${result.links.length} links`
-      );
+      // Only log in development to reduce noise
+      if (process.env.NODE_ENV === "development") {
+        console.log(`Found node: ${selectedNodeData.name}`);
+        console.log(
+          `Connections: ${connectedLinks.length} links, ${connectedNodeIds.size} nodes`
+        );
+        console.log(
+          `Result: ${result.nodes.length} nodes, ${result.links.length} links`
+        );
+      }
+
       return result;
     },
     [data.nodes, data.links, safeGetId, currentUserId]
@@ -397,7 +407,10 @@ const CommunityNetworkGraph: React.FC<CommunityNetworkGraphProps> = ({
   // Memoized function to update connections for a node
   const updateNodeConnections = useCallback(
     (nodeId: string | null) => {
-      console.log("updateNodeConnections called with nodeId:", nodeId);
+      // Only log in development to reduce noise
+      if (process.env.NODE_ENV === "development") {
+        console.log("updateNodeConnections called with nodeId:", nodeId);
+      }
 
       // Update the reference immediately for visual feedback
       selectedNodeIdRef.current = nodeId;
@@ -410,7 +423,9 @@ const CommunityNetworkGraph: React.FC<CommunityNetworkGraphProps> = ({
         .on("end", () => {
           // If nodeId is null, reset the selection
           if (nodeId === null) {
-            console.log("Resetting selection (nodeId is null)");
+            if (process.env.NODE_ENV === "development") {
+              console.log("Resetting selection (nodeId is null)");
+            }
             setSelectedNode(null);
             setDirectConnections([]);
             setConnectionCount(0);
@@ -418,17 +433,21 @@ const CommunityNetworkGraph: React.FC<CommunityNetworkGraphProps> = ({
 
             // Filter data for initial user if available
             if (currentUserId) {
-              console.log(
-                `Will attempt to use currentUserId instead: ${currentUserId}`
-              );
+              if (process.env.NODE_ENV === "development") {
+                console.log(
+                  `Will attempt to use currentUserId instead: ${currentUserId}`
+                );
+              }
               const initialData = filterDataForNode(currentUserId);
-              console.log(
-                `Setting filtered data with currentUserId (${currentUserId}):`,
-                {
-                  nodes: initialData.nodes.length,
-                  links: initialData.links.length,
-                }
-              );
+              if (process.env.NODE_ENV === "development") {
+                console.log(
+                  `Setting filtered data with currentUserId (${currentUserId}):`,
+                  {
+                    nodes: initialData.nodes.length,
+                    links: initialData.links.length,
+                  }
+                );
+              }
               setFilteredData(initialData);
             } else {
               console.log("No currentUserId available, setting empty data");
@@ -560,22 +579,31 @@ const CommunityNetworkGraph: React.FC<CommunityNetworkGraphProps> = ({
     // Skip if we've already done initial load to prevent loops
     if (initialLoadComplete.current) return;
 
-    console.log("Initial load effect running with:", {
-      searchParams: searchParams.toString(),
-      currentUserId,
-    });
+    // Only log in development to reduce noise
+    if (process.env.NODE_ENV === "development") {
+      console.log("Initial load effect running with:", {
+        searchParams: searchParams.toString(),
+        currentUserId,
+      });
+    }
 
     // First check URL for a node ID
     const nodeIdFromUrl = searchParams.get("id");
 
     if (nodeIdFromUrl) {
-      console.log(`Using node ID from URL: ${nodeIdFromUrl}`);
+      if (process.env.NODE_ENV === "development") {
+        console.log(`Using node ID from URL: ${nodeIdFromUrl}`);
+      }
       updateNodeConnections(nodeIdFromUrl);
     } else if (currentUserId) {
-      console.log(`No node ID in URL, using current user: ${currentUserId}`);
+      if (process.env.NODE_ENV === "development") {
+        console.log(`No node ID in URL, using current user: ${currentUserId}`);
+      }
       updateNodeConnections(currentUserId);
     } else {
-      console.log("No node ID in URL or current user ID available");
+      if (process.env.NODE_ENV === "development") {
+        console.log("No node ID in URL or current user ID available");
+      }
       updateNodeConnections(null);
     }
 
@@ -624,12 +652,15 @@ const CommunityNetworkGraph: React.FC<CommunityNetworkGraphProps> = ({
 
   // Create and update the force-directed graph
   useEffect(() => {
-    console.log("Graph rendering effect triggered with:", {
-      hasContainer: !!containerRef.current,
-      hasSvg: !!svgRef.current,
-      filteredNodes: filteredData.nodes.length,
-      filteredLinks: filteredData.links.length,
-    });
+    // Only log in development to reduce noise
+    if (process.env.NODE_ENV === "development") {
+      console.log("Graph rendering effect triggered with:", {
+        hasContainer: !!containerRef.current,
+        hasSvg: !!svgRef.current,
+        filteredNodes: filteredData.nodes.length,
+        filteredLinks: filteredData.links.length,
+      });
+    }
 
     if (!svgRef.current || !containerRef.current) {
       console.error("Missing required refs:", {
@@ -651,14 +682,19 @@ const CommunityNetworkGraph: React.FC<CommunityNetworkGraphProps> = ({
 
     // If there are no nodes to render, still mark as rendered so loading state disappears
     if (filteredData.nodes.length === 0) {
-      console.warn("No nodes to render in filteredData");
+      if (process.env.NODE_ENV === "development") {
+        console.warn("No nodes to render in filteredData");
+      }
       setIsInitialRenderDone(true); // Mark as complete even with no nodes
       return;
     }
 
-    console.log(
-      `Rendering graph with ${filteredData.nodes.length} nodes and ${filteredData.links.length} links`
-    );
+    // Only log in development to reduce noise
+    if (process.env.NODE_ENV === "development") {
+      console.log(
+        `Rendering graph with ${filteredData.nodes.length} nodes and ${filteredData.links.length} links`
+      );
+    }
 
     // Clear previous SVG content
     d3.select(svgRef.current).selectAll("*").remove();

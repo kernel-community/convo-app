@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Main from "src/layouts/Main";
 import CommunityNetworkGraph from "./components/CommunityNetworkGraph";
@@ -8,7 +8,8 @@ import { useUser } from "src/context/UserContext";
 import { useUser as useClerkUser } from "@clerk/nextjs";
 import BetaBadge from "src/components/ui/beta-badge";
 
-export default function NookPage() {
+// Wrap the main component in Suspense to handle useSearchParams properly in Next.js 15.3
+function NookPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [loading, setLoading] = useState(true);
@@ -29,9 +30,9 @@ export default function NookPage() {
     return name ? `Hi ${name}, welcome to the nook` : `nook`;
   };
 
-  // Effect to sync URL parameters with tab state
+  // Effect to sync URL parameters with tab state - Remove activeTab from dependencies to prevent loops
   useEffect(() => {
-    // If URL has tab parameter, update active tab state
+    // Only update if the tab parameter actually changed
     if (
       tabParam &&
       ["network", "map"].includes(tabParam) &&
@@ -39,7 +40,7 @@ export default function NookPage() {
     ) {
       setActiveTab(tabParam);
     }
-  }, [tabParam, activeTab]);
+  }, [tabParam]); // Removed activeTab dependency to prevent infinite loops
 
   useEffect(() => {
     const checkBetaAccess = async () => {
@@ -83,18 +84,43 @@ export default function NookPage() {
   }, [router, isSignedIn, isLoaded]);
 
   // Set currentUserId from UserContext when fetchedUser is available
+  // Optimize to prevent infinite logging by only updating when the actual ID changes
   useEffect(() => {
     if (fetchedUser && fetchedUser.id) {
-      console.log("Setting user ID from context:", fetchedUser.id);
-      setCurrentUserId(fetchedUser.id);
-      setUserName(fetchedUser.nickname || "Anonymous");
+      // Only log and update if the user ID actually changed
+      setCurrentUserId((prevUserId) => {
+        if (prevUserId !== fetchedUser.id) {
+          console.log("Setting user ID from context:", fetchedUser.id);
+          return fetchedUser.id;
+        }
+        return prevUserId;
+      });
+
+      setUserName((prevUserName) => {
+        const newUserName = fetchedUser.nickname || "Anonymous";
+        if (prevUserName !== newUserName) {
+          return newUserName;
+        }
+        return prevUserName;
+      });
     } else if (!loading) {
-      // Fallback behavior - could be removed once we have real users
-      console.log("No user ID in context");
-      setCurrentUserId(undefined);
-      setUserName("");
+      // Only log if we're not loading and don't have a user ID
+      setCurrentUserId((prevUserId) => {
+        if (prevUserId !== undefined) {
+          console.log("No user ID in context");
+          return undefined;
+        }
+        return prevUserId;
+      });
+
+      setUserName((prevUserName) => {
+        if (prevUserName !== "") {
+          return "";
+        }
+        return prevUserName;
+      });
     }
-  }, [fetchedUser, loading]);
+  }, [fetchedUser?.id, fetchedUser?.nickname, loading]); // More specific dependencies
 
   // Show loading state while checking beta access
   if (loading) {
@@ -140,5 +166,13 @@ export default function NookPage() {
         }
       `}</style>
     </Main>
+  );
+}
+
+export default function NookPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <NookPageContent />
+    </Suspense>
   );
 }
