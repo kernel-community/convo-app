@@ -172,7 +172,7 @@ const sendEmailsAsync = async (
 
     // Queue Slack notification instead of sending directly
     try {
-      const headersList = headers();
+      const headersList = await headers();
       const host = headersList.get("host") ?? "kernel";
 
       // Import the queue function to avoid circular dependencies

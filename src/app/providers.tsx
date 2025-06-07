@@ -5,7 +5,7 @@ import { UserProvider } from "src/context/UserContext";
 import { ClerkProvider } from "@clerk/nextjs";
 import { TooltipProvider } from "src/components/ui/tooltip";
 import { RsvpIntentionProvider } from "src/context/RsvpIntentionContext";
-import { createContext, useContext } from "react";
+import { createContext } from "react";
 import { CommunityProvider } from "src/context/CommunityContext";
 import { Toaster } from "react-hot-toast";
 import { DataLossBanner } from "src/components/DataLossBanner";
@@ -24,22 +24,22 @@ export default function Providers({
   isBetaMode?: boolean;
 }>) {
   return (
-    <ClerkProvider
-      publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY!}
-      signInUrl="/signin"
-      signUpUrl="/signup"
-      signInFallbackRedirectUrl="/"
-      signUpFallbackRedirectUrl="/"
-      afterSignOutUrl="/"
-      dynamic
-      appearance={{
-        elements: {
-          formButtonPrimary: "bg-primary hover:bg-primary/90",
-          card: "shadow-lg",
-        },
-      }}
-    >
-      <BetaModeContext.Provider value={isBetaMode || false}>
+    <BetaModeContext.Provider value={isBetaMode || false}>
+      <ClerkProvider
+        publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY!}
+        signInUrl="/signin"
+        signUpUrl="/signup"
+        signInFallbackRedirectUrl="/"
+        signUpFallbackRedirectUrl="/"
+        afterSignOutUrl="/"
+        dynamic
+        appearance={{
+          elements: {
+            formButtonPrimary: "bg-primary hover:bg-primary/90",
+            card: "shadow-lg",
+          },
+        }}
+      >
         <QueryClientProvider client={queryClient}>
           <UserProvider>
             <CommunityProvider>
@@ -75,7 +75,7 @@ export default function Providers({
             </CommunityProvider>
           </UserProvider>
         </QueryClientProvider>
-      </BetaModeContext.Provider>
-    </ClerkProvider>
+      </ClerkProvider>
+    </BetaModeContext.Provider>
   );
 }

@@ -9,7 +9,7 @@ import isProd from "src/utils/isProd";
  * @returns The resolved community or throws an error if none found
  */
 export async function getCommunityFromSubdomain() {
-  const headersList = headers();
+  const headersList = await headers();
   const originalHost = headersList.get("host") || "";
 
   // Extract subdomain directly from host header
@@ -79,7 +79,7 @@ export async function getCommunityFromSubdomain() {
  * Use this when you need to ensure a community exists (e.g., during event creation)
  */
 export async function getOrCreateCommunityFromSubdomain() {
-  const headersList = headers();
+  const headersList = await headers();
   const originalHost = headersList.get("host") || "";
 
   // Extract subdomain directly from host header

@@ -15,13 +15,19 @@ import { useRouter } from "next/navigation";
 import type { ClientEventInput } from "src/types";
 import { useBetaMode } from "src/hooks/useBetaMode";
 
-const Edit = ({ params }: { params: { eventHash: string } }) => {
+const Edit = ({ params }: { params: Promise<{ eventHash: string }> }) => {
   const { push } = useRouter();
-  const { eventHash } = params;
+  const [eventHash, setEventHash] = useState<string | null>(null);
+
+  useEffect(() => {
+    params.then(({ eventHash }) => {
+      setEventHash(eventHash);
+    });
+  }, [params]);
   // Set dontFetch explicitly to true for edit pages to prevent refetching and form resets
   // Added staleTime: Infinity in useEvent hook to prevent refetching when tab regains focus
   const { data, isLoading: isEventLoading } = useEvent({
-    hash: eventHash,
+    hash: eventHash || "",
     dontFetch: true, // Ensure we don't poll for updates on edit pages
   });
   const { deleteEvent, isDeleting } = useDeleteEvent();
@@ -57,7 +63,7 @@ const Edit = ({ params }: { params: { eventHash: string } }) => {
     // Also ensure other dependencies are correct
   }, [user, data, isBetaMode, setInvalidRequest]);
 
-  if (isEventLoading || !user) {
+  if (isEventLoading || !user || !eventHash) {
     return (
       <Main>
         <div className="flex flex-col items-center justify-center">
@@ -89,6 +95,7 @@ const Edit = ({ params }: { params: { eventHash: string } }) => {
   }
 
   const handleDelete = async () => {
+    if (!eventHash) return;
     const success = await deleteEvent(eventHash);
     if (success) {
       // Redirect to home page after successful deletion

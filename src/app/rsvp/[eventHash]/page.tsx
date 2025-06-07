@@ -5,19 +5,20 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 type Props = {
-  params: { eventHash: string };
+  params: Promise<{ eventHash: string }>;
 };
 
 // Remove generateStaticParams completely and rely only on ISR
 export const revalidate = 3600; // revalidate every hour
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { eventHash } = await params;
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://www.convo.cafe";
 
   try {
     // Fetch the event data with reduced caching for more timely updates
     const response = await fetch(`${baseUrl}/api/query/getEventByHash`, {
-      body: JSON.stringify({ hash: params.eventHash }),
+      body: JSON.stringify({ hash: eventHash }),
       method: "POST",
       headers: { "Content-type": "application/json" },
       cache: "no-store", // Disable caching completely to always fetch fresh data
@@ -78,7 +79,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const imageUrl = new URL(`${baseUrl}/api/og/convo-cover-image`);
     imageUrl.searchParams.set("title", event.title);
     imageUrl.searchParams.set("startDateTime", event.startDateTime);
-    imageUrl.searchParams.set("eventHash", params.eventHash);
+    imageUrl.searchParams.set("eventHash", eventHash);
     if (event.recurrenceRule) {
       imageUrl.searchParams.set("recurrenceRule", event.recurrenceRule);
     }
@@ -104,7 +105,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       openGraph: {
         title: metaTitle,
         description: metaDescription,
-        url: `${baseUrl}/rsvp/${params.eventHash}`,
+        url: `${baseUrl}/rsvp/${eventHash}`,
         siteName: "Convo Cafe",
         images: [imageUrl.toString()],
         locale: "en_US",
@@ -123,11 +124,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 const Post = async ({ params }: Props) => {
+  const { eventHash } = await params;
   // Move the data fetching to the client component (EventWrapper)
   // This prevents hydration issues by ensuring consistent rendering
   return (
     <Main className="container">
-      <EventWrapper eventHash={params.eventHash} />
+      <EventWrapper eventHash={eventHash} />
     </Main>
   );
 };

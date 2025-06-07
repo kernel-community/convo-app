@@ -9,7 +9,7 @@ import { getCommunityFromSubdomain } from "src/utils/getCommunityFromSubdomain";
 
 export async function POST(req: NextRequest) {
   console.log("[api] services/slack/notify");
-  const headersList = headers();
+  const headersList = await headers();
   const body = await req.json();
   const { eventId, type } = pick(body, ["eventId", "type"]);
   const host = headersList.get("host") ?? "kernel";

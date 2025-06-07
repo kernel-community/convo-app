@@ -1,17 +1,24 @@
 "use client";
 
+import React from "react";
 import Main from "src/layouts/Main";
 import useCollection from "src/hooks/useCollection";
 import { Events } from "src/components/Events";
 import TitleLoadingState from "src/components/LoadingState/Title";
 
-const Post = ({ params }: { params: { collectionId: string } }) => {
-  const collectionId = params.collectionId;
+const Post = ({ params }: { params: Promise<{ collectionId: string }> }) => {
+  const [collectionId, setCollectionId] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    params.then(({ collectionId }) => {
+      setCollectionId(collectionId);
+    });
+  }, [params]);
   const {
     isLoading: isCollectionLoading,
     isError,
     data: collection,
-  } = useCollection({ collectionId });
+  } = useCollection({ collectionId: collectionId || undefined });
 
   return (
     <Main>

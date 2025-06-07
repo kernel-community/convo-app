@@ -8,13 +8,14 @@ import Link from "next/link";
 import BlogBackground from "src/components/BlogBackground";
 
 interface Props {
-  params: {
+  params: Promise<{
     slug: string;
-  };
+  }>;
 }
 
-export default function BlogPost({ params }: Props) {
-  const ember = getEmberBySlug(params.slug);
+export default async function BlogPost({ params }: Props) {
+  const { slug } = await params;
+  const ember = getEmberBySlug(slug);
 
   if (!ember) {
     notFound();
