@@ -9,7 +9,6 @@ import React, {
 import * as d3 from "d3";
 import type { User, NodeType, Connection } from "../utils/types";
 import UserSearch from "./UserSearch";
-import Profile from "./Profile";
 import { useNetworkData } from "../hooks/useNetworkData";
 // import GraphLegend from "./GraphLegend";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
@@ -106,7 +105,7 @@ const CommunityNetworkGraph: React.FC<CommunityNetworkGraphProps> = ({
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState<User[]>([]);
   const [isInitialRenderDone, setIsInitialRenderDone] = useState(false);
-  const [isProfileDialogOpen, setIsProfileDialogOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<'profile' | 'graph'>('profile');
   const [filteredData, setFilteredData] = useState<{
     nodes: User[];
     links: { source: string; target: string; weight?: number }[];
@@ -414,7 +413,6 @@ const CommunityNetworkGraph: React.FC<CommunityNetworkGraphProps> = ({
             setSelectedNode(null);
             setDirectConnections([]);
             setConnectionCount(0);
-            setIsProfileDialogOpen(false);
 
             // Filter data for initial user if available
             if (currentUserId) {
@@ -461,7 +459,6 @@ const CommunityNetworkGraph: React.FC<CommunityNetworkGraphProps> = ({
 
           console.log(`Found node data for ${nodeId}:`, nodeData.name);
           setSelectedNode(nodeData);
-          setIsProfileDialogOpen(true);
 
           // Filter data to only show this node and its connections
           console.log(`Filtering data for node ${nodeId}`);
@@ -1873,14 +1870,42 @@ const CommunityNetworkGraph: React.FC<CommunityNetworkGraphProps> = ({
 
   return (
     <div className="h-[calc(100vh-2rem)] w-full rounded-lg bg-white shadow">
-      <div className="grid h-full grid-cols-1 gap-0">
-        {/* Graph - takes full space now */}
-        <div
-          ref={containerRef}
-          className="rounded relative h-full w-full overflow-hidden border bg-gray-50 transition-all"
-        >
-          <svg ref={svgRef} className="h-full w-full"></svg>
-          {/* Search bar positioned inside graph view */}
+      {/* Tab Navigation */}
+      <div className="flex items-center justify-between border-b border-gray-200 bg-gray-50 px-4">
+        <div className="flex">
+          {/* Profile Tab - Shows "You" for current user or username for others */}
+          <button
+            onClick={() => setActiveTab('profile')}
+            className={`relative px-6 py-3 text-sm font-medium transition-all ${
+              activeTab === 'profile'
+                ? 'text-primary border-b-2 border-primary'
+                : 'text-gray-600 hover:text-gray-900'
+            }`}
+          >
+            {selectedNode ? (selectedNode.id === currentUserId ? 'You' : selectedNode.name) : 'You'}
+            {activeTab === 'profile' && (
+              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary" />
+            )}
+          </button>
+          
+          {/* Graph Tab */}
+          <button
+            onClick={() => setActiveTab('graph')}
+            className={`relative px-6 py-3 text-sm font-medium transition-all ${
+              activeTab === 'graph'
+                ? 'text-primary border-b-2 border-primary'
+                : 'text-gray-600 hover:text-gray-900'
+            }`}
+          >
+            Graph
+            {activeTab === 'graph' && (
+              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary" />
+            )}
+          </button>
+        </div>
+        
+        {/* Search bar - Always visible */}
+        <div className="flex-1 max-w-md ml-8">
           <UserSearch
             searchTerm={searchTerm}
             setSearchTerm={setSearchTerm}
@@ -1890,6 +1915,7 @@ const CommunityNetworkGraph: React.FC<CommunityNetworkGraphProps> = ({
               updateNodeConnections(userId);
               setSearchTerm("");
               setSearchResults([]);
+              setActiveTab('profile'); // Switch to profile tab when selecting a user
             }}
             currentUser={
               currentUserId
@@ -1898,69 +1924,88 @@ const CommunityNetworkGraph: React.FC<CommunityNetworkGraphProps> = ({
             }
             currentUserId={currentUserId}
           />
-          {/* Profile dialog */}
-          <Profile
-            selectedNode={selectedNode || undefined}
-            connectionCount={connectionCount}
-            directConnections={directConnections}
-            onSelectConnection={(nodeId) => {
-              updateNodeConnections(nodeId);
-            }}
-            currentUserId={currentUserId}
-            currentUser={
-              currentUserId
-                ? (dataNodesMap.get(currentUserId) as User)
-                : undefined
-            }
-            isOpen={isProfileDialogOpen}
-            onClose={() => setIsProfileDialogOpen(false)}
-          />
-          {!isInitialRenderDone && (
-            <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-80">
-              <div className="text-lg text-gray-600">
-                Loading network graph...
-              </div>
-            </div>
-          )}
-          {/* Empty state message - no nodes */}
-          {isInitialRenderDone && filteredData.nodes.length === 0 && (
-            <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center">
-              <div className="mb-3 text-4xl">🕸️</div>
-              <div className="mb-2 text-xl font-semibold text-primary">
-                This network is socially distancing
-              </div>
-              <div className="max-w-md text-base text-gray-500">
-                Looks like these nodes are playing hide and seek! Search for
-                someone or select a connection to coax them out of hiding.
-              </div>
-            </div>
-          )}
-          {/* Lonely node message - single node with no connections */}
-          {isInitialRenderDone &&
-            filteredData.nodes.length === 1 &&
-            filteredData.links.length === 0 && (
-              <div className="absolute bottom-4 left-4 right-4 flex flex-col items-center justify-center rounded-lg bg-white bg-opacity-90 p-4 text-center shadow-sm">
-                <div className="mb-2 text-2xl">🏝️</div>
-                <div className="mb-1 text-lg font-medium text-primary">
-                  Welcome to your personal island!
-                </div>
-                <div className="max-w-md text-sm text-gray-500">
-                  You&apos;re a network pioneer! Start connecting with others to
-                  build your web of relationships.
+        </div>
+      </div>
+
+      {/* Content Area */}
+      <div className="h-[calc(100%-3rem)] w-full overflow-hidden">
+        {/* Profile View - Full Width/Height */}
+        {activeTab === 'profile' && (
+          <div className="h-full w-full overflow-auto bg-white">
+            <FullScreenProfile
+              selectedNode={selectedNode || (currentUserId ? dataNodesMap.get(currentUserId) as User : undefined)}
+              connectionCount={connectionCount}
+              directConnections={directConnections}
+              onSelectConnection={(nodeId) => {
+                updateNodeConnections(nodeId);
+              }}
+              currentUserId={currentUserId}
+              currentUser={
+                currentUserId
+                  ? (dataNodesMap.get(currentUserId) as User)
+                  : undefined
+              }
+            />
+          </div>
+        )}
+
+        {/* Graph View */}
+        {activeTab === 'graph' && (
+          <div
+            ref={containerRef}
+            className="relative h-full w-full overflow-hidden bg-gray-50"
+          >
+            <svg ref={svgRef} className="h-full w-full"></svg>
+            
+            {!isInitialRenderDone && (
+              <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-80">
+                <div className="text-lg text-gray-600">
+                  Loading network graph...
                 </div>
               </div>
             )}
+            
+            {/* Empty state message - no nodes */}
+            {isInitialRenderDone && filteredData.nodes.length === 0 && (
+              <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center">
+                <div className="mb-3 text-4xl">🕸️</div>
+                <div className="mb-2 text-xl font-semibold text-primary">
+                  This network is socially distancing
+                </div>
+                <div className="max-w-md text-base text-gray-500">
+                  Looks like these nodes are playing hide and seek! Search for
+                  someone or select a connection to coax them out of hiding.
+                </div>
+              </div>
+            )}
+            
+            {/* Lonely node message - single node with no connections */}
+            {isInitialRenderDone &&
+              filteredData.nodes.length === 1 &&
+              filteredData.links.length === 0 && (
+                <div className="absolute bottom-4 left-4 right-4 flex flex-col items-center justify-center rounded-lg bg-white bg-opacity-90 p-4 text-center shadow-sm">
+                  <div className="mb-2 text-2xl">🏝️</div>
+                  <div className="mb-1 text-lg font-medium text-primary">
+                    Welcome to your personal island!
+                  </div>
+                  <div className="max-w-md text-sm text-gray-500">
+                    You&apos;re a network pioneer! Start connecting with others to
+                    build your web of relationships.
+                  </div>
+                </div>
+              )}
 
-          {/* Mobile optimizations */}
-          <div className="absolute left-0 right-0 top-14 mx-auto text-center md:hidden">
-            <div className="inline-block rounded-full bg-white/90 px-3 py-1 text-xs text-gray-600 shadow-sm backdrop-blur-sm">
-              Pinch to zoom, drag to move
+            {/* Mobile optimizations */}
+            <div className="absolute left-0 right-0 top-14 mx-auto text-center md:hidden">
+              <div className="inline-block rounded-full bg-white/90 px-3 py-1 text-xs text-gray-600 shadow-sm backdrop-blur-sm">
+                Pinch to zoom, drag to move
+              </div>
             </div>
           </div>
-        </div>
+        )}
       </div>
-      {/* Legend */}
-      {/* <GraphLegend /> */}
+      
+      {/* Hidden SVG defs */}
       <svg className="invisible absolute" width="0" height="0">
         <defs>
           <filter
@@ -1985,5 +2030,243 @@ const CommunityNetworkGraph: React.FC<CommunityNetworkGraphProps> = ({
     </div>
   );
 };
+
+// Full Screen Profile Component
+const FullScreenProfile: React.FC<ProfileProps> = ({
+  selectedNode,
+  connectionCount = 0,
+  directConnections = [],
+  onSelectConnection,
+  currentUserId,
+  currentUser,
+}) => {
+  const [expandedDescriptions, setExpandedDescriptions] = useState<{
+    [key: string]: boolean;
+  }>({});
+
+  // If no node is selected, show empty state
+  if (!selectedNode) {
+    return (
+      <div className="flex h-full items-center justify-center">
+        <div className="text-center">
+          <p className="mb-2 text-lg text-gray-600">
+            No profile selected
+          </p>
+          <p className="text-sm text-gray-500">
+            Search for someone to view their profile
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  const isCurrentUser = selectedNode.id === currentUserId;
+
+  return (
+    <div className="mx-auto max-w-4xl p-8">
+      {/* Profile Header */}
+      <div className="mb-8 flex items-start space-x-6">
+        {/* Profile Image */}
+        <div className="flex-shrink-0">
+          <div className="relative h-32 w-32 overflow-hidden rounded-full border-4 border-gray-200 shadow-lg">
+            {selectedNode.profile?.image ? (
+              <img
+                src={selectedNode.profile.image}
+                alt={selectedNode.name}
+                className="h-full w-full object-cover"
+              />
+            ) : (
+              <div className="flex h-full w-full items-center justify-center bg-gray-200 text-3xl text-gray-500">
+                ?
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Profile Info */}
+        <div className="flex-grow">
+          <h1 className="mb-2 text-3xl font-bold text-gray-900">
+            {selectedNode.name}
+            {isCurrentUser && (
+              <span className="ml-3 inline-flex items-center rounded-full bg-purple-100 px-3 py-1 text-sm font-medium text-purple-800">
+                You
+              </span>
+            )}
+          </h1>
+          
+          {selectedNode.profile?.currentAffiliation && (
+            <p className="mb-2 text-lg text-gray-600">
+              {selectedNode.profile.currentAffiliation}
+            </p>
+          )}
+          
+          <div className="flex items-center space-x-6 text-sm text-gray-500">
+            {selectedNode.profile?.city && (
+              <span>📍 {selectedNode.profile.city}</span>
+            )}
+            <span>🔗 {connectionCount} connections</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Bio Section */}
+      {selectedNode.profile?.bio && (
+        <div className="mb-8">
+          <h2 className="mb-3 text-xl font-semibold text-gray-900">About</h2>
+          <p className="text-gray-700 leading-relaxed">
+            {selectedNode.profile.bio}
+          </p>
+        </div>
+      )}
+
+      {/* Keywords Section */}
+      {selectedNode.profile?.keywords && selectedNode.profile.keywords.length > 0 && (
+        <div className="mb-8">
+          <h2 className="mb-3 text-xl font-semibold text-gray-900">
+            Interests & Skills
+          </h2>
+          <div className="flex flex-wrap gap-2">
+            {selectedNode.profile.keywords.map((keyword, i) => (
+              <span
+                key={i}
+                className="inline-flex items-center rounded-full bg-gray-100 px-3 py-1 text-sm font-medium text-gray-700"
+              >
+                {keyword}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Website Link */}
+      {selectedNode.profile?.url && (
+        <div className="mb-8">
+          <h2 className="mb-3 text-xl font-semibold text-gray-900">Website</h2>
+          <a
+            href={selectedNode.profile.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-600 hover:text-blue-800 hover:underline"
+          >
+            {selectedNode.profile.url}
+          </a>
+        </div>
+      )}
+
+      {/* Connections Section */}
+      <div className="mb-8">
+        <h2 className="mb-4 text-xl font-semibold text-gray-900">
+          Connections ({connectionCount})
+        </h2>
+        
+        {connectionCount > 0 ? (
+          <div className="grid gap-4 md:grid-cols-2">
+            {directConnections.map((connection) => {
+              const isDescriptionExpanded = expandedDescriptions[connection.id] || false;
+              const toggleDescription = () => {
+                setExpandedDescriptions((prev) => ({
+                  ...prev,
+                  [connection.id]: !prev[connection.id],
+                }));
+              };
+
+              return (
+                <div
+                  key={connection.id}
+                  className="cursor-pointer rounded-lg border border-gray-200 p-4 transition-all hover:border-gray-300 hover:shadow-md"
+                  onClick={() => onSelectConnection?.(connection.id)}
+                >
+                  <div className="mb-2 flex items-start justify-between">
+                    <div>
+                      <h3 className="font-semibold text-gray-900">
+                        {connection.name}
+                      </h3>
+                      <p className="text-sm text-gray-500">
+                        {connection.type === "user" ? "Member" : connection.type}
+                      </p>
+                    </div>
+                    <div
+                      className={`rounded-full px-3 py-1 text-sm font-medium ${
+                        connection.weight > 7
+                          ? "bg-green-100 text-green-800"
+                          : connection.weight > 5
+                          ? "bg-yellow-100 text-yellow-800"
+                          : "bg-gray-100 text-gray-700"
+                      }`}
+                    >
+                      Score: {connection.weight}/10
+                    </div>
+                  </div>
+
+                  {/* Similarity Description */}
+                  {connection.description && (
+                    <div className="mt-2">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleDescription();
+                        }}
+                        className="text-xs text-blue-600 underline hover:text-blue-800"
+                      >
+                        {isDescriptionExpanded
+                          ? "Hide calculation details"
+                          : "Show calculation details"}
+                      </button>
+
+                      {isDescriptionExpanded && (
+                        <div className="mt-2 rounded border bg-gray-50 p-3 font-mono text-xs leading-relaxed">
+                          {connection.description
+                            .split(" | ")
+                            .map((part: string, index: number) => (
+                              <div key={index} className="mb-1">
+                                {part.startsWith("CALCULATION BREAKDOWN:") ? (
+                                  <div className="mb-1 font-bold text-blue-700">
+                                    {part}
+                                  </div>
+                                ) : part.startsWith("FACTOR ANALYSIS:") ? (
+                                  <div className="mb-1 font-bold text-green-700">
+                                    {part}
+                                  </div>
+                                ) : part.startsWith("DOMINANT FACTOR:") ? (
+                                  <div className="mb-1 font-bold text-purple-700">
+                                    {part}
+                                  </div>
+                                ) : part.includes("SIMILARITY") ? (
+                                  <div className="mb-1 font-bold text-red-700">
+                                    {part}
+                                  </div>
+                                ) : (
+                                  <div className="text-gray-700">{part}</div>
+                                )}
+                              </div>
+                            ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <div className="rounded-lg bg-gray-50 p-8 text-center">
+            <p className="text-gray-500">
+              No connections found for this profile.
+            </p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+interface ProfileProps {
+  selectedNode?: User;
+  connectionCount?: number;
+  directConnections?: Connection[];
+  onSelectConnection?: (nodeId: string) => void;
+  currentUserId?: string;
+  currentUser?: User;
+}
 
 export default CommunityNetworkGraph;
