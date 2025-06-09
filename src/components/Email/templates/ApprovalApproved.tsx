@@ -125,7 +125,7 @@ export const ApprovalApprovedEmailTemplate: React.FC<
       >
         <a
           href={`${
-            process.env.NEXT_PUBLIC_SITE_URL || "https://convo.events"
+            process.env.NEXT_PUBLIC_SITE_URL || "https://convo.cafe"
           }/rsvp/${event.hash}`}
           style={{
             display: "inline-block",
