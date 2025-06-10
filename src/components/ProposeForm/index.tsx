@@ -35,7 +35,7 @@ import {
 import BetaBadge from "../ui/beta-badge";
 import { SadEmoji } from "../ui/emojis";
 import { X, Check, ChevronsUpDown, Infinity } from "lucide-react";
-import { ProposerSearchCombobox } from "../ProposerSearchCombobox";
+import { ProposerEmailInput } from "../ProposerEmailInput";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import {
   Command,
@@ -56,6 +56,15 @@ type ProposerInfo = {
   nickname: string | null;
   image?: string | null;
   email?: string | null;
+};
+
+// Type for user data from email search
+type EmailUserData = {
+  id?: string;
+  email: string;
+  nickname: string;
+  image?: string | null;
+  exists: boolean;
 };
 
 // Common timezones array for dropdown
@@ -241,13 +250,7 @@ const ProposeForm = ({
 
   // State for managing the list of proposers added to the event
   const [proposersList, setProposersList] = useState<ProposerInfo[]>([]);
-  // State for the ID selected in the combobox, before clicking "Add"
-  const [selectedProposerIdToAdd, setSelectedProposerIdToAdd] = useState<
-    string | null
-  >(null);
-  // State to hold the full details of the selected user (needed for adding to list)
-  const [selectedProposerDetails, setSelectedProposerDetails] =
-    useState<ProposerInfo | null>(null);
+  // No longer need state for selected proposer since the email component handles its own state
   // Ref to track if the initial proposer list has been set
   const isInitializedRef = useRef<boolean>(false);
   // Ref to store the key representing the context (user/event) for the last initialization
@@ -427,49 +430,65 @@ const ProposeForm = ({
   const [loading, setLoading] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string | undefined>();
 
-  // Function to handle selection from the combobox
-  const handleSelectProposerFromCombobox = (
-    userObject: ProposerInfo | null
-  ) => {
-    console.log(
-      "[ProposeForm handleSelectProposer] Received userObject:",
-      userObject
-    );
-    setSelectedProposerIdToAdd(userObject?.id ?? null);
-    setSelectedProposerDetails(userObject);
-    console.log(
-      "[ProposeForm handleSelectProposer] Set state - ID:",
-      userObject?.id ?? null,
-      "Details:",
-      userObject
-    );
-  };
+  // Function to handle inviting a user via email
+  const handleInviteProposer = async (userData: EmailUserData) => {
+    console.log("[ProposeForm handleInviteProposer] Inviting user:", userData);
 
-  // Function to confirm adding the selected proposer to the list
-  const handleConfirmAddProposer = () => {
-    console.log(
-      "[ProposeForm handleConfirmAdd] Clicked. Current details:",
-      selectedProposerDetails
-    );
-    if (!selectedProposerDetails) {
-      return;
-    }
+    try {
+      let proposerToAdd: ProposerInfo;
 
-    // Check if user is already in the list
-    if (proposersList.some((p) => p.id === selectedProposerDetails.id)) {
-      console.log("[ProposeForm handleConfirmAdd] User already in list.");
-    } else {
+      if (userData.exists && userData.id) {
+        // User exists in database, use their data
+        proposerToAdd = {
+          id: userData.id,
+          nickname: userData.nickname,
+          image: userData.image,
+          email: userData.email,
+        };
+      } else {
+        // User doesn't exist, we'll need to create them
+        // For now, we'll create a temporary entry and handle the creation when saving the event
+        const response = await fetch("/api/create/user", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            email: userData.email,
+            nickname: userData.nickname,
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to create user");
+        }
+
+        const newUser = await response.json();
+        proposerToAdd = {
+          id: newUser.id,
+          nickname: newUser.nickname,
+          image: null,
+          email: newUser.email,
+        };
+      }
+
+      // Check if user is already in the list
+      if (
+        proposersList.some(
+          (p) => p.id === proposerToAdd.id || p.email === proposerToAdd.email
+        )
+      ) {
+        console.log("[ProposeForm handleInviteProposer] User already in list.");
+        return;
+      }
+
       console.log(
-        "[ProposeForm handleConfirmAdd] Adding user to list:",
-        selectedProposerDetails
+        "[ProposeForm handleInviteProposer] Adding user to list:",
+        proposerToAdd
       );
-      setProposersList((prev) => [...prev, selectedProposerDetails]);
+      setProposersList((prev) => [...prev, proposerToAdd]);
+    } catch (error) {
+      console.error("Error inviting proposer:", error);
+      // You might want to show an error message to the user here
     }
-
-    // Clear selection after adding
-    console.log("[ProposeForm handleConfirmAdd] Clearing selection state.");
-    setSelectedProposerIdToAdd(null);
-    setSelectedProposerDetails(null);
   };
 
   // Function to remove a proposer
@@ -1039,38 +1058,19 @@ const ProposeForm = ({
               )}
             </div>
 
-            {/* Add Proposer Combobox and Button */}
+            {/* Add Proposer Email Input */}
             {user.isSignedIn && (
-              <div className="mt-4 flex items-start gap-2">
-                {" "}
-                {/* Changed to items-start */}
-                <div className="flex-grow">
-                  {" "}
-                  {/* Allow combobox to take space */}
-                  <ProposerSearchCombobox
-                    // Pass the current selection state (ID is used for checkmark)
-                    selectedUserId={selectedProposerIdToAdd}
-                    // Use the correct prop name and pass the updated handler
-                    onSelectUser={handleSelectProposerFromCombobox}
-                    // Provide existing proposer IDs to filter them out
-                    existingProposerIds={
-                      new Set(proposersList.map((p) => p.id))
-                    }
-                  />
-                  {/* Optional: add help text specific to combobox */}
-                  <p className="mt-1 text-sm text-muted-foreground">
-                    Type 2+ characters to search for users by nickname.
-                  </p>
-                </div>
-                <Button
-                  type="button"
-                  onClick={handleConfirmAddProposer}
-                  variant="outline"
-                  disabled={!selectedProposerIdToAdd} // Disable if no user is selected
-                  className="shrink-0" // Prevent button from shrinking
-                >
-                  Add Proposer
-                </Button>
+              <div className="mt-4">
+                <ProposerEmailInput
+                  onInviteUser={handleInviteProposer}
+                  existingProposerEmails={
+                    new Set(
+                      proposersList
+                        .map((p) => p.email)
+                        .filter((email): email is string => Boolean(email))
+                    )
+                  }
+                />
               </div>
             )}
           </div>
