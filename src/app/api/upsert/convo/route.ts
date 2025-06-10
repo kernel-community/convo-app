@@ -81,6 +81,7 @@ const sendWithRateLimit = async (
 // Helper function to send emails asynchronously without blocking the response
 const sendEmailsAsync = async (
   event: ServerEvent,
+  community: { id: string }, // Add community parameter for slack notifications
   goingAttendees: (Rsvp & { attendee: User })[] = [],
   maybeAttendees: (Rsvp & { attendee: User })[] = [],
   isUpdate = false,
@@ -183,6 +184,7 @@ const sendEmailsAsync = async (
         eventId: event.id,
         host,
         type: isUpdate ? "updated" : "new", // "new" | "reminder" | "updated"
+        communityId: community.id,
       });
 
       console.log(
@@ -471,6 +473,7 @@ export async function POST(req: NextRequest) {
     // Error handling is now inside the sendEmailsAsync function
     void sendEmailsAsync(
       updated,
+      community,
       goingAttendees,
       maybeAttendees,
       true,
@@ -636,9 +639,11 @@ export async function POST(req: NextRequest) {
   // Start sending emails asynchronously without awaiting
   // Don't await or use catch - start this fully asynchronously to improve response time
   // Fire and forget approach
-  sendEmailsAsync(created, [], [], false, undefined, userId).catch((error) => {
-    console.error("Background email sending failed:", error);
-  });
+  sendEmailsAsync(created, community, [], [], false, undefined, userId).catch(
+    (error) => {
+      console.error("Background email sending failed:", error);
+    }
+  );
 
   // Queue reminder scheduling in parallel - fully asynchronous
   // This significantly improves API response time

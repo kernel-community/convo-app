@@ -6,6 +6,7 @@ export interface SlackJobData {
   eventId: string;
   host: string;
   type: "new" | "reminder" | "updated";
+  communityId: string;
 }
 
 // Create the slack notification queue

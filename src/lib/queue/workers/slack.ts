@@ -1,20 +1,16 @@
 import { slackQueue, type SlackJobData } from "../slack";
 import { sendMessage } from "src/utils/slack/sendMessage";
 import { prisma } from "src/utils/db";
-import { getCommunityFromSubdomain } from "src/utils/getCommunityFromSubdomain";
 
 // Process a slack notification job
 async function processSlackJob(job: { data: SlackJobData }): Promise<void> {
-  const { eventId, host, type } = job.data;
+  const { eventId, host, type, communityId } = job.data;
 
   console.log(
-    `Processing Slack notification job for event ${eventId} with type ${type}`
+    `Processing Slack notification job for event ${eventId} with type ${type} in community ${communityId}`
   );
 
   try {
-    // Get the community for community-specific profiles
-    const community = await getCommunityFromSubdomain();
-
     // Fetch the event with all needed relationships
     const event = await prisma.event.findUnique({
       where: { id: eventId },
@@ -24,7 +20,7 @@ async function processSlackJob(job: { data: SlackJobData }): Promise<void> {
             user: {
               include: {
                 profiles: {
-                  where: { communityId: community.id },
+                  where: { communityId },
                   take: 1,
                 },
               },
@@ -36,7 +32,7 @@ async function processSlackJob(job: { data: SlackJobData }): Promise<void> {
             attendee: {
               include: {
                 profiles: {
-                  where: { communityId: community.id },
+                  where: { communityId },
                   take: 1,
                 },
               },
