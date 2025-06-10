@@ -116,7 +116,7 @@ model Profile {
 
   // profile data
   bio                String?
-  image              String?
+  image              String? // @note deprecated; need to move to User model
   keywords           String[]
   url                String?
   socialHandle       String?
