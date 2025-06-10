@@ -8,11 +8,6 @@
 /** @type {import("next").NextConfig} */
 const config = {
   reactStrictMode: true,
-  swcMinify: true,
-  i18n: {
-    locales: ["en"],
-    defaultLocale: "en",
-  },
   images: {
     domains: ["kernelconvo.s3.amazonaws.com", "kernelconvo.s3.us-east-2.amazonaws.com"],
   },
