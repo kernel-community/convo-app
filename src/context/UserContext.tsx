@@ -91,8 +91,9 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
             clerkUser.lastName ||
             clerkUser.username;
           const existingNickname = result.data.nickname;
+          const currentClerkImage = clerkUser.imageUrl;
 
-          console.log("🔍 Nickname sync check:", {
+          console.log("🔍 Profile sync check:", {
             clerkFullName: clerkUser.fullName,
             clerkFirstName: clerkUser.firstName,
             clerkLastName: clerkUser.lastName,
@@ -100,6 +101,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
             currentClerkName,
             existingNickname,
             defaultNickname: DEFAULT_USER_NICKNAME,
+            clerkImageUrl: currentClerkImage,
           });
 
           // Check if we should sync the nickname with Clerk's name
@@ -168,6 +170,43 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
             }
           }
 
+          // Sync profile image from Clerk if available
+          if (currentClerkImage) {
+            console.log(
+              `🖼️ Syncing profile image from Clerk: "${currentClerkImage}" for user ${clerkUser.id}`
+            );
+
+            try {
+              const imageResponse = await fetch("/api/update/profile", {
+                method: "POST",
+                headers: { "Content-type": "application/json" },
+                body: JSON.stringify({
+                  profile: {
+                    userId: clerkUser.id,
+                    image: currentClerkImage,
+                  },
+                }),
+              });
+
+              if (imageResponse.ok) {
+                const imageResult = await imageResponse.json();
+                console.log(
+                  "✅ Successfully synced profile image with Clerk:",
+                  imageResult.data.image
+                );
+              } else {
+                console.error(
+                  "❌ Failed to sync profile image:",
+                  await imageResponse.text()
+                );
+              }
+            } catch (imageError) {
+              console.error("❌ Error syncing profile image:", imageError);
+            }
+          } else {
+            console.log("ℹ️ No image found in Clerk, skipping image sync");
+          }
+
           setFetchedUser(() => {
             return {
               ...updatedUser,
@@ -203,6 +242,42 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
             if (createResponse.ok) {
               const createResult = await createResponse.json();
               console.log("Successfully created user:", createResult.data);
+
+              // Also create initial profile with Clerk image if available
+              if (clerkUser.imageUrl) {
+                console.log(
+                  `🖼️ Creating initial profile with Clerk image for new user ${clerkUser.id}`
+                );
+
+                try {
+                  const profileResponse = await fetch("/api/update/profile", {
+                    method: "POST",
+                    headers: { "Content-type": "application/json" },
+                    body: JSON.stringify({
+                      profile: {
+                        userId: clerkUser.id,
+                        image: clerkUser.imageUrl,
+                      },
+                    }),
+                  });
+
+                  if (profileResponse.ok) {
+                    console.log(
+                      "✅ Successfully created initial profile with Clerk image"
+                    );
+                  } else {
+                    console.error(
+                      "❌ Failed to create initial profile:",
+                      await profileResponse.text()
+                    );
+                  }
+                } catch (profileError) {
+                  console.error(
+                    "❌ Error creating initial profile:",
+                    profileError
+                  );
+                }
+              }
 
               setFetchedUser({
                 ...createResult.data,
