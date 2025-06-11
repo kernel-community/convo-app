@@ -391,6 +391,7 @@ export const startEmailWorker = () => {
         type,
         text,
         previousRsvpType,
+        approvalRsvpType,
       } = job.data;
 
       if (!receiver || !rawEvent || !type) {
@@ -451,7 +452,13 @@ export const startEmailWorker = () => {
       );
 
       // Check if this email type needs iCal generation
-      const rsvpType = emailTypeToRsvpType(validatedType);
+      let rsvpType = emailTypeToRsvpType(validatedType);
+
+      // For approval-approved emails, use the explicit approval RSVP type if provided
+      if (validatedType === "approval-approved" && approvalRsvpType) {
+        rsvpType = approvalRsvpType as any; // Convert string to RSVP_TYPE
+      }
+
       let iCal: string | null = null;
 
       // Only generate iCal for RSVP-related emails, not approval notifications

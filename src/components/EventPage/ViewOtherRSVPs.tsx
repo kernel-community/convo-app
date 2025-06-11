@@ -34,13 +34,11 @@ export default function ViewOtherRSVPs({
             <TooltipProvider key={key}>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <div>
-                    <UserImage
-                      photo={getUserImage(rsvp.attendee)}
-                      size="sm"
-                      userId={rsvp.attendee.id}
-                    />
-                  </div>
+                  <UserImage
+                    photo={getUserImage(rsvp.attendee)}
+                    size="sm"
+                    userId={rsvp.attendee.id}
+                  />
                 </TooltipTrigger>
                 <TooltipContent>
                   <p>{rsvp.attendee.nickname}</p>

@@ -1,5 +1,6 @@
 import { cn } from "src/lib/utils";
 import type { ComponentType } from "react";
+import { forwardRef } from "react";
 import {
   CoolEmoji,
   HeartEyesEmoji,
@@ -83,17 +84,15 @@ export const DefaultUserImage = ({
   );
 };
 
-export const UserImage = ({
-  photo,
-  size = "md",
-  className,
-  userId,
-}: {
-  photo?: string | null;
-  size?: "sm" | "md" | "lg";
-  className?: string;
-  userId: string;
-}) => {
+export const UserImage = forwardRef<
+  HTMLImageElement,
+  {
+    photo?: string | null;
+    size?: "sm" | "md" | "lg";
+    className?: string;
+    userId: string;
+  }
+>(({ photo, size = "md", className, userId }, ref) => {
   if (!photo) {
     // Use default profile picture instead of emoji avatar
     const containerClass = cn(
@@ -106,7 +105,9 @@ export const UserImage = ({
     const defaultImage = getDefaultProfilePicture(userId);
 
     // eslint-disable-next-line @next/next/no-img-element
-    return <img className={containerClass} src={defaultImage} alt="" />;
+    return (
+      <img ref={ref} className={containerClass} src={defaultImage} alt="" />
+    );
   }
 
   const containerClass = cn(
@@ -116,5 +117,7 @@ export const UserImage = ({
   );
 
   // eslint-disable-next-line @next/next/no-img-element
-  return <img className={containerClass} src={photo} alt="" />;
-};
+  return <img ref={ref} className={containerClass} src={photo} alt="" />;
+});
+
+UserImage.displayName = "UserImage";

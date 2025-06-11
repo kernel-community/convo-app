@@ -11,6 +11,7 @@ export interface EmailJobData {
   type?: EmailType;
   text?: string;
   previousRsvpType?: "GOING" | "MAYBE" | "NOT_GOING";
+  approvalRsvpType?: "GOING" | "MAYBE" | "NOT_GOING";
   // Option 2: Send with pre-built email options
   emailOptions?: CreateEmailOptions;
 }

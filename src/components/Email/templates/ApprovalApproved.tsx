@@ -141,6 +141,43 @@ export const ApprovalApprovedEmailTemplate: React.FC<
         </a>
       </div>
 
+      <div
+        style={{
+          backgroundColor: "rgba(16, 185, 129, 0.05)",
+          borderRadius: "8px",
+          padding: "16px",
+          fontSize: "14px",
+          marginBottom: "24px",
+        }}
+      >
+        <p
+          style={{
+            margin: "0 0 8px 0",
+            fontWeight: "500",
+          }}
+        >
+          Quick tips:
+        </p>
+        <ul
+          style={{
+            margin: "0",
+            paddingLeft: "20px",
+            color: "#6b7280",
+            listStyleType: "disc",
+          }}
+        >
+          <li style={{ margin: "4px 0" }}>
+            Add this to your calendar using the attached .ics file
+          </li>
+          <li style={{ margin: "4px 0" }}>
+            You&apos;ll get a reminder 1 hour before the event
+          </li>
+          <li style={{ margin: "4px 0" }}>
+            Need to change your RSVP? No worries, just visit the event page
+          </li>
+        </ul>
+      </div>
+
       <p style={{ margin: "24px 0 0 0", color: "#6b7280", fontSize: "14px" }}>
         You&apos;re all set! We&apos;ll send you reminders as the event
         approaches. You can always update your RSVP or view event details by

@@ -354,6 +354,12 @@ export async function PUT(req: NextRequest) {
           receiver: updatedRequest.user,
           type: emailType,
           event: updatedRequest.event,
+          // For approved requests, include the RSVP type for iCal generation
+          approvalRsvpType:
+            status === "APPROVED" &&
+            ["GOING", "MAYBE", "NOT_GOING"].includes(approvalRequest.rsvpType)
+              ? (approvalRequest.rsvpType as "GOING" | "MAYBE" | "NOT_GOING")
+              : undefined,
         }).catch((error) =>
           console.error(
             `Error sending approval ${status.toLowerCase()} email: ${

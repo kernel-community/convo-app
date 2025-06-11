@@ -19,6 +19,7 @@ export const sendEventEmail = async ({
   type,
   text,
   previousRsvpType,
+  approvalRsvpType,
   returnOptionsOnly = false,
 }: {
   receiver: User;
@@ -26,6 +27,7 @@ export const sendEventEmail = async ({
   text?: string;
   event: EventWithProposerAndRsvps;
   previousRsvpType?: "GOING" | "MAYBE" | "NOT_GOING";
+  approvalRsvpType?: "GOING" | "MAYBE" | "NOT_GOING";
   returnOptionsOnly?: boolean;
 }): Promise<CreateEmailOptions | { id: string | number }> => {
   if (!receiver.email) {
@@ -33,7 +35,13 @@ export const sendEventEmail = async ({
   }
 
   // Determine the method based on RSVP type and generate iCal if needed
-  const rsvpType = emailTypeToRsvpType(type);
+  let rsvpType = emailTypeToRsvpType(type);
+
+  // For approval-approved emails, use the explicit approval RSVP type if provided
+  if (type === "approval-approved" && approvalRsvpType) {
+    rsvpType = approvalRsvpType as any; // Convert string to RSVP_TYPE
+  }
+
   let iCal: string | null = null;
 
   // Only generate iCal for RSVP-related emails, not for approval notifications
@@ -149,6 +157,7 @@ export const sendEventEmail = async ({
       type,
       text,
       previousRsvpType,
+      approvalRsvpType,
     });
 
     console.log(`Email to ${receiver.email} added to Redis queue for ${type}`);
