@@ -152,10 +152,14 @@ export const sendDirectEmail = async (
     event,
     type,
     receiver,
+    previousRsvpType,
+    approvalRsvpType,
   }: {
     event: ServerEvent;
     type: EmailType;
     receiver: User;
+    previousRsvpType?: "GOING" | "MAYBE" | "NOT_GOING";
+    approvalRsvpType?: "GOING" | "MAYBE" | "NOT_GOING";
   },
   attemptNumber = 0
 ): Promise<{ id: string }> => {
@@ -171,7 +175,13 @@ export const sendDirectEmail = async (
     console.log(`Sending direct email to ${receiver.email} with type: ${type}`);
 
     // Check if this email type requires iCal generation
-    const rsvpType = emailTypeToRsvpType(type);
+    let rsvpType = emailTypeToRsvpType(type);
+
+    // For approval-approved emails, use the explicit approval RSVP type if provided
+    if (type === "approval-approved" && approvalRsvpType) {
+      rsvpType = approvalRsvpType as any; // Convert string to RSVP_TYPE
+    }
+
     let iCal: string | null = null;
 
     // Only generate iCal for RSVP-related emails, not approval notifications
@@ -181,11 +191,12 @@ export const sendDirectEmail = async (
           ? "CANCEL"
           : "REQUEST";
 
-      const icalRequest = generateiCalRequestFromEvent({
+      const icalRequest = await generateiCalRequestFromEvent({
         event,
         recipientEmail: receiver.email,
         recipientName: receiver.nickname,
         rsvpType: rsvpType,
+        previousRsvpType,
       });
 
       iCal = icalRequest
@@ -267,7 +278,10 @@ export const sendDirectEmail = async (
       await handleRateLimitError(attemptNumber);
 
       // Retry the request with incremented attempt number
-      return sendDirectEmail({ event, type, receiver }, attemptNumber + 1);
+      return sendDirectEmail(
+        { event, type, receiver, previousRsvpType, approvalRsvpType },
+        attemptNumber + 1
+      );
     }
 
     if (error) {
@@ -300,7 +314,10 @@ export const sendDirectEmail = async (
 
       // Retry the request with incremented attempt number (max 5 retries)
       if (attemptNumber < 5) {
-        return sendDirectEmail({ event, type, receiver }, attemptNumber + 1);
+        return sendDirectEmail(
+          { event, type, receiver, previousRsvpType, approvalRsvpType },
+          attemptNumber + 1
+        );
       }
     }
 
@@ -322,11 +339,15 @@ export const sendDirectEmailsWithPriority = async (options: {
     event: ServerEvent;
     type: EmailType;
     receiver: User;
+    previousRsvpType?: "GOING" | "MAYBE" | "NOT_GOING";
+    approvalRsvpType?: "GOING" | "MAYBE" | "NOT_GOING";
   }>;
   attendeeEmails: Array<{
     event: ServerEvent;
     type: EmailType;
     receiver: User;
+    previousRsvpType?: "GOING" | "MAYBE" | "NOT_GOING";
+    approvalRsvpType?: "GOING" | "MAYBE" | "NOT_GOING";
   }>;
 }): Promise<{
   sentResults: Array<{ id: string }>;
@@ -334,6 +355,8 @@ export const sendDirectEmailsWithPriority = async (options: {
     event: ServerEvent;
     type: EmailType;
     receiver: User;
+    previousRsvpType?: "GOING" | "MAYBE" | "NOT_GOING";
+    approvalRsvpType?: "GOING" | "MAYBE" | "NOT_GOING";
   }>;
 }> => {
   const { event, creatorId, proposerEmails, attendeeEmails } = options;

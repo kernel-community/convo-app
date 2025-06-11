@@ -1,4 +1,4 @@
-import { EmailTemplateWithEventProps } from "../types";
+import type { EmailTemplateWithEventProps } from "../types";
 import { EmailWrapper } from "../components/EmailWrapper";
 import { EventDetails } from "../components/EventDetails";
 import { TongueStickingOutEmoji } from "../components/EmailEmojis";

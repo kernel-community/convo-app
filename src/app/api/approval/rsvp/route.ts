@@ -4,7 +4,7 @@ import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import type { RSVP_TYPE } from "@prisma/client";
 import { RSVP_APPROVAL_STATUS } from "@prisma/client";
-import { sendEventEmail } from "src/utils/email/send";
+import type { EmailType } from "src/components/Email";
 
 type CreateApprovalRequestBody = {
   userId: string;
@@ -154,22 +154,44 @@ export async function POST(req: NextRequest) {
 
     // Send notification emails to proposers
     try {
-      const proposerEmails = event.proposers
-        .map((p) => p.user.email)
-        .filter((email) => email) as string[];
+      // Import the priority queue function
+      const { queuePriorityEmail } = await import("src/lib/queue");
 
-      for (const proposer of event.proposers) {
-        if (proposer.user.email) {
-          sendEventEmail({
-            receiver: proposer.user,
-            type: "approval-requested",
-            event: event,
-          }).catch((error) =>
-            console.error(
-              `Error sending approval request email to ${proposer.user.email}: ${error?.message}`
-            )
-          );
-        }
+      // Transform event to match ServerEvent type (using type assertion for compatibility)
+      const serverEvent = {
+        ...event,
+        collections: [], // Add missing collections property
+        community: null, // Add missing community property
+      } as any; // Type assertion to bypass strict typing
+
+      // Prepare proposer emails for priority queue
+      const proposerEmails = event.proposers
+        .filter((p) => p.user.email)
+        .map((proposer) => ({
+          event: serverEvent,
+          type: "approval-requested" as EmailType,
+          receiver: {
+            id: proposer.user.id,
+            email: proposer.user.email,
+            address: proposer.user.address,
+            nickname: proposer.user.nickname,
+            isBeta: proposer.user.isBeta,
+            profile: null, // User doesn't have profiles in this context
+          },
+        }));
+
+      // Queue as priority emails instead of regular emails
+      if (proposerEmails.length > 0) {
+        await queuePriorityEmail({
+          event: serverEvent,
+          creatorId: undefined, // No specific creator for approval requests
+          proposerEmails: proposerEmails,
+          attendeeEmails: [], // No attendee emails for approval requests
+        });
+
+        console.log(
+          `Queued ${proposerEmails.length} approval request emails as priority`
+        );
       }
     } catch (emailError) {
       console.error("Error sending notification emails:", emailError);
@@ -348,24 +370,48 @@ export async function PUT(req: NextRequest) {
     // Send notification email to the requester
     try {
       if (updatedRequest.user.email) {
+        const { queuePriorityEmail } = await import("src/lib/queue");
+
         const emailType =
           status === "APPROVED" ? "approval-approved" : "approval-rejected";
-        sendEventEmail({
-          receiver: updatedRequest.user,
-          type: emailType,
-          event: updatedRequest.event,
+
+        // Transform event to match ServerEvent type (using type assertion for compatibility)
+        const serverEvent = {
+          ...updatedRequest.event,
+          collections: [], // Add missing collections property
+          community: null, // Add missing community property
+        } as any; // Type assertion to bypass strict typing
+
+        // Prepare email for priority queue
+        const requesterEmail = {
+          event: serverEvent,
+          type: emailType as EmailType,
+          receiver: {
+            id: updatedRequest.user.id,
+            email: updatedRequest.user.email,
+            address: updatedRequest.user.address,
+            nickname: updatedRequest.user.nickname,
+            isBeta: updatedRequest.user.isBeta,
+            profile: updatedRequest.user.profiles?.[0] || null,
+          },
           // For approved requests, include the RSVP type for iCal generation
           approvalRsvpType:
             status === "APPROVED" &&
             ["GOING", "MAYBE", "NOT_GOING"].includes(approvalRequest.rsvpType)
               ? (approvalRequest.rsvpType as "GOING" | "MAYBE" | "NOT_GOING")
               : undefined,
-        }).catch((error) =>
-          console.error(
-            `Error sending approval ${status.toLowerCase()} email: ${
-              error?.message
-            }`
-          )
+        };
+
+        // Queue as priority email
+        await queuePriorityEmail({
+          event: serverEvent,
+          creatorId: undefined,
+          proposerEmails: [], // No proposer emails for responses
+          attendeeEmails: [requesterEmail], // Send to the requester
+        });
+
+        console.log(
+          `Queued approval ${status.toLowerCase()} email as priority`
         );
       }
     } catch (emailError) {

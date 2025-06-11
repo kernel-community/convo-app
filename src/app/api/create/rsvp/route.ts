@@ -3,7 +3,7 @@ import { prisma } from "src/utils/db";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { sendEventEmail } from "src/utils/email/send";
-import { RSVP_TYPE, type User } from "@prisma/client";
+import { RSVP_TYPE, RSVP_APPROVAL_STATUS, type User } from "@prisma/client";
 import { rsvpTypeToEmailType } from "src/utils/rsvpTypetoEmailType";
 import {
   scheduleReminderEmails,
@@ -70,8 +70,11 @@ export async function POST(req: NextRequest) {
           },
         });
 
-      if (existingApprovalRequest) {
-        // Return the status of existing approval request
+      if (
+        existingApprovalRequest &&
+        existingApprovalRequest.status === RSVP_APPROVAL_STATUS.PENDING
+      ) {
+        // Only block if there's a PENDING approval request
         return NextResponse.json({
           data: {
             status: "APPROVAL_PENDING",
@@ -83,15 +86,16 @@ export async function POST(req: NextRequest) {
         });
       }
 
-      // If user doesn't have an existing RSVP or approval request, they need to go through approval flow
-      if (!existingRsvp) {
+      // Only require approval for "GOING" RSVPs
+      // Users can freely RSVP as "MAYBE" or "NOT_GOING" without approval
+      if (rsvp.type === RSVP_TYPE.GOING && !existingRsvp) {
         return NextResponse.json(
           {
             data: {
               status: "APPROVAL_REQUIRED",
               eventId: rsvp.eventId,
               message:
-                "This event requires approval. Please use the approval request endpoint.",
+                "This event requires approval to RSVP as 'Going'. Please use the approval request endpoint.",
             },
           },
           { status: 400 }
@@ -127,18 +131,64 @@ export async function POST(req: NextRequest) {
         `User ${user.id} changing from GOING to ${rsvp.type} for event ${event.id}`
       );
 
+      // Safety check: existingRsvp should exist if wasGoing is true
+      if (!existingRsvp) {
+        console.error(
+          `User ${user.id} was marked as GOING but no existing RSVP found for event ${event.id}`
+        );
+        return NextResponse.json(
+          { error: "Invalid RSVP state - no existing RSVP found" },
+          { status: 500 }
+        );
+      }
+
       // Increment the event sequence to ensure calendar clients recognize the update
       await prisma.event.update({
         where: { id: event.id },
         data: { sequence: event.sequence + 1 },
       });
 
-      await prisma.rsvp.update({
-        where: { id: existingRsvp.id }, // Use existingRsvp.id which is guaranteed
-        data: { rsvpType: rsvp.type },
-      });
-      finalRsvpTypeForUser = rsvp.type;
-      emailTypeForUser = rsvpTypeToEmailType(finalRsvpTypeForUser, true); // Send update email
+      // For approval-required events: if user is changing to NOT_GOING, delete both RSVP and approval request
+      // This makes it simpler for the frontend - user starts completely fresh if they want to rejoin
+      if (event.requiresApproval && rsvp.type === RSVP_TYPE.NOT_GOING) {
+        try {
+          // Delete the RSVP record entirely
+          await prisma.rsvp.delete({
+            where: { id: existingRsvp.id },
+          });
+
+          // Delete any approval requests for this user/event
+          await prisma.rsvpApprovalRequest.deleteMany({
+            where: {
+              eventId: event.id,
+              userId: user.id,
+            },
+          });
+
+          console.log(
+            `Deleted RSVP and approval request for user ${user.id} on event ${event.id} (marked NOT_GOING)`
+          );
+          finalRsvpTypeForUser = RSVP_TYPE.NOT_GOING;
+          emailTypeForUser = rsvpTypeToEmailType(RSVP_TYPE.NOT_GOING, true); // Send update email
+        } catch (deleteError) {
+          console.error("Error deleting RSVP/approval request:", deleteError);
+          // Fallback to updating RSVP if deletion fails
+          await prisma.rsvp.update({
+            where: { id: existingRsvp.id },
+            data: { rsvpType: rsvp.type },
+          });
+          finalRsvpTypeForUser = rsvp.type;
+          emailTypeForUser = rsvpTypeToEmailType(finalRsvpTypeForUser, true);
+        }
+      } else {
+        // For non-approval events or non-NOT_GOING changes, just update the RSVP
+        await prisma.rsvp.update({
+          where: { id: existingRsvp.id },
+          data: { rsvpType: rsvp.type },
+        });
+        finalRsvpTypeForUser = rsvp.type;
+        emailTypeForUser = rsvpTypeToEmailType(finalRsvpTypeForUser, true); // Send update email
+      }
 
       // A spot potentially opened up, try to promote
       if (eventLimit > 0) {
@@ -150,6 +200,29 @@ export async function POST(req: NextRequest) {
       console.log(
         `User ${user.id} wants to RSVP as GOING for event ${event.id}`
       );
+
+      // For approval-required events, check if user needs approval to change to GOING
+      if (
+        event.requiresApproval &&
+        !rsvp.adminOverride &&
+        existingRsvp &&
+        !wasGoing
+      ) {
+        // User has existing RSVP but wasn't GOING, and now wants to be GOING
+        // They need approval for this change
+        return NextResponse.json(
+          {
+            data: {
+              status: "APPROVAL_REQUIRED",
+              eventId: rsvp.eventId,
+              message:
+                "This event requires approval to change your RSVP to 'Going'. Please use the approval request endpoint.",
+            },
+          },
+          { status: 400 }
+        );
+      }
+
       const currentGoingCount = event.rsvps.filter(
         (r) => r.rsvpType === RSVP_TYPE.GOING && r.attendeeId !== user.id // Exclude self if updating from Maybe->Going
       ).length;

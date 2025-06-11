@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 import { useEffect, useState } from "react";
 import { Article } from "./Article";
 import { Skeleton } from "./ui/skeleton";
-import { ClientEvent } from "src/types";
+import type { ClientEvent } from "src/types";
 import { WhoElseIsGoing } from "./Hero";
 
 export const CardTemplate = ({

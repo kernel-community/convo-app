@@ -1,4 +1,4 @@
-import { ConvoEvent } from "../types";
+import type { ConvoEvent } from "../types";
 import { DateTime } from "luxon";
 
 interface EventDetailsProps {

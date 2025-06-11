@@ -1,4 +1,5 @@
-import { useState, useRef, ChangeEvent, useCallback } from "react";
+import type { ChangeEvent } from "react";
+import { useState, useRef, useCallback } from "react";
 import { Camera, Upload, X, Check, Loader2 } from "lucide-react";
 import Image from "next/image";
 import { Button } from "./button";

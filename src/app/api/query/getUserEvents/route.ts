@@ -1,4 +1,5 @@
-import { NextRequest, NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 import { prisma } from "src/utils/db";
 import formatEvent from "src/utils/formatEvent";
 import { DateTime } from "luxon";

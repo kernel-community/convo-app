@@ -21,6 +21,9 @@ interface EmailData {
   event: ServerEvent;
   type: EmailType;
   receiver: EmailReceiver;
+  // Add support for RSVP type parameters for iCal generation
+  previousRsvpType?: "GOING" | "MAYBE" | "NOT_GOING";
+  approvalRsvpType?: "GOING" | "MAYBE" | "NOT_GOING";
 }
 
 export interface PriorityEmailJobData {
