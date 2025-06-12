@@ -154,8 +154,8 @@ export async function POST(req: NextRequest) {
 
     // Send notification emails to proposers
     try {
-      // Import the priority queue function
-      const { queuePriorityEmail } = await import("src/lib/queue");
+      // Import the immediate priority email function
+      const { sendPriorityEmailImmediately } = await import("src/lib/queue");
 
       // Transform event to match ServerEvent type (using type assertion for compatibility)
       const serverEvent = {
@@ -182,7 +182,7 @@ export async function POST(req: NextRequest) {
 
       // Queue as priority emails instead of regular emails
       if (proposerEmails.length > 0) {
-        await queuePriorityEmail({
+        await sendPriorityEmailImmediately({
           event: serverEvent,
           creatorId: undefined, // No specific creator for approval requests
           proposerEmails: proposerEmails,
@@ -190,7 +190,7 @@ export async function POST(req: NextRequest) {
         });
 
         console.log(
-          `Queued ${proposerEmails.length} approval request emails as priority`
+          `Sent ${proposerEmails.length} approval request emails immediately as priority`
         );
       }
     } catch (emailError) {
@@ -370,7 +370,7 @@ export async function PUT(req: NextRequest) {
     // Send notification email to the requester
     try {
       if (updatedRequest.user.email) {
-        const { queuePriorityEmail } = await import("src/lib/queue");
+        const { sendPriorityEmailImmediately } = await import("src/lib/queue");
 
         const emailType =
           status === "APPROVED" ? "approval-approved" : "approval-rejected";
@@ -402,8 +402,8 @@ export async function PUT(req: NextRequest) {
               : undefined,
         };
 
-        // Queue as priority email
-        await queuePriorityEmail({
+        // Send as immediate priority email
+        await sendPriorityEmailImmediately({
           event: serverEvent,
           creatorId: undefined,
           proposerEmails: [], // No proposer emails for responses
@@ -411,7 +411,7 @@ export async function PUT(req: NextRequest) {
         });
 
         console.log(
-          `Queued approval ${status.toLowerCase()} email as priority`
+          `Sent approval ${status.toLowerCase()} email immediately as priority`
         );
       }
     } catch (emailError) {

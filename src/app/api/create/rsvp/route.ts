@@ -112,7 +112,9 @@ export async function POST(req: NextRequest) {
 
     // 2. Determine state and initialize variables
     const eventLimit = event.limit;
-    const wasGoing = existingRsvp?.rsvpType === RSVP_TYPE.GOING;
+    const wasGoing =
+      existingRsvp?.rsvpType === RSVP_TYPE.GOING ||
+      existingRsvp?.rsvpType === RSVP_TYPE.MAYBE;
     const isNowGoing = rsvp.type === RSVP_TYPE.GOING;
     const isChangingToMaybeOrNotGoing =
       rsvp.type === RSVP_TYPE.MAYBE || rsvp.type === RSVP_TYPE.NOT_GOING;

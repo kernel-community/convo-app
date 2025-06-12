@@ -8,8 +8,9 @@ type RsvpMutationVariables = {
 };
 
 type RsvpApiResponse = {
-  status: "SUCCESS" | "WAITLISTED";
+  status: "SUCCESS" | "WAITLISTED" | "APPROVAL_REQUIRED";
   eventId: string;
+  message?: string;
 };
 
 const useUpdateRsvp = () => {
@@ -39,14 +40,26 @@ const useUpdateRsvp = () => {
       }),
     });
 
+    const result = await response.json();
+
+    // Handle special case where approval is required
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
+      // Check if this is an "APPROVAL_REQUIRED" response
+      if (
+        response.status === 400 &&
+        result.data?.status === "APPROVAL_REQUIRED"
+      ) {
+        // Return the approval required data instead of throwing an error
+        return result.data;
+      }
+
+      // For other errors, throw as usual
+      const errorData = result || {};
       throw new Error(
         errorData?.error || `HTTP error! status: ${response.status}`
       );
     }
 
-    const result = await response.json();
     return result.data as RsvpApiResponse;
   };
 

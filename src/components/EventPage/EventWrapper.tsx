@@ -87,6 +87,16 @@ const EventWrapper = ({
       {
         onSuccess: (data) => {
           console.log("RSVP Update successful in component:", data);
+
+          // Handle approval required response
+          if (data.status === "APPROVAL_REQUIRED") {
+            console.log("Approval required, opening approval request modal");
+            setIsConfirmCredenzaOpen(false);
+            setIsApprovalRequestOpen(true);
+            return;
+          }
+
+          // Handle normal success
           setIsConfirmCredenzaOpen(false);
           setPendingRsvpType(null);
         },
