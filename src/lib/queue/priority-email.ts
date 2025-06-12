@@ -99,6 +99,98 @@ export const queuePriorityEmail = async (
   return job.id;
 };
 
+// Send priority emails immediately without queueing
+export const sendPriorityEmailImmediately = async (
+  data: PriorityEmailJobData
+): Promise<void> => {
+  console.log(
+    `🚀 Sending priority emails immediately for event ${data.event.id}`
+  );
+
+  try {
+    // Import the direct email function
+    const { sendDirectEmailsWithPriority } = await import(
+      "src/utils/email/directResend"
+    );
+    const { queueEmailBatch } = await import("./email");
+
+    // Fix dates: convert string dates back to Date objects
+    const fixedEvent = {
+      ...data.event,
+      startDateTime: new Date(data.event.startDateTime),
+      endDateTime: new Date(data.event.endDateTime),
+      createdAt: data.event.createdAt
+        ? new Date(data.event.createdAt)
+        : new Date(),
+      updatedAt: data.event.updatedAt
+        ? new Date(data.event.updatedAt)
+        : new Date(),
+    };
+
+    // Fix dates in proposer emails
+    const fixedProposerEmails = data.proposerEmails.map((email) => ({
+      ...email,
+      event: {
+        ...email.event,
+        startDateTime: new Date(email.event.startDateTime),
+        endDateTime: new Date(email.event.endDateTime),
+        createdAt: email.event.createdAt
+          ? new Date(email.event.createdAt)
+          : new Date(),
+        updatedAt: email.event.updatedAt
+          ? new Date(email.event.updatedAt)
+          : new Date(),
+      },
+    }));
+
+    // Fix dates in attendee emails
+    const fixedAttendeeEmails = data.attendeeEmails.map((email) => ({
+      ...email,
+      event: {
+        ...email.event,
+        startDateTime: new Date(email.event.startDateTime),
+        endDateTime: new Date(email.event.endDateTime),
+        createdAt: email.event.createdAt
+          ? new Date(email.event.createdAt)
+          : new Date(),
+        updatedAt: email.event.updatedAt
+          ? new Date(email.event.updatedAt)
+          : new Date(),
+      },
+    }));
+
+    // Send emails immediately
+    const { sentResults, attendeeEmailsForQueue } =
+      await sendDirectEmailsWithPriority({
+        event: fixedEvent,
+        creatorId: data.creatorId,
+        proposerEmails: fixedProposerEmails,
+        attendeeEmails: fixedAttendeeEmails,
+      });
+
+    console.log(
+      `✅ ${sentResults.length} priority emails sent immediately for event ${data.event.id}`
+    );
+
+    // Queue any remaining attendee emails for later processing
+    if (attendeeEmailsForQueue.length > 0) {
+      console.log(
+        `📬 Queueing ${attendeeEmailsForQueue.length} attendee emails for later processing`
+      );
+      await queueEmailBatch(attendeeEmailsForQueue);
+    }
+  } catch (error) {
+    console.error(
+      `❌ Error sending priority emails immediately for event ${data.event.id}:`,
+      error
+    );
+
+    // Fallback to queue system if immediate sending fails
+    console.log("🔄 Falling back to queue system for priority emails");
+    await queuePriorityEmail(data);
+  }
+};
+
 // Get priority email queue statistics
 export const getPriorityEmailQueueStats = async () => {
   const [waiting, active, completed, failed, delayed] = await Promise.all([
