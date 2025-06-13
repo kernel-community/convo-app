@@ -374,7 +374,7 @@ export const startEmailWorker = () => {
       job.progress(0).catch((err) => {
         console.error(`Error sending heartbeat for job ${job.id}:`, err);
       });
-    }, 5000); // Every 5 seconds
+    }, 3000); // Every 3 seconds (reduced from 5s)
 
     try {
       // If job already has precomputed email options, use them directly

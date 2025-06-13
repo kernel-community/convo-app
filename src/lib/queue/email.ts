@@ -16,21 +16,22 @@ export interface EmailJobData {
   emailOptions?: CreateEmailOptions;
 }
 
-// Create the email queue - use redis URL from queueOptions
+// Create the email queue with optimized settings
 const emailQueue = new Bull<EmailJobData>(
   "email-queue",
   queueOptions.redis as string,
   {
-    defaultJobOptions: queueOptions.defaultJobOptions,
     settings: {
-      // Increase the stall check interval to reduce false positives
-      stalledInterval: 30000, // 30 seconds (default is 30s)
-      // How many milliseconds a job can be active before it's considered stalled
-      lockDuration: 60000, // 60 seconds (default is 30s)
-      // Maximum number of jobs to process concurrently
-      lockRenewTime: 15000, // 15 seconds (default is 15s)
-      maxStalledCount: 2, // Allow a job to stall twice before marking as failed (default is 1)
+      // Reduce stalled check interval to detect issues faster
+      stalledInterval: 15000, // 15 seconds (reduced from 30s)
+      // Reduce lock duration to allow faster retries
+      lockDuration: 30000, // 30 seconds (reduced from 60s)
+      // Reduce lock renewal time to be more responsive
+      lockRenewTime: 10000, // 10 seconds (reduced from 15s)
+      // Fail jobs faster if they're having issues
+      maxStalledCount: 1, // Reduced from 2
     },
+    defaultJobOptions: queueOptions.defaultJobOptions,
   }
 );
 

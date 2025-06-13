@@ -339,15 +339,11 @@ export const sendDirectEmailsWithPriority = async (options: {
     event: ServerEvent;
     type: EmailType;
     receiver: User;
-    previousRsvpType?: "GOING" | "MAYBE" | "NOT_GOING";
-    approvalRsvpType?: "GOING" | "MAYBE" | "NOT_GOING";
   }>;
   attendeeEmails: Array<{
     event: ServerEvent;
     type: EmailType;
     receiver: User;
-    previousRsvpType?: "GOING" | "MAYBE" | "NOT_GOING";
-    approvalRsvpType?: "GOING" | "MAYBE" | "NOT_GOING";
   }>;
 }): Promise<{
   sentResults: Array<{ id: string }>;
@@ -355,8 +351,6 @@ export const sendDirectEmailsWithPriority = async (options: {
     event: ServerEvent;
     type: EmailType;
     receiver: User;
-    previousRsvpType?: "GOING" | "MAYBE" | "NOT_GOING";
-    approvalRsvpType?: "GOING" | "MAYBE" | "NOT_GOING";
   }>;
 }> => {
   const { event, creatorId, proposerEmails, attendeeEmails } = options;
@@ -393,14 +387,20 @@ export const sendDirectEmailsWithPriority = async (options: {
       }
     }
 
-    // 3. Return attendee emails for queue processing instead of direct sending
-    console.log(
-      `Returning ${attendeeEmails.length} attendee emails for queue processing`
-    );
+    // 3. Send attendee emails immediately instead of queueing
+    if (attendeeEmails.length > 0) {
+      console.log(
+        `Sending ${attendeeEmails.length} attendee emails immediately`
+      );
+      for (const emailData of attendeeEmails) {
+        const result = await sendDirectEmail(emailData);
+        results.push(result);
+      }
+    }
 
     return {
       sentResults: results,
-      attendeeEmailsForQueue: attendeeEmails,
+      attendeeEmailsForQueue: [], // No emails to queue since we sent them immediately
     };
   } catch (error) {
     console.error("Error in sendDirectEmailsWithPriority:", error);
