@@ -9,7 +9,7 @@ export const rsvpTypeToEmailType = (
     case RSVP_TYPE.GOING:
       return isUpdate ? "update-attendee-going" : "invite-going";
     case RSVP_TYPE.MAYBE:
-      return isUpdate ? "update-attendee-maybe" : "invite-maybe";
+      return "invite-maybe";
     case RSVP_TYPE.NOT_GOING:
       // There isn't a specific "update-attendee-not-going" template, so use invite-not-going for both
       return "invite-not-going";
