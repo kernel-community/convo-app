@@ -62,16 +62,10 @@ import { AlertCircle } from "lucide-react";
 import { XIcon } from "lucide-react";
 import { ProposerSearchCombobox } from "./ProposerSearchCombobox";
 import { toast } from "react-hot-toast";
-import { FancyHighlight } from "./FancyHighlight";
 import { DateTime } from "luxon";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "./ui/tooltip";
 import { ApprovalManagementAccordion } from "./ApprovalManagementAccordion";
 import { getUserImage } from "src/utils/getUserProfile";
+import { ConnectButton } from "./Navbar/ConnectButton";
 // Dialog components removed as we're now using a tooltip
 
 const When = ({
@@ -586,6 +580,37 @@ const RSVP = ({
     return null;
   }
   if (!fetchedUser.isSignedIn) {
+    if (event.requiresApproval) {
+      return (
+        <Card
+          className={cn(
+            "cursor-pointer border-2 border-border bg-background text-foreground duration-300",
+            className
+          )}
+        >
+          <CardHeader>
+            <CardTitle className="text-base">
+              Login to Request to Join
+            </CardTitle>
+            <CardDescription>
+              This event requires approval. Please login to request to join.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ConvoSeats
+              totalAvailableSeats={totalAvailableSeats}
+              totalSeats={totalSeats}
+              isSignedIn={false}
+            />
+            <div className="mt-4">
+              <div className="[&>div>div]:!hover:bg-primary/90 [&>div>div]:!w-full [&>div>div]:!rounded-md [&>div>div]:!border-primary [&>div>div]:!bg-primary [&>div>div]:!px-4 [&>div>div]:!py-2 [&>div>div]:!text-base [&>div>div]:!font-medium [&>div>div]:!text-primary-foreground">
+                <ConnectButton />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      );
+    }
     return (
       <>
         <Card
