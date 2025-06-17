@@ -117,7 +117,7 @@ export function QuickRsvpModal({
 
   return (
     <Credenza open={isOpen} onOpenChange={onClose}>
-      <CredenzaContent className="max-w-md">
+      <CredenzaContent className="max-w-xl">
         <CredenzaHeader>
           <CredenzaTitle>Quick RSVP</CredenzaTitle>
           <CredenzaDescription>
@@ -203,7 +203,7 @@ export function QuickRsvpModal({
                   </Label>
                 </div>
 
-                <div
+                {/* <div
                   className={cn(
                     "flex cursor-pointer items-center gap-3 rounded-lg border p-3 transition-colors",
                     formData.rsvpType === RSVP_TYPE.NOT_GOING &&
@@ -223,7 +223,7 @@ export function QuickRsvpModal({
                   >
                     Not Going
                   </Label>
-                </div>
+                </div> */}
               </RadioGroup>
             </div>
           </div>
