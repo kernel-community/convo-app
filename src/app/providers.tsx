@@ -29,9 +29,6 @@ export default function Providers({
         publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY!}
         signInUrl="/signin"
         signUpUrl="/signup"
-        signInFallbackRedirectUrl="/"
-        signUpFallbackRedirectUrl="/"
-        afterSignOutUrl="/"
         dynamic
         appearance={{
           elements: {
