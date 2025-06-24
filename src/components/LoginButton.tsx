@@ -12,7 +12,7 @@ const LoginButton = ({
 }) => {
   return (
     <SignInButton mode="modal" withSignUp>
-      <Button className={className} disabled={disabled}>
+      <Button type="button" className={className} disabled={disabled}>
         Sign in
       </Button>
     </SignInButton>
