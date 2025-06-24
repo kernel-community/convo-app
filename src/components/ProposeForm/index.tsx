@@ -1,8 +1,4 @@
-import type {
-  FieldErrorsImpl,
-  SubmitHandler,
-  FieldErrors,
-} from "react-hook-form";
+import type { SubmitHandler, FieldErrors } from "react-hook-form";
 import { useForm, Controller } from "react-hook-form";
 import TextField from "./FormFields/TextField";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -971,41 +967,40 @@ const ProposeForm = ({
                 )}
               />
             </div>
-
-            {/* Requires Approval Toggle */}
-            <div className="flex flex-col space-y-2">
-              <div className="flex items-center">
-                <Label htmlFor="requiresApproval" className="font-secondary">
-                  Requires RSVP Approval
-                </Label>
-                <BetaBadge />
-              </div>
-              <Controller
-                name="requiresApproval"
-                control={control}
-                render={({ field }) => (
-                  <div className="flex items-center space-x-3">
-                    <Switch
-                      id="requiresApproval"
-                      checked={field.value || false}
-                      onCheckedChange={field.onChange}
-                    />
-                    <div className="flex flex-col">
-                      <span className="text-sm font-medium">
-                        {field.value ? "Approval Required" : "Open RSVPs"}
-                      </span>
-                      <span className="text-xs text-muted-foreground">
-                        {field.value
-                          ? "All RSVP requests will need your approval before attendees can join"
-                          : "Anyone can RSVP immediately without approval"}
-                      </span>
-                    </div>
-                  </div>
-                )}
-              />
-            </div>
           </div>
         )}
+
+        {/* Requires Approval Toggle */}
+        <div className="flex flex-col space-y-2">
+          <div className="flex items-center">
+            <Label htmlFor="requiresApproval" className="font-secondary">
+              Requires RSVP Approval
+            </Label>
+          </div>
+          <Controller
+            name="requiresApproval"
+            control={control}
+            render={({ field }) => (
+              <div className="flex items-center space-x-3">
+                <Switch
+                  id="requiresApproval"
+                  checked={field.value || false}
+                  onCheckedChange={field.onChange}
+                />
+                <div className="flex flex-col">
+                  <span className="text-sm font-medium">
+                    {field.value ? "Approval Required" : "Open RSVPs"}
+                  </span>
+                  <span className="text-xs text-muted-foreground">
+                    {field.value
+                      ? "All RSVP requests will need your approval before attendees can join"
+                      : "Anyone can RSVP immediately without approval"}
+                  </span>
+                </div>
+              </div>
+            )}
+          />
+        </div>
 
         {/* Email field remains the same - tied to the logged-in user */}
         {user && user.email && (
