@@ -1,4 +1,21 @@
-# fun lil facts
+# DR003: Email Queue System with Rate Limiting
+
+**Date**: 2024-10-15
+
+**Status**: Accepted
+
+**Context**: The application was experiencing "Too many requests" errors when sending emails through Resend's API due to rate limiting constraints. The system needed a way to handle bulk email sending without hitting API limits.
+
+**Decision**: Implement a global in-memory email queue system to batch and rate-limit email sending operations.
+
+**Consequences**:
+- Eliminated rate limiting errors from Resend API
+- Improved reliability of email delivery
+- Added complexity to email sending logic
+- Potential for email loss during server restarts (in-memory queue)
+- Future migration to Redis-based queue may be needed for persistence
+
+---
 
 ### Email Queue System with Rate Limiting
 
@@ -21,19 +38,3 @@ Key implementation details:
 - Error handling is contained within the queue processor
 
 If we encounter server restarts causing email delivery issues or need to scale across multiple instances, we should consider migrating to a Redis-based queue for persistence.
-
-### Default Profile Pictures (Deterministic Assignment)
-
-- **File:** `src/utils/constants.ts`
-- **Function:** `getDefaultProfilePicture(userId)`
-
-To ensure each user without a custom profile picture is consistently assigned one of the default images, we use a deterministic process based on their `userId`.
-
-Instead of a simple (and potentially poorly distributed) sum-of-character-codes hash, we use the **FNV-1a (32-bit) hash algorithm**.
-
-While no hash function guarantees *perfectly* uniform distribution when mapped to a smaller set via modulo, FNV-1a is designed for good distribution and exhibits a strong avalanche effect (small input changes lead to large output changes). This provides a high practical likelihood of evenly distributing the default profile pictures among users, much better than simpler methods.
-
-We opted for FNV-1a over cryptographic hashes (like SHA) because:
-  - Cryptographic-level security isn't needed.
-  - FNV-1a is faster.
-  - It avoids extra dependencies or complex handling.

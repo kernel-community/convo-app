@@ -72,7 +72,7 @@ export const ConnectButton = () => {
         >
           {/* Community Profile Page */}
           <UserButton.UserProfilePage
-            label="Community Settings"
+            label="Community Profile"
             url="community-profile"
             labelIcon={<User className="h-4 w-4" />}
           >

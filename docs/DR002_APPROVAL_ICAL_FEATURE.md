@@ -1,4 +1,20 @@
-# RSVP Approval iCal Feature
+# DR002: RSVP Approval iCal Feature
+
+**Date**: 2024-11-20
+
+**Status**: Accepted
+
+**Context**: Users who received RSVP approval emails had no easy way to add approved events to their calendars, requiring manual event creation and increasing friction in the user experience.
+
+**Decision**: Automatically include iCal attachments in RSVP approval emails to enable one-click calendar integration for approved events.
+
+**Consequences**:
+- Improved user experience with seamless calendar integration
+- Reduced manual work for users adding events to calendars
+- Increased complexity in email generation logic
+- Additional testing required for calendar compatibility across platforms
+
+---
 
 ## Overview
 
