@@ -31,8 +31,11 @@ export default function CommunityDetails({ community }: CommunityDetailsProps) {
 
   // Function to generate community-specific URLs
   const getCommunityUrl = (path: string) => {
-    // Check if we're on localhost
-    const host = typeof window !== "undefined" ? window.location.host : "";
+    if (typeof window === "undefined") {
+      // SSR: return a fallback or empty string
+      return "";
+    }
+    const host = window.location.host;
     const isLocalhost =
       host.includes("localhost") || host.includes("127.0.0.1");
 
