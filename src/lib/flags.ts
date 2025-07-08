@@ -1,7 +1,8 @@
 import { flag } from "flags/next";
 import { dedupe } from "flags/next";
-import { cache } from "react";
 import { auth } from "@clerk/nextjs/server";
+import { prisma } from "src/utils/db";
+import { getCommunityFromSubdomain } from "src/utils/getCommunityFromSubdomain";
 
 // Define our entities type for type safety
 interface ConvoEntities {
@@ -11,115 +12,75 @@ interface ConvoEntities {
   };
 }
 
-// Helper to identify users using Clerk
-const identifyUser = dedupe(async ({ headers, cookies }) => {
+// Helper to identify users using Clerk with error handling
+const identifyUser = dedupe(async () => {
   try {
-    // Use Clerk's auth() to get the authenticated user
     const { userId } = await auth();
-
     if (!userId) {
       return { user: {} };
     }
-
-    // For flags, we'll keep it simple and just return the userId
-    // If we need email, we can fetch it separately in the decide function
-    return {
-      user: {
-        id: userId,
-      },
-    };
+    return { user: { id: userId } };
   } catch (error) {
-    console.error("[Flags] Error identifying user with Clerk:", error);
+    // If auth fails (e.g., no middleware context), return empty user
+    console.log(
+      "[Flags] Auth not available in current context, proceeding without user identification"
+    );
     return { user: {} };
   }
 });
-
-// Function to check beta access via API, cached to prevent duplicate requests
-const checkBetaAccessViaApi = cache(async () => {
-  try {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_APP_URL || ""}/api/beta-access/check`,
-      {
-        method: "GET",
-        credentials: "include",
-        cache: "no-store",
-        next: { tags: ["beta-access"] },
-      }
-    );
-
-    if (!response.ok) {
-      console.error("[Flags] Beta access check failed:", response.status);
-      return false;
-    }
-
-    const data = await response.json();
-    console.log("[Flags] Beta access API response:", data);
-    return data.hasBetaAccess;
-  } catch (error) {
-    console.error("[Flags] Error checking beta access via API:", error);
-    return false;
-  }
-});
-
-import { prisma } from "src/utils/db";
 
 // Beta mode flag - enables beta features for specific users
 export const betaMode = flag<boolean, ConvoEntities>({
   key: "beta-mode",
   identify: identifyUser,
   async decide({ entities }) {
-    const userEmail = entities?.user?.email;
     const userId = entities?.user?.id;
 
-    // First check the database for the isBeta flag if we have a userId
-    if (userId) {
-      try {
-        const user = await prisma.user.findUnique({
-          where: { id: userId },
-          select: { email: true, isBeta: true },
-        });
-
-        console.log({ user });
-
-        if (user?.isBeta) {
-          console.log("[Flags] Beta mode enabled via database isBeta flag:", {
-            userId,
-            email: userEmail,
-          });
-          return true;
-        }
-      } catch (error) {
-        console.error(
-          "[Flags] Error checking database for beta status:",
-          error
-        );
-      }
+    if (!userId) {
+      console.log("[Flags] Beta mode denied - no user ID found");
+      return false;
     }
 
-    // Then check if email is from a known beta domain
-    let isEnabled = false;
+    try {
+      // Get user from database
+      const user = await prisma.user.findUnique({
+        where: { id: userId },
+        select: { email: true, isBeta: true },
+      });
 
-    if (userEmail) {
-      const email = userEmail.toLowerCase();
-      isEnabled =
+      if (!user?.email) {
+        console.log(
+          "[Flags] Beta mode denied - no email found for user:",
+          userId
+        );
+        return false;
+      }
+
+      // Check database flag first
+      if (user.isBeta) {
+        console.log("[Flags] Beta mode enabled via database flag:", {
+          userId,
+          email: user.email,
+        });
+        return true;
+      }
+
+      // Check email domains
+      const email = user.email.toLowerCase();
+      const isEnabled =
         email.endsWith("@kernel.community") || email.endsWith("@convo.cafe");
 
       console.log("[Flags] Beta mode domain check:", {
         isEnabled,
         userId,
-        email: userEmail,
+        email: user.email,
       });
-    }
 
-    // If we don't have an email or it's not from a beta domain, log it (but only if we have some user data)
-    if (!isEnabled && (userId || userEmail)) {
-      console.log("[Flags] Beta mode denied:", {
-        userId,
-        email: userEmail,
-      });
+      return isEnabled;
+    } catch (error) {
+      console.error("[Flags] Error checking beta access:", error);
+      return false;
     }
-
-    return isEnabled;
   },
 });
 
@@ -137,37 +98,97 @@ export const experimentalUI = flag<boolean, ConvoEntities>({
   key: "experimental-ui",
   identify: identifyUser,
   async decide({ entities }) {
-    const userEmail = entities?.user?.email;
     const userId = entities?.user?.id;
 
-    // If we have a user ID, check via the API
-    if (userId) {
-      try {
-        const hasBetaAccess = await checkBetaAccessViaApi();
-
-        console.log("[Flags] Experimental UI via API:", {
-          isEnabled: hasBetaAccess,
-          userId,
-          email: userEmail,
-        });
-
-        return hasBetaAccess;
-      } catch (error) {
-        console.error(
-          "[Flags] Error checking beta access for experimental UI:",
-          error
-        );
-      }
+    if (!userId) {
+      console.log("[Flags] Experimental UI denied - no user ID found");
+      return false;
     }
 
-    // Fallback to simple email check if API fails or no user ID
-    const isEnabled = userEmail?.endsWith("@kernel.community") ?? false;
+    try {
+      // Get user from database
+      const user = await prisma.user.findUnique({
+        where: { id: userId },
+        select: { email: true, isBeta: true },
+      });
 
-    console.log("[Flags] Experimental UI fallback:", {
-      isEnabled,
-      email: userEmail,
-    });
+      if (!user?.email) {
+        console.log(
+          "[Flags] Experimental UI denied - no email found for user:",
+          userId
+        );
+        return false;
+      }
 
-    return isEnabled;
+      // Check database flag first
+      if (user.isBeta) {
+        console.log("[Flags] Experimental UI enabled via database flag:", {
+          userId,
+          email: user.email,
+        });
+        return true;
+      }
+
+      // Check email domains
+      const email = user.email.toLowerCase();
+      const isEnabled =
+        email.endsWith("@kernel.community") || email.endsWith("@convo.cafe");
+
+      console.log("[Flags] Experimental UI domain check:", {
+        isEnabled,
+        userId,
+        email: user.email,
+      });
+
+      return isEnabled;
+    } catch (error) {
+      console.error("[Flags] Error checking experimental UI access:", error);
+      return false;
+    }
+  },
+});
+
+// Fellow access flag - enables access to fellow-only features
+export const isFellow = flag<boolean, ConvoEntities>({
+  key: "is-fellow",
+  identify: identifyUser,
+  async decide({ entities }) {
+    const userId = entities?.user?.id;
+
+    if (!userId) {
+      console.log("[Flags] Fellow access denied - no user ID found");
+      return false;
+    }
+
+    try {
+      // Get the current community from subdomain
+      const community = await getCommunityFromSubdomain();
+
+      // Check if user has a profile with isCoreMember set to true in this community
+      const profile = await prisma.profile.findUnique({
+        where: {
+          userId_communityId: {
+            userId,
+            communityId: community.id,
+          },
+        },
+        select: { isCoreMember: true },
+      });
+
+      const isEnabled = profile?.isCoreMember || false;
+
+      console.log("[Flags] Fellow access check:", {
+        isEnabled,
+        userId,
+        communityId: community.id,
+        communityName: community.displayName,
+        isCoreMember: profile?.isCoreMember,
+      });
+
+      return isEnabled;
+    } catch (error) {
+      console.error("[Flags] Error checking fellow access:", error);
+      return false;
+    }
   },
 });

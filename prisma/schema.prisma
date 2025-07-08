@@ -113,6 +113,7 @@ model Profile {
   community          Community? @relation(fields: [communityId], references: [id])
   userId             String
   user               User       @relation(fields: [userId], references: [id])
+  isCoreMember      Boolean    @default(false) // true for "Fellows" or core contributors -- people who get access to 'nook'
 
   // profile data
   bio                String?

@@ -113,14 +113,7 @@ export default function RootLayout({
   // The client components will handle this through the context
   return (
     <html lang="en" suppressHydrationWarning>
-      <head>
-        <link
-          rel="manifest"
-          href="/manifest.json"
-          crossOrigin="use-credentials"
-        />
-        <meta name="theme-color" content="#F7F4F0" />
-        <link rel="apple-touch-icon" href="/images/logo.png" />
+      <body className={inter.className}>
         <script
           dangerouslySetInnerHTML={{
             __html: `
@@ -143,8 +136,6 @@ export default function RootLayout({
     `,
           }}
         />
-      </head>
-      <body className={inter.className}>
         <BetaModeWrapper>
           {(isBetaMode) => (
             <Providers isBetaMode={isBetaMode}>
