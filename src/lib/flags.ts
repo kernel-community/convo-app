@@ -175,7 +175,16 @@ export const isFellow = flag<boolean, ConvoEntities>({
         select: { isCoreMember: true },
       });
 
-      const isEnabled = profile?.isCoreMember || false;
+      // Get user email to check for @kernel.community domain
+      const user = await prisma.user.findUnique({
+        where: { id: userId },
+        select: { email: true },
+      });
+
+      const isCoreMember = profile?.isCoreMember || false;
+      const hasKernelEmail =
+        user?.email?.toLowerCase().endsWith("@kernel.community") || false;
+      const isEnabled = isCoreMember || hasKernelEmail;
 
       console.log("[Flags] Fellow access check:", {
         isEnabled,
@@ -183,6 +192,8 @@ export const isFellow = flag<boolean, ConvoEntities>({
         communityId: community.id,
         communityName: community.displayName,
         isCoreMember: profile?.isCoreMember,
+        hasKernelEmail,
+        email: user?.email,
       });
 
       return isEnabled;
