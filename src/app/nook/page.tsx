@@ -1,6 +1,7 @@
 import React from "react";
 import Main from "src/layouts/Main";
 import { isFellow } from "src/lib/flags";
+import { CreateResonance } from "src/components/nook/CreateResonance";
 
 export default async function NookPage() {
   const hasFellowAccess = await isFellow();
@@ -9,12 +10,32 @@ export default async function NookPage() {
 
   return (
     <Main>
-      <div className="flex h-full w-full items-center justify-center">
-        <div className="flex flex-col items-center justify-center space-y-4">
-          <p className="text-lg text-gray-600">This is a placeholder page</p>
-          <p className="text-sm text-green-600">
-            Fellow access granted {JSON.stringify(hasFellowAccess)}
-          </p>
+      <div className="min-h-screen px-4 py-8">
+        <div className="mx-auto max-w-4xl space-y-8">
+          <div className="flex flex-col items-start">
+            <h1 className="text-center font-brand text-3xl font-bold">Nook</h1>
+            <p className="font-primary text-sm text-green-600">
+              Fellow access granted
+            </p>
+          </div>
+
+          <div className="space-y-16">
+            <section className="flex min-h-[50vh] items-center justify-center">
+              <CreateResonance />
+            </section>
+
+            <section className="flex min-h-[50vh] items-center justify-center">
+              <div className="text-center text-muted-foreground">
+                <p>Component 2 will go here</p>
+              </div>
+            </section>
+
+            <section className="flex min-h-[50vh] items-center justify-center">
+              <div className="text-center text-muted-foreground">
+                <p>Component 3 will go here</p>
+              </div>
+            </section>
+          </div>
         </div>
       </div>
     </Main>

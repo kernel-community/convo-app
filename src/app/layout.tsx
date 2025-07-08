@@ -118,20 +118,26 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{
             __html: `
       (function() {
-        const storedData = localStorage.getItem('theme-storage');
-        let theme = 'light';
-        if (storedData) {
-          try {
-            const parsedData = JSON.parse(storedData);
-            if (parsedData.state && parsedData.state.theme) {
-              theme = parsedData.state.theme;
+        try {
+          const storedData = localStorage.getItem('theme-storage');
+          let theme = 'light';
+          if (storedData) {
+            try {
+              const parsedData = JSON.parse(storedData);
+              if (parsedData.state && parsedData.state.theme) {
+                theme = parsedData.state.theme;
+              }
+            } catch (error) {
+              console.error('Failed to parse theme-storage:', error);
             }
-          } catch (error) {
-            console.error('Failed to parse theme-storage:', error);
           }
+          document.documentElement.classList.add(theme);
+          document.documentElement.setAttribute('data-theme', theme);
+        } catch (error) {
+          // Fallback for environments without localStorage
+          document.documentElement.classList.add('light');
+          document.documentElement.setAttribute('data-theme', 'light');
         }
-        document.documentElement.classList.add(theme);
-        document.body.setAttribute('data-dynamic-theme', theme);
       })();
     `,
           }}
