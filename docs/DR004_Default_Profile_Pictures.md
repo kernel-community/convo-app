@@ -1,12 +1,6 @@
 # DR004: Default Profile Pictures (Deterministic Assignment)
 
-**Date**: 2024-09-10
-
-**Status**: Accepted
-
 **Context**: Users without custom profile pictures needed to be assigned default images in a consistent and visually distributed manner. Random assignment would result in different images on each page load, creating poor user experience.
-
-**Decision**: Use FNV-1a hash algorithm to deterministically assign default profile pictures based on user ID, ensuring consistent assignment while maintaining good distribution.
 
 **Consequences**:
 - Users see the same default image consistently across sessions

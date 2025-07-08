@@ -1,12 +1,5 @@
 # DR006: Community-Specific Profiles Testing Guide
-
-**Date**: 2024-11-28
-
-**Status**: Accepted
-
 **Context**: The implementation of community-specific profiles required a comprehensive testing strategy covering automated tests, manual testing procedures, and API validation to ensure the feature works correctly across different communities.
-
-**Decision**: Create a structured testing guide that covers automated testing scripts, manual testing procedures, and troubleshooting steps for community-specific profile functionality.
 
 **Consequences**:
 - Systematic approach to testing complex multi-tenant profile features

@@ -1,14 +1,8 @@
 # DR001: Email Queue System Deployment Guide
 
-**Date**: 2024-12-15
-
-**Status**: Accepted
-
 **Context**: The application requires a robust email queue system to handle high-volume email sending without hitting rate limits. Resend API has rate limiting constraints that needed to be addressed through a Redis-based queue system.
 
-**Decision**: Implement a Redis-based email queue system with deployment options for both local development and production on DigitalOcean droplets.
-
-**Consequences**: 
+**Consequences**:
 - Improved email delivery reliability through rate limiting
 - Better scalability for high-volume email operations
 - Additional infrastructure complexity requiring Redis management

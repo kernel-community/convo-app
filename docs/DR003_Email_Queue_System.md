@@ -1,12 +1,6 @@
 # DR003: Email Queue System with Rate Limiting
 
-**Date**: 2024-10-15
-
-**Status**: Accepted
-
 **Context**: The application was experiencing "Too many requests" errors when sending emails through Resend's API due to rate limiting constraints. The system needed a way to handle bulk email sending without hitting API limits.
-
-**Decision**: Implement a global in-memory email queue system to batch and rate-limit email sending operations.
 
 **Consequences**:
 - Eliminated rate limiting errors from Resend API

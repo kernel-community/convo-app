@@ -21,11 +21,8 @@ ADRs capture the context, decision, and consequences of significant architectura
 
 Each ADR should follow this general structure:
 1. **Title**: Clear, concise description of the decision
-2. **Date**: When the decision was made (YYYY-MM-DD format)
-3. **Status**: Proposed, Accepted, Rejected, Deprecated, or Superseded
-4. **Context**: Background information and problem being solved
-5. **Decision**: The chosen solution and reasoning
-6. **Consequences**: Expected outcomes, trade-offs, and implications
+2. **Context**: Background information and problem being solved
+3. **Consequences**: Expected outcomes, trade-offs, and implications
 
 ## Current Records
 
@@ -36,3 +33,4 @@ Each ADR should follow this general structure:
 - DR005: Client testing methodology
 - DR006: General testing guidelines
 - DR007: Clerk profile integration approach
+- DR008: Directory

@@ -1,12 +1,6 @@
 # DR007: Clerk Profile Integration
 
-**Date**: 2024-12-10
-
-**Status**: Accepted
-
 **Context**: Users needed a unified, polished interface to manage their community-specific profiles. The existing custom profile management UI required significant maintenance and lacked the polish of established authentication providers.
-
-**Decision**: Integrate custom community-specific profile fields into Clerk's user profile management system, providing users with a single, consistent interface for profile management while maintaining community-specific functionality.
 
 **Consequences**:
 - Improved user experience with professional, mobile-responsive UI

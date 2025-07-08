@@ -1,12 +1,6 @@
 # DR005: Client-Side Testing Guide for Community-Specific Profiles
 
-**Date**: 2024-12-01
-
-**Status**: Accepted
-
 **Context**: The community-specific profiles feature required comprehensive testing methodology to ensure proper functionality across different community subdomains and user scenarios.
-
-**Decision**: Establish a detailed client-side testing guide covering browser-based testing, API validation, and user experience scenarios for community-specific profile functionality.
 
 **Consequences**:
 - Comprehensive testing coverage for community profile features
