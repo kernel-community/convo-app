@@ -106,14 +106,17 @@ model Connections {
 }
 
 model Profile {
-  id                 String     @id @default(uuid())
-  createdAt          DateTime   @default(now())
-  updatedAt          DateTime   @updatedAt
-  communityId        String?
-  community          Community? @relation(fields: [communityId], references: [id])
-  userId             String
-  user               User       @relation(fields: [userId], references: [id])
-  isCoreMember      Boolean    @default(false) // true for "Fellows" or core contributors -- people who get access to 'nook'
+  id           String     @id @default(uuid())
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  communityId  String?
+  community    Community? @relation(fields: [communityId], references: [id])
+  userId       String
+  user         User       @relation(fields: [userId], references: [id])
+  isCoreMember Boolean    @default(false) // true for "Fellows" or core contributors -- people who get access to 'nook'
+
+  // nook
+  resonance Json[] // Array of resonance objects, each with text, weather, energy, and timestamp
 
   // profile data
   bio                String?
