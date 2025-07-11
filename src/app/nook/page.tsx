@@ -2,6 +2,8 @@ import React from "react";
 import Main from "src/layouts/Main";
 import { isFellow } from "src/lib/flags";
 import { CreateResonance } from "src/components/nook/CreateResonance";
+import { SimilarProfiles } from "src/components/nook/SimilarProfiles";
+import { CommunityProfiles } from "src/components/nook/CommunityProfiles";
 
 export default async function NookPage() {
   const hasFellowAccess = await isFellow();
@@ -24,16 +26,12 @@ export default async function NookPage() {
               <CreateResonance />
             </section>
 
-            <section className="flex min-h-[50vh] items-center justify-center">
-              <div className="text-center text-muted-foreground">
-                <p>Component 2 will go here</p>
-              </div>
+            <section className="w-full">
+              <SimilarProfiles />
             </section>
 
-            <section className="flex min-h-[50vh] items-center justify-center">
-              <div className="text-center text-muted-foreground">
-                <p>Component 3 will go here</p>
-              </div>
+            <section className="w-full">
+              <CommunityProfiles />
             </section>
           </div>
         </div>

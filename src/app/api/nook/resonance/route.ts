@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { prisma } from "src/utils/db";
 import { getCommunityFromSubdomain } from "src/utils/getCommunityFromSubdomain";
+import { ResonanceSimilarityService } from "src/lib/similarity/resonance-similarity-service";
 
 export async function POST(request: Request) {
   try {
@@ -73,6 +74,10 @@ export async function POST(request: Request) {
     }
 
     console.log("Resonance data stored successfully:", resonanceEntry);
+
+    // Invalidate similarity cache for this user since their resonance data changed
+    const similarityService = new ResonanceSimilarityService();
+    similarityService.invalidateUserCache(userId, community.id);
 
     return NextResponse.json({
       success: true,
