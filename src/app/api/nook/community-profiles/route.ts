@@ -83,6 +83,7 @@ export async function GET(request: Request) {
         socialHandle: profile.socialHandle,
         project: profile.project,
         projectDescription: profile.projectDescription,
+        image: profile.image, // Add Clerk profile image
         updatedAt: profile.updatedAt,
       };
     });

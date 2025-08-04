@@ -96,7 +96,7 @@ export const UserImage = forwardRef<
   if (!photo) {
     // Use default profile picture instead of emoji avatar
     const containerClass = cn(
-      "rounded-full border-2 border-white dark:border-gray-800",
+      "rounded-full border-2 border-white dark:border-gray-800 object-cover",
       sizeClasses[size].container,
       className
     );
@@ -111,7 +111,7 @@ export const UserImage = forwardRef<
   }
 
   const containerClass = cn(
-    "rounded-full border-2 border-white dark:border-gray-800",
+    "rounded-full border-2 border-white dark:border-gray-800 object-cover",
     sizeClasses[size].container,
     className
   );

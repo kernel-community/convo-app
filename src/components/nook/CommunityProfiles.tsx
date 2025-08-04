@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { motion } from "framer-motion";
+import { useSearchParams, useRouter } from "next/navigation";
 import {
   Search,
   Users,
@@ -12,12 +13,19 @@ import {
 import { cn } from "src/lib/utils";
 import { useDebounce } from "src/hooks/useDebounce";
 import { useInfiniteScroll } from "src/hooks/useInfiniteScroll";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { Card, CardContent, CardHeader } from "../ui/card";
 import { Input } from "../ui/input";
 import { Badge } from "../ui/badge";
 import { Skeleton } from "../ui/skeleton";
 import { Button } from "../ui/button";
 import { UserImage } from "../ui/default-user-image";
+import {
+  Credenza,
+  CredenzaContent,
+  CredenzaHeader,
+  CredenzaTitle,
+  CredenzaBody,
+} from "../ui/credenza";
 
 interface CommunityProfile {
   userId: string;
@@ -33,6 +41,7 @@ interface CommunityProfile {
   socialHandle?: string;
   project?: string;
   projectDescription?: string;
+  image?: string; // Clerk profile image URL
   updatedAt: string;
 }
 
@@ -61,9 +70,10 @@ export interface CommunityProfilesProps {
   className?: string;
 }
 
-const ProfileCard: React.FC<{ profile: CommunityProfile }> = ({ profile }) => {
-  const [showDetails, setShowDetails] = useState(false);
-
+const ProfileCard: React.FC<{
+  profile: CommunityProfile;
+  onProfileClick: (profile: CommunityProfile) => void;
+}> = ({ profile, onProfileClick }) => {
   const getActivityColor = (resonances: number) => {
     if (resonances >= 10) return "bg-emerald-500";
     if (resonances >= 5) return "bg-green-500";
@@ -94,144 +104,243 @@ const ProfileCard: React.FC<{ profile: CommunityProfile }> = ({ profile }) => {
       className="w-full"
     >
       <Card
-        className="h-full cursor-pointer transition-all hover:shadow-md"
-        onClick={() => setShowDetails(!showDetails)}
+        className="flex h-[280px] cursor-pointer flex-col p-4 transition-all hover:shadow-md"
+        onClick={() => onProfileClick(profile)}
       >
-        <CardHeader className="pb-3">
-          <div className="flex items-start space-x-3">
+        {/* Header with avatar and name */}
+        <div className="mb-4 flex items-start space-x-3">
+          <UserImage
+            userId={profile.userId}
+            photo={profile.image}
+            size="md"
+            className="h-12 w-12 flex-shrink-0"
+          />
+          <div className="min-w-0 flex-1">
+            <div className="mb-1 flex items-center gap-2">
+              <h3 className="truncate text-base font-medium">
+                {profile.nickname}
+              </h3>
+              {profile.isCoreMember && (
+                <Badge
+                  variant="secondary"
+                  className="flex-shrink-0 bg-purple-100 text-xs text-purple-800"
+                >
+                  Fellow
+                </Badge>
+              )}
+            </div>
+
+            {/* Activity info */}
+            <div className="mb-1 flex items-center space-x-2 text-sm text-muted-foreground">
+              <div className="flex items-center space-x-1">
+                <MessageCircle className="h-3 w-3" />
+                <span>{profile.totalResonances}</span>
+                <div
+                  className={cn(
+                    "h-2 w-2 rounded-full",
+                    getActivityColor(profile.totalResonances)
+                  )}
+                />
+              </div>
+            </div>
+
+            <p className="text-xs text-muted-foreground">
+              Active {formatLastActive(profile.updatedAt)}
+            </p>
+          </div>
+        </div>
+
+        {/* Content sections - vertically stacked, flex-1 to fill remaining space */}
+        <div className="flex-1 space-y-3 overflow-hidden">
+          {/* Bio */}
+          {profile.bio && (
+            <div>
+              <p className="line-clamp-2 text-sm leading-relaxed text-muted-foreground">
+                {profile.bio}
+              </p>
+            </div>
+          )}
+
+          {/* Location */}
+          {profile.city && (
+            <div className="flex items-center space-x-1 text-sm">
+              <MapPin className="h-3 w-3 flex-shrink-0 text-muted-foreground" />
+              <span className="truncate text-muted-foreground">
+                {profile.city}
+              </span>
+            </div>
+          )}
+
+          {/* Website */}
+          {profile.url && (
+            <div className="text-xs">
+              <a
+                href={profile.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center space-x-1 truncate text-blue-600 hover:text-blue-800"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <ExternalLink className="h-3 w-3 flex-shrink-0" />
+                <span>Website</span>
+              </a>
+            </div>
+          )}
+        </div>
+
+        {/* Click indicator - pushed to bottom */}
+        <div className="mt-auto border-t pt-3">
+          <p className="text-xs text-muted-foreground">Click to view details</p>
+        </div>
+      </Card>
+    </motion.div>
+  );
+};
+
+const ProfileModal: React.FC<{
+  profile: CommunityProfile | null;
+  isOpen: boolean;
+  onClose: () => void;
+}> = ({ profile, isOpen, onClose }) => {
+  if (!profile) return null;
+
+  const formatLastActive = (updatedAt: string) => {
+    const date = new Date(updatedAt);
+    const now = new Date();
+    const diffInDays = Math.floor(
+      (now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24)
+    );
+
+    if (diffInDays === 0) return "Today";
+    if (diffInDays === 1) return "Yesterday";
+    if (diffInDays < 7) return `${diffInDays} days ago`;
+    if (diffInDays < 30) return `${Math.floor(diffInDays / 7)} weeks ago`;
+    return `${Math.floor(diffInDays / 30)} months ago`;
+  };
+
+  return (
+    <Credenza open={isOpen} onOpenChange={onClose}>
+      <CredenzaContent className="max-h-[85vh] max-w-2xl">
+        <CredenzaHeader className="text-left">
+          <div className="flex items-start space-x-4">
             <UserImage
               userId={profile.userId}
-              size="md"
-              className="h-12 w-12 flex-shrink-0"
+              photo={profile.image}
+              size="lg"
+              className="h-16 w-16"
             />
-            <div className="min-w-0 flex-1">
-              <div className="mb-1 flex items-center space-x-2">
-                <CardTitle className="truncate text-base font-medium">
+            <div className="flex-1">
+              <div className="mb-2 flex items-center space-x-2">
+                <CredenzaTitle className="text-xl">
                   {profile.nickname}
-                </CardTitle>
+                </CredenzaTitle>
                 {profile.isCoreMember && (
                   <Badge
                     variant="secondary"
-                    className="bg-purple-100 text-xs text-purple-800"
+                    className="bg-purple-100 text-purple-800"
                   >
                     Fellow
                   </Badge>
                 )}
               </div>
-              <div className="flex items-center space-x-2 text-xs text-muted-foreground">
-                <div className="flex items-center space-x-1">
-                  <MessageCircle className="h-3 w-3" />
-                  <span>{profile.totalResonances} resonances</span>
-                  <div
-                    className={cn(
-                      "h-2 w-2 rounded-full",
-                      getActivityColor(profile.totalResonances)
-                    )}
-                  />
-                </div>
+              <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+                <MessageCircle className="h-4 w-4" />
+                <span>{profile.totalResonances} resonances</span>
                 <span>•</span>
                 <span>Active {formatLastActive(profile.updatedAt)}</span>
               </div>
             </div>
           </div>
-        </CardHeader>
+        </CredenzaHeader>
 
-        <CardContent className="space-y-3">
+        <CredenzaBody className="max-h-[60vh] space-y-6 overflow-y-auto">
           {/* Bio */}
           {profile.bio && (
-            <div className="text-sm text-muted-foreground">
-              <p
-                className={cn(
-                  "leading-relaxed",
-                  showDetails ? "" : "line-clamp-2"
-                )}
-              >
+            <div>
+              <h3 className="mb-2 font-medium">About</h3>
+              <p className="leading-relaxed text-muted-foreground">
                 {profile.bio}
               </p>
             </div>
           )}
 
           {/* Location and Affiliation */}
-          <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
-            {profile.city && (
-              <div className="flex items-center space-x-1">
-                <MapPin className="h-3 w-3" />
-                <span>{profile.city}</span>
+          {(profile.city || profile.currentAffiliation) && (
+            <div>
+              <h3 className="mb-2 font-medium">Location & Affiliation</h3>
+              <div className="space-y-2">
+                {profile.city && (
+                  <div className="flex items-center space-x-2">
+                    <MapPin className="h-4 w-4 text-muted-foreground" />
+                    <span>{profile.city}</span>
+                  </div>
+                )}
+                {profile.currentAffiliation && (
+                  <div className="flex items-center space-x-2">
+                    <Users className="h-4 w-4 text-muted-foreground" />
+                    <span>{profile.currentAffiliation}</span>
+                  </div>
+                )}
               </div>
-            )}
-            {profile.currentAffiliation && (
-              <div className="flex items-center space-x-1">
-                <Users className="h-3 w-3" />
-                <span className="truncate">{profile.currentAffiliation}</span>
-              </div>
-            )}
-          </div>
+            </div>
+          )}
 
           {/* Project */}
           {profile.project && (
-            <div className="text-xs">
-              <span className="font-medium text-muted-foreground">
-                Project:
-              </span>
-              <p className="mt-1 text-sm">{profile.project}</p>
-              {showDetails && profile.projectDescription && (
-                <p className="mt-1 leading-relaxed text-muted-foreground">
-                  {profile.projectDescription}
-                </p>
-              )}
+            <div>
+              <h3 className="mb-2 font-medium">Current Project</h3>
+              <div className="space-y-2">
+                <p className="font-medium">{profile.project}</p>
+                {profile.projectDescription && (
+                  <p className="leading-relaxed text-muted-foreground">
+                    {profile.projectDescription}
+                  </p>
+                )}
+              </div>
             </div>
           )}
 
           {/* Keywords */}
           {profile.keywords.length > 0 && (
-            <div className="flex flex-wrap gap-1">
-              {profile.keywords
-                .slice(0, showDetails ? profile.keywords.length : 3)
-                .map((keyword, index) => (
-                  <Badge key={index} variant="outline" className="text-xs">
+            <div>
+              <h3 className="mb-2 font-medium">Interests & Keywords</h3>
+              <div className="flex flex-wrap gap-2">
+                {profile.keywords.map((keyword, index) => (
+                  <Badge key={index} variant="outline">
                     {keyword}
                   </Badge>
                 ))}
-              {!showDetails && profile.keywords.length > 3 && (
-                <Badge
-                  variant="outline"
-                  className="text-xs text-muted-foreground"
-                >
-                  +{profile.keywords.length - 3} more
-                </Badge>
-              )}
+              </div>
             </div>
           )}
 
           {/* Links */}
           {(profile.url || profile.socialHandle) && (
-            <div className="flex items-center space-x-2 text-xs">
-              {profile.url && (
-                <a
-                  href={profile.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center space-x-1 text-blue-600 hover:text-blue-800"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <ExternalLink className="h-3 w-3" />
-                  <span>Website</span>
-                </a>
-              )}
-              {profile.socialHandle && (
-                <div className="flex items-center space-x-1 text-muted-foreground">
-                  <span>@{profile.socialHandle}</span>
-                </div>
-              )}
+            <div>
+              <h3 className="mb-2 font-medium">Links</h3>
+              <div className="space-y-2">
+                {profile.url && (
+                  <a
+                    href={profile.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center space-x-2 text-blue-600 hover:text-blue-800"
+                  >
+                    <ExternalLink className="h-4 w-4" />
+                    <span>Personal Website</span>
+                  </a>
+                )}
+                {profile.socialHandle && (
+                  <div className="flex items-center space-x-2 text-muted-foreground">
+                    <span>Social: @{profile.socialHandle}</span>
+                  </div>
+                )}
+              </div>
             </div>
           )}
-
-          <div className="border-t pt-2 text-center text-xs text-muted-foreground">
-            {showDetails ? "Click to collapse" : "Click to see more"}
-          </div>
-        </CardContent>
-      </Card>
-    </motion.div>
+        </CredenzaBody>
+      </CredenzaContent>
+    </Credenza>
   );
 };
 
@@ -265,6 +374,9 @@ const LoadingSkeleton: React.FC = () => (
 export const CommunityProfiles: React.FC<CommunityProfilesProps> = ({
   className,
 }) => {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
   const [searchTerm, setSearchTerm] = useState("");
   const [community, setCommunity] = useState<{
     id: string;
@@ -272,8 +384,14 @@ export const CommunityProfiles: React.FC<CommunityProfilesProps> = ({
   } | null>(null);
   const [totalCount, setTotalCount] = useState(0);
   const [initialLoading, setInitialLoading] = useState(true);
+  const [selectedProfile, setSelectedProfile] =
+    useState<CommunityProfile | null>(null);
 
   const debouncedSearchTerm = useDebounce(searchTerm, 300);
+
+  // Get profile ID from URL search params
+  const profileId = searchParams.get("profile");
+  const isModalOpen = !!profileId;
 
   const fetchProfiles = useCallback(
     async (page: number) => {
@@ -330,6 +448,28 @@ export const CommunityProfiles: React.FC<CommunityProfilesProps> = ({
   const displayedProfiles = useMemo(() => {
     return profiles as CommunityProfile[];
   }, [profiles]);
+
+  const handleProfileClick = (profile: CommunityProfile) => {
+    const params = new URLSearchParams(searchParams);
+    params.set("profile", profile.userId);
+    router.replace(`?${params.toString()}`, { scroll: false });
+  };
+
+  const handleModalClose = () => {
+    const params = new URLSearchParams(searchParams);
+    params.delete("profile");
+    router.replace(`?${params.toString()}`, { scroll: false });
+  };
+
+  // Effect to find and set selected profile based on URL param
+  useEffect(() => {
+    if (profileId && displayedProfiles.length > 0) {
+      const profile = displayedProfiles.find((p) => p.userId === profileId);
+      setSelectedProfile(profile || null);
+    } else {
+      setSelectedProfile(null);
+    }
+  }, [profileId, displayedProfiles]);
 
   if (error) {
     return (
@@ -398,7 +538,11 @@ export const CommunityProfiles: React.FC<CommunityProfilesProps> = ({
         <div className="space-y-6">
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
             {displayedProfiles.map((profile) => (
-              <ProfileCard key={profile.userId} profile={profile} />
+              <ProfileCard
+                key={profile.userId}
+                profile={profile}
+                onProfileClick={handleProfileClick}
+              />
             ))}
           </div>
 
@@ -425,6 +569,12 @@ export const CommunityProfiles: React.FC<CommunityProfilesProps> = ({
           )}
         </div>
       )}
+
+      <ProfileModal
+        profile={selectedProfile}
+        isOpen={isModalOpen}
+        onClose={handleModalClose}
+      />
     </div>
   );
 };

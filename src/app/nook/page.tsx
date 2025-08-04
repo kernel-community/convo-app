@@ -8,7 +8,28 @@ import { CommunityProfiles } from "src/components/nook/CommunityProfiles";
 export default async function NookPage() {
   const hasFellowAccess = await isFellow();
 
-  console.log("Fellow access status:", hasFellowAccess);
+  if (!hasFellowAccess) {
+    return (
+      <Main>
+        <div className="min-h-screen px-4 py-8">
+          <div className="mx-auto max-w-4xl">
+            <div className="flex min-h-[60vh] flex-col items-center justify-center space-y-6 text-center">
+              <h1 className="font-brand text-3xl font-bold">Nook</h1>
+              <div className="space-y-2">
+                <p className="text-lg text-muted-foreground">
+                  Access Restricted
+                </p>
+                <p className="max-w-md text-sm text-muted-foreground">
+                  The Nook is available to Fellows only. Please contact your
+                  community admin if you believe you should have access.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </Main>
+    );
+  }
 
   return (
     <Main>
